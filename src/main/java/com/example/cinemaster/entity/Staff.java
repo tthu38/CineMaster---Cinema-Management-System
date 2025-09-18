@@ -1,0 +1,5 @@
+package com.example.cinemaster.entity;
+
+public class Staff {
+    private String id;
+}
