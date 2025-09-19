@@ -3,12 +3,12 @@ package com.example.cinemaster.service;
 import com.example.cinemaster.dto.request.RegisterRequest;
 import com.example.cinemaster.entity.Account;
 import com.example.cinemaster.repository.AccountRepository;
-import com.example.cinemaster.util.PasswordEncoderUtil;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Random;
 
@@ -21,63 +21,67 @@ public class AccountService {
     @Autowired
     private EmailService emailService;
 
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    // đăng ký account mới
     public String register(RegisterRequest request) {
-        // check email đã tồn tại chưa
-        Optional<Account> existing = accountRepository.findByEmail(request.getEmail());
-        if (existing.isPresent()) {
-            return "Email đã được đăng ký!";
+        // kiểm tra email đã tồn tại
+        if (accountRepository.findByEmail(request.getEmail()).isPresent()) {
+            return "Email đã tồn tại!";
         }
+
+        // tạo account mới
+        Account account = new Account();
+        account.setEmail(request.getEmail());
+        account.setPassword(passwordEncoder.encode(request.getPassword())); // mã hoá password
+        account.setFullName(request.getFullName());
+        account.setPhoneNumber(request.getPhoneNumber());
+        account.setIsActive(false); // chưa kích hoạt
+        account.setCreateAt(java.time.LocalDate.now());
 
         // tạo mã xác thực
-        String verificationCode = generateVerificationCode();
+        String code = String.valueOf(100000 + new Random().nextInt(900000));
+        account.setVerificationCode(code);
+        account.setVerificationExpiry(LocalDateTime.now().plusMinutes(10));
 
-        // tạo account
-        Account acc = new Account();
-        acc.setEmail(request.getEmail());
-        acc.setPassword(PasswordEncoderUtil.encode(request.getPassword())); // mã hóa
-        acc.setFullName(request.getFullName());
-        acc.setPhoneNumber(request.getPhoneNumber());
-        acc.setAddress(request.getAddress());
-        acc.setCreateAt(LocalDate.now());
-        acc.setIsActive(false); // mặc định chưa active
-        acc.setVerificationCode(verificationCode);
-        acc.setVerificationExpiry(Instant.now().plusSeconds(600)); // 10 phút
+        accountRepository.save(account);
 
-        accountRepository.save(acc);
-
-        // gửi mail
+        // gửi email
         try {
-            emailService.sendVerificationEmail(request.getEmail(), verificationCode);
-        } catch (Exception e) {
-            return "Đăng ký thất bại: lỗi gửi email";
+            emailService.sendVerificationEmail(request.getEmail(), code);
+        } catch (MessagingException e) {
+            return "Đăng ký thành công nhưng gửi email thất bại: " + e.getMessage();
         }
 
-        return "Đăng ký thành công, vui lòng kiểm tra email để xác thực!";
+        return "Đăng ký thành công! Vui lòng kiểm tra email: " + request.getEmail();
     }
 
+    // verify account
     public String verifyAccount(String email, String code) {
-        Optional<Account> opt = accountRepository.findByEmail(email);
-        if (opt.isEmpty()) return "Không tìm thấy tài khoản";
+        Optional<Account> accountOpt = accountRepository.findByEmail(email);
+        if (accountOpt.isEmpty()) {
+            return "Email không tồn tại!";
+        }
 
-        Account acc = opt.get();
+        Account account = accountOpt.get();
+        if (Boolean.TRUE.equals(account.getIsActive())) {
+            return "Tài khoản đã được kích hoạt!";
+        }
 
-        if (acc.getVerificationCode() == null || !acc.getVerificationCode().equals(code)) {
+        if (!code.equals(account.getVerificationCode())) {
             return "Mã xác thực không đúng!";
         }
-        if (acc.getVerificationExpiry().isBefore(Instant.now())) {
+
+        if (account.getVerificationExpiry().isBefore(LocalDateTime.now())) {
             return "Mã xác thực đã hết hạn!";
         }
 
-        acc.setIsActive(true);
-        acc.setVerificationCode(null);
-        acc.setVerificationExpiry(null);
-        accountRepository.save(acc);
+        // cập nhật trạng thái
+        account.setIsActive(true);
+        account.setVerificationCode(null);
+        account.setVerificationExpiry(null);
+        accountRepository.save(account);
 
-        return "Xác thực thành công, bạn có thể đăng nhập!";
-    }
-
-    private String generateVerificationCode() {
-        int code = new Random().nextInt(999999);
-        return String.format("%06d", code); // 6 chữ số
+        return "Xác thực thành công! Tài khoản đã được kích hoạt.";
     }
 }
