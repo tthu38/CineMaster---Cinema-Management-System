@@ -12,9 +12,10 @@ import org.hibernate.annotations.Nationalized;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Entity(name = "Role")
-@Table(schema = "dbo")
+@Entity
+@Table(name = "Roles") // trùng với table trong SQL Server
 public class Role {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "RoleID", nullable = false)
@@ -22,7 +23,6 @@ public class Role {
 
     @Size(max = 20)
     @Nationalized
-    @Column(name = "RoleName", length = 20)
+    @Column(name = "RoleName", length = 20, nullable = false)
     String roleName;
-
 }

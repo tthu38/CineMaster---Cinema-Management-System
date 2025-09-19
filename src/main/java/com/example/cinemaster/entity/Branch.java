@@ -14,9 +14,10 @@ import java.time.LocalTime;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Entity(name = "Branch")
-@Table(schema = "dbo")
+@Entity
+@Table(name = "Branchs") // match table trong DB
 public class Branch {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "BranchID", nullable = false)
@@ -43,12 +44,11 @@ public class Branch {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ManagerID", referencedColumnName = "AccountID")
-    Account managerID;
+    Account manager;
 
     @Column(name = "OpenTime")
     LocalTime openTime;
 
     @Column(name = "CloseTime")
     LocalTime closeTime;
-
 }
