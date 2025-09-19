@@ -7,7 +7,7 @@ spring:
   datasource:
     url: jdbc:sqlserver://localhost:1433;databaseName=CineMaster;encrypt=false;trustServerCertificate=true
     username: sa
-    password: 123
+    password: 12345
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
 
   jpa:
@@ -17,3 +17,14 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.SQLServerDialect
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: nguyenthingochuyen11.1cbq@gmail.com
+    password: zxob assm mzka mmhc
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
