@@ -13,8 +13,8 @@ import org.hibernate.annotations.Nationalized;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Entity(name = "Auditorium")
-@Table(schema = "dbo")
+@Entity
+@Table(name = "Auditorium", schema = "dbo")
 public class Auditorium {
 
     @Id
@@ -23,8 +23,8 @@ public class Auditorium {
     Integer auditoriumID;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "BranchID")
-    Branch branchID;
+    @JoinColumn(name = "BranchID", referencedColumnName = "BranchID")
+    Branch branch;
 
     @Size(max = 100)
     @Nationalized
@@ -39,5 +39,4 @@ public class Auditorium {
     @Nationalized
     @Column(name = "Type", nullable = false, length = 20)
     String type;
-
 }

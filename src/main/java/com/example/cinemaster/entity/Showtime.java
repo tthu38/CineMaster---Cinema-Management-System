@@ -1,14 +1,13 @@
 package com.example.cinemaster.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Builder
 @AllArgsConstructor
@@ -26,21 +25,24 @@ public class Showtime {
     Integer showtimeID;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PeriodID", referencedColumnName = "PeriodID")
+    ScreeningPeriod period;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AuditoriumID", referencedColumnName = "AuditoriumID")
-    Auditorium auditoriumID;
+    Auditorium auditorium;
 
     @Column(name = "StartTime")
-    Instant startTime;
+    LocalDateTime startTime;
 
     @Column(name = "EndTime")
-    Instant endTime;
+    LocalDateTime endTime;
 
     @Size(max = 50)
     @Nationalized
-    @Column(name = "\"Language\"", length = 50)
+    @Column(name = "Languages", length = 50)
     String language;
 
     @Column(name = "Price", precision = 10, scale = 2)
     BigDecimal price;
-
 }

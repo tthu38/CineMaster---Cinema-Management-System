@@ -50,7 +50,7 @@ public class News {
     Instant publishDate;
 
     @ColumnDefault("0")
-    @Column(name = "Views")
+    @Column(name = "NewsViews")
     Integer views;
 
     @ManyToOne(fetch = FetchType.LAZY)

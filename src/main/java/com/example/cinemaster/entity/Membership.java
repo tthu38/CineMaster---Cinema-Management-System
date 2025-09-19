@@ -1,7 +1,6 @@
 package com.example.cinemaster.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -15,8 +14,8 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Entity(name = "Membership")
-@Table(schema = "dbo")
+@Entity
+@Table(name = "Membership", schema = "dbo")
 public class Membership {
 
     @Id
@@ -26,11 +25,11 @@ public class Membership {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AccountID", referencedColumnName = "AccountID")
-    Account accountID;
+    Account account;
 
     @Size(max = 20)
     @Nationalized
-    @Column(name = "\"Level\"", length = 20)
+    @Column(name = "MembershipLevel", length = 20)
     String level;
 
     @Column(name = "Points")
@@ -41,5 +40,4 @@ public class Membership {
 
     @Column(name = "ExpiryDate")
     LocalDate expiryDate;
-
 }

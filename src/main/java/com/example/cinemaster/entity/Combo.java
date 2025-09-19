@@ -17,27 +17,28 @@ import java.math.BigDecimal;
 @Entity(name = "Combo")
 @Table(schema = "dbo")
 public class Combo {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ComboID", nullable = false)
     Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "BranchID")
+    @JoinColumn(name = "BranchID", referencedColumnName = "BranchID")
     Branch branchID;
 
     @Size(max = 100)
     @Nationalized
-    @Column(name = "Name", length = 100)
-    String name;
+    @Column(name = "NameCombo", length = 100)
+    String nameCombo;
 
     @Column(name = "Price", precision = 10, scale = 2)
     BigDecimal price;
 
     @Nationalized
     @Lob
-    @Column(name = "Description")
-    String description;
+    @Column(name = "DescriptionCombo")
+    String descriptionCombo;
 
     @Nationalized
     @Lob
@@ -49,7 +50,6 @@ public class Combo {
 
     @Size(max = 255)
     @Nationalized
-    @Column(name = "ImageURL")
+    @Column(name = "ImageURL", length = 255)
     String imageURL;
-
 }

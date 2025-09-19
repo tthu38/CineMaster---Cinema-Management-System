@@ -15,6 +15,7 @@ import java.time.LocalDate;
 @Entity(name = "ScreeningPeriod")
 @Table(schema = "dbo")
 public class ScreeningPeriod {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PeriodID", nullable = false)
@@ -22,16 +23,15 @@ public class ScreeningPeriod {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MovieID", referencedColumnName = "MovieID")
-    Movie movieID;
+    Movie movie;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "BranchID")
-    Branch branchID;
+    @JoinColumn(name = "BranchID", referencedColumnName = "BranchID")
+    Branch branch;
 
     @Column(name = "StartDate")
     LocalDate startDate;
 
     @Column(name = "EndDate")
     LocalDate endDate;
-
 }

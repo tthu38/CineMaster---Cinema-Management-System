@@ -15,8 +15,8 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Entity(name = "Movie")
-@Table(schema = "dbo")
+@Entity
+@Table(name = "Movie") // match đúng tên table
 public class Movie {
 
     @Id
@@ -53,12 +53,12 @@ public class Movie {
     @NotNull
     @Nationalized
     @Lob
-    @Column(name = "\"Cast\"", nullable = false)
+    @Column(name = "Casts", nullable = false)
     String cast;
 
     @Size(max = 100)
     @Nationalized
-    @Column(name = "\"Language\"", length = 100)
+    @Column(name = "Languages", length = 100)
     String language;
 
     @Size(max = 20)
@@ -69,7 +69,7 @@ public class Movie {
 
     @Nationalized
     @Lob
-    @Column(name = "Description")
+    @Column(name = "Descriptions")
     String description;
 
     @Size(max = 255)
@@ -94,5 +94,4 @@ public class Movie {
     @Nationalized
     @Column(name = "Status", nullable = false, length = 20)
     String status;
-
 }
