@@ -1,9 +1,10 @@
-package com.example.cinemaster.entity;
+
+        package com.example.cinemaster.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
+        import jakarta.validation.constraints.Size;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
+        import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.Nationalized;
 
 import java.time.LocalDate;
