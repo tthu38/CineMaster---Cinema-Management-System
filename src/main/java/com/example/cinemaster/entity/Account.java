@@ -16,9 +16,10 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Entity(name = "Account")
-@Table(schema = "dbo")
+@Entity
+@Table(name = "Accounts")
 public class Account {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "AccountID", nullable = false)
@@ -46,8 +47,8 @@ public class Account {
     @Column(name = "isActive")
     Boolean isActive;
 
-    @Column(name = "CreateAt")
-    LocalDate createAt;
+    @Column(name = "CreatedAt") // match chính xác DB
+    LocalDate createdAt;
 
     @Size(max = 255)
     @Nationalized
@@ -61,11 +62,11 @@ public class Account {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "RoleID")
-    Role roleID;
+    Role role;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "BranchID")
-    Branch branchID;
+    Branch branch;
 
     @Column(name = "LoyaltyPoints")
     Integer loyaltyPoints;
@@ -75,6 +76,4 @@ public class Account {
 
     @Column(name = "VerificationExpiry")
     private LocalDateTime verificationExpiry;
-
-
 }
