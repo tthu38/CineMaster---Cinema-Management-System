@@ -3,38 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <title>Đăng ký</title>
-    <link rel="stylesheet" href="../style/user.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #000000, #0f2027, #1c1c1c);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 40px 0;
+            color: #eee;
+        }
+        .container {
+            background: #121212;
+            width: 400px;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+        }
+        h2 {
+            text-align: center;
+            color: #b71c1c;
+            margin-bottom: 20px;
+        }
+        form {
+            margin-bottom: 25px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin: 8px 0 5px;
+            color: #bbb;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            background: #1c1c1c;
+            color: #eee;
+            margin-bottom: 15px;
+            transition: border-color 0.3s;
+        }
+        input:focus {
+            border-color: #b71c1c;
+            outline: none;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: #b71c1c;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #8b1212;
+        }
+        #result {
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
+<div class="container">
 
-<!-- Form đăng ký hiển thị đầu tiên -->
-<h2>Hãy đăng ký tài khoản</h2>
-<form id="registerForm">
-    <label>Email:</label>
-    <input type="email" id="regEmail" required><br>
-    <label>Mật khẩu: </label>
-    <input type="password" id="regPassword" required><br>
-    <label>Họ tên: </label>
-    <input type="text" id="regFullName" required><br>
-    <label>Số điện thoại: </label>
-    <input type="text" id="regPhoneNumber" required><br>
-    <button type="submit">Đăng ký</button>
-</form>
+    <!-- Form đăng ký -->
+    <h2>Hãy đăng ký tài khoản</h2>
+    <form id="registerForm">
+        <label>Email:</label>
+        <input type="email" id="regEmail" required>
+        <label>Mật khẩu:</label>
+        <input type="password" id="regPassword" required>
+        <label>Họ tên:</label>
+        <input type="text" id="regFullName" required>
+        <label>Số điện thoại:</label>
+        <input type="text" id="regPhoneNumber" required>
+        <button type="submit">Đăng ký</button>
+    </form>
 
-<!-- Form xác thực hiển thị sau -->
-<h2>Xác thực email</h2>
-<form id="verifyForm">
-    <label>Email: </label>
-    <input type="email" id="verEmail" readonly><br>
-    <label>Mã xác thực: </label>
-    <input type="text" id="verCode" required><br>
-    <button type="submit">Xác thực</button>
-</form>
+    <!-- Form xác thực -->
+    <h2>Xác thực email</h2>
+    <form id="verifyForm">
+        <label>Email:</label>
+        <input type="email" id="verEmail" readonly>
+        <label>Mã xác thực:</label>
+        <input type="text" id="verCode" required>
+        <button type="submit">Xác thực</button>
+    </form>
 
-<!-- Khối hiển thị kết quả để ở cuối -->
-<div id="result"></div>
+    <div id="result"></div>
+</div>
 
-<!-- Script để cuối cùng -->
 <script>
     const API_BASE = "http://localhost:8081/demo/api/auth";
 
@@ -54,9 +123,11 @@
             });
             const text = await response.text();
             document.getElementById("result").innerText = text;
+            document.getElementById("result").style.color = "#4caf50"; // xanh khi OK
             document.getElementById("verEmail").value = data.email;
         } catch (err) {
             document.getElementById("result").innerText = "Lỗi: " + err.message;
+            document.getElementById("result").style.color = "#e53935"; // đỏ khi lỗi
         }
     }
 
@@ -68,8 +139,10 @@
             const response = await fetch(`${API_BASE}/verify?email=${encodeURIComponent(email)}&code=${code}`);
             const text = await response.text();
             document.getElementById("result").innerText = text;
+            document.getElementById("result").style.color = "#29b6f6"; // xanh dương khi verify
         } catch (err) {
             document.getElementById("result").innerText = "Lỗi: " + err.message;
+            document.getElementById("result").style.color = "#e53935";
         }
     }
 
