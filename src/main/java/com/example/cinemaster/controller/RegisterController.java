@@ -12,12 +12,13 @@ public class RegisterController {
     @Autowired
     private RegisterService accountService;
 
-    @PostMapping()
+    @PostMapping
     public String register(@RequestBody RegisterRequest request) {
         return accountService.register(request);
     }
 
-    @GetMapping()
+    // Đổi GET từ path trống sang /verify
+    @GetMapping("/verify")
     public String verify(@RequestParam String email, @RequestParam String code) {
         return accountService.verifyAccount(email, code);
     }
