@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8081
   servlet:
     context-path: /demo
 
@@ -7,7 +7,7 @@ spring:
   datasource:
     url: jdbc:sqlserver://localhost:1433;databaseName=CineMaster;encrypt=false;trustServerCertificate=true
     username: sa
-    password: 12345
+    password: 123
     driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
 
   jpa:
@@ -20,8 +20,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: nguyenthingochuyen11.1cbq@gmail.com
-    password: zxob assm mzka mmhc
+    username: ohtthu0308@gmail.com
+    password: yzjs kemz vofr quzp
     properties:
       mail:
         smtp:

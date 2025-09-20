@@ -17,9 +17,10 @@ public class RegisterController {
         return accountService.register(request);
     }
 
-    // Đổi GET từ path trống sang /verify
     @GetMapping("/verify")
     public String verify(@RequestParam String email, @RequestParam String code) {
         return accountService.verifyAccount(email, code);
     }
 }
+
+
