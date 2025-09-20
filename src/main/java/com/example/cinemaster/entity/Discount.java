@@ -1,7 +1,6 @@
 package com.example.cinemaster.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -27,13 +26,13 @@ public class Discount {
 
     @Size(max = 50)
     @Nationalized
-    @Column(name = "Code", length = 50)
+    @Column(name = "Code", length = 50, unique = true)
     String code;
 
     @Nationalized
     @Lob
-    @Column(name = "Description")
-    String description;
+    @Column(name = "DiscountDescription")
+    String discountDescription;
 
     @Column(name = "PercentOff", precision = 5, scale = 2)
     BigDecimal percentOff;
@@ -55,7 +54,6 @@ public class Discount {
 
     @Size(max = 20)
     @Nationalized
-    @Column(name = "Status", length = 20)
-    String status;
-
+    @Column(name = "DiscountStatus", length = 20)
+    String discountStatus;
 }

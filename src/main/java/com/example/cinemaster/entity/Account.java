@@ -57,7 +57,7 @@ public class Account {
 
     @Size(max = 256)
     @Nationalized
-    @Column(name = "Address", length = 256)
+    @Column(name = "AccountAddress", length = 256)
     String address;
 
     @ManyToOne(fetch = FetchType.LAZY)

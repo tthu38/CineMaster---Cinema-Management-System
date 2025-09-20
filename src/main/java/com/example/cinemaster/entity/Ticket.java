@@ -1,14 +1,13 @@
 package com.example.cinemaster.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Builder
 @AllArgsConstructor
@@ -16,9 +15,10 @@ import java.time.Instant;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Entity(name = "Ticket")
-@Table(schema = "dbo")
+@Entity
+@Table(name = "Ticket", schema = "dbo")
 public class Ticket {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "TicketID", nullable = false)
@@ -26,30 +26,33 @@ public class Ticket {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AccountID", referencedColumnName = "AccountID")
-    Account accountID;
+    Account account;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ShowtimeID", referencedColumnName = "ShowtimeID")
-    Showtime showtimeID;
+    Showtime showtime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SeatID", referencedColumnName = "SeatID")
-    Seat seatID;
+    Seat seat;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ComboID", referencedColumnName = "ComboID")
+    Combo combo;
 
     @Column(name = "TotalPrice", precision = 10, scale = 2)
     BigDecimal totalPrice;
 
     @Column(name = "BookingTime")
-    Instant bookingTime;
+    LocalDateTime bookingTime;
 
     @Size(max = 20)
     @Nationalized
-    @Column(name = "Status", length = 20)
-    String status;
+    @Column(name = "TicketStatus", length = 20)
+    String ticketStatus;
 
     @Size(max = 20)
     @Nationalized
     @Column(name = "PaymentMethod", length = 20)
     String paymentMethod;
-
 }

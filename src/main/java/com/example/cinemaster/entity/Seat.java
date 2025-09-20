@@ -1,7 +1,6 @@
 package com.example.cinemaster.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -22,9 +21,15 @@ public class Seat {
     @Column(name = "SeatID", nullable = false)
     Integer seatID;
 
+    // Quan hệ với Auditorium
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AuditoriumID", referencedColumnName = "AuditoriumID")
-    Auditorium auditoriumID;
+    Auditorium auditorium;
+
+    // Quan hệ với SeatType
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "TypeID", referencedColumnName = "TypeID")
+    SeatType seatType;
 
     @Size(max = 10)
     @Nationalized
@@ -33,8 +38,8 @@ public class Seat {
 
     @Size(max = 10)
     @Nationalized
-    @Column(name = "Row", length = 10)
-    String row;
+    @Column(name = "SeatRow", length = 10)
+    String seatRow;
 
     @Column(name = "ColumnNumber")
     Integer columnNumber;
@@ -43,5 +48,4 @@ public class Seat {
     @Nationalized
     @Column(name = "Status", length = 20)
     String status;
-
 }
