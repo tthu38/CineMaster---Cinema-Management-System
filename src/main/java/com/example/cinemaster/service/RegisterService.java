@@ -29,7 +29,7 @@ public class RegisterService {
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-
+    // đăng ký account mới
     public String register(RegisterRequest request) {
         // kiểm tra email đã tồn tại
         if (accountRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -42,7 +42,7 @@ public class RegisterService {
             return "Không tìm thấy Role Customer trong hệ thống!";
         }
 
-
+        // tạo account mới
         Account account = new Account();
         account.setEmail(request.getEmail());
         account.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -70,7 +70,7 @@ public class RegisterService {
         return "Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.";
     }
 
-
+    // verify account
     public String verifyAccount(String email, String code) {
         Optional<Account> accountOpt = accountRepository.findByEmail(email);
         if (accountOpt.isEmpty()) {
@@ -94,7 +94,6 @@ public class RegisterService {
         // cập nhật trạng thái
         account.setIsActive(true);
         account.setVerificationCode(null);
-        account.setVerificationExpiry(null);
         accountRepository.save(account);
 
         return "Xác thực thành công! Tài khoản đã được kích hoạt.";

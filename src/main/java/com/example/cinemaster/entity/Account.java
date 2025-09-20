@@ -60,6 +60,7 @@ public class Account {
     @Column(name = "AccountAddress", length = 256)
     String address;
 
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "RoleID")
     Role role;
