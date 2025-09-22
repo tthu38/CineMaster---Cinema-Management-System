@@ -2,152 +2,267 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Đăng ký</title>
+    <title>Đăng ký tài khoản</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Chakra+Petch:wght@400;600&display=swap');
+
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #000000, #0f2027, #1c1c1c);
+            font-family: 'Chakra Petch', sans-serif;
+            background: linear-gradient(45deg, #0a0a23, #1a2a44, #2c5364, #e53935);
+            background-size: 400% 400%;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
+            align-items: center;
+            height: 100vh;
             margin: 0;
-            padding: 40px 0;
-            color: #eee;
+            padding: 0;
+            color: #e0e0e0;
+            overflow: hidden;
+            position: relative;
+            animation: gradientFlow 10s ease infinite;
         }
-        .container {
-            background: #121212;
+
+        @keyframes gradientFlow {
+            0% { background-position: 0% 0%; }
+            50% { background-position: 100% 100%; }
+            100% { background-position: 0% 0%; }
+        }
+
+        .register-container {
+            background: rgba(10, 10, 35, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 0 40px rgba(41, 182, 246, 0.6), 0 0 60px rgba(231, 76, 60, 0.5);
             width: 400px;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+            border: 2px solid rgba(41, 182, 246, 0.9);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
+
         h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: #e53935;
+            font-size: 2.8em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: 0 0 30px rgba(231, 76, 60, 0.9), 0 0 60px rgba(231, 76, 60, 0.7);
+            margin-bottom: 40px;
+            margin-top: 0;
             text-align: center;
-            color: #b71c1c;
-            margin-bottom: 20px;
+            animation: neonPulse 2s ease-in-out infinite;
         }
-        form {
-            margin-bottom: 25px;
+
+        @keyframes neonPulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
         }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
         label {
             display: block;
+            margin-bottom: 6px;
+            font-family: 'Chakra Petch', sans-serif;
             font-weight: 600;
-            margin: 8px 0 5px;
-            color: #bbb;
+            font-size: 0.9em;
+            color: #b0bec5;
+            letter-spacing: 1.5px;
+            transition: all 0.3s ease;
         }
+
         input {
             width: 100%;
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #333;
-            background: #1c1c1c;
-            color: #eee;
-            margin-bottom: 15px;
-            transition: border-color 0.3s;
+            padding: 12px 15px;
+            border-radius: 25px;
+            border: 2px solid rgba(41, 182, 246, 0.9);
+            background: rgba(15, 15, 40, 0.9);
+            color: #e0e0e0;
+            font-family: 'Chakra Petch', sans-serif;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(41, 182, 246, 0.5);
+            box-sizing: border-box;
         }
+
         input:focus {
-            border-color: #b71c1c;
+            border-color: #e53935;
+            box-shadow: 0 0 25px rgba(231, 76, 60, 0.9);
             outline: none;
         }
+
         button {
             width: 100%;
             padding: 12px;
             border: none;
-            border-radius: 8px;
-            background: #b71c1c;
-            color: #fff;
-            font-size: 16px;
-            font-weight: bold;
+            border-radius: 25px;
+            background: linear-gradient(90deg, #e53935, #b71c1c);
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2em;
+            font-weight: 700;
             cursor: pointer;
-            transition: 0.3s;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 0 30px rgba(231, 76, 60, 0.8);
+            margin-top: 25px;
         }
+
         button:hover {
-            background: #8b1212;
+            background: linear-gradient(90deg, #b71c1c, #8b1212);
+            transform: scale(1.05);
+            box-shadow: 0 0 40px rgba(231, 76, 60, 1);
         }
-        #result {
-            text-align: center;
-            padding: 12px;
-            border-radius: 8px;
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .result {
             margin-top: 15px;
-            font-weight: bold;
+            text-align: center;
+            font-family: 'Chakra Petch', sans-serif;
+            font-weight: 600;
+            font-size: 0.9em;
+            color: #e0e0e0;
+            background: rgba(15, 15, 40, 0.9);
+            box-shadow: 0 0 20px rgba(41, 182, 246, 0.6);
+            border-radius: 10px;
+            padding: 10px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .password-rules {
+            font-size: 14px;
+            margin-top: 8px;
+        }
+
+        .rule {
+            margin: 3px 0;
+        }
+
+        .valid {
+            color: #4caf50;
+        }
+
+        .invalid {
+            color: #e53935;
         }
     </style>
 </head>
 <body>
-<div class="container">
-
-    <!-- Form đăng ký -->
-    <h2>Hãy đăng ký tài khoản</h2>
+<div class="register-container">
+    <h2>CinemaPulse</h2>
     <form id="registerForm">
-        <label>Email:</label>
-        <input type="email" id="regEmail" required>
-        <label>Mật khẩu:</label>
-        <input type="password" id="regPassword" required>
-        <label>Họ tên:</label>
-        <input type="text" id="regFullName" required>
-        <label>Số điện thoại:</label>
-        <input type="text" id="regPhoneNumber" required>
+        <div class="form-group">
+            <label for="fullName">Họ tên</label>
+            <input type="text" id="fullName" name="fullName" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email (@gmail.com)</label>
+            <input type="email" id="email" name="email" required pattern=".+@gmail\.com">
+        </div>
+        <div class="form-group">
+            <label for="phoneNumber">Số điện thoại</label>
+            <input type="text" id="phoneNumber" name="phoneNumber" required pattern="0[0-9]{9}">
+        </div>
+        <div class="form-group">
+            <label for="password">Mật khẩu</label>
+            <input type="password" id="password" name="password" required>
+            <div class="password-rules">
+                <div id="rule-length" class="rule invalid">❌ Ít nhất 8 ký tự</div>
+                <div id="rule-uppercase" class="rule invalid">❌ Bắt đầu bằng chữ in hoa</div>
+                <div id="rule-number" class="rule invalid">❌ Có ít nhất 1 số</div>
+                <div id="rule-special" class="rule invalid">❌ Có ít nhất 1 ký tự đặc biệt</div>
+            </div>
+        </div>
         <button type="submit">Đăng ký</button>
     </form>
-
-    <!-- Form xác thực -->
-    <h2>Xác thực email</h2>
-    <form id="verifyForm">
-        <label>Email:</label>
-        <input type="email" id="verEmail" readonly>
-        <label>Mã xác thực:</label>
-        <input type="text" id="verCode" required>
-        <button type="submit">Xác thực</button>
-    </form>
-
-    <div id="result"></div>
+    <div class="result" id="result"></div>
 </div>
 
 <script>
-    const API_BASE = "http://localhost:8081/demo/api/auth";
+    const API_BASE = "http://localhost:8081/demo/api/auth/register";
 
-    async function handleRegister(e) {
+    const passwordInput = document.getElementById("password");
+
+    passwordInput.addEventListener("input", () => {
+        const value = passwordInput.value;
+
+        // Kiểm tra độ dài
+        toggleRule("rule-length", value.length >= 8);
+
+        // Kiểm tra chữ cái đầu in hoa
+        toggleRule("rule-uppercase", /^[A-Z]/.test(value));
+
+        // Kiểm tra có số
+        toggleRule("rule-number", /\d/.test(value));
+
+        // Kiểm tra ký tự đặc biệt
+        toggleRule("rule-special", /[^A-Za-z0-9]/.test(value));
+    });
+
+    function toggleRule(id, isValid) {
+        const el = document.getElementById(id);
+        if (isValid) {
+            el.classList.remove("invalid");
+            el.classList.add("valid");
+            el.innerText = "✅ " + el.innerText.replace("❌ ", "").replace("✅ ", "");
+        } else {
+            el.classList.remove("valid");
+            el.classList.add("invalid");
+            el.innerText = "❌ " + el.innerText.replace("❌ ", "").replace("✅ ", "");
+        }
+    }
+
+    document.getElementById("registerForm").addEventListener("submit", async (e) => {
         e.preventDefault();
+
         const data = {
-            email: document.getElementById("regEmail").value,
-            password: document.getElementById("regPassword").value,
-            fullName: document.getElementById("regFullName").value,
-            phoneNumber: document.getElementById("regPhoneNumber").value
+            fullName: document.getElementById("fullName").value,
+            email: document.getElementById("email").value,
+            phoneNumber: document.getElementById("phoneNumber").value,
+            password: document.getElementById("password").value
         };
+
         try {
             const response = await fetch(API_BASE, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify(data)
             });
-            const text = await response.text();
-            document.getElementById("result").innerText = text;
-            document.getElementById("result").style.color = "#4caf50"; // xanh khi OK
-            document.getElementById("verEmail").value = data.email;
-        } catch (err) {
-            document.getElementById("result").innerText = "Lỗi: " + err.message;
-            document.getElementById("result").style.color = "#e53935"; // đỏ khi lỗi
-        }
-    }
 
-    async function handleVerify(e) {
-        e.preventDefault();
-        const email = document.getElementById("verEmail").value;
-        const code = document.getElementById("verCode").value;
-        try {
-            const response = await fetch(`${API_BASE}/verify?email=${encodeURIComponent(email)}&code=${code}`);
             const text = await response.text();
-            document.getElementById("result").innerText = text;
-            document.getElementById("result").style.color = "#29b6f6"; // xanh dương khi verify
-        } catch (err) {
-            document.getElementById("result").innerText = "Lỗi: " + err.message;
+            const resultDiv = document.getElementById("result");
+
+            if (response.ok) {
+                resultDiv.innerText = text;
+                resultDiv.style.color = "#4caf50";
+                setTimeout(() => {
+                    window.location.href = `verify.html?email=${encodeURIComponent(data.email)}`;
+                }, 1000);
+            } else {
+                resultDiv.innerText = text;
+                resultDiv.style.color = "#e53935";
+            }
+        } catch (error) {
+            document.getElementById("result").innerText = "Có lỗi xảy ra, vui lòng thử lại!";
             document.getElementById("result").style.color = "#e53935";
         }
-    }
-
-    document.getElementById("registerForm").addEventListener("submit", handleRegister);
-    document.getElementById("verifyForm").addEventListener("submit", handleVerify);
+    });
 </script>
 </body>
 </html>

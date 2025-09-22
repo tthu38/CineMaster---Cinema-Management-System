@@ -25,6 +25,7 @@ public class WebConfig {
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         // Cho phép gửi header tùy chỉnh (JWT, Content-Type, Authorization, …)
                         .allowedHeaders("*")
+
                         // Không bật cookie/session trong giai đoạn dev
                         .allowCredentials(false);
             }
