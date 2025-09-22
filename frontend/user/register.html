@@ -36,11 +36,9 @@
             box-shadow: 0 0 40px rgba(41, 182, 246, 0.6), 0 0 60px rgba(231, 76, 60, 0.5);
             width: 400px;
             border: 2px solid rgba(41, 182, 246, 0.9);
-            position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
         }
 
         h2 {
@@ -52,7 +50,6 @@
             letter-spacing: 4px;
             text-shadow: 0 0 30px rgba(231, 76, 60, 0.9), 0 0 60px rgba(231, 76, 60, 0.7);
             margin-bottom: 40px;
-            margin-top: 0;
             text-align: center;
             animation: neonPulse 2s ease-in-out infinite;
         }
@@ -70,12 +67,9 @@
         label {
             display: block;
             margin-bottom: 6px;
-            font-family: 'Chakra Petch', sans-serif;
             font-weight: 600;
             font-size: 0.9em;
             color: #b0bec5;
-            letter-spacing: 1.5px;
-            transition: all 0.3s ease;
         }
 
         input {
@@ -85,17 +79,14 @@
             border: 2px solid rgba(41, 182, 246, 0.9);
             background: rgba(15, 15, 40, 0.9);
             color: #e0e0e0;
-            font-family: 'Chakra Petch', sans-serif;
             font-size: 1em;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 20px rgba(41, 182, 246, 0.5);
             box-sizing: border-box;
         }
 
         input:focus {
             border-color: #e53935;
-            box-shadow: 0 0 25px rgba(231, 76, 60, 0.9);
             outline: none;
+            box-shadow: 0 0 25px rgba(231, 76, 60, 0.9);
         }
 
         button {
@@ -109,11 +100,8 @@
             font-size: 1.2em;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            box-shadow: 0 0 30px rgba(231, 76, 60, 0.8);
             margin-top: 25px;
+            box-shadow: 0 0 30px rgba(231, 76, 60, 0.8);
         }
 
         button:hover {
@@ -122,45 +110,19 @@
             box-shadow: 0 0 40px rgba(231, 76, 60, 1);
         }
 
-        button:active {
-            transform: scale(0.95);
-        }
-
         .result {
             margin-top: 15px;
             text-align: center;
-            font-family: 'Chakra Petch', sans-serif;
             font-weight: 600;
             font-size: 0.9em;
             color: #e0e0e0;
             background: rgba(15, 15, 40, 0.9);
-            box-shadow: 0 0 20px rgba(41, 182, 246, 0.6);
             border-radius: 10px;
             padding: 10px;
-            animation: fadeIn 0.5s ease-in;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .password-rules {
-            font-size: 14px;
-            margin-top: 8px;
-        }
-
-        .rule {
-            margin: 3px 0;
-        }
-
-        .valid {
-            color: #4caf50;
-        }
-
-        .invalid {
-            color: #e53935;
-        }
+        .valid { color: #4caf50; }
+        .invalid { color: #e53935; }
     </style>
 </head>
 <body>
@@ -198,20 +160,11 @@
     const API_BASE = "http://localhost:8081/demo/api/auth/register";
 
     const passwordInput = document.getElementById("password");
-
     passwordInput.addEventListener("input", () => {
         const value = passwordInput.value;
-
-        // Kiểm tra độ dài
         toggleRule("rule-length", value.length >= 8);
-
-        // Kiểm tra chữ cái đầu in hoa
         toggleRule("rule-uppercase", /^[A-Z]/.test(value));
-
-        // Kiểm tra có số
         toggleRule("rule-number", /\d/.test(value));
-
-        // Kiểm tra ký tự đặc biệt
         toggleRule("rule-special", /[^A-Za-z0-9]/.test(value));
     });
 
@@ -248,7 +201,8 @@
             const text = await response.text();
             const resultDiv = document.getElementById("result");
 
-            if (response.ok) {
+// Chỉ redirect khi backend báo "thành công"
+            if (text.toLowerCase().includes("thành công")) {
                 resultDiv.innerText = text;
                 resultDiv.style.color = "#4caf50";
                 setTimeout(() => {
@@ -258,6 +212,7 @@
                 resultDiv.innerText = text;
                 resultDiv.style.color = "#e53935";
             }
+
         } catch (error) {
             document.getElementById("result").innerText = "Có lỗi xảy ra, vui lòng thử lại!";
             document.getElementById("result").style.color = "#e53935";

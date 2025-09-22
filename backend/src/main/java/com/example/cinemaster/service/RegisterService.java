@@ -31,9 +31,9 @@ public class RegisterService {
 
     // đăng ký account mới
     public String register(RegisterRequest request) {
-        // kiểm tra email đã tồn tại
-        if (accountRepository.findByEmail(request.getEmail()).isPresent()) {
-            return "Email đã tồn tại!";
+        // chỉ check số điện thoại trùng
+        if (accountRepository.findByPhoneNumber(request.getPhoneNumber()).isPresent()) {
+            return "Số điện thoại đã tồn tại!";
         }
 
         // lấy role mặc định Customer
@@ -48,7 +48,7 @@ public class RegisterService {
         account.setPassword(passwordEncoder.encode(request.getPassword()));
         account.setFullName(request.getFullName());
         account.setPhoneNumber(request.getPhoneNumber());
-        account.setIsActive(false); // chưa kích hoạt
+        account.setIsActive(false);
         account.setCreatedAt(LocalDate.now());
         account.setRole(roleOpt.get());
 
@@ -72,16 +72,13 @@ public class RegisterService {
 
     // verify account
     public String verifyAccount(String email, String code) {
-        Optional<Account> accountOpt = accountRepository.findByEmail(email);
+        // lấy account mới nhất theo email và chưa kích hoạt
+        Optional<Account> accountOpt = accountRepository.findLatestByEmail(email);
         if (accountOpt.isEmpty()) {
-            return "Email không tồn tại!";
+            return "Email không tồn tại hoặc tài khoản đã được kích hoạt!";
         }
 
         Account account = accountOpt.get();
-
-        if (Boolean.TRUE.equals(account.getIsActive())) {
-            return "Tài khoản đã được kích hoạt!";
-        }
 
         if (!code.equals(account.getVerificationCode())) {
             return "Mã xác thực không đúng!";
@@ -91,7 +88,6 @@ public class RegisterService {
             return "Mã xác thực đã hết hạn!";
         }
 
-        // cập nhật trạng thái
         account.setIsActive(true);
         account.setVerificationCode(null);
         accountRepository.save(account);
