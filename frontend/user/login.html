@@ -1,44 +1,26 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <title>Đăng nhập</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-
     <style>
-        .input-group-text {
-            background-color: #e9ecef;
-        }
-        .social-login .btn {
-            border: 1px solid #dee2e6;
-            transition: all 0.2s ease-in-out;
-        }
-        .social-login .btn:hover {
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .card {
-            border-radius: 1rem;
-        }
+        .input-group-text { background-color: #e9ecef; }
+        .social-login .btn { border: 1px solid #dee2e6; transition: all 0.2s; }
+        .social-login .btn:hover { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .card { border-radius: 1rem; }
     </style>
 </head>
 <body class="bg-light d-flex align-items-center justify-content-center" style="height: 100vh;">
+
 <div class="card p-5 shadow-lg" style="width: 28rem;">
     <h1 class="card-title text-center mb-4 text-primary fw-bold">🔐 Đăng nhập</h1>
 
+    <!-- Thông báo lỗi -->
+    <div id="error-message" class="alert alert-danger text-center d-none"></div>
 
-    <div th:if="${param.error}" class="alert alert-danger text-center">
-        Tên đăng nhập hoặc mật khẩu không đúng.
-    </div>
-
-
-    <div th:if="${param.logout}" class="alert alert-success text-center">
-        Bạn đã đăng xuất thành công.
-    </div>
-
-
-    <form th:action="@{/demo/login}" method="post">
+    <form id="loginForm">
         <div class="mb-3 input-group">
             <span class="input-group-text"><i class="fas fa-user"></i></span>
             <input type="text" class="form-control" id="username" name="username" placeholder="Tên đăng nhập" required>
@@ -48,36 +30,79 @@
             <input type="password" class="form-control" id="password" name="password" placeholder="Mật khẩu" required>
         </div>
 
-
-        <div class="mb-4 form-check d-flex justify-content-between align-items-center">
-            <div>
-                <input type="checkbox" class="form-check-input" id="remember-me" name="remember-me">
-                <label class="form-check-label" for="remember-me">Ghi nhớ đăng nhập</label>
-            </div>
-            <a href="#" class="text-decoration-none">Quên mật khẩu?</a>
-        </div>
-
-
-        <button type="submit" class="btn btn-primary w-100 mb-3 fw-bold">Đăng nhập</button>
+        <button id="loginBtn" type="submit" class="btn btn-primary w-100 mb-3 fw-bold">
+            Đăng nhập
+        </button>
     </form>
 
-
     <div class="text-center my-3 text-muted">Hoặc</div>
-
-
     <div class="d-grid social-login">
-        <a href="/demo/oauth2/authorization/google" class="btn btn-light d-flex align-items-center justify-content-center py-2">
-            <img src="https://www.google.com/favicon.ico" alt="Google icon" style="width: 20px; margin-right: 10px;"> Đăng nhập với Google
+        <!-- ✅ đổi lại URL Google login để nó redirect về profile.html sau khi login -->
+        <a href="http://localhost:8081/demo/oauth2/authorization/google"
+           class="btn btn-light d-flex align-items-center justify-content-center py-2">
+            <img src="https://www.google.com/favicon.ico" alt="Google" style="width:20px;margin-right:10px;">
+            Đăng nhập với Google
         </a>
-    </div>
 
-
-    <div class="mt-4 text-center">
-        Bạn chưa có tài khoản? <a href="#" class="text-decoration-none fw-bold">Đăng ký ngay</a>
     </div>
 </div>
 
+<script>
+    const loginForm = document.getElementById("loginForm");
+    const loginBtn = document.getElementById("loginBtn");
+    const errorMsg = document.getElementById("error-message");
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    loginForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value.trim();
+
+        // Reset thông báo lỗi
+        errorMsg.classList.add("d-none");
+        errorMsg.innerText = "";
+
+        // Loading state
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Đang đăng nhập...`;
+
+        try {
+            const response = await fetch("http://localhost:8081/demo/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams({ username, password }),
+                credentials: "include"
+            });
+
+            let data = {};
+            try {
+                data = await response.json();
+            } catch {
+                data = {};
+            }
+
+            if (response.ok && data.status === "success") {
+                // ✅ Lưu username để hiển thị trong profile
+                localStorage.setItem("username", data.username);
+
+                // ✅ FE tự redirect sang profile.html trong dự án frontend của bạn
+                window.location.href = "http://localhost:63342/CineMaster/frontend/user/profile.html";
+            } else {
+                // Hiển thị lỗi từ backend
+                errorMsg.classList.remove("d-none");
+                errorMsg.innerText = data.message || data.error || "Sai tài khoản hoặc mật khẩu!";
+            }
+        } catch (err) {
+            errorMsg.classList.remove("d-none");
+            errorMsg.innerText = "Lỗi kết nối đến server!";
+            console.error(err);
+        } finally {
+            // Reset nút
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = "Đăng nhập";
+        }
+    });
+</script>
+
 </body>
 </html>

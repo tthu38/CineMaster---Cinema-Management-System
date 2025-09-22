@@ -13,7 +13,6 @@ public class WebConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        // Cho phép gọi từ các frontend (Live Server, React, Angular, IntelliJ)
                         .allowedOrigins(
                                 "http://127.0.0.1:5500",
                                 "http://localhost:5500",
@@ -21,14 +20,12 @@ public class WebConfig {
                                 "http://localhost:3000",
                                 "http://localhost:4200"
                         )
-                        // Các method HTTP được phép
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        // Cho phép gửi header tùy chỉnh (JWT, Content-Type, Authorization, …)
                         .allowedHeaders("*")
-
-                        // Không bật cookie/session trong giai đoạn dev
-                        .allowCredentials(false);
+                        .allowCredentials(true); // ✅ cho phép gửi cookie/session
             }
         };
     }
 }
+
+

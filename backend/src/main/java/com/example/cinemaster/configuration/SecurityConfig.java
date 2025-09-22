@@ -1,7 +1,7 @@
-
 package com.example.cinemaster.configuration;
 
 import com.example.cinemaster.service.CustomUserDetailsService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -19,7 +19,6 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService customUserDetailsService;
 
-    // Constructor Injection
     public SecurityConfig(CustomUserDetailsService customUserDetailsService) {
         this.customUserDetailsService = customUserDetailsService;
     }
@@ -29,7 +28,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // Sử dụng interface AuthenticationProvider thay vì class cụ thể
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -42,6 +40,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> {})
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
@@ -49,31 +48,46 @@ public class SecurityConfig {
                                 "/demo/register",
                                 "/demo/verify",
                                 "/demo/oauth2/**",
+                                "/demo/login/oauth2/**", // ✅ thêm cái này
                                 "/demo/static/**",
-                                "/api/auth/**"
+                                "/demo/public/**"
                         ).permitAll()
+                        .requestMatchers("/demo/profile").authenticated()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/demo/login")
-                        .loginProcessingUrl("/demo/login") // Đây là URL xử lý form đăng nhập
-                        .defaultSuccessUrl("/demo/profile")
+                        .loginProcessingUrl("/demo/login")
+                        .successHandler((request, response, authentication) -> {
+                            String username = authentication.getName();
+                            request.getSession().setAttribute("username", username);
+                            response.sendRedirect("http://localhost:63342/CineMaster/frontend/user/profile.html");
+                        })
+                        .failureHandler((request, response, exception) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write("{\"status\":\"error\", \"message\":\"Sai tài khoản hoặc mật khẩu\"}");
+                        })
                         .permitAll()
                 )
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/demo/login")
-                        .defaultSuccessUrl("/demo/profile", true)
-                )
-                .rememberMe(rememberMe -> rememberMe
-                        .key("uniqueAndSecret")
-                        .tokenValiditySeconds(86400)
+                        .loginPage("/demo/login") // ✅ dùng login.html của bạn
+                        .successHandler((request, response, authentication) -> {
+                            String username = authentication.getName();
+                            request.getSession().setAttribute("username", username);
+                            response.sendRedirect("http://localhost:63342/CineMaster/frontend/user/profile.html");
+                        })
                 )
                 .logout(logout -> logout
-                        .logoutUrl("/demo/logout") // Cách mới để xác định đường dẫn logout
-                        .logoutSuccessUrl("/demo/login")
+                        .logoutUrl("/demo/logout")
+                        .logoutSuccessHandler((request, response, authentication) -> {
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write("{\"status\":\"logged_out\"}");
+                        })
                         .invalidateHttpSession(true)
                         .deleteCookies("JSESSIONID", "remember-me")
                 );
+
         return http.build();
     }
+
 }
