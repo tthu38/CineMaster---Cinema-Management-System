@@ -45,8 +45,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/demo/login",
-                                "/demo/register",
-                                "/demo/verify",
+                                "/api/auth/register",
+                                "/api/auth/verify",
                                 "/demo/oauth2/**",
                                 "/demo/login/oauth2/**", // ✅ thêm cái này
                                 "/demo/static/**",
