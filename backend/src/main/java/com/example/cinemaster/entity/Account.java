@@ -77,4 +77,9 @@ public class Account {
 
     @Column(name = "VerificationExpiry")
     private LocalDateTime verificationExpiry;
+
+    @Size(max = 255)
+    @Nationalized
+    @Column(name = "AvatarUrl")
+    private String avatarUrl;
 }

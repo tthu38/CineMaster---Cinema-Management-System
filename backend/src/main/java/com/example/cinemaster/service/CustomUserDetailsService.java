@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -22,20 +21,28 @@ public class CustomUserDetailsService implements UserDetailsService {
     private AccountRepository accountRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // username ở đây sẽ là số điện thoại người dùng nhập
-        Optional<Account> accountOpt = accountRepository.findByPhoneNumberWithRole(username);
+    public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
+        // Tìm bằng email
+        Optional<Account> accountOpt = accountRepository.findByEmail(usernameOrEmail);
+
+        // Nếu không tìm thấy, thử tìm bằng số điện thoại
+        if (accountOpt.isEmpty()) {
+            accountOpt = accountRepository.findByPhoneNumberWithRole(usernameOrEmail);
+        }
 
         if (accountOpt.isEmpty()) {
-            throw new UsernameNotFoundException("Không tìm thấy tài khoản với số điện thoại: " + username);
+            throw new UsernameNotFoundException(
+                    "Không tìm thấy tài khoản với email hoặc số điện thoại: " + usernameOrEmail);
         }
 
         Account account = accountOpt.get();
 
-        Set<GrantedAuthority> authorities = Collections.singleton(
-                new SimpleGrantedAuthority("ROLE_" + account.getRole().getRoleName().toUpperCase())
+        GrantedAuthority authority = new SimpleGrantedAuthority(
+                "ROLE_" + account.getRole().getRoleName().toUpperCase()
         );
 
-        return new User(account.getPhoneNumber(), account.getPassword(), authorities);
+        return new User(account.getEmail() != null ? account.getEmail() : account.getPhoneNumber(),
+                account.getPassword(),
+                Collections.singleton(authority));
     }
 }

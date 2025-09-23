@@ -18,5 +18,6 @@ public interface AccountRepository extends JpaRepository<Account, Integer> {
 
     @Query("SELECT a FROM Account a JOIN FETCH a.role WHERE a.phoneNumber = :phone")
     Optional<Account> findByPhoneNumberWithRole(@Param("phone") String phone);
-
+    Optional<Account> findByEmail(String email);
+    boolean existsByEmail(String email);
 }

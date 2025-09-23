@@ -1,31 +1,244 @@
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<!DOCTYPE html>
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trang cá nhân</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-</style>
+    <style>
+        body { background-color: #f8f9fa; }
+        .profile-card {
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            margin-top: 30px;
+            background-color: #fff;
+            padding: 20px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .profile-header {
+            background-color: #0d6efd;
+            color: white;
+            padding: 20px;
+            border-radius: 15px 15px 0 0;
+            text-align: center;
+        }
+        .avatar-wrapper {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin: -75px auto 20px auto;
+            border: 5px solid white;
+            background-color: #f8f9fa;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        .avatar-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+        .nav-pills .nav-link { border-radius: 0; margin-bottom: 2px; cursor: pointer; }
+        .nav-pills .nav-link.active { background-color: #0d6efd; color: white; }
+        .tab-content { padding: 20px; border: 1px solid #dee2e6; border-top: none; border-radius: 0 0 15px 15px; }
+        .form-group label { font-weight: bold; }
+    </style>
 </head>
-<body class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+<body>
 
-<div class="card shadow-lg profile-card">
-    <div class="profile-header text-center">
-        <h2 class="mb-0">Chào mừng bạn!</h2>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">CineMaster</a>
+    <div class="ms-auto">
+        <button id="logoutBtn" class="btn btn-outline-light">Logout</button>
     </div>
-    <div class="card-body p-4 text-center">
-        <p class="lead">Bạn đã đăng nhập thành công.</p>
+</nav>
 
-        <h4 class="text-primary mb-4" sec:authentication="name"></h4>
+<div class="profile-card">
+    <div class="profile-header">
+        <h3 id="fullNameDisplay">Welcome, User!</h3>
+    </div>
+    <div class="avatar-wrapper">
+        <img id="avatarImg" src="/image/avata.png" alt="Avatar">
+    </div>
 
-        <form th:action="@{/demo/logout}" method="post" class="mt-4">
-            <button type="submit" class="btn btn-danger btn-lg w-100">
-                <i class="fas fa-sign-out-alt me-2"></i> Đăng xuất
-            </button>
-        </form>
+    <div class="row">
+        <div class="col-md-3">
+            <ul class="nav nav-pills flex-column" id="profileTabs">
+                <li class="nav-item">
+                    <a class="nav-link active" data-tab="info">Personal Information</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-tab="edit">Edit Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-tab="password">Change Password</a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-9">
+            <div class="tab-content">
+                <!-- Info Tab -->
+                <div id="info" class="tab-pane active">
+                    <ul class="list-group">
+                        <li class="list-group-item"><strong>Full Name:</strong> <span id="infoFullName"></span></li>
+                        <li class="list-group-item"><strong>Email:</strong> <span id="infoEmail"></span></li>
+                        <li class="list-group-item"><strong>Phone Number:</strong> <span id="infoPhone"></span></li>
+                        <li class="list-group-item"><strong>Address:</strong> <span id="infoAddress"></span></li>
+                        <li class="list-group-item"><strong>Role:</strong> <span id="infoRole"></span></li>
+                        <li class="list-group-item"><strong>Created At:</strong> <span id="infoCreatedAt"></span></li>
+                        <li class="list-group-item"><strong>Loyalty Points:</strong> <span id="infoPoints"></span></li>
+                    </ul>
+                </div>
+
+                <!-- Edit Profile Tab -->
+                <div id="edit" class="tab-pane" style="display:none;">
+                    <form id="editForm" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="fullNameInput">Full Name</label>
+                            <input type="text" id="fullNameInput" name="fullName" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="emailInput">Email</label>
+                            <input type="email" id="emailInput" name="email" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phoneInput">Phone Number</label>
+                            <input type="text" id="phoneInput" name="phoneNumber" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="addressInput">Address</label>
+                            <input type="text" id="addressInput" name="address" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="avatarFile">Change Avatar</label>
+                            <input type="file" id="avatarFile" name="avatarFile" class="form-control" accept="image/*">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </form>
+                </div>
+
+                <!-- Change Password Tab -->
+                <div id="password" class="tab-pane" style="display:none;">
+                    <form id="passwordForm">
+                        <div class="mb-3">
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" id="currentPassword" name="currentPassword" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" name="newPassword" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword">Confirm New Password</label>
+                            <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-warning">Change Password</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Tab navigation
+    const tabs = document.querySelectorAll("#profileTabs .nav-link");
+    const panes = document.querySelectorAll(".tab-pane");
+
+    tabs.forEach(tab => {
+        tab.addEventListener("click", () => {
+            tabs.forEach(t => t.classList.remove("active"));
+            tab.classList.add("active");
+            const target = tab.dataset.tab;
+            panes.forEach(p => p.style.display = p.id === target ? "block" : "none");
+        });
+    });
+
+    // Load profile
+    async function loadProfile() {
+        try {
+            const res = await fetch("http://localhost:8081/api/auth/me", { credentials: "include" });
+            if (!res.ok) throw new Error("Chưa đăng nhập");
+            const data = await res.json();
+            document.getElementById("fullNameDisplay").textContent = `Welcome, ${data.fullName}!`;
+            document.getElementById("avatarImg").src = data.avatarUrl || "/image/avata.png";
+            document.getElementById("infoFullName").textContent = data.fullName;
+            document.getElementById("infoEmail").textContent = data.email;
+            document.getElementById("infoPhone").textContent = data.phoneNumber;
+            document.getElementById("infoAddress").textContent = data.address;
+            document.getElementById("infoRole").textContent = data.roleName;
+            document.getElementById("infoCreatedAt").textContent = data.createdAt;
+            document.getElementById("infoPoints").textContent = data.loyaltyPoints;
+
+            // Pre-fill edit form
+            document.getElementById("fullNameInput").value = data.fullName;
+            document.getElementById("emailInput").value = data.email;
+            document.getElementById("phoneInput").value = data.phoneNumber;
+            document.getElementById("addressInput").value = data.address;
+
+        } catch (err) {
+            console.error(err);
+            window.location.href = "login.html";
+        }
+    }
+
+    loadProfile();
+
+    // Submit edit profile
+    document.getElementById("editForm").addEventListener("submit", async e => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        try {
+            const res = await fetch("http://localhost:8081/api/user/profile/update", {
+                method: "POST",
+                body: formData,
+                credentials: "include"
+            });
+            if (!res.ok) {
+                const data = await res.json();
+                alert(data.message || "Cập nhật thất bại");
+                return;
+            }
+            alert("Cập nhật thành công!");
+            loadProfile();
+        } catch (err) {
+            console.error(err);
+            alert("Lỗi server!");
+        }
+    });
+
+    // Submit change password
+    document.getElementById("passwordForm").addEventListener("submit", async e => {
+        e.preventDefault();
+        const payload = {
+            currentPassword: document.getElementById("currentPassword").value,
+            newPassword: document.getElementById("newPassword").value,
+            confirmNewPassword: document.getElementById("confirmPassword").value
+        };
+        try {
+            const res = await fetch("http://localhost:8081/api/user/profile/change-password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+                credentials: "include"
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                alert(data.message || "Đổi mật khẩu thất bại");
+                return;
+            }
+            alert("Đổi mật khẩu thành công!");
+            document.getElementById("passwordForm").reset();
+        } catch (err) {
+            console.error(err);
+            alert("Lỗi server!");
+        }
+    });
+
+
+</script>
+<form th:action="@{/demo/logout}" method="post" class="mt-4">
+    <button type="submit" class="btn btn-danger btn-lg w-100">
+        <i class="fas fa-sign-out-alt me-2"></i> Logout
+    </button>
+</form>
 </body>
 </html>
