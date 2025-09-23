@@ -63,15 +63,9 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginProcessingUrl("/demo/login")
                         .successHandler((request, response, authentication) -> {
-                            response.setContentType("application/json;charset=UTF-8");
                             String username = authentication.getName();
-                            String json = """
-                                {
-                                  "status": "success",
-                                  "username": "%s"
-                                }
-                                """.formatted(username);
-                            response.getWriter().write(json);
+//                            response.sendRedirect("http://localhost:63342/CineMaster/frontend/user/profile.html?username=" + username);
+                            response.sendRedirect("http://localhost:63342/CineMaster/frontend/user/profile.html");
                         })
                         .failureHandler((request, response, exception) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -80,6 +74,7 @@ public class SecurityConfig {
                         })
                         .permitAll()
                 )
+
                 // ✅ Google OAuth2 cũng trả JSON
                 .oauth2Login(oauth2 -> oauth2
                                 .loginPage("/demo/login")

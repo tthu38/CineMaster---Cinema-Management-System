@@ -30,6 +30,12 @@
             <input type="password" class="form-control" id="password" name="password" placeholder="Mật khẩu" required>
         </div>
 
+        <!-- Remember Me -->
+        <div class="mb-3 form-check">
+            <input type="checkbox" class="form-check-input" id="rememberMe">
+            <label class="form-check-label" for="rememberMe">Ghi nhớ đăng nhập</label>
+        </div>
+
         <button id="loginBtn" type="submit" class="btn btn-primary w-100 mb-3 fw-bold">
             Đăng nhập
         </button>
@@ -37,36 +43,72 @@
 
     <div class="text-center my-3 text-muted">Hoặc</div>
     <div class="d-grid social-login">
-        <!-- ✅ đổi lại URL Google login để nó redirect về profile.html sau khi login -->
         <a href="http://localhost:8081/demo/oauth2/authorization/google"
            class="btn btn-light d-flex align-items-center justify-content-center py-2">
             <img src="https://www.google.com/favicon.ico" alt="Google" style="width:20px;margin-right:10px;">
             Đăng nhập với Google
         </a>
-
     </div>
 </div>
 
 <script>
+    // Khi load trang, tự điền username nếu đã lưu
+    window.addEventListener("DOMContentLoaded", () => {
+        const rememberedUsername = localStorage.getItem("rememberedUsername");
+        if (rememberedUsername) {
+            document.getElementById("username").value = rememberedUsername;
+            document.getElementById("rememberMe").checked = true;
+        }
+    });
+
+    // Xử lý form đăng nhập
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        const rememberMe = document.getElementById("rememberMe").checked;
+
+        try {
+            const res = await fetch("http://localhost:8081/demo/login", { // sửa URL
+                method: "POST",
+                body: new URLSearchParams({ // gửi form data
+                    username: username,
+                    password: password
+                }),
+                credentials: "include"
+            });
+
+            if (res.ok) {
+                if (rememberMe) {
+                    localStorage.setItem("rememberedUsername", username);
+                } else {
+                    localStorage.removeItem("rememberedUsername");
+                }
+                window.location.href = "profile.html";
+            } else {
+                const data = await res.json();
+                const errorDiv = document.getElementById("error-message");
+                errorDiv.textContent = data.message || "Sai số điện thoại hoặc mật khẩu";
+                errorDiv.classList.remove("d-none");
+            }
+        } catch (err) {
+            console.error("Lỗi khi login:", err);
+            const errorDiv = document.getElementById("error-message");
+            errorDiv.textContent = "Lỗi kết nối tới server!";
+            errorDiv.classList.remove("d-none");
+        }
+    });
+
+
+    // Load profile khi đã login
     async function loadProfile() {
         try {
             const res = await fetch("http://localhost:8081/api/auth/me", {
-                credentials: "include" // gửi cookie session tới backend
+                credentials: "include"
             });
             const data = await res.json();
-
-            const userInfoDiv = document.getElementById("user-info");
-
-            if (data.status === "authenticated") {
-                // Lưu username vào localStorage (phòng khi muốn dùng sau)
-                localStorage.setItem("username", data.username);
-
-                userInfoDiv.innerHTML = `
-                    <p><strong>Trạng thái:</strong> ${data.status}</p>
-                    <p><strong>Tài khoản:</strong> ${data.username}</p>
-                `;
-            } else {
-                // Nếu chưa login → quay lại trang đăng nhập
+            if (data.status !== "authenticated") {
                 window.location.href = "login.html";
             }
         } catch (err) {
@@ -75,18 +117,18 @@
         }
     }
 
-    // Gọi API logout
-    document.getElementById("logoutBtn").addEventListener("click", async () => {
-        await fetch("http://localhost:8081/api/auth/logout", {
-            method: "POST",
-            credentials: "include"
+    // Logout nếu có nút logout
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", async () => {
+            await fetch("http://localhost:8081/api/auth/logout", {
+                method: "POST",
+                credentials: "include"
+            });
+            localStorage.removeItem("username");
+            window.location.href = "login.html";
         });
-        localStorage.removeItem("username");
-        window.location.href = "login.html";
-    });
-
-    // Load thông tin khi mở trang
-    loadProfile();
+    }
 </script>
 
 </body>
