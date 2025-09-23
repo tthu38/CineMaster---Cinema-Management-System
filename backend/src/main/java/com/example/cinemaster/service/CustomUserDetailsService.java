@@ -22,12 +22,12 @@ public class CustomUserDetailsService implements UserDetailsService {
     private AccountRepository accountRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        // Sử dụng phương thức findByEmailWithRole để tránh lỗi LazyInitializationException
-        Optional<Account> accountOpt = accountRepository.findByEmailWithRole(email);
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // username ở đây sẽ là số điện thoại người dùng nhập
+        Optional<Account> accountOpt = accountRepository.findByPhoneNumberWithRole(username);
 
         if (accountOpt.isEmpty()) {
-            throw new UsernameNotFoundException("Không tìm thấy tài khoản với email: " + email);
+            throw new UsernameNotFoundException("Không tìm thấy tài khoản với số điện thoại: " + username);
         }
 
         Account account = accountOpt.get();
@@ -36,6 +36,6 @@ public class CustomUserDetailsService implements UserDetailsService {
                 new SimpleGrantedAuthority("ROLE_" + account.getRole().getRoleName().toUpperCase())
         );
 
-        return new User(account.getEmail(), account.getPassword(), authorities);
+        return new User(account.getPhoneNumber(), account.getPassword(), authorities);
     }
 }
