@@ -12,33 +12,49 @@ import java.util.Date;
 
 @Service
 public class JwtService {
-    private final Key key;
-    private final long accessMinutes;
 
-    public JwtService(
-            @Value("${app.jwt.secret}") String secret,
-            @Value("${app.jwt.access-minutes:60}") long accessMinutes
-    ) {
-        this.key = Keys.hmacShaKeyFor(secret.getBytes());
-        this.accessMinutes = accessMinutes;
+    @Value("${app.jwt.secret}")
+    private String jwtSecret;
+
+    @Value("${app.jwt.access-minutes}")
+    private long accessMinutes;
+
+    private Key getSigningKey() {
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
-    public String generateAccessToken(String subject, String role) {
+    public String generateAccessToken(Integer accountId, String phone, String role) {
         Instant now = Instant.now();
+        Instant expiry = now.plusSeconds(accessMinutes * 60);
+
         return Jwts.builder()
-                .subject(subject)
+                .setSubject(phone)
+                .claim("accountId", accountId)
                 .claim("role", role)
-                .issuedAt(Date.from(now))
-                .expiration(Date.from(now.plusSeconds(accessMinutes * 60)))
-                .signWith(key) // 0.12.x: KHÔNG truyền thuật toán
+                .setIssuedAt(Date.from(now))
+                .setExpiration(Date.from(expiry))
+                .signWith(getSigningKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public Claims parse(String token) {
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser()
+                    .verifyWith((SecretKey) getSigningKey())
+                    .build()
+                    .parseSignedClaims(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    public String extractPhone(String token) {
         return Jwts.parser()
-                .verifyWith((SecretKey) key)
+                .verifyWith((SecretKey) getSigningKey())
                 .build()
                 .parseSignedClaims(token)
-                .getPayload();
+                .getPayload()
+                .getSubject();
     }
 }

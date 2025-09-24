@@ -1,5 +1,13 @@
 package com.example.cinemaster.dto.response;
 
-public record AuthResponse(String accessToken, String tokenType, long expiresInSeconds) {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@AllArgsConstructor
+public class AuthResponse {
+    private String accessToken;
+    private String tokenType;
+    private long expiresIn;
 }

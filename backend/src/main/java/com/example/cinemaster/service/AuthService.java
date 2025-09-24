@@ -7,6 +7,7 @@ import com.example.cinemaster.repository.AccountRepository;
 import com.example.cinemaster.util.LoginUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,22 +20,25 @@ public class AuthService {
     private final JwtService jwtService;
 
     public AuthResponse login(LoginRequest request) {
-        String phone = LoginUtil.normalizePhoneVN(request.phoneNumber());
-        if (phone == null) {
-            throw new BadCredentialsException("Số điện thoại không hợp lệ");
-        }
+        String phone = LoginUtil.normalizePhoneVN(request.getPhoneNumber());
+        if (phone == null) throw new BadCredentialsException("Số điện thoại không hợp lệ");
 
         Account acc = accountRepository.findByPhoneNumberAndIsActiveTrue(phone)
                 .orElseThrow(() -> new BadCredentialsException("Sai số điện thoại hoặc tài khoản bị khoá"));
 
-        if (!passwordEncoder.matches(request.password(), acc.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), acc.getPassword())) {
             throw new BadCredentialsException("Sai mật khẩu");
         }
 
         String role = acc.getRole() != null ? acc.getRole().getRoleName() : "Customer";
-        String token = jwtService.generateAccessToken(acc.getPhoneNumber(), role);
+        String token = jwtService.generateAccessToken(acc.getAccountID(), acc.getPhoneNumber(), role);
 
         return new AuthResponse(token, "Bearer", 60 * 60);
     }
-}
 
+    public Account getCurrentUser() {
+        String phone = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return accountRepository.findByPhoneNumberAndIsActiveTrue(phone)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
+    }
+}

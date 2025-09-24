@@ -1,5 +1,11 @@
 package com.example.cinemaster.dto.request;
 
-public record LoginRequest(String phoneNumber, String password) {
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
+public class LoginRequest {
+    private String phoneNumber;
+    private String password;
 }
