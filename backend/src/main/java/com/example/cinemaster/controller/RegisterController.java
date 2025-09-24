@@ -3,6 +3,8 @@ package com.example.cinemaster.controller;
 import com.example.cinemaster.dto.request.RegisterRequest;
 import com.example.cinemaster.service.RegisterService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,12 +13,14 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
+@Slf4j
+@CrossOrigin(origins = "*", allowCredentials = "false")
 public class RegisterController {
 
     @Autowired
     private RegisterService accountService;
 
-    // đổi PostMapping("/register") để khớp với HTML
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request,
                                       BindingResult result) {
@@ -31,17 +35,14 @@ public class RegisterController {
 
         String serviceResult = accountService.register(request);
 
-        // Nếu service trả về lỗi email trùng
         if (serviceResult.contains("Email đã tồn tại")) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(serviceResult);
         }
 
-        // Nếu service trả về lỗi role
         if (serviceResult.contains("Không tìm thấy Role")) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(serviceResult);
         }
 
-        // Trường hợp thành công
         return ResponseEntity.ok(serviceResult);
     }
 

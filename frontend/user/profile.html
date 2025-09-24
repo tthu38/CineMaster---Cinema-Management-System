@@ -7,39 +7,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         body { background-color: #f8f9fa; }
-        .profile-card {
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-            margin-top: 30px;
-            background-color: #fff;
-            padding: 20px;
-            max-width: 900px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        .profile-header {
-            background-color: #0d6efd;
-            color: white;
-            padding: 20px;
-            border-radius: 15px 15px 0 0;
-            text-align: center;
-        }
-        .avatar-wrapper {
-            position: relative;
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            overflow: hidden;
-            margin: -75px auto 20px auto;
-            border: 5px solid white;
-            background-color: #f8f9fa;
-            box-shadow: 0 0 10px rgba(0,0,0,0.2);
-        }
+        .profile-card { border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); margin: 30px auto; background-color: #fff; padding: 20px; max-width: 900px; }
+        .profile-header { background-color: #0d6efd; color: white; padding: 20px; border-radius: 15px 15px 0 0; text-align: center; }
+        .avatar-wrapper { position: relative; width: 150px; height: 150px; border-radius: 50%; overflow: hidden; margin: -75px auto 20px auto; border: 5px solid white; background-color: #f8f9fa; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
         .avatar-wrapper img { width: 100%; height: 100%; object-fit: cover; }
         .nav-pills .nav-link { border-radius: 0; margin-bottom: 2px; cursor: pointer; }
         .nav-pills .nav-link.active { background-color: #0d6efd; color: white; }
         .tab-content { padding: 20px; border: 1px solid #dee2e6; border-top: none; border-radius: 0 0 15px 15px; }
-        .form-group label { font-weight: bold; }
     </style>
 </head>
 <body>
@@ -62,25 +36,18 @@
     <div class="row">
         <div class="col-md-3">
             <ul class="nav nav-pills flex-column" id="profileTabs">
-                <li class="nav-item">
-                    <a class="nav-link active" data-tab="info">Personal Information</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-tab="edit">Edit Profile</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-tab="password">Change Password</a>
-                </li>
+                <li class="nav-item"><a class="nav-link active" data-tab="info">Personal Information</a></li>
+                <li class="nav-item"><a class="nav-link" data-tab="edit">Edit Profile</a></li>
+                <li class="nav-item"><a class="nav-link" data-tab="password">Change Password</a></li>
             </ul>
         </div>
         <div class="col-md-9">
             <div class="tab-content">
-                <!-- Info Tab -->
                 <div id="info" class="tab-pane active">
                     <ul class="list-group">
                         <li class="list-group-item"><strong>Full Name:</strong> <span id="infoFullName"></span></li>
                         <li class="list-group-item"><strong>Email:</strong> <span id="infoEmail"></span></li>
-                        <li class="list-group-item"><strong>Phone Number:</strong> <span id="infoPhone"></span></li>
+                        <li class="list-group-item"><strong>Phone:</strong> <span id="infoPhone"></span></li>
                         <li class="list-group-item"><strong>Address:</strong> <span id="infoAddress"></span></li>
                         <li class="list-group-item"><strong>Role:</strong> <span id="infoRole"></span></li>
                         <li class="list-group-item"><strong>Created At:</strong> <span id="infoCreatedAt"></span></li>
@@ -88,48 +55,22 @@
                     </ul>
                 </div>
 
-                <!-- Edit Profile Tab -->
                 <div id="edit" class="tab-pane" style="display:none;">
                     <form id="editForm" enctype="multipart/form-data">
-                        <div class="mb-3">
-                            <label for="fullNameInput">Full Name</label>
-                            <input type="text" id="fullNameInput" name="fullName" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="emailInput">Email</label>
-                            <input type="email" id="emailInput" name="email" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="phoneInput">Phone Number</label>
-                            <input type="text" id="phoneInput" name="phoneNumber" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="addressInput">Address</label>
-                            <input type="text" id="addressInput" name="address" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="avatarFile">Change Avatar</label>
-                            <input type="file" id="avatarFile" name="avatarFile" class="form-control" accept="image/*">
-                        </div>
+                        <div class="mb-3"><label for="fullNameInput">Full Name</label><input type="text" id="fullNameInput" name="fullName" class="form-control" required></div>
+                        <div class="mb-3"><label for="emailInput">Email</label><input type="email" id="emailInput" name="email" class="form-control" required></div>
+                        <div class="mb-3"><label for="phoneInput">Phone</label><input type="text" id="phoneInput" name="phoneNumber" class="form-control" required></div>
+                        <div class="mb-3"><label for="addressInput">Address</label><input type="text" id="addressInput" name="address" class="form-control" required></div>
+                        <div class="mb-3"><label for="avatarFile">Change Avatar</label><input type="file" id="avatarFile" name="avatarFile" class="form-control" accept="image/*"></div>
                         <button type="submit" class="btn btn-primary">Save Changes</button>
                     </form>
                 </div>
 
-                <!-- Change Password Tab -->
                 <div id="password" class="tab-pane" style="display:none;">
                     <form id="passwordForm">
-                        <div class="mb-3">
-                            <label for="currentPassword">Current Password</label>
-                            <input type="password" id="currentPassword" name="currentPassword" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="newPassword">New Password</label>
-                            <input type="password" id="newPassword" name="newPassword" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="confirmPassword">Confirm New Password</label>
-                            <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
-                        </div>
+                        <div class="mb-3"><label>Current Password</label><input type="password" id="currentPassword" name="currentPassword" class="form-control" required></div>
+                        <div class="mb-3"><label>New Password</label><input type="password" id="newPassword" name="newPassword" class="form-control" required></div>
+                        <div class="mb-3"><label>Confirm New Password</label><input type="password" id="confirmPassword" name="confirmNewPassword" class="form-control" required></div>
                         <button type="submit" class="btn btn-warning">Change Password</button>
                     </form>
                 </div>
@@ -139,25 +80,20 @@
 </div>
 
 <script>
-    // Tab navigation
     const tabs = document.querySelectorAll("#profileTabs .nav-link");
     const panes = document.querySelectorAll(".tab-pane");
+    tabs.forEach(tab => tab.addEventListener("click", () => {
+        tabs.forEach(t => t.classList.remove("active"));
+        tab.classList.add("active");
+        panes.forEach(p => p.style.display = p.id===tab.dataset.tab ? "block" : "none");
+    }));
 
-    tabs.forEach(tab => {
-        tab.addEventListener("click", () => {
-            tabs.forEach(t => t.classList.remove("active"));
-            tab.classList.add("active");
-            const target = tab.dataset.tab;
-            panes.forEach(p => p.style.display = p.id === target ? "block" : "none");
-        });
-    });
-
-    // Load profile
     async function loadProfile() {
         try {
-            const res = await fetch("http://localhost:8081/api/auth/me", { credentials: "include" });
+            const res = await fetch("/api/auth/me", { credentials: "include" });
             if (!res.ok) throw new Error("Chưa đăng nhập");
             const data = await res.json();
+
             document.getElementById("fullNameDisplay").textContent = `Welcome, ${data.fullName}!`;
             document.getElementById("avatarImg").src = data.avatarUrl || "/image/avata.png";
             document.getElementById("infoFullName").textContent = data.fullName;
@@ -168,44 +104,29 @@
             document.getElementById("infoCreatedAt").textContent = data.createdAt;
             document.getElementById("infoPoints").textContent = data.loyaltyPoints;
 
-            // Pre-fill edit form
             document.getElementById("fullNameInput").value = data.fullName;
             document.getElementById("emailInput").value = data.email;
             document.getElementById("phoneInput").value = data.phoneNumber;
             document.getElementById("addressInput").value = data.address;
-
-        } catch (err) {
-            console.error(err);
+        } catch {
             window.location.href = "login.html";
         }
     }
-
     loadProfile();
 
-    // Submit edit profile
     document.getElementById("editForm").addEventListener("submit", async e => {
         e.preventDefault();
         const formData = new FormData(e.target);
         try {
-            const res = await fetch("http://localhost:8081/api/user/profile/update", {
-                method: "POST",
-                body: formData,
-                credentials: "include"
-            });
+            const res = await fetch("/api/auth/update", { method:"POST", body:formData, credentials:"include" });
             if (!res.ok) {
                 const data = await res.json();
-                alert(data.message || "Cập nhật thất bại");
-                return;
+                alert(data.message || "Cập nhật thất bại"); return;
             }
-            alert("Cập nhật thành công!");
-            loadProfile();
-        } catch (err) {
-            console.error(err);
-            alert("Lỗi server!");
-        }
+            alert("Cập nhật thành công!"); loadProfile();
+        } catch { alert("Lỗi server!"); }
     });
 
-    // Submit change password
     document.getElementById("passwordForm").addEventListener("submit", async e => {
         e.preventDefault();
         const payload = {
@@ -214,31 +135,20 @@
             confirmNewPassword: document.getElementById("confirmPassword").value
         };
         try {
-            const res = await fetch("http://localhost:8081/api/user/profile/change-password", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload),
-                credentials: "include"
+            const res = await fetch("/api/auth/change-password", {
+                method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload), credentials:"include"
             });
             const data = await res.json();
-            if (!res.ok) {
-                alert(data.message || "Đổi mật khẩu thất bại");
-                return;
-            }
-            alert("Đổi mật khẩu thành công!");
-            document.getElementById("passwordForm").reset();
-        } catch (err) {
-            console.error(err);
-            alert("Lỗi server!");
-        }
+            if (!res.ok) alert(data.message || "Đổi mật khẩu thất bại");
+            else { alert("Đổi mật khẩu thành công!"); e.target.reset(); }
+        } catch { alert("Lỗi server!"); }
     });
 
-
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+        await fetch("/demo/logout", { method:"POST", credentials:"include" });
+        window.location.href = "login.html";
+    });
 </script>
-<form th:action="@{/demo/logout}" method="post" class="mt-4">
-    <button type="submit" class="btn btn-danger btn-lg w-100">
-        <i class="fas fa-sign-out-alt me-2"></i> Logout
-    </button>
-</form>
+
 </body>
 </html>

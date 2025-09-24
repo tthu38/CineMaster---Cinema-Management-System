@@ -7,13 +7,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         .input-group-text { background-color: #e9ecef; }
-        .social-login .btn { border: 1px solid #dee2e6; transition: all 0.2s; }
-        .social-login .btn:hover { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
         .card { border-radius: 1rem; }
     </style>
 </head>
 <body class="bg-light d-flex align-items-center justify-content-center" style="height: 100vh;">
-
 <div class="card p-5 shadow-lg" style="width: 28rem;">
     <h1 class="card-title text-center mb-4 text-primary fw-bold">🔐 Đăng nhập</h1>
 
@@ -23,14 +20,13 @@
     <form id="loginForm">
         <div class="mb-3 input-group">
             <span class="input-group-text"><i class="fas fa-user"></i></span>
-            <input type="text" class="form-control" id="username" name="username" placeholder="Tên đăng nhập" required>
+            <input type="text" class="form-control" id="username" name="username" placeholder="Số điện thoại" required>
         </div>
         <div class="mb-3 input-group">
             <span class="input-group-text"><i class="fas fa-lock"></i></span>
             <input type="password" class="form-control" id="password" name="password" placeholder="Mật khẩu" required>
         </div>
 
-        <!-- Remember Me -->
         <div class="mb-3 form-check">
             <input type="checkbox" class="form-check-input" id="rememberMe">
             <label class="form-check-label" for="rememberMe">Ghi nhớ đăng nhập</label>
@@ -40,96 +36,9 @@
             Đăng nhập
         </button>
     </form>
-
-    <div class="text-center my-3 text-muted">Hoặc</div>
-    <div class="d-grid social-login">
-        <a href="http://localhost:8081/demo/oauth2/authorization/google"
-           class="btn btn-light d-flex align-items-center justify-content-center py-2">
-            <img src="https://www.google.com/favicon.ico" alt="Google" style="width:20px;margin-right:10px;">
-            Đăng nhập với Google
-        </a>
-    </div>
 </div>
 
-<script>
-    // Khi load trang, tự điền username nếu đã lưu
-    window.addEventListener("DOMContentLoaded", () => {
-        const rememberedUsername = localStorage.getItem("rememberedUsername");
-        if (rememberedUsername) {
-            document.getElementById("username").value = rememberedUsername;
-            document.getElementById("rememberMe").checked = true;
-        }
-    });
-
-    // Xử lý form đăng nhập
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const username = document.getElementById("username").value;
-        const password = document.getElementById("password").value;
-        const rememberMe = document.getElementById("rememberMe").checked;
-
-        try {
-            const res = await fetch("http://localhost:8081/demo/login", { // sửa URL
-                method: "POST",
-                body: new URLSearchParams({ // gửi form data
-                    username: username,
-                    password: password
-                }),
-                credentials: "include"
-            });
-
-            if (res.ok) {
-                if (rememberMe) {
-                    localStorage.setItem("rememberedUsername", username);
-                } else {
-                    localStorage.removeItem("rememberedUsername");
-                }
-                window.location.href = "profile.html";
-            } else {
-                const data = await res.json();
-                const errorDiv = document.getElementById("error-message");
-                errorDiv.textContent = data.message || "Sai số điện thoại hoặc mật khẩu";
-                errorDiv.classList.remove("d-none");
-            }
-        } catch (err) {
-            console.error("Lỗi khi login:", err);
-            const errorDiv = document.getElementById("error-message");
-            errorDiv.textContent = "Lỗi kết nối tới server!";
-            errorDiv.classList.remove("d-none");
-        }
-    });
-
-
-    // Load profile khi đã login
-    async function loadProfile() {
-        try {
-            const res = await fetch("http://localhost:8081/api/auth/me", {
-                credentials: "include"
-            });
-            const data = await res.json();
-            if (data.status !== "authenticated") {
-                window.location.href = "login.html";
-            }
-        } catch (err) {
-            console.error("Lỗi khi tải thông tin user:", err);
-            window.location.href = "login.html";
-        }
-    }
-
-    // Logout nếu có nút logout
-    const logoutBtn = document.getElementById("logoutBtn");
-    if (logoutBtn) {
-        logoutBtn.addEventListener("click", async () => {
-            await fetch("http://localhost:8081/api/auth/logout", {
-                method: "POST",
-                credentials: "include"
-            });
-            localStorage.removeItem("username");
-            window.location.href = "login.html";
-        });
-    }
-</script>
-
+<!-- Gọi file JS: login.js nằm ở ../js/login.js -->
+<script type="module" src="../js/login.js"></script>
 </body>
 </html>

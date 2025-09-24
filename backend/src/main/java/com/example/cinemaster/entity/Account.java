@@ -1,10 +1,10 @@
 
-        package com.example.cinemaster.entity;
+package com.example.cinemaster.entity;
 
 import jakarta.persistence.*;
-        import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Size;
 import lombok.*;
-        import lombok.experimental.FieldDefaults;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.Nationalized;
 
 import java.time.LocalDate;
@@ -78,8 +78,14 @@ public class Account {
     @Column(name = "VerificationExpiry")
     private LocalDateTime verificationExpiry;
 
+    @Column(name = "PasswordResetToken")
+    private String passwordResetToken;
+
+    @Column(name = "PasswordResetTokenExpiry")
+    private LocalDateTime passwordResetTokenExpiry;
+
     @Size(max = 255)
     @Nationalized
-    @Column(name = "AvatarUrl")
+    @Column(name = "ProfilePictureURL")
     private String avatarUrl;
 }

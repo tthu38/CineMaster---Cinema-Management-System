@@ -2,47 +2,34 @@ package com.example.cinemaster.service;
 
 import com.example.cinemaster.entity.Account;
 import com.example.cinemaster.repository.AccountRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
+import com.example.cinemaster.util.LoginUtil;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.Optional;
+import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private AccountRepository accountRepository;
+    private final AccountRepository accountRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String usernameOrEmail) throws UsernameNotFoundException {
-        // Tìm bằng email
-        Optional<Account> accountOpt = accountRepository.findByEmail(usernameOrEmail);
+    public UserDetails loadUserByUsername(String phoneRaw) throws UsernameNotFoundException {
+        String phone = LoginUtil.normalizePhoneVN(phoneRaw);
 
-        // Nếu không tìm thấy, thử tìm bằng số điện thoại
-        if (accountOpt.isEmpty()) {
-            accountOpt = accountRepository.findByPhoneNumberWithRole(usernameOrEmail);
-        }
+        Account acc = accountRepository.findByPhoneNumberAndIsActiveTrue(phone)
+                .orElseThrow(() -> new UsernameNotFoundException("Không tìm thấy SĐT hoặc bị khoá"));
 
-        if (accountOpt.isEmpty()) {
-            throw new UsernameNotFoundException(
-                    "Không tìm thấy tài khoản với email hoặc số điện thoại: " + usernameOrEmail);
-        }
-
-        Account account = accountOpt.get();
-
-        GrantedAuthority authority = new SimpleGrantedAuthority(
-                "ROLE_" + account.getRole().getRoleName().toUpperCase()
+        String roleName = acc.getRole() != null ? acc.getRole().getRoleName() : "USER";
+        return new User(
+                acc.getPhoneNumber(),
+                acc.getPassword(),
+                List.of(new SimpleGrantedAuthority("ROLE_" + roleName))
         );
-
-        return new User(account.getEmail() != null ? account.getEmail() : account.getPhoneNumber(),
-                account.getPassword(),
-                Collections.singleton(authority));
     }
+
+
 }

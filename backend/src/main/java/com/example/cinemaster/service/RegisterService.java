@@ -29,97 +29,34 @@ public class RegisterService {
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    // đăng ký account mới
-//    public String register(RegisterRequest request) {
-//        // chỉ check số điện thoại trùng
-//        if (accountRepository.findByPhoneNumber(request.getPhoneNumber()).isPresent()) {
-//            return "Số điện thoại đã tồn tại!";
-//        }
-//
-//        // lấy role mặc định Customer
-//        Optional<Role> roleOpt = roleRepository.findByRoleName("Customer");
-//        if (roleOpt.isEmpty()) {
-//            return "Không tìm thấy Role Customer trong hệ thống!";
-//        }
-//
-//        // tạo account mới
-//        Account account = new Account();
-//        account.setEmail(request.getEmail());
-//        account.setPassword(passwordEncoder.encode(request.getPassword()));
-//        account.setFullName(request.getFullName());
-//        account.setPhoneNumber(request.getPhoneNumber());
-//        account.setIsActive(false);
-//        account.setCreatedAt(LocalDate.now());
-//        account.setRole(roleOpt.get());
-//
-//        // tạo mã xác thực 6 chữ số
-//        String code = String.valueOf(100000 + new Random().nextInt(900000));
-//        account.setVerificationCode(code);
-//        account.setVerificationExpiry(LocalDateTime.now().plusMinutes(10));
-//
-//        // lưu vào DB
-//        accountRepository.save(account);
-//
-//        // gửi email xác thực
-//        try {
-//            emailService.sendVerificationEmail(request.getEmail(), code);
-//        } catch (MessagingException e) {
-//            return "Đăng ký thành công nhưng gửi email thất bại: " + e.getMessage();
-//        }
-//
-//        return "Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.";
-//    }
-    // đăng ký account mới
     public String register(RegisterRequest request) {
-        // ✅ check email trùng
-        if (accountRepository.findByEmailWithRole(request.getEmail()).isPresent()) {
-            return "Email đã tồn tại!";
+        if (accountRepository.existsByPhoneNumber(request.getPhoneNumber())) {
+            return "Số điện thoại đã tồn tại";
         }
 
-        // ✅ check số điện thoại trùng
-        if (accountRepository.findByPhoneNumber(request.getPhoneNumber()).isPresent()) {
-            return "Số điện thoại đã tồn tại!";
-        }
 
-        // lấy role mặc định Customer
-        Optional<Role> roleOpt = roleRepository.findByRoleName("Customer");
-        if (roleOpt.isEmpty()) {
-            return "Không tìm thấy Role Customer trong hệ thống!";
-        }
+        Role role = roleRepository.findByRoleName("Customer")
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Role"));
 
-        // tạo account mới
-        Account account = new Account();
-        account.setEmail(request.getEmail());
-        account.setPassword(passwordEncoder.encode(request.getPassword()));
-        account.setFullName(request.getFullName());
-        account.setPhoneNumber(request.getPhoneNumber());
-        account.setIsActive(false);
-        account.setCreatedAt(LocalDate.now());
-        account.setRole(roleOpt.get());
+        Account account = buildNewAccount(request, role);
 
-        // tạo mã xác thực 6 chữ số
-        String code = String.valueOf(100000 + new Random().nextInt(900000));
-        account.setVerificationCode(code);
-        account.setVerificationExpiry(LocalDateTime.now().plusMinutes(10));
-
-        // lưu vào DB
         accountRepository.save(account);
 
-        // gửi email xác thực
         try {
-            emailService.sendVerificationEmail(request.getEmail(), code);
+            emailService.sendVerificationEmail(
+                    account.getEmail(),
+                    account.getVerificationCode()
+            );
         } catch (MessagingException e) {
-            return "Đăng ký thành công nhưng gửi email thất bại: " + e.getMessage();
+            throw new RuntimeException("Không thể gửi email xác thực", e);
         }
 
-        return "Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.";
+        return "Đăng ký thành công, vui lòng kiểm tra email để xác thực!";
     }
 
-
-    // verify account
     public String verifyAccount(String email, String code) {
-        // lấy account mới nhất theo email và chưa kích hoạt
         Optional<Account> accountOpt = accountRepository.findLatestByEmail(email);
+
         if (accountOpt.isEmpty()) {
             return "Email không tồn tại hoặc tài khoản đã được kích hoạt!";
         }
@@ -136,8 +73,30 @@ public class RegisterService {
 
         account.setIsActive(true);
         account.setVerificationCode(null);
+        account.setVerificationExpiry(null);
         accountRepository.save(account);
 
         return "Xác thực thành công! Tài khoản đã được kích hoạt.";
+    }
+
+    private Account buildNewAccount(RegisterRequest request, Role role) {
+        Account account = new Account();
+        account.setEmail(request.getEmail());
+        account.setPassword(passwordEncoder.encode(request.getPassword()));
+        account.setFullName(request.getFullName());
+        account.setPhoneNumber(request.getPhoneNumber());
+        account.setIsActive(false); // mới đăng ký -> false
+        account.setCreatedAt(LocalDate.now());
+        account.setRole(role);
+
+        String code = generateVerificationCode();
+        account.setVerificationCode(code);
+        account.setVerificationExpiry(LocalDateTime.now().plusMinutes(10));
+
+        return account;
+    }
+
+    private String generateVerificationCode() {
+        return String.valueOf(100000 + new Random().nextInt(900000));
     }
 }

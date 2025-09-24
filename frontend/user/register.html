@@ -4,220 +4,85 @@
     <meta charset="UTF-8">
     <title>Đăng ký tài khoản</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Chakra+Petch:wght@400;600&display=swap');
-
         body {
-            font-family: 'Chakra Petch', sans-serif;
-            background: linear-gradient(45deg, #0a0a23, #1a2a44, #2c5364, #e53935);
-            background-size: 400% 400%;
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
-            padding: 0;
-            color: #e0e0e0;
-            overflow: hidden;
-            position: relative;
-            animation: gradientFlow 10s ease infinite;
         }
-
-        @keyframes gradientFlow {
-            0% { background-position: 0% 0%; }
-            50% { background-position: 100% 100%; }
-            100% { background-position: 0% 0%; }
-        }
-
-        .register-container {
-            background: rgba(10, 10, 35, 0.85);
-            backdrop-filter: blur(10px);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 0 40px rgba(41, 182, 246, 0.6), 0 0 60px rgba(231, 76, 60, 0.5);
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             width: 400px;
-            border: 2px solid rgba(41, 182, 246, 0.9);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
-
         h2 {
-            font-family: 'Orbitron', sans-serif;
-            color: #e53935;
-            font-size: 2.8em;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            text-shadow: 0 0 30px rgba(231, 76, 60, 0.9), 0 0 60px rgba(231, 76, 60, 0.7);
-            margin-bottom: 40px;
             text-align: center;
-            animation: neonPulse 2s ease-in-out infinite;
+            color: #333;
+            margin-bottom: 20px;
         }
-
-        @keyframes neonPulse {
-            0% { opacity: 0.8; }
-            50% { opacity: 1; }
-            100% { opacity: 0.8; }
-        }
-
         .form-group {
             margin-bottom: 15px;
         }
-
         label {
             display: block;
             margin-bottom: 6px;
-            font-weight: 600;
-            font-size: 0.9em;
-            color: #b0bec5;
+            color: #555;
         }
-
         input {
             width: 100%;
-            padding: 12px 15px;
-            border-radius: 25px;
-            border: 2px solid rgba(41, 182, 246, 0.9);
-            background: rgba(15, 15, 40, 0.9);
-            color: #e0e0e0;
-            font-size: 1em;
-            box-sizing: border-box;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
         }
-
-        input:focus {
-            border-color: #e53935;
-            outline: none;
-            box-shadow: 0 0 25px rgba(231, 76, 60, 0.9);
-        }
-
         button {
             width: 100%;
             padding: 12px;
-            border: none;
-            border-radius: 25px;
-            background: linear-gradient(90deg, #e53935, #b71c1c);
+            background: #1976d2;
             color: white;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.2em;
-            font-weight: 700;
+            border: none;
+            border-radius: 6px;
             cursor: pointer;
-            margin-top: 25px;
-            box-shadow: 0 0 30px rgba(231, 76, 60, 0.8);
+            font-weight: bold;
         }
-
         button:hover {
-            background: linear-gradient(90deg, #b71c1c, #8b1212);
-            transform: scale(1.05);
-            box-shadow: 0 0 40px rgba(231, 76, 60, 1);
+            background: #125a9c;
         }
-
-        .result {
+        #result {
             margin-top: 15px;
             text-align: center;
-            font-weight: 600;
-            font-size: 0.9em;
-            color: #e0e0e0;
-            background: rgba(15, 15, 40, 0.9);
-            border-radius: 10px;
-            padding: 10px;
+            font-weight: bold;
         }
-
-        .valid { color: #4caf50; }
-        .invalid { color: #e53935; }
     </style>
 </head>
 <body>
-<div class="register-container">
-    <h2>CinemaPulse</h2>
+<div class="container">
+    <h2>Đăng ký</h2>
     <form id="registerForm">
         <div class="form-group">
-            <label for="fullName">Họ tên</label>
-            <input type="text" id="fullName" name="fullName" required>
+            <label for="fullName">Họ và tên</label>
+            <input type="text" id="fullName" required>
         </div>
         <div class="form-group">
-            <label for="email">Email (@gmail.com)</label>
-            <input type="email" id="email" name="email" required pattern=".+@gmail\.com">
+            <label for="email">Email</label>
+            <input type="email" id="email" required>
         </div>
         <div class="form-group">
             <label for="phoneNumber">Số điện thoại</label>
-            <input type="text" id="phoneNumber" name="phoneNumber" required pattern="0[0-9]{9}">
+            <input type="text" id="phoneNumber" required>
         </div>
         <div class="form-group">
             <label for="password">Mật khẩu</label>
-            <input type="password" id="password" name="password" required>
-            <div class="password-rules">
-                <div id="rule-length" class="rule invalid">❌ Ít nhất 8 ký tự</div>
-                <div id="rule-uppercase" class="rule invalid">❌ Bắt đầu bằng chữ in hoa</div>
-                <div id="rule-number" class="rule invalid">❌ Có ít nhất 1 số</div>
-                <div id="rule-special" class="rule invalid">❌ Có ít nhất 1 ký tự đặc biệt</div>
-            </div>
+            <input type="password" id="password" required>
         </div>
         <button type="submit">Đăng ký</button>
     </form>
-    <div class="result" id="result"></div>
+    <div id="result"></div>
 </div>
 
-<script>
-    const API_BASE = "http://localhost:8081/demo/api/auth/register";
-
-    const passwordInput = document.getElementById("password");
-    passwordInput.addEventListener("input", () => {
-        const value = passwordInput.value;
-        toggleRule("rule-length", value.length >= 8);
-        toggleRule("rule-uppercase", /^[A-Z]/.test(value));
-        toggleRule("rule-number", /\d/.test(value));
-        toggleRule("rule-special", /[^A-Za-z0-9]/.test(value));
-    });
-
-    function toggleRule(id, isValid) {
-        const el = document.getElementById(id);
-        if (isValid) {
-            el.classList.remove("invalid");
-            el.classList.add("valid");
-            el.innerText = "✅ " + el.innerText.replace("❌ ", "").replace("✅ ", "");
-        } else {
-            el.classList.remove("valid");
-            el.classList.add("invalid");
-            el.innerText = "❌ " + el.innerText.replace("❌ ", "").replace("✅ ", "");
-        }
-    }
-
-    document.getElementById("registerForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const data = {
-            fullName: document.getElementById("fullName").value,
-            email: document.getElementById("email").value,
-            phoneNumber: document.getElementById("phoneNumber").value,
-            password: document.getElementById("password").value
-        };
-
-        try {
-            const response = await fetch(API_BASE, {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(data)
-            });
-
-            const text = await response.text();
-            const resultDiv = document.getElementById("result");
-
-// Chỉ redirect khi backend báo "thành công"
-            if (text.toLowerCase().includes("thành công")) {
-                resultDiv.innerText = text;
-                resultDiv.style.color = "#4caf50";
-                setTimeout(() => {
-                    window.location.href = `verify.html?email=${encodeURIComponent(data.email)}`;
-                }, 1000);
-            } else {
-                resultDiv.innerText = text;
-                resultDiv.style.color = "#e53935";
-            }
-
-        } catch (error) {
-            document.getElementById("result").innerText = "Có lỗi xảy ra, vui lòng thử lại!";
-            document.getElementById("result").style.color = "#e53935";
-        }
-    });
-</script>
+<script src="../js/register.js"></script>
 </body>
 </html>
