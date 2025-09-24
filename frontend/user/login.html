@@ -8,6 +8,7 @@
     <style>
         .input-group-text { background-color: #e9ecef; }
         .card { border-radius: 1rem; }
+        .google-btn img { width: 20px; margin-right: 8px; }
     </style>
 </head>
 <body class="bg-light d-flex align-items-center justify-content-center" style="height: 100vh;">
@@ -34,6 +35,12 @@
 
         <button id="loginBtn" type="submit" class="btn btn-primary w-100 mb-3 fw-bold">
             Đăng nhập
+        </button>
+
+        <!-- Nút Đăng nhập Google -->
+        <button type="button" class="btn btn-light border w-100 fw-bold google-btn" id="googleLoginBtn">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+            Đăng nhập với Google
         </button>
     </form>
 </div>

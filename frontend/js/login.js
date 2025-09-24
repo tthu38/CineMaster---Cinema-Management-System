@@ -1,6 +1,6 @@
 import { apiPost } from "../js/api.js"; // api.js cùng thư mục js/
 
-// Tự điền số điện thoại đã lưu nếu có
+// ====== Tự điền số điện thoại nếu có nhớ ======
 window.addEventListener("DOMContentLoaded", () => {
     const remembered = localStorage.getItem("rememberedUsername");
     if (remembered) {
@@ -9,6 +9,7 @@ window.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+// ====== Đăng nhập bằng tài khoản thường ======
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -31,11 +32,17 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
         // Lưu token để gọi API protected sau này
         localStorage.setItem("accessToken", data.accessToken);
 
-        // ✅ Redirect sang trang home.html (trong folder /home/)
-        window.location.href = "../home/home.html";
+        // ✅ Redirect sang trang index.html (trong folder /home/)
+        window.location.href = "../home/index.html";
     } catch (err) {
         const errorDiv = document.getElementById("error-message");
         errorDiv.textContent = err.message || "Sai số điện thoại hoặc mật khẩu";
         errorDiv.classList.remove("d-none");
     }
+});
+
+// ====== Đăng nhập bằng Google ======
+document.getElementById("googleLoginBtn").addEventListener("click", () => {
+    // Gọi đúng endpoint OAuth2 login của backend (có context-path /demo)
+    window.location.href = "http://localhost:8080/demo/oauth2/authorization/google";
 });
