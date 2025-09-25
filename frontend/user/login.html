@@ -8,7 +8,6 @@
     <style>
         .input-group-text { background-color: #e9ecef; }
         .card { border-radius: 1rem; }
-        .google-btn img { width: 20px; margin-right: 8px; }
     </style>
 </head>
 <body class="bg-light d-flex align-items-center justify-content-center" style="height: 100vh;">
@@ -18,6 +17,7 @@
     <!-- Thông báo lỗi -->
     <div id="error-message" class="alert alert-danger text-center d-none"></div>
 
+    <!-- Form login thường -->
     <form id="loginForm">
         <div class="mb-3 input-group">
             <span class="input-group-text"><i class="fas fa-user"></i></span>
@@ -36,16 +36,62 @@
         <button id="loginBtn" type="submit" class="btn btn-primary w-100 mb-3 fw-bold">
             Đăng nhập
         </button>
-
-        <!-- Nút Đăng nhập Google -->
-        <button type="button" class="btn btn-light border w-100 fw-bold google-btn" id="googleLoginBtn">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-            Đăng nhập với Google
-        </button>
     </form>
+
+    <!-- Google login -->
+    <div id="g_id_onload"
+         data-client_id="759653899241-e2c3pb5s7lr301ivd8bkvdqd7cgouqod.apps.googleusercontent.com"
+         data-context="signin"
+         data-callback="handleCredentialResponse"
+         data-auto_prompt="false">
+    </div>
+
+    <div class="g_id_signin"
+         data-type="standard"
+         data-shape="rectangular"
+         data-theme="outline"
+         data-text="signin_with"
+         data-size="large"
+         data-logo_alignment="left">
+    </div>
 </div>
 
-<!-- Gọi file JS: login.js nằm ở ../js/login.js -->
+<!-- SDK Google -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<!-- Callback Google (PHẢI để global, không module) -->
+<script>
+    async function handleCredentialResponse(response) {
+        if (!response || !response.credential) {
+            console.error("Không có credential từ Google");
+            alert("Google login thất bại!");
+            return;
+        }
+
+        const idToken = response.credential;
+        console.log("Google token:", idToken.substring(0, 20) + "...");
+
+        try {
+            const res = await fetch("http://localhost:8080/demo/api/auth/google", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token: idToken })
+            });
+            if (!res.ok) throw new Error(await res.text());
+            const data = await res.json();
+
+            localStorage.setItem("accessToken", data.accessToken);
+            if (data.email) localStorage.setItem("googleEmail", data.email);
+
+            window.location.href = "../home/index.html";
+        } catch (e) {
+            console.error("Google login lỗi:", e);
+            alert("Google login thất bại!");
+        }
+    }
+</script>
+
+<!-- Login thường (module) -->
 <script type="module" src="../js/login.js"></script>
 </body>
 </html>

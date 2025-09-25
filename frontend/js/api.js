@@ -3,22 +3,24 @@
 const BASE_URL = "http://localhost:8080/demo";
 
 // --- Helper: lấy headers chung ---
-function getHeaders(isJson = true) {
+function getHeaders(isJson = true, includeAuth = true) {
     const headers = {};
     if (isJson) headers["Content-Type"] = "application/json";
 
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
+    if (includeAuth) {
+        const token = localStorage.getItem("accessToken");
+        if (token) {
+            headers["Authorization"] = `Bearer ${token}`;
+        }
     }
     return headers;
 }
 
 // --- Helper POST ---
-export async function apiPost(path, body) {
+export async function apiPost(path, body, includeAuth = true) {
     const res = await fetch(BASE_URL + path, {
         method: "POST",
-        headers: getHeaders(true),
+        headers: getHeaders(true, includeAuth),
         body: JSON.stringify(body),
     });
 
@@ -40,10 +42,10 @@ export async function apiPost(path, body) {
 }
 
 // --- Helper GET ---
-export async function apiGet(path) {
+export async function apiGet(path, includeAuth = true) {
     const res = await fetch(BASE_URL + path, {
         method: "GET",
-        headers: getHeaders(true),
+        headers: getHeaders(true, includeAuth),
     });
 
     if (!res.ok) throw new Error(await res.text());
@@ -51,10 +53,10 @@ export async function apiGet(path) {
 }
 
 // --- Helper PUT ---
-export async function apiPut(path, body) {
+export async function apiPut(path, body, includeAuth = true) {
     const res = await fetch(BASE_URL + path, {
         method: "PUT",
-        headers: getHeaders(true),
+        headers: getHeaders(true, includeAuth),
         body: JSON.stringify(body),
     });
 
@@ -63,10 +65,10 @@ export async function apiPut(path, body) {
 }
 
 // --- Helper DELETE ---
-export async function apiDelete(path) {
+export async function apiDelete(path, includeAuth = true) {
     const res = await fetch(BASE_URL + path, {
         method: "DELETE",
-        headers: getHeaders(true),
+        headers: getHeaders(true, includeAuth),
     });
 
     if (!res.ok) throw new Error(await res.text());

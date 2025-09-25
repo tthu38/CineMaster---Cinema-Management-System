@@ -9,6 +9,8 @@ import javax.crypto.SecretKey;
 import java.security.Key;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class JwtService {
@@ -18,6 +20,9 @@ public class JwtService {
 
     @Value("${app.jwt.access-minutes}")
     private long accessMinutes;
+
+    // Blacklist token đã logout
+    private final Set<String> invalidatedTokens = ConcurrentHashMap.newKeySet();
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());
@@ -39,6 +44,7 @@ public class JwtService {
 
     public boolean validateToken(String token) {
         try {
+            if (invalidatedTokens.contains(token)) return false;
             Jwts.parser()
                     .verifyWith((SecretKey) getSigningKey())
                     .build()
@@ -47,6 +53,10 @@ public class JwtService {
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
+    }
+
+    public void invalidateToken(String token) {
+        invalidatedTokens.add(token);
     }
 
     public String extractPhone(String token) {

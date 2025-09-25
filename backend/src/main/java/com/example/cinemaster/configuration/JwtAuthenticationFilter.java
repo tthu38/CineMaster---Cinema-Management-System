@@ -2,6 +2,7 @@ package com.example.cinemaster.configuration;
 
 import com.example.cinemaster.service.JwtService;
 import com.example.cinemaster.repository.AccountRepository;
+import com.example.cinemaster.entity.Account;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,23 +30,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
-        final String jwt;
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        jwt = authHeader.substring(7); // cắt "Bearer "
-        String phone = jwtService.extractPhone(jwt);
+        final String jwt = authHeader.substring(7); // cắt "Bearer "
+        String phone = null;
+
+        try {
+            // validateToken sẽ check cả blacklist
+            if (!jwtService.validateToken(jwt)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+            phone = jwtService.extractPhone(jwt);
+        } catch (Exception e) {
+            // Token không hợp lệ → bỏ qua
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         if (phone != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            var account = accountRepository.findByPhoneNumberAndIsActiveTrue(phone)
-                    .orElse(null);
+            Account account = accountRepository.findByPhoneNumberAndIsActiveTrue(phone).orElse(null);
 
-            if (account != null && jwtService.validateToken(jwt)) {
+            if (account != null) {
+                // TODO: lấy role từ account để set authorities
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
-                                phone, null, null // bạn có thể set GrantedAuthorities từ role
+                                phone, null, null // hoặc List<GrantedAuthority>
                         );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 

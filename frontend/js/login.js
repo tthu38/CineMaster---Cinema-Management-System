@@ -1,4 +1,4 @@
-import { apiPost } from "../js/api.js"; // api.js cùng thư mục js/
+import { apiPost } from "../js/api.js";
 
 // ====== Tự điền số điện thoại nếu có nhớ ======
 window.addEventListener("DOMContentLoaded", () => {
@@ -20,29 +20,51 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     try {
         const data = await apiPost("/api/auth/login", { phoneNumber, password });
 
-        console.log("Login thành công:", data);
+        console.log("Login thường thành công:", data);
 
-        // Lưu số điện thoại nếu chọn "ghi nhớ"
         if (rememberMe) {
             localStorage.setItem("rememberedUsername", phoneNumber);
         } else {
             localStorage.removeItem("rememberedUsername");
         }
 
-        // Lưu token để gọi API protected sau này
         localStorage.setItem("accessToken", data.accessToken);
 
-        // ✅ Redirect sang trang index.html (trong folder /home/)
         window.location.href = "../home/index.html";
     } catch (err) {
+        console.error("Login thường thất bại:", err);
         const errorDiv = document.getElementById("error-message");
         errorDiv.textContent = err.message || "Sai số điện thoại hoặc mật khẩu";
         errorDiv.classList.remove("d-none");
     }
 });
 
-// ====== Đăng nhập bằng Google ======
-document.getElementById("googleLoginBtn").addEventListener("click", () => {
-    // Gọi đúng endpoint OAuth2 login của backend (có context-path /demo)
-    window.location.href = "http://localhost:8080/demo/oauth2/authorization/google";
-});
+// ====== Callback Google Identity ======
+window.handleCredentialResponse = async function (response) {
+    try {
+        if (!response || !response.credential) {
+            console.error("Google Identity: không nhận được credential");
+            alert("Không thể đăng nhập bằng Google, vui lòng thử lại!");
+            return;
+        }
+
+        const idToken = response.credential; // token từ Google
+        console.log("Google credential nhận được:", idToken.substring(0, 20) + "...");
+
+        const data = await apiPost("/api/auth/google", { token: idToken }, false);
+
+        console.log("Google login thành công:", data);
+
+        localStorage.setItem("accessToken", data.accessToken);
+
+        // Nếu backend trả về email trong payload, lưu lại để revoke khi logout
+        if (data.email) {
+            localStorage.setItem("googleEmail", data.email);
+        }
+
+        window.location.href = "../home/index.html";
+    } catch (err) {
+        console.error("Google login thất bại:", err);
+        alert("Google login thất bại, vui lòng thử lại!");
+    }
+};
