@@ -28,22 +28,76 @@
             <input type="password" class="form-control" id="password" name="password" placeholder="Mật khẩu" required>
         </div>
 
-        <div class="mb-3 form-check">
-            <input type="checkbox" class="form-check-input" id="rememberMe">
-            <label class="form-check-label" for="rememberMe">Ghi nhớ đăng nhập</label>
+        <div class="mb-3 d-flex justify-content-between align-items-center">
+            <!-- Ghi nhớ đăng nhập -->
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="rememberMe">
+                <label class="form-check-label" for="rememberMe">Ghi nhớ đăng nhập</label>
+            </div>
+
+            <!-- Quên mật khẩu -->
+            <a href="resetPassword.html" class="text-decoration-none text-primary fw-semibold">
+                Quên mật khẩu?
+            </a>
         </div>
+
 
         <button id="loginBtn" type="submit" class="btn btn-primary w-100 mb-3 fw-bold">
             Đăng nhập
         </button>
-
-        <!-- Nút Đăng nhập Google -->
-        <button type="button" class="btn btn-light border w-100 fw-bold google-btn" id="googleLoginBtn">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-            Đăng nhập với Google
-        </button>
     </form>
+    <!-- Google login -->
+    <div id="g_id_onload"
+         data-client_id="759653899241-e2c3pb5s7lr301ivd8bkvdqd7cgouqod.apps.googleusercontent.com"
+         data-context="signin"
+         data-callback="handleCredentialResponse"
+         data-auto_prompt="false">
+    </div>
+
+    <div class="g_id_signin"
+         data-type="standard"
+         data-shape="rectangular"
+         data-theme="outline"
+         data-text="signin_with"
+         data-size="large"
+         data-logo_alignment="left">
+    </div>
+
 </div>
+<!-- SDK Google -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<!-- Callback Google (PHẢI để global, không module) -->
+<script>
+    async function handleCredentialResponse(response) {
+        if (!response || !response.credential) {
+            console.error("Không có credential từ Google");
+            alert("Google login thất bại!");
+            return;
+        }
+
+        const idToken = response.credential;
+        console.log("Google token:", idToken.substring(0, 20) + "...");
+        try {
+            const res = await fetch("http://localhost:8080/api/v1/auth/google", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token: idToken })
+            });
+            if (!res.ok) throw new Error(await res.text());
+            const data = await res.json();
+
+            localStorage.setItem("accessToken", data.accessToken);
+            if (data.email) localStorage.setItem("googleEmail", data.email);
+
+            window.location.href = "profile.html";
+
+        } catch (e) {
+            console.error("Google login lỗi:", e);
+            alert("Google login thất bại!");
+        }
+    }
+</script>
 
 <!-- Gọi file JS: login.js nằm ở ../js/login.js -->
 <script type="module" src="../js/login.js"></script>

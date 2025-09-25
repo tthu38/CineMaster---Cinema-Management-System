@@ -1,105 +1,213 @@
-import { apiGet, apiPost, apiDelete } from "../js/api.js";
+import { api } from "../js/api.js"; // api.js phải export { api }
 
-// --- Load Profile ---
+function getToken() {
+    return localStorage.getItem("accessToken");
+}
+
+// ===== Render UI với fallback =====
+function renderProfile(p) {
+    document.getElementById("fullNameDisplay").textContent = `Welcome, ${
+        p.fullName && p.fullName.trim() !== "" ? p.fullName : "User"
+    }!`;
+
+    // Avatar: fallback nếu null hoặc trống
+    document.getElementById("avatarImg").src =
+        p.avatarUrl && p.avatarUrl.trim() !== ""
+            ? p.avatarUrl
+            : "/image/avatar.png";
+
+    document.getElementById("infoFullName").textContent =
+        p.fullName && p.fullName.trim() !== "" ? p.fullName : "Chưa cập nhật";
+    document.getElementById("infoEmail").textContent =
+        p.email && p.email.trim() !== "" ? p.email : "Chưa cập nhật";
+    document.getElementById("infoPhone").textContent =
+        p.phoneNumber && p.phoneNumber.trim() !== ""
+            ? p.phoneNumber
+            : "Chưa cập nhật";
+    document.getElementById("infoAddress").textContent =
+        p.address && p.address.trim() !== "" ? p.address : "Chưa cập nhật";
+    document.getElementById("infoRole").textContent = p.roleName ?? "User";
+    document.getElementById("infoCreatedAt").textContent = p.createdAt
+        ? new Date(p.createdAt).toLocaleDateString("vi-VN")
+        : "Chưa cập nhật";
+    document.getElementById("infoPoints").textContent = p.loyaltyPoints ?? 0;
+
+    // Form Edit (không set email vì đổi email qua OTP)
+    document.getElementById("fullNameInput").value = p.fullName ?? "";
+    document.getElementById("phoneInput").value = p.phoneNumber ?? "";
+    document.getElementById("addressInput").value = p.address ?? "";
+}
+
+// ===== Load profile =====
 async function loadProfile() {
+    const token = getToken();
+    if (!token) {
+        window.location.href = "login.html";
+        return;
+    }
+
     try {
-        // Lấy cache trước (nếu có)
-        const cached = localStorage.getItem("userInfo");
-        if (cached) renderProfile(JSON.parse(cached));
-
-        // Gọi API BE để lấy dữ liệu mới nhất
-        const data = await apiGet("/api/auth/profile");
+        const data = await api.getProfile();
+        console.log("Profile data:", data);
         renderProfile(data);
-
-        // Cập nhật cache
-        localStorage.setItem("userInfo", JSON.stringify(data));
     } catch (err) {
-        alert(err.message || "Bạn cần đăng nhập lại");
+        console.error("Error loading profile:", err);
+        alert(err.message || "Không tải được thông tin user, vui lòng đăng nhập lại");
+        localStorage.removeItem("accessToken");
         window.location.href = "login.html";
     }
 }
 
-// --- Render UI ---
-function renderProfile(data) {
-    document.getElementById("fullNameDisplay").textContent = `Welcome, ${data.fullName}!`;
-    document.getElementById("avatarImg").src = data.avatarUrl || "/image/avata.png";
-    document.getElementById("infoFullName").textContent = data.fullName;
-    document.getElementById("infoEmail").textContent = data.email;
-    document.getElementById("infoPhone").textContent = data.phoneNumber;
-    document.getElementById("infoAddress").textContent = data.address;
-    document.getElementById("infoRole").textContent = data.roleName;
-    document.getElementById("infoCreatedAt").textContent = data.createdAt;
-    document.getElementById("infoPoints").textContent = data.loyaltyPoints;
+// ===== Tabs =====
+function initTabs() {
+    const tabs = document.querySelectorAll("#profileTabs .nav-link");
+    tabs.forEach((tab) => {
+        tab.addEventListener("click", function () {
+            tabs.forEach((t) => t.classList.remove("active"));
+            this.classList.add("active");
 
-    // form edit
-    document.getElementById("fullNameInput").value = data.fullName;
-    document.getElementById("emailInput").value = data.email;
-    document.getElementById("phoneInput").value = data.phoneNumber;
-    document.getElementById("addressInput").value = data.address;
+            document
+                .querySelectorAll(".tab-content > div")
+                .forEach((c) => (c.style.display = "none"));
+            const tabId = this.getAttribute("data-tab");
+            document.getElementById(tabId).style.display = "block";
+        });
+    });
 }
 
-// --- Gọi khi mở trang ---
-loadProfile();
+// ===== Logout =====
+function initLogout() {
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+        api.logout();
+    });
+}
 
-// --- Update Profile (có hỗ trợ upload avatar) ---
-document.getElementById("editForm").addEventListener("submit", async e => {
-    e.preventDefault();
-    const formData = new FormData(e.target); // Lấy toàn bộ input trong form
+// ===== Edit profile =====
+function initEditProfile() {
+    const form = document.getElementById("editForm");
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-    try {
-        const token = localStorage.getItem("accessToken");
-        const res = await fetch("http://localhost:8080/api/auth/profile", {
-            method: "PUT",
-            headers: { Authorization: `Bearer ${token}` }, // KHÔNG set Content-Type
-            body: formData
-        });
-
-        if (!res.ok) throw new Error(await res.text());
-        const data = await res.json();
-
-        alert("Cập nhật thành công!");
-        renderProfile(data);
-        localStorage.setItem("userInfo", JSON.stringify(data));
-    } catch (err) {
-        alert(err.message || "Cập nhật thất bại");
-    }
-});
-
-// --- Change Password ---
-document.getElementById("passwordForm").addEventListener("submit", async e => {
-    e.preventDefault();
-    const payload = {
-        currentPassword: document.getElementById("currentPassword").value,
-        newPassword: document.getElementById("newPassword").value,
-        confirmNewPassword: document.getElementById("confirmPassword").value
-    };
-    try {
-        await apiPost("/api/auth/change-password", payload);
-        alert("Đổi mật khẩu thành công!");
-        e.target.reset();
-    } catch (err) {
-        alert(err.message || "Đổi mật khẩu thất bại");
-    }
-});
-
-// --- Delete Profile ---
-document.getElementById("deleteBtn")?.addEventListener("click", async () => {
-    if (confirm("Bạn có chắc chắn muốn xóa tài khoản không?")) {
-        try {
-            await apiDelete("/api/auth/profile");
-            alert("Tài khoản đã bị xóa!");
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("userInfo");
-            window.location.href = "register.html"; // hoặc login.html
-        } catch (err) {
-            alert(err.message || "Xóa tài khoản thất bại");
+        const userData = {};
+        const fullName = document.getElementById("fullNameInput").value.trim();
+        const phone = document.getElementById("phoneInput").value.trim();
+        const address = document.getElementById("addressInput").value.trim();
+        const avatarFile = document.getElementById("avatarFile").files[0];
+        if (avatarFile) {
+            const newAvatarUrl = await api.uploadAvatar(avatarFile);
+            document.getElementById("avatarImg").src = newAvatarUrl;
         }
-    }
-});
 
-// --- Logout ---
-document.getElementById("logoutBtn").addEventListener("click", () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("userInfo");
-    window.location.href = "login.html";
+
+        if (fullName) userData.fullName = fullName;
+        if (phone) userData.phoneNumber = phone;
+        if (address) userData.address = address;
+
+        try {
+            // Nếu có ảnh → upload avatar trước
+            if (avatarFile) {
+                const avatarUrl = await api.uploadAvatar(avatarFile);
+                document.getElementById("avatarImg").src = avatarUrl; // cập nhật ngay UI
+            }
+
+            // Nếu có dữ liệu profile → gửi update
+            if (Object.keys(userData).length > 0) {
+                await api.updateProfile(userData);
+            }
+
+            alert("Cập nhật thành công!");
+            loadProfile();
+            form.reset();
+        } catch (err) {
+            console.error("Update profile error:", err);
+            alert(err.message || "Lỗi khi cập nhật thông tin");
+        }
+    });
+}
+
+// ===== Change password =====
+function initChangePassword() {
+    const form = document.getElementById("passwordForm");
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const currentPassword = document
+            .getElementById("currentPassword")
+            .value.trim();
+        const newPassword = document.getElementById("newPassword").value.trim();
+        const confirmPassword = document
+            .getElementById("confirmPassword")
+            .value.trim();
+
+        if (newPassword !== confirmPassword) {
+            alert("Mật khẩu mới không khớp");
+            return;
+        }
+
+        try {
+            await api.changePassword({ currentPassword, newPassword });
+            alert("Đổi mật khẩu thành công!");
+            form.reset();
+        } catch (err) {
+            console.error("Change password error:", err);
+            alert(err.message || "Lỗi khi đổi mật khẩu");
+        }
+    });
+}
+
+// ===== Change Email with OTP =====
+function initChangeEmail() {
+    const form = document.getElementById("changeEmailForm");
+    const sendOtpBtn = document.getElementById("sendOtpBtn");
+    const otpSection = document.getElementById("otpSection");
+
+    if (!form || !sendOtpBtn) return; // fallback nếu chưa có UI
+
+    // Gửi OTP
+    sendOtpBtn.addEventListener("click", async () => {
+        const newEmail = document.getElementById("newEmail").value.trim();
+        if (!newEmail) {
+            alert("Vui lòng nhập email mới");
+            return;
+        }
+        try {
+            await api.sendOtpChangeEmail(newEmail);
+            alert("OTP đã được gửi đến email mới!");
+            otpSection.style.display = "block";
+        } catch (err) {
+            console.error("Send OTP error:", err);
+            alert(err.message || "Không gửi được OTP");
+        }
+    });
+
+    // Xác thực OTP và đổi email
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const newEmail = document.getElementById("newEmail").value.trim();
+        const otp = document.getElementById("otpCode").value.trim();
+        if (!otp) {
+            alert("Vui lòng nhập OTP");
+            return;
+        }
+
+        try {
+            await api.verifyEmailChange(newEmail, otp);
+            alert("Đổi email thành công!");
+            loadProfile();
+            form.reset();
+            otpSection.style.display = "none";
+        } catch (err) {
+            console.error("Verify email error:", err);
+            alert(err.message || "Xác thực OTP thất bại");
+        }
+    });
+}
+
+// ===== Init =====
+document.addEventListener("DOMContentLoaded", () => {
+    loadProfile();
+    initTabs();
+    initLogout();
+    initEditProfile();
+    initChangePassword();
+    initChangeEmail();
 });

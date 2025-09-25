@@ -1,14 +1,24 @@
 // ====== Cấu hình cơ bản ======
+const LOGIN_PAGE = "../user/login.html";
 const TOKEN_KEY = "accessToken";
 const HOME_PAGE = "home.html";
 
 // ====== Logout ======
-window.handleLogout = function handleLogout() {
+window.handleLogout = async function handleLogout() {
     try {
-        localStorage.removeItem(TOKEN_KEY);
-        window.location.replace(HOME_PAGE);
+        const token = localStorage.getItem("accessToken");
+        if (token) {
+            await fetch("http://localhost:8080/api/v1/auth/logout", {
+                method: "POST",
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+        }
     } catch (e) {
-        window.location.href = HOME_PAGE;
+        console.error("Logout error:", e);
+    } finally {
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("userInfo");
+        window.location.href = LOGIN_PAGE;
     }
 };
 

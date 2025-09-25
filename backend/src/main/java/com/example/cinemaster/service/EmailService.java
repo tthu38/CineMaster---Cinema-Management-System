@@ -2,12 +2,14 @@ package com.example.cinemaster.service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class EmailService {
 
@@ -63,4 +65,21 @@ public class EmailService {
 
         mailSender.send(message);
     }
+
+    public void sendOtpForChangeEmail(String to, String code) throws MessagingException {
+        String subject = "Xác nhận thay đổi email";
+        String content = "<h3>Xin chào!</h3>"
+                + "<p>Bạn đã yêu cầu thay đổi email đăng nhập.</p>"
+                + "<p>Mã xác thực của bạn là: <b>" + code + "</b></p>"
+                + "<p>Mã này sẽ hết hạn sau 10 phút.</p>";
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(content, true);
+
+        mailSender.send(message);
+    }
+
 }
