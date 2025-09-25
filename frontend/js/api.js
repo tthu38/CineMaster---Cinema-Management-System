@@ -80,7 +80,7 @@ const authApi = {
             });
         }
         localStorage.removeItem('accessToken');
-        window.location.href = 'login.html'; // redirect về login
+        window.location.href = '../home/home.html'; // redirect về login
     },
 };
 

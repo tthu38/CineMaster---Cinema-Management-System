@@ -92,9 +92,7 @@
         <a href="register.html">Quay lại đăng ký</a>
     </div>
 </div>
-
 <script>
-    // Trỏ đúng group /auth, KHÔNG lặp /verify lần 2
     const API_BASE = "http://localhost:8080/api/v1/auth";
 
     function getEmailFromQuery() {
@@ -110,15 +108,18 @@
         const resultBox = document.getElementById("result");
 
         try {
-            // Nếu backend là GET (phổ biến cho verify OTP):
             const res = await fetch(`${API_BASE}/verify?email=${encodeURIComponent(email)}&code=${encodeURIComponent(code)}`);
             const text = await res.text();
 
             resultBox.innerText = text;
             resultBox.style.color = res.ok ? "#29b6f6" : "#e53935";
 
-            // Tuỳ ý: chuyển sang login nếu verify thành công
-            // if (res.ok) window.location.href = "login.html";
+            // 👉 Nếu verify thành công thì chuyển về home/home.html sau 1.5s
+            if (res.ok && text.includes("Xác thực thành công")) {
+                setTimeout(() => {
+                    window.location.href = "../user/login.html";
+                }, 1500);
+            }
         } catch (err) {
             resultBox.innerText = "Lỗi: " + err.message;
             resultBox.style.color = "#e53935";
@@ -128,5 +129,6 @@
     document.getElementById("verifyForm").addEventListener("submit", handleVerify);
     window.onload = getEmailFromQuery;
 </script>
+
 </body>
 </html>

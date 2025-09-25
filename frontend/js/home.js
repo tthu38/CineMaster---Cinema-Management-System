@@ -18,7 +18,7 @@ window.handleLogout = async function handleLogout() {
     } finally {
         localStorage.removeItem("accessToken");
         localStorage.removeItem("userInfo");
-        window.location.href = LOGIN_PAGE;
+        window.location.href = HOME_PAGE;
     }
 };
 

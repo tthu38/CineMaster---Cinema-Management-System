@@ -5,7 +5,6 @@ import com.example.cinemaster.service.RegisterService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -18,8 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*", allowCredentials = "false")
 public class RegisterController {
 
-    @Autowired
-    private RegisterService accountService;
+    private final RegisterService accountService;
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request,
@@ -35,14 +33,22 @@ public class RegisterController {
 
         String serviceResult = accountService.register(request);
 
+        // 👉 Check lỗi trùng email
         if (serviceResult.contains("Email đã tồn tại")) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(serviceResult);
         }
 
+        // 👉 Check lỗi trùng số điện thoại
+        if (serviceResult.contains("Số điện thoại đã tồn tại")) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(serviceResult);
+        }
+
+        // 👉 Check lỗi không tìm thấy role
         if (serviceResult.contains("Không tìm thấy Role")) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(serviceResult);
         }
 
+        // 👉 Mặc định: đăng ký thành công
         return ResponseEntity.ok(serviceResult);
     }
 

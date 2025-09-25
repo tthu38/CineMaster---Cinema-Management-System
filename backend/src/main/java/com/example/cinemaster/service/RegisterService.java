@@ -34,6 +34,10 @@ public class RegisterService {
             return "Số điện thoại đã tồn tại";
         }
 
+        if (accountRepository.existsByEmail(request.getEmail())) {
+            return "Email đã tồn tại";
+        }
+
 
         Role role = roleRepository.findByRoleName("Customer")
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Role"));
