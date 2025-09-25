@@ -1,6 +1,7 @@
 package com.example.cinemaster.controller;
 
 import com.example.cinemaster.dto.request.LoginRequest;
+import com.example.cinemaster.dto.response.ApiResponse;
 import com.example.cinemaster.dto.response.AuthResponse;
 import com.example.cinemaster.entity.Account;
 import com.example.cinemaster.entity.Role;
@@ -16,15 +17,18 @@ import com.google.api.client.json.gson.GsonFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Map;
 
+
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 @Slf4j
 public class AuthController {
@@ -38,8 +42,34 @@ public class AuthController {
     private String googleClientId;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        try {
+            AuthResponse response = authService.login(request);
+            return ResponseEntity.ok(
+                    ApiResponse.<AuthResponse>builder()
+                            .code(200)
+                            .message("Đăng nhập thành công")
+                            .result(response)
+                            .build()
+            );
+        } catch (BadCredentialsException e) {
+            log.warn("Login failed for phone: {}", request.getPhoneNumber());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                    ApiResponse.<Void>builder()
+                            .code(HttpStatus.UNAUTHORIZED.value())
+                            .message(e.getMessage())
+                            .build()
+            );
+        } catch (Exception e) {
+            log.error("Unexpected error during login", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    ApiResponse.<Void>builder()
+                            .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                            .message("Đã có lỗi xảy ra, vui lòng thử lại sau")
+                            .build()
+            );
+        }
+
     }
 
     @PostMapping("/google")
@@ -105,3 +135,6 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("message", "Logout successful"));
     }
 }
+
+
+

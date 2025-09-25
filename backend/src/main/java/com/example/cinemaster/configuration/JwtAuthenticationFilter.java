@@ -1,10 +1,12 @@
 package com.example.cinemaster.configuration;
 
-import com.example.cinemaster.service.JwtService;
-import com.example.cinemaster.repository.AccountRepository;
 import com.example.cinemaster.entity.Account;
+import com.example.cinemaster.repository.AccountRepository;
+import com.example.cinemaster.service.JwtService;
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
@@ -15,6 +17,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
 
 @Component
 @RequiredArgsConstructor
@@ -35,31 +38,38 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        final String jwt = authHeader.substring(7); // cắt "Bearer "
-        String phone = null;
+        String jwt = authHeader.substring(7);
 
         try {
-            // validateToken sẽ check cả blacklist
             if (!jwtService.validateToken(jwt)) {
-                filterChain.doFilter(request, response);
-                return;
+                throw new RuntimeException("Token không hợp lệ hoặc đã bị logout");
             }
-            phone = jwtService.extractPhone(jwt);
+        } catch (ExpiredJwtException e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"code\":401,\"message\":\"Token hết hạn, vui lòng đăng nhập lại\"}");
+            return;
         } catch (Exception e) {
-            // Token không hợp lệ → bỏ qua
-            filterChain.doFilter(request, response);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"code\":401,\"message\":\"Token không hợp lệ\"}");
             return;
         }
 
-        if (phone != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            Account account = accountRepository.findByPhoneNumberAndIsActiveTrue(phone).orElse(null);
+        // Lấy accountId, phone và role từ token
+        Integer accountId = jwtService.extractAccountId(jwt);
+        String phone = jwtService.extractPhone(jwt);
+        String roleName = jwtService.extractRole(jwt);
 
-            if (account != null) {
-                // TODO: lấy role từ account để set authorities
+        if (accountId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            // Truy vấn DB để check account có tồn tại và active
+            Account account = accountRepository.findById(accountId).orElse(null);
+
+            if (account != null && Boolean.TRUE.equals(account.getIsActive())) {
+                var authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + roleName));
+
                 UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                phone, null, null // hoặc List<GrantedAuthority>
-                        );
+                        new UsernamePasswordAuthenticationToken(account, null, authorities);
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authToken);

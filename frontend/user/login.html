@@ -8,6 +8,7 @@
     <style>
         .input-group-text { background-color: #e9ecef; }
         .card { border-radius: 1rem; }
+        .google-btn img { width: 20px; margin-right: 8px; }
     </style>
 </head>
 <body class="bg-light d-flex align-items-center justify-content-center" style="height: 100vh;">
@@ -17,7 +18,6 @@
     <!-- Thông báo lỗi -->
     <div id="error-message" class="alert alert-danger text-center d-none"></div>
 
-    <!-- Form login thường -->
     <form id="loginForm">
         <div class="mb-3 input-group">
             <span class="input-group-text"><i class="fas fa-user"></i></span>
@@ -28,16 +28,24 @@
             <input type="password" class="form-control" id="password" name="password" placeholder="Mật khẩu" required>
         </div>
 
-        <div class="mb-3 form-check">
-            <input type="checkbox" class="form-check-input" id="rememberMe">
-            <label class="form-check-label" for="rememberMe">Ghi nhớ đăng nhập</label>
+        <div class="mb-3 d-flex justify-content-between align-items-center">
+            <!-- Ghi nhớ đăng nhập -->
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="rememberMe">
+                <label class="form-check-label" for="rememberMe">Ghi nhớ đăng nhập</label>
+            </div>
+
+            <!-- Quên mật khẩu -->
+            <a href="resetPassword.html" class="text-decoration-none text-primary fw-semibold">
+                Quên mật khẩu?
+            </a>
         </div>
+
 
         <button id="loginBtn" type="submit" class="btn btn-primary w-100 mb-3 fw-bold">
             Đăng nhập
         </button>
     </form>
-
     <!-- Google login -->
     <div id="g_id_onload"
          data-client_id="759653899241-e2c3pb5s7lr301ivd8bkvdqd7cgouqod.apps.googleusercontent.com"
@@ -54,8 +62,8 @@
          data-size="large"
          data-logo_alignment="left">
     </div>
-</div>
 
+</div>
 <!-- SDK Google -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 
@@ -70,9 +78,8 @@
 
         const idToken = response.credential;
         console.log("Google token:", idToken.substring(0, 20) + "...");
-
         try {
-            const res = await fetch("http://localhost:8080/demo/api/auth/google", {
+            const res = await fetch("http://localhost:8080/api/v1/auth/google", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ token: idToken })
@@ -83,7 +90,8 @@
             localStorage.setItem("accessToken", data.accessToken);
             if (data.email) localStorage.setItem("googleEmail", data.email);
 
-            window.location.href = "../home/index.html";
+            window.location.href = "profile.html";
+
         } catch (e) {
             console.error("Google login lỗi:", e);
             alert("Google login thất bại!");
@@ -91,7 +99,7 @@
     }
 </script>
 
-<!-- Login thường (module) -->
+<!-- Gọi file JS: login.js nằm ở ../js/login.js -->
 <script type="module" src="../js/login.js"></script>
 </body>
 </html>

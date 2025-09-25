@@ -1,5 +1,5 @@
 // API Backend (Spring Boot)
-const API_BASE = "http://localhost:8080/demo/api/auth";
+const API_BASE = "http://localhost:8080/api/v1/auth";
 
 document.getElementById("registerForm").addEventListener("submit", async (e) => {
     e.preventDefault();

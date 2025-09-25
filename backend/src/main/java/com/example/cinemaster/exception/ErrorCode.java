@@ -16,6 +16,7 @@ public enum ErrorCode {
     TOKEN_EXPIRED(1008, "Token is expired", HttpStatus.UNAUTHORIZED),
     PHONE_NOT_FOUND(1009, "Phone not found", HttpStatus.NOT_FOUND),
     ROLE_NOT_FOUND(10010, "Role not found", HttpStatus.NOT_FOUND),
+    INVALID_EMAIL_FORMAT(10011, "Invalid email format", HttpStatus.BAD_REQUEST),
     ;
 
     private int code;

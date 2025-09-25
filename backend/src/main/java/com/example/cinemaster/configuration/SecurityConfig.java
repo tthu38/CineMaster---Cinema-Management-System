@@ -23,10 +23,14 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtFilter; // 👈 inject filter
+    // 👇 inject JwtAuthenticationFilter do mình định nghĩa
+    private final JwtAuthenticationFilter jwtFilter;
 
+    // 👇 endpoints public không cần login
     private final String[] PUBLIC_ENDPOINTS = {
-            "/api/auth/**"   // cho login, register, verify...
+            "/api/v1/auth/**",   // login, register, google, logout
+            "/api/v1/password/**", // quên mật khẩu, reset password
+            "/uploads/**"        // file ảnh public
     };
 
     @Bean
@@ -39,7 +43,7 @@ public class SecurityConfig {
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .anyRequest().authenticated()
                 )
-                // 👇 thêm filter JWT trước UsernamePasswordAuthenticationFilter
+                // 👇 filter JWT chạy trước UsernamePasswordAuthenticationFilter
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -48,8 +52,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOriginPattern("*"); // Cho phép tất cả trong dev
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.addAllowedOriginPattern("*"); // cho FE call thoải mái
+        config.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("*"));
         config.setAllowCredentials(true);
 
