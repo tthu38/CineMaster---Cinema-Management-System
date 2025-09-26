@@ -5,26 +5,25 @@
     <title>Đăng nhập - CineMaster</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+    <!-- Fonts & CSS -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 
     <style>
-        /* ===== BIẾN CSS CHUNG ===== */
         :root{
-            --red:#CE2F26;       /* Đỏ trầm */
-            --cyan:#22c1ff;      /* Xanh neon sáng */
-            --blue:#0aa3ff;      /* Xanh neon đậm */
-            --ink:#06101f;       /* Nền xanh-đen sâu nhất */
-            --bg:#0b162c;        /* Nền chính */
-            --card:#0c1324;      /* Nền panel */
-            --border:#1b2b4a;    /* Màu viền, đậm */
-            --text-light:#e6f1ff;/* Màu chữ sáng */
-            --text-muted:#9aa7b3;/* Màu chữ mờ */
+            --red:#CE2F26;
+            --cyan:#22c1ff;
+            --blue:#0aa3ff;
+            --ink:#06101f;
+            --bg:#0b162c;
+            --card:#0c1324;
+            --border:#1b2b4a;
+            --text-light:#e6f1ff;
+            --text-muted:#9aa7b3;
             --glow:0 0 20px rgba(34,193,255,.35), 0 0 60px rgba(34,193,255,.15);
         }
 
-        /* ===== NỀN & HIỆU ỨNG (Giữ nguyên) ===== */
         html,body{
             margin:0; padding:0;
             color:var(--text-light);
@@ -74,42 +73,6 @@
         }
         .film-card:before{ top:12px } .film-card:after{ bottom:12px }
 
-        /* ===== HEADER STYLES (Sửa lỗi responsive) ===== */
-        .cm-header{
-            position:fixed; top:0; left:0; width:100%; z-index:100;
-            background:rgba(10,19,38,.92);
-            backdrop-filter:saturate(120%) blur(6px);
-            border-bottom:1px solid rgba(27,43,74,1);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
-        }
-        .cm-header .header-container{
-            max-width:1300px; margin:0 auto; padding:12px 40px;
-            display:flex; align-items:center; justify-content:space-between;
-            flex-wrap: nowrap; /* NGĂN KHỎI XUỐNG DÒNG VÀ XẾP CHỒNG */
-        }
-        .cm-header .logo-text{
-            font-family:'Bebas Neue', sans-serif; letter-spacing:2px; font-size:1.9rem;
-            color:var(--red); flex-shrink: 0;
-        }
-        .cm-header .cm-nav{
-            display:flex; gap:24px;
-            margin-left: 30px; /* Thêm khoảng cách cho logo */
-        }
-        .cm-header .nav-link{
-            color:var(--text-muted); font-weight:500;
-            transition:color .25s ease;
-        }
-        .cm-header .nav-link:hover, .cm-header .nav-link.active{ color:var(--red); }
-        .cm-header .auth-wrap{ display:flex; gap:12px; flex-shrink: 0; }
-        .cm-header .btn-auth{
-            padding:6px 14px; border-radius:20px;
-            border:1.5px solid var(--red); background:transparent; color:var(--red); font-weight:700;
-            transition:all .25s ease;
-        }
-        .cm-header .btn-auth:hover{ background:var(--red); color:#fff; box-shadow:0 0 10px rgba(206,47,38,.5); }
-        .cm-header .btn-auth.active-page { background:var(--red); color:#fff; }
-
-        /* ===== LOGIN FORM STYLES ===== */
         .main-content-area {
             flex-grow: 1;
             display: flex;
@@ -122,19 +85,15 @@
             padding: 60px 50px;
             width: 28rem;
         }
-
-        /* FONT TIÊU ĐỀ (Đã đổi sang Roboto, đậm) */
         .login-card .card-title {
-            font-family:'Roboto', sans-serif; /* Đổi sang Roboto */
+            font-family:'Roboto', sans-serif;
             color: var(--text-light) !important;
-            font-size: 2.5rem; /* Kích thước vừa phải */
-            letter-spacing: 0.1px; /* Giảm hẳn letter spacing */
+            font-size: 2.5rem;
             margin-bottom: 30px !important;
-            font-weight: 900 !important; /* Độ đậm lớn nhất */
+            font-weight: 900 !important;
             text-transform: uppercase;
         }
 
-        /* INPUT STYLES (Giữ nguyên) */
         .input-group-text {
             background: #142443; border: 1px solid #142443; color: var(--text-muted);
             height: 50px; border-right:none; border-top-left-radius: 10px; border-bottom-left-radius: 10px;
@@ -150,7 +109,6 @@
         .forgot-password-link { color: var(--blue) !important; font-weight: 500 !important; }
         .forgot-password-link:hover { color: var(--cyan) !important; text-decoration: underline !important; }
 
-        /* NÚT ĐĂNG NHẬP CHÍNH (Đã đổi sang Đỏ trầm) */
         .btn-primary {
             background-color: var(--red) !important;
             border:none !important;
@@ -167,13 +125,11 @@
             transform: translateY(-1px);
         }
 
-        /* NÚT GOOGLE (Khắc phục triệt để lỗi căn chỉnh/viền) */
         .g_id_signin {
             display: flex;
             justify-content: center;
             margin-top: 20px;
             width: 100%;
-            /* Bọc nút Google trong một div để kiểm soát width tốt hơn */
             padding: 1px;
         }
         .g_id_signin > div {
@@ -182,7 +138,6 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             transition: all .2s ease;
             min-height: 48px;
-            /* Quan trọng: Google API có thể ghi đè width */
             width: 100% !important;
             display: flex !important;
             align-items: center !important;
@@ -194,29 +149,13 @@
             box-shadow: 0 6px 16px rgba(0,0,0,0.4), 0 0 8px rgba(34,193,255,.2);
             transform: translateY(-1px);
         }
-        /* Cần thêm style để nút Google chiếm 100% chiều rộng trong container */
         .g_id_signin > div > div {
             width: 100% !important;
             justify-content: center !important;
         }
 
-        /* ===== FOOTER STYLES (Giữ nguyên) ===== */
-        footer {
-            margin-top: auto;
-            padding: 20px;
-            text-align: center;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            border-top: 1px solid var(--border);
-            background: linear-gradient(0deg, var(--ink), rgba(0,0,0,0));
-            width: 100%;
-        }
-
-        /* Responsive adjustments */
         @media (max-width: 960px){
-            /* Ẩn menu nav trên màn hình nhỏ/tablet, giữ nguyên logo và auth buttons */
             .cm-header .cm-nav{ display:none; }
-            .cm-header .header-container{ padding:12px 20px; }
         }
         @media (max-width: 576px) {
             .login-card { padding: 40px 30px; width: 100%; }
@@ -226,25 +165,10 @@
 <body>
 <div class="grain"></div>
 
-<header class="header cm-header">
-    <div class="header-container">
-        <a href="../home/home.html" class="logo-text">CineMaster</a>
+<!-- Header -->
+<div id="header-placeholder"></div>
 
-        <nav class="cm-nav">
-            <a href="../home/home.html" class="nav-link">Home</a>
-            <a href="#" class="nav-link">Movies</a>
-            <a href="#" class="nav-link">Showtimes</a>
-            <a href="#" class="nav-link">Theaters</a>
-            <a href="#" class="nav-link">Promotions</a>
-        </nav>
-
-        <div class="auth-wrap">
-            <button class="btn-auth active-page" onclick="window.location.href='../user/login.html'">Đăng nhập</button>
-            <button class="btn-auth" onclick="window.location.href='../user/register.html'">Đăng ký</button>
-        </div>
-    </div>
-</header>
-
+<!-- Nội dung chính -->
 <div class="main-content-area">
     <div class="film-card login-card p-5 shadow-lg">
         <h1 class="card-title text-center mb-4 fw-bold">ĐĂNG NHẬP</h1>
@@ -266,15 +190,10 @@
                     <input type="checkbox" class="form-check-input" id="rememberMe">
                     <label class="form-check-label" for="rememberMe">Ghi nhớ đăng nhập</label>
                 </div>
-
-                <a href="resetPassword.html" class="forgot-password-link">
-                    Quên mật khẩu?
-                </a>
+                <a href="resetPassword.html" class="forgot-password-link">Quên mật khẩu?</a>
             </div>
 
-            <button id="loginBtn" type="submit" class="btn btn-primary w-100 mb-3 fw-bold">
-                Đăng nhập
-            </button>
+            <button id="loginBtn" type="submit" class="btn btn-primary w-100 mb-3 fw-bold">Đăng nhập</button>
         </form>
 
         <div id="g_id_onload"
@@ -292,19 +211,11 @@
              data-size="large"
              data-logo_alignment="left">
         </div>
-
     </div>
 </div>
 
-
-<footer>
-    <p>© 2025 CineMaster. Mọi quyền được bảo lưu.</p>
-    <p>
-        <a href="#">Liên hệ</a> |
-        <a href="#">Điều khoản</a> |
-        <a href="#">Chính sách bảo mật</a>
-    </p>
-</footer>
+<!-- Footer -->
+<div id="footer-placeholder"></div>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
@@ -314,7 +225,6 @@
             alert("Google login thất bại!");
             return;
         }
-
         const idToken = response.credential;
         console.log("Google token:", idToken.substring(0, 20) + "...");
         try {
@@ -325,18 +235,28 @@
             });
             if (!res.ok) throw new Error(await res.text());
             const data = await res.json();
-
             localStorage.setItem("accessToken", data.accessToken);
             if (data.email) localStorage.setItem("googleEmail", data.email);
-
             window.location.href = "profile.html";
-
         } catch (e) {
             console.error("Google login lỗi:", e);
             alert("Google login thất bại!");
         }
     }
+
+    // Load header
+    fetch("../home/header.html")
+        .then(res => res.text())
+        .then(html => document.getElementById("header-placeholder").innerHTML = html)
+        .catch(err => console.error("Không load được header:", err));
+
+    // Load footer
+    fetch("../home/footer.html")
+        .then(res => res.text())
+        .then(html => document.getElementById("footer-placeholder").innerHTML = html)
+        .catch(err => console.error("Không load được footer:", err));
 </script>
+
 <script type="module" src="../js/login.js"></script>
 </body>
 </html>
