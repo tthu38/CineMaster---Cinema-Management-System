@@ -1,9 +1,142 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+</head>
+
 <!-- footer.html -->
-<footer>
-    <p>© 2025 CineMaster. Mọi quyền được bảo lưu.</p>
-    <p>
-        <a href="#">Liên hệ</a> |
-        <a href="#">Điều khoản</a> |
-        <a href="#">Chính sách bảo mật</a>
-    </p>
+<footer class="cm-footer">
+    <div class="footer-container">
+        <!-- Logo + giới thiệu -->
+        <div class="footer-col">
+            <h2 class="footer-logo">CineMaster</h2>
+            <p>Xem phim mọi lúc, mọi nơi với trải nghiệm điện ảnh đỉnh cao.</p>
+        </div>
+
+        <!-- Liên kết -->
+        <div class="footer-col">
+            <h4>Về chúng tôi</h4>
+            <ul>
+                <li><a href="#">Giới thiệu</a></li>
+                <li><a href="#">Liên hệ</a></li>
+                <li><a href="#">Điều khoản sử dụng</a></li>
+                <li><a href="#">Chính sách bảo mật</a></li>
+            </ul>
+        </div>
+
+        <!-- Hỗ trợ -->
+        <div class="footer-col">
+            <h4>Hỗ trợ</h4>
+            <ul>
+                <li><a href="#">Trung tâm trợ giúp</a></li>
+                <li><a href="#">FAQ</a></li>
+                <li><a href="#">Góp ý</a></li>
+            </ul>
+        </div>
+
+        <!-- Mạng xã hội -->
+        <div class="footer-col">
+            <h4>Kết nối</h4>
+            <div class="social-links">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-youtube"></i></a>
+                <a href="#"><i class="fab fa-tiktok"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        © 2025 CineMaster. Mọi quyền được bảo lưu.
+    </div>
 </footer>
+
+<style>
+    .cm-footer {
+        background: #0a0a0a;
+        color: #ccc;
+        padding: 40px 60px 20px;
+        font-family: 'Roboto', sans-serif;
+        font-size: 0.95rem;
+    }
+
+    .footer-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+
+    .footer-logo {
+        font-family: 'Bebas Neue', sans-serif;
+        font-size: 2rem;
+        color: #e50914;
+        margin-bottom: 10px;
+    }
+
+    .footer-col h4 {
+        font-size: 1.1rem;
+        color: #fff;
+        margin-bottom: 12px;
+        font-weight: 600;
+        position: relative;
+    }
+
+    .footer-col h4::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -6px;
+        width: 40px;
+        height: 2px;
+        background: #e50914;
+    }
+
+    .footer-col ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .footer-col ul li {
+        margin: 8px 0;
+    }
+
+    .footer-col ul li a {
+        color: #ccc;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .footer-col ul li a:hover {
+        color: #e50914;
+    }
+
+    .social-links a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background: #222;
+        border-radius: 50%;
+        color: #ccc;
+        margin-right: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .social-links a:hover {
+        background: #e50914;
+        color: #fff;
+        transform: translateY(-3px);
+    }
+
+    .footer-bottom {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 15px;
+        text-align: center;
+        font-size: 0.85rem;
+        color: #aaa;
+    }
+</style>

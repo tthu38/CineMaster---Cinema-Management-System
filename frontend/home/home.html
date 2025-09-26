@@ -10,83 +10,23 @@
     <style>
         :root {
             --primary-color: #e50914;
-            --background-color: #141414;
+            --background-color: #0D1326;
             --text-color: #ffffff;
-            --card-background: #181818;
+            --card-background: #152040;
         }
 
         body {
-            background-color: var(--background-color, #141414);
-            color: var(--text-color, #ffffff);
+            background-color: var(--background-color);
+            color: var(--text-color);
             font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
             overflow-x: hidden;
         }
 
-        /* HEADER */
-        .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            z-index: 100;
-        }
-        .header-container {
-            max-width: 1300px;
-            margin: 0 auto;
-            padding: 12px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .logo-text {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.8rem;
-            color: var(--primary-color, #e50914);
-            letter-spacing: 2px;
-            cursor: pointer;
-        }
-        nav {
-            display: flex;
-            gap: 25px;
-        }
-        .nav-link {
-            color: var(--text-color, #ffffff);
-            text-decoration: none;
-            font-size: 1rem;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-        .nav-link:hover, .nav-link.active {
-            color: var(--primary-color, #e50914);
-        }
-        .auth-buttons {
-            display: flex;
-            gap: 10px;
-        }
-        .btn-auth {
-            padding: 5px 14px;
-            border: 1.5px solid var(--primary-color, #e50914);
-            border-radius: 20px;
-            background: transparent;
-            color: var(--primary-color, #e50914);
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-        .btn-auth:hover {
-            background: var(--primary-color, #e50914);
-            color: #fff;
-            box-shadow: 0 0 10px rgba(229, 57, 53, 0.6);
-        }
-
         /* HERO CAROUSEL */
         .hero {
-            margin-top: 80px;
+            margin-top: 40px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -117,16 +57,16 @@
             object-fit: cover;
         }
         .carousel-item.active {
-            transform: scale(1.2);
+            transform: scale(1.5);
             z-index: 5;
             filter: brightness(1);
         }
         .carousel-item.left {
-            transform: translateX(-120%) rotateY(20deg) scale(0.9);
+            transform: translateX(-70%) rotateY(12deg) scale(0.85);
             filter: brightness(0.6);
         }
         .carousel-item.right {
-            transform: translateX(120%) rotateY(-20deg) scale(0.9);
+            transform: translateX(70%) rotateY(-12deg) scale(0.85);
             filter: brightness(0.6);
         }
         .carousel-controls {
@@ -143,163 +83,79 @@
         }
 
         /* Info under active */
-        .movie-info {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .movie-title {
-            font-size: 2rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-        .movie-meta {
-            font-size: 0.9rem;
-            color: #aaa;
-            margin-bottom: 15px;
-        }
-        .hero-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-        }
+        .movie-info { text-align: center; margin-top: 20px; }
+        .movie-title { font-size: 2rem; font-weight: 700; margin-bottom: 10px; }
+        .movie-meta { font-size: 0.9rem; color: #aaa; margin-bottom: 15px; }
+        .hero-buttons { display: flex; justify-content: center; gap: 12px; }
         .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            font-size: 1rem;
-            font-weight: 700;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            padding: 10px 20px; border: none; border-radius: 4px;
+            font-size: 1rem; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; gap: 8px;
         }
-        .btn-watch {
-            background-color: var(--primary-color, #e50914);
-            color: #fff;
-        }
-        .btn-list {
-            background-color: rgba(255,255,255,0.2);
-            color: #fff;
-        }
+        .btn-watch { background-color: var(--primary-color); color: #fff; }
+        .btn-list { background-color: rgba(255,255,255,0.2); color: #fff; }
 
         /* SEARCH BAR */
-        .search-bar {
-            margin: 40px auto;
-            text-align: center;
-        }
+        .search-bar { margin: 40px auto; text-align: center; }
         .search-bar input {
-            width: 50%;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 4px 0 0 4px;
+            width: 50%; padding: 12px 20px;
+            border: none; border-radius: 4px 0 0 4px;
             font-size: 1rem;
         }
         .search-bar button {
-            padding: 12px 20px;
-            border: none;
+            padding: 12px 20px; border: none;
             border-radius: 0 4px 4px 0;
-            background: var(--primary-color, #e50914);
-            color: #fff;
-            font-weight: 600;
-            cursor: pointer;
+            background: var(--primary-color); color: #fff;
+            font-weight: 600; cursor: pointer;
         }
 
         /* MOVIE SECTIONS */
         .movie-section { padding: 20px 60px; }
         .movie-section h2 { margin-bottom: 15px; }
         .movie-row {
-            display: flex;
-            gap: 15px;
-            overflow-x: auto;
-            padding-bottom: 10px;
+            display: flex; gap: 15px; overflow-x: auto;
+            padding-bottom: 10px; align-items: stretch;
         }
-        .movie-row::-webkit-scrollbar { display: none; }
         .movie-card {
             flex: 0 0 200px;
-            background: var(--card-background, #181818);
+            background: var(--card-background);
             border-radius: 6px; overflow: hidden;
             transition: transform 0.3s ease;
+            display: flex; flex-direction: column;
+            height: 350px;
         }
-        .movie-card:hover { transform: scale(1.05); }
-        .movie-card img { width: 100%; }
-        .movie-card h3 { font-size: 1rem; margin: 8px; }
+        .movie-card img { width: 100%; height: 70%; object-fit: cover; }
+        .movie-card h3 { font-size: 1rem; margin: 8px; flex-grow: 1; }
         .movie-card p { font-size: 0.85rem; margin: 0 8px 8px; color: #bbb; }
+        .movie-card, .showtime-card {
+            background: var(--card-background);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
 
         /* SHOWTIMES */
-        .showtimes {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
+        .showtimes { display: flex; flex-wrap: wrap; gap: 20px; }
         .showtime-card {
             flex: 1 1 300px;
-            background: var(--card-background, #181818);
-            border-radius: 6px;
-            padding: 15px 20px;
-            color: #fff;
+            background: var(--card-background);
+            border-radius: 6px; padding: 15px 20px; color: #fff;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
-        .showtime-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 20px rgba(0,0,0,0.6);
-        }
-        .showtime-card h3 {
-            margin: 0 0 8px;
-            font-size: 1.2rem;
-            color: var(--primary-color, #e50914);
-        }
-        .showtime-card p {
-            margin: 0 0 10px;
-            color: #bbb;
-        }
-        .times {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
+        .showtime-card:hover { transform: translateY(-5px); box-shadow: 0 6px 20px rgba(0,0,0,0.6); }
+        .showtime-card h3 { margin: 0 0 8px; font-size: 1.2rem; color: var(--primary-color); }
+        .showtime-card p { margin: 0 0 10px; color: #bbb; }
+        .times { display: flex; gap: 10px; flex-wrap: wrap; }
         .times span {
-            background: #222;
-            padding: 6px 12px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: background 0.3s ease;
+            background: #222; padding: 6px 12px; border-radius: 4px;
+            font-size: 0.9rem; cursor: pointer; transition: background 0.3s ease;
         }
-        .times span:hover {
-            background: var(--primary-color, #e50914);
-        }
-
-        /* FOOTER */
-        footer {
-            padding: 20px 60px;
-            background: #0a0a0a;
-            text-align: center;
-            color: #aaa;
-            font-size: 0.9rem;
-            margin-top: 40px;
-        }
-        footer a { color: #aaa; margin: 0 8px; text-decoration: none; }
-        footer a:hover { color: #fff; }
+        .times span:hover { background: var(--primary-color); }
     </style>
 </head>
 <body>
-
-<!-- HEADER -->
 <div id="header"></div>
-
 <!-- HERO CAROUSEL -->
 <section class="hero">
-    <div class="carousel">
-        <div class="carousel-item left">
-            <img src="https://image.tmdb.org/t/p/w500/jIthqo21P2oJtqLSgAcmZ2oN5d0.jpg" alt="Free Guy">
-        </div>
-        <div class="carousel-item active">
-            <img src="https://image.tmdb.org/t/p/w500/34n224ccl27hA2b2aM2R5j7wK2.jpg" alt="Onward">
-        </div>
-        <div class="carousel-item right">
-            <img src="https://image.tmdb.org/t/p/w500/2LquGwGr4S0y1p21t0tGg6nKxCD.jpg" alt="Looper">
-        </div>
-    </div>
+    <div class="carousel" id="hero-carousel"></div>
     <div class="carousel-controls">
         <i class="fas fa-chevron-left" onclick="prevSlide()"></i>
         <i class="fas fa-chevron-right" onclick="nextSlide()"></i>
@@ -309,23 +165,7 @@
 <!-- NOW SHOWING -->
 <section class="movie-section">
     <h2>Phim đang chiếu</h2>
-    <div class="movie-row">
-        <div class="movie-card">
-            <img src="https://image.tmdb.org/t/p/w500/uJYYizSuA9Y3DCs0qS4qWvHfZg4.jpg" alt="World War Z">
-            <h3>World War Z</h3>
-            <p>Hành động</p>
-        </div>
-        <div class="movie-card">
-            <img src="https://image.tmdb.org/t/p/w500/34n224ccl27hA2b2aM2R5j7wK2.jpg" alt="Onward">
-            <h3>Onward</h3>
-            <p>Phiêu lưu</p>
-        </div>
-        <div class="movie-card">
-            <img src="https://image.tmdb.org/t/p/w500/2LquGwGr4S0y1p21t0tGg6nKxCD.jpg" alt="Looper">
-            <h3>Looper</h3>
-            <p>Khoa học viễn tưởng</p>
-        </div>
-    </div>
+    <div class="movie-row" id="now-showing"></div>
 </section>
 
 <!-- TODAY SHOWTIMES -->
@@ -383,18 +223,7 @@
 <!-- COMING SOON -->
 <section class="movie-section">
     <h2>Phim sắp chiếu</h2>
-    <div class="movie-row">
-        <div class="movie-card">
-            <img src="https://image.tmdb.org/t/p/w500/jIthqo21P2oJtqLSgAcmZ2oN5d0.jpg" alt="Free Guy">
-            <h3>Free Guy</h3>
-            <p>Hài, Hành động</p>
-        </div>
-        <div class="movie-card">
-            <img src="https://image.tmdb.org/t/p/w500/bQLrHIRNEkE3PdIWQrIAnXg8a13.jpg" alt="Vikings">
-            <h3>Vikings</h3>
-            <p>Lịch sử</p>
-        </div>
-    </div>
+    <div class="movie-row" id="coming-soon"></div>
 </section>
 
 <!-- NEWS & EVENTS -->
@@ -463,39 +292,40 @@
     </div>
 </section>
 
-<!-- FOOTER -->
-<div id="footer"></div>
-
 <script>
-    // Load header và footer
-    fetch("header.html")
-        .then(res => res.text())
-        .then(html => document.getElementById("header").innerHTML = html);
-
-    fetch("footer.html")
-        .then(res => res.text())
-        .then(html => document.getElementById("footer").innerHTML = html);
-
     // Carousel script
-    let current = 1;
-    const items = document.querySelectorAll('.carousel-item');
+    let current = 0;
+    let items = [];
+
     function updateSlides() {
         items.forEach((item, index) => {
             item.classList.remove('left', 'active', 'right');
-            if(index === current) item.classList.add('active');
-            else if(index === (current - 1 + items.length) % items.length) item.classList.add('left');
-            else if(index === (current + 1) % items.length) item.classList.add('right');
+            if (index === current) item.classList.add('active');
+            else if (index === (current - 1 + items.length) % items.length) item.classList.add('left');
+            else if (index === (current + 1) % items.length) item.classList.add('right');
+            else { item.style.display = "none"; return; }
+            item.style.display = "block";
         });
-        document.querySelector('.movie-title').innerText = items[current].querySelector('img').alt;
     }
-    function prevSlide() {
-        current = (current - 1 + items.length) % items.length;
-        updateSlides();
-    }
-    function nextSlide() {
-        current = (current + 1) % items.length;
-        updateSlides();
-    }
+    function prevSlide() { current = (current - 1 + items.length) % items.length; updateSlides(); }
+    function nextSlide() { current = (current + 1) % items.length; updateSlides(); }
 </script>
+<script>
+    // Nếu muốn load guest header
+    fetch("../home/header.html")
+        .then(res => res.text())
+        .then(html => document.getElementById("header").innerHTML = html)
+        .catch(err => console.error("Lỗi load header:", err));
+</script>
+<script src="../js/home.js"></script>
+<script>
+    fetch("../home/footer.html") // 👉 chỉnh đường dẫn đúng với nơi bạn để footer.html
+        .then(res => res.text())
+        .then(html => document.getElementById("footer").innerHTML = html)
+        .catch(err => console.error("Lỗi load footer:", err));
+</script>
+
+<div id="footer"></div>
+
 </body>
 </html>
