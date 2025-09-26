@@ -1,122 +1,153 @@
-import { api } from "../js/api.js"; // api.js phải export { api }
+// frontend/js/profile.js
+import { api } from "./api.js";
 
 function getToken() {
     return localStorage.getItem("accessToken");
 }
 
-// ===== Render UI với fallback =====
+/* ------- Render UI ------- */
 function renderProfile(p) {
-    document.getElementById("fullNameDisplay").textContent = `Welcome, ${
-        p.fullName && p.fullName.trim() !== "" ? p.fullName : "User"
-    }!`;
+    const safe = (v, fallback = "Chưa cập nhật") =>
+        v && String(v).trim() !== "" ? v : fallback;
 
-    // Avatar: fallback nếu null hoặc trống
-    document.getElementById("avatarImg").src =
-        p.avatarUrl && p.avatarUrl.trim() !== ""
-            ? p.avatarUrl
-            : "/image/avatar.png";
+    // Header chào mừng (trên card)
+    const fullName = safe(p.fullName, "User");
+    const headerName = document.getElementById("fullNameDisplay");
+    if (headerName) headerName.textContent = `Welcome, ${fullName}!`;
 
-    document.getElementById("infoFullName").textContent =
-        p.fullName && p.fullName.trim() !== "" ? p.fullName : "Chưa cập nhật";
-    document.getElementById("infoEmail").textContent =
-        p.email && p.email.trim() !== "" ? p.email : "Chưa cập nhật";
-    document.getElementById("infoPhone").textContent =
-        p.phoneNumber && p.phoneNumber.trim() !== ""
-            ? p.phoneNumber
-            : "Chưa cập nhật";
-    document.getElementById("infoAddress").textContent =
-        p.address && p.address.trim() !== "" ? p.address : "Chưa cập nhật";
-    document.getElementById("infoRole").textContent = p.roleName ?? "User";
-    document.getElementById("infoCreatedAt").textContent = p.createdAt
-        ? new Date(p.createdAt).toLocaleDateString("vi-VN")
-        : "Chưa cập nhật";
-    document.getElementById("infoPoints").textContent = p.loyaltyPoints ?? 0;
+    // Avatar
+    const avatar = document.getElementById("avatarImg");
+    if (avatar) {
+        const src =
+            p.avatarUrl && p.avatarUrl.trim() !== "" ? p.avatarUrl : "/image/avatar.png";
+        avatar.src = src.startsWith("/") || src.startsWith("http") ? src : "/" + src;
+    }
 
-    // Form Edit (không set email vì đổi email qua OTP)
-    document.getElementById("fullNameInput").value = p.fullName ?? "";
-    document.getElementById("phoneInput").value = p.phoneNumber ?? "";
-    document.getElementById("addressInput").value = p.address ?? "";
+    // Thông tin
+    const set = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+    };
+    set("infoFullName", fullName);
+    set("infoEmail", safe(p.email));
+    set("infoPhone", safe(p.phoneNumber));
+    set("infoAddress", safe(p.address));
+    set("infoRole", p.roleName ?? "Customer");
+    set(
+        "infoCreatedAt",
+        p.createdAt ? new Date(p.createdAt).toLocaleDateString("vi-VN") : "Chưa cập nhật"
+    );
+    const pointsEl = document.getElementById("infoPoints");
+    if (pointsEl) pointsEl.textContent = p.loyaltyPoints ?? 0;
+
+    // Form edit
+    const fullNameInput = document.getElementById("fullNameInput");
+    const phoneInput = document.getElementById("phoneInput");
+    const addressInput = document.getElementById("addressInput");
+    if (fullNameInput) fullNameInput.value = p.fullName ?? "";
+    if (phoneInput) phoneInput.value = p.phoneNumber ?? "";
+    if (addressInput) addressInput.value = p.address ?? "";
+
+    // Đồng bộ tên ở customer-header nếu có
+    const headerFullName = document.getElementById("cmFullName");
+    if (headerFullName) headerFullName.textContent = fullName;
 }
 
-// ===== Load profile =====
+/* ------- Load profile ------- */
 async function loadProfile() {
     const token = getToken();
     if (!token) {
-        window.location.href = "login.html";
+        // nếu chưa login → về trang login
+        location.href = "../user/login.html";
         return;
     }
-
     try {
         const data = await api.getProfile();
-        console.log("Profile data:", data);
         renderProfile(data);
     } catch (err) {
         console.error("Error loading profile:", err);
         alert(err.message || "Không tải được thông tin user, vui lòng đăng nhập lại");
         localStorage.removeItem("accessToken");
-        window.location.href = "login.html";
+        location.href = "../user/login.html";
     }
 }
 
-// ===== Tabs =====
+/* ------- Tabs ------- */
 function initTabs() {
     const tabs = document.querySelectorAll("#profileTabs .nav-link");
+    const panes = {
+        info: document.getElementById("info"),
+        edit: document.getElementById("edit"),
+        password: document.getElementById("password"),
+    };
     tabs.forEach((tab) => {
-        tab.addEventListener("click", function () {
+        tab.addEventListener("click", () => {
             tabs.forEach((t) => t.classList.remove("active"));
-            this.classList.add("active");
-
-            document
-                .querySelectorAll(".tab-content > div")
-                .forEach((c) => (c.style.display = "none"));
-            const tabId = this.getAttribute("data-tab");
-            document.getElementById(tabId).style.display = "block";
+            tab.classList.add("active");
+            const selected = tab.getAttribute("data-tab");
+            Object.entries(panes).forEach(([k, el]) => {
+                if (!el) return;
+                el.style.display = k === selected ? "block" : "none";
+                if (k === selected) el.classList.add("active");
+                else el.classList.remove("active");
+            });
         });
     });
 }
 
-// ===== Logout =====
+/* ------- Logout (dự phòng nếu header chưa gắn) ------- */
 function initLogout() {
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-        api.logout();
+    const btn = document.getElementById("logoutBtn");
+    if (!btn) return;
+    btn.addEventListener("click", () => {
+        api.logout?.(); // nếu bạn có api.logout
+        localStorage.removeItem("accessToken");
+        location.href = "../user/login.html";
     });
 }
 
-// ===== Edit profile =====
+/* ------- Edit profile ------- */
 function initEditProfile() {
     const form = document.getElementById("editForm");
+    if (!form) return;
+
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
+        // Thu thập dữ liệu
         const userData = {};
-        const fullName = document.getElementById("fullNameInput").value.trim();
-        const phone = document.getElementById("phoneInput").value.trim();
-        const address = document.getElementById("addressInput").value.trim();
-        const avatarFile = document.getElementById("avatarFile").files[0];
-        if (avatarFile) {
-            const newAvatarUrl = await api.uploadAvatar(avatarFile);
-            document.getElementById("avatarImg").src = newAvatarUrl;
-        }
-
+        const fullName = document.getElementById("fullNameInput")?.value.trim();
+        const phone = document.getElementById("phoneInput")?.value.trim();
+        const address = document.getElementById("addressInput")?.value.trim();
 
         if (fullName) userData.fullName = fullName;
         if (phone) userData.phoneNumber = phone;
         if (address) userData.address = address;
 
+        // avatarFile có thể KHÔNG tồn tại ở giao diện mới → phải check cẩn thận
+        const avatarInput = document.getElementById("avatarFile");
+        const avatarFile = avatarInput?.files?.[0] || null;
+
         try {
-            // Nếu có ảnh → upload avatar trước
+            // Nếu có chọn ảnh trong form (tuỳ bạn có để input này hay không)
             if (avatarFile) {
-                const avatarUrl = await api.uploadAvatar(avatarFile);
-                document.getElementById("avatarImg").src = avatarUrl; // cập nhật ngay UI
+                const newUrl = await api.uploadAvatar(avatarFile);
+                const img = document.getElementById("avatarImg");
+                if (img) img.src = (newUrl.startsWith("http") ? newUrl : newUrl) + `?t=${Date.now()}`;
             }
 
-            // Nếu có dữ liệu profile → gửi update
+            if (Object.keys(userData).length === 0 && !avatarFile) {
+                alert("Bạn chưa thay đổi thông tin nào.");
+                return;
+            }
+
+            // Cập nhật thông tin
             if (Object.keys(userData).length > 0) {
                 await api.updateProfile(userData);
             }
 
             alert("Cập nhật thành công!");
-            loadProfile();
+            await loadProfile();
             form.reset();
         } catch (err) {
             console.error("Update profile error:", err);
@@ -125,24 +156,21 @@ function initEditProfile() {
     });
 }
 
-// ===== Change password =====
+/* ------- Change password ------- */
 function initChangePassword() {
     const form = document.getElementById("passwordForm");
+    if (!form) return;
+
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
-        const currentPassword = document
-            .getElementById("currentPassword")
-            .value.trim();
-        const newPassword = document.getElementById("newPassword").value.trim();
-        const confirmPassword = document
-            .getElementById("confirmPassword")
-            .value.trim();
+        const currentPassword = document.getElementById("currentPassword")?.value.trim();
+        const newPassword = document.getElementById("newPassword")?.value.trim();
+        const confirmPassword = document.getElementById("confirmPassword")?.value.trim();
 
         if (newPassword !== confirmPassword) {
             alert("Mật khẩu mới không khớp");
             return;
         }
-
         try {
             await api.changePassword({ currentPassword, newPassword });
             alert("Đổi mật khẩu thành công!");
@@ -154,17 +182,16 @@ function initChangePassword() {
     });
 }
 
-// ===== Change Email with OTP =====
+/* ------- Change Email with OTP ------- */
 function initChangeEmail() {
     const form = document.getElementById("changeEmailForm");
     const sendOtpBtn = document.getElementById("sendOtpBtn");
     const otpSection = document.getElementById("otpSection");
 
-    if (!form || !sendOtpBtn) return; // fallback nếu chưa có UI
+    if (!form || !sendOtpBtn) return;
 
-    // Gửi OTP
     sendOtpBtn.addEventListener("click", async () => {
-        const newEmail = document.getElementById("newEmail").value.trim();
+        const newEmail = document.getElementById("newEmail")?.value.trim();
         if (!newEmail) {
             alert("Vui lòng nhập email mới");
             return;
@@ -172,29 +199,27 @@ function initChangeEmail() {
         try {
             await api.sendOtpChangeEmail(newEmail);
             alert("OTP đã được gửi đến email mới!");
-            otpSection.style.display = "block";
+            if (otpSection) otpSection.style.display = "block";
         } catch (err) {
             console.error("Send OTP error:", err);
             alert(err.message || "Không gửi được OTP");
         }
     });
 
-    // Xác thực OTP và đổi email
     form.addEventListener("submit", async (e) => {
         e.preventDefault();
-        const newEmail = document.getElementById("newEmail").value.trim();
-        const otp = document.getElementById("otpCode").value.trim();
+        const newEmail = document.getElementById("newEmail")?.value.trim();
+        const otp = document.getElementById("otpCode")?.value.trim();
         if (!otp) {
             alert("Vui lòng nhập OTP");
             return;
         }
-
         try {
             await api.verifyEmailChange(newEmail, otp);
             alert("Đổi email thành công!");
-            loadProfile();
+            if (otpSection) otpSection.style.display = "none";
             form.reset();
-            otpSection.style.display = "none";
+            await loadProfile();
         } catch (err) {
             console.error("Verify email error:", err);
             alert(err.message || "Xác thực OTP thất bại");
@@ -202,7 +227,7 @@ function initChangeEmail() {
     });
 }
 
-// ===== Init =====
+/* ------- Khởi tạo ------- */
 document.addEventListener("DOMContentLoaded", () => {
     loadProfile();
     initTabs();
@@ -211,3 +236,6 @@ document.addEventListener("DOMContentLoaded", () => {
     initChangePassword();
     initChangeEmail();
 });
+
+// Cho script avatar nhanh (module khác) có thể gọi lại
+window.loadProfile = loadProfile;
