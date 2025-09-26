@@ -224,6 +224,7 @@
         .movie-card img { width: 100%; }
         .movie-card h3 { font-size: 1rem; margin: 8px; }
         .movie-card p { font-size: 0.85rem; margin: 0 8px 8px; color: #bbb; }
+
         /* SHOWTIMES */
         .showtimes {
             display: flex;
@@ -283,22 +284,8 @@
 </head>
 <body>
 
-<header class="header">
-    <div class="header-container">
-        <div class="logo-text">CineMaster</div>
-        <nav>
-            <a href="#" class="nav-link active">Home</a>
-            <a href="#" class="nav-link">Movies</a>
-            <a href="#" class="nav-link">Showtimes</a>
-            <a href="#" class="nav-link">Theaters</a>
-            <a href="#" class="nav-link">Promotions</a>
-        </nav>
-        <div class="auth-buttons">
-            <button class="btn-auth" onclick="window.location.href='../user/login.html'">Đăng nhập</button>
-            <button class="btn-auth" onclick="window.location.href='../user/register.html'">Đăng ký</button>
-        </div>
-    </div>
-</header>
+<!-- HEADER -->
+<div id="header"></div>
 
 <!-- HERO CAROUSEL -->
 <section class="hero">
@@ -318,6 +305,7 @@
         <i class="fas fa-chevron-right" onclick="nextSlide()"></i>
     </div>
 </section>
+
 <!-- NOW SHOWING -->
 <section class="movie-section">
     <h2>Phim đang chiếu</h2>
@@ -392,8 +380,6 @@
     <button>Tìm kiếm</button>
 </div>
 
-
-
 <!-- COMING SOON -->
 <section class="movie-section">
     <h2>Phim sắp chiếu</h2>
@@ -411,19 +397,88 @@
     </div>
 </section>
 
-<footer>
-    <p>© 2025 CineMaster. Mọi quyền được bảo lưu.</p>
-    <p>
-        <a href="#">Liên hệ</a> |
-        <a href="#">Điều khoản</a> |
-        <a href="#">Chính sách bảo mật</a>
-    </p>
-</footer>
+<!-- NEWS & EVENTS -->
+<section class="movie-section">
+    <h2>Tin tức & Sự kiện</h2>
+    <div class="movie-row">
+        <div class="movie-card">
+            <img src="https://image.tmdb.org/t/p/w500/ekZobS8isE6mA53RAiGDGzYYge8.jpg" alt="News 1">
+            <h3>Khai trương rạp CineMaster Quận 9</h3>
+            <p>01/10/2025</p>
+        </div>
+        <div class="movie-card">
+            <img src="https://image.tmdb.org/t/p/w500/sKCr7SqMIHqFz1E0i0yffofrWAP.jpg" alt="News 2">
+            <h3>Suất chiếu đặc biệt “Avengers: Endgame”</h3>
+            <p>05/10/2025</p>
+        </div>
+        <div class="movie-card">
+            <img src="https://image.tmdb.org/t/p/w500/reEMJA1uzscCbkpeRJeTT2bjqUp.jpg" alt="News 3">
+            <h3>Sự kiện cosplay Halloween</h3>
+            <p>31/10/2025</p>
+        </div>
+    </div>
+</section>
+
+<!-- CUSTOMER FEEDBACK -->
+<section class="movie-section">
+    <h2>Khách hàng nói gì?</h2>
+    <div class="showtimes">
+        <div class="showtime-card">
+            <h3>Nguyễn Minh</h3>
+            <p>⭐⭐⭐⭐⭐</p>
+            <p>“Phòng chiếu hiện đại, âm thanh cực đỉnh. Rất hài lòng!”</p>
+        </div>
+        <div class="showtime-card">
+            <h3>Thu Thảo</h3>
+            <p>⭐⭐⭐⭐</p>
+            <p>“Dịch vụ tốt, nhân viên thân thiện, combo bắp nước ngon.”</p>
+        </div>
+        <div class="showtime-card">
+            <h3>Trung Kiên</h3>
+            <p>⭐⭐⭐⭐⭐</p>
+            <p>“Giá vé hợp lý, nhiều ưu đãi cho sinh viên. Rạp xịn!”</p>
+        </div>
+    </div>
+</section>
+
+<!-- SPECIAL OFFERS -->
+<section class="movie-section">
+    <h2>Ưu đãi đặc biệt</h2>
+    <div class="showtimes">
+        <div class="showtime-card">
+            <h3>Combo Siêu Tiết Kiệm</h3>
+            <p>01/10 - 31/10</p>
+            <p>Mua 2 vé tặng 1 bắp rang + 2 nước ngọt.</p>
+        </div>
+        <div class="showtime-card">
+            <h3>Thành viên VIP</h3>
+            <p>Giảm 20% vé 2D/3D</p>
+            <p>Tích điểm đổi quà hấp dẫn.</p>
+        </div>
+        <div class="showtime-card">
+            <h3>Ưu đãi ngày Lễ</h3>
+            <p>Giảm 15% giá vé</p>
+            <p>Áp dụng cho toàn bộ suất chiếu.</p>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<div id="footer"></div>
 
 <script>
-    let current = 1; // middle slide
-    const items = document.querySelectorAll('.carousel-item');
+    // Load header và footer
+    fetch("header.html")
+        .then(res => res.text())
+        .then(html => document.getElementById("header").innerHTML = html);
 
+    fetch("footer.html")
+        .then(res => res.text())
+        .then(html => document.getElementById("footer").innerHTML = html);
+
+    // Carousel script
+    let current = 1;
+    const items = document.querySelectorAll('.carousel-item');
     function updateSlides() {
         items.forEach((item, index) => {
             item.classList.remove('left', 'active', 'right');
@@ -433,7 +488,6 @@
         });
         document.querySelector('.movie-title').innerText = items[current].querySelector('img').alt;
     }
-
     function prevSlide() {
         current = (current - 1 + items.length) % items.length;
         updateSlides();
