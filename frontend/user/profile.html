@@ -1,100 +1,474 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>User Profile</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <meta charset="UTF-8" />
+    <title>CineMaster • User Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Bootstrap (cho các class cũ) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
     <style>
-        body { background-color: #f8f9fa; }
-        .profile-card { border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); margin: 30px auto; background-color: #fff; padding: 20px; max-width: 900px; }
-        .profile-header { background-color: #0d6efd; color: white; padding: 20px; border-radius: 15px 15px 0 0; text-align: center; }
-        .avatar-wrapper { position: relative; width: 150px; height: 150px; border-radius: 50%; overflow: hidden; margin: -75px auto 20px auto; border: 5px solid white; background-color: #f8f9fa; box-shadow: 0 0 10px rgba(0,0,0,0.2); }
-        .avatar-wrapper img { width: 100%; height: 100%; object-fit: cover; }
-        .nav-pills .nav-link { border-radius: 0; margin-bottom: 2px; cursor: pointer; }
-        .nav-pills .nav-link.active { background-color: #0d6efd; color: white; }
-        .tab-content { padding: 20px; border: 1px solid #dee2e6; border-top: none; border-radius: 0 0 15px 15px; }
+        :root{
+            --red:#e50914;
+            --cyan:#22c1ff;
+            --blue:#0aa3ff;
+            --ink:#06101f;       /* xanh-đen sâu */
+            --bg:#0b162c;        /* nền chuyển */
+            --card:#0c1324;      /* panel */
+            --border:#1b2b4a;    /* viền */
+            --muted:#9aa7b3;
+            --muted2:#cfe3ff;
+            --glow:0 0 20px rgba(34,193,255,.35), 0 0 60px rgba(34,193,255,.15);
+        }
+        /* ===== Pretty cinema tickets background (static) ===== */
+        .tickets-wall{
+            position:fixed; inset:0; pointer-events:none; z-index:0;   /* dưới content, trên background */
+        }
+        .tickets-wall .tickets-layer{
+            position:absolute; inset:-10%;           /* nới biên để khi xoay không hở mép */
+            background-repeat:repeat;
+            background-size:320px 160px;             /* đúng kích cỡ tile SVG */
+            opacity:.14;                              /* độ đậm tổng thể của vé */
+            filter:drop-shadow(0 0 20px rgba(22,40,76,.18));
+            transform-origin:center center;
+        }
+        .tickets-wall .l1{
+            transform:rotate(-3deg) scale(1.04);
+            background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='160' viewBox='0 0 320 160'%3E%3Crect fill='none' width='320' height='160'/%3E%3Cg opacity='0.95'%3E%3Cg transform='translate(8,8)'%3E%3Cpath d='M0 24 a12 12 0 0 1 12 -12 h200 a10 10 0 0 0 10 -10 a12 12 0 0 1 12 12 v60 a12 12 0 0 1 -12 12 a10 10 0 0 0 -10 10 H12 a12 12 0 0 1 -12 -12z' fill='%23192A43' stroke='%232c3e66' stroke-width='2'/%3E%3Cline x1='140' y1='12' x2='140' y2='96' stroke='%238fb4ff' stroke-opacity='0.18' stroke-dasharray='6 6' /%3E%3Ccircle cx='60' cy='54' r='22' fill='none' stroke='%238fb4ff' stroke-opacity='0.35' stroke-width='3'/%3E%3Ccircle cx='60' cy='54' r='5' fill='%238fb4ff' opacity='0.3'/%3E%3Cg fill='%238fb4ff' opacity='0.35'%3E%3Ccircle cx='49' cy='44' r='5'/%3E%3Ccircle cx='71' cy='44' r='5'/%3E%3Ccircle cx='49' cy='64' r='5'/%3E%3Ccircle cx='71' cy='64' r='5'/%3E%3C/g%3E%3Cg transform='translate(164,32)' stroke='%23cfe3ff' stroke-opacity='0.38'%3E%3Crect x='0' y='0' width='60' height='24' fill='none'/%3E%3Cpath d='M3 0 v24 M8 0 v24 M11 0 v24 M16 0 v24 M22 0 v24 M27 0 v24 M33 0 v24 M38 0 v24 M45 0 v24 M51 0 v24 M56 0 v24' stroke-width='2'/%3E%3C/g%3E%3Cg transform='translate(164,66)' stroke='%23cfe3ff' stroke-opacity='0.45'%3E%3Cline x1='0' y1='0' x2='76' y2='0' stroke-width='2'/%3E%3Cline x1='0' y1='10' x2='62' y2='10' stroke-width='2'/%3E%3Cline x1='0' y1='20' x2='70' y2='20' stroke-width='2'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(8,88)'%3E%3Cpath d='M0 24 a12 12 0 0 1 12 -12 h200 a10 10 0 0 0 10 -10 a12 12 0 0 1 12 12 v60 a12 12 0 0 1 -12 12 a10 10 0 0 0 -10 10 H12 a12 12 0 0 1 -12 -12z' fill='%231b2f50' stroke='%23314774' stroke-width='2'/%3E%3Cline x1='140' y1='12' x2='140' y2='96' stroke='%238fb4ff' stroke-opacity='0.18' stroke-dasharray='6 6'/%3E%3Ccircle cx='60' cy='54' r='22' fill='none' stroke='%23a8c8ff' stroke-opacity='0.32' stroke-width='3'/%3E%3Ccircle cx='60' cy='54' r='5' fill='%23a8c8ff' opacity='0.28'/%3E%3Cg fill='%23a8c8ff' opacity='0.32'%3E%3Ccircle cx='49' cy='44' r='5'/%3E%3Ccircle cx='71' cy='44' r='5'/%3E%3Ccircle cx='49' cy='64' r='5'/%3E%3Ccircle cx='71' cy='64' r='5'/%3E%3C/g%3E%3Cg transform='translate(164,32)' stroke='%23d8e6ff' stroke-opacity='0.38'%3E%3Cpath d='M3 0 v24 M8 0 v24 M11 0 v24 M16 0 v24 M22 0 v24 M27 0 v24 M33 0 v24 M38 0 v24 M45 0 v24 M51 0 v24 M56 0 v24' stroke-width='2'/%3E%3C/g%3E%3Cg transform='translate(164,66)' stroke='%23d8e6ff' stroke-opacity='0.45'%3E%3Cline x1='0' y1='0' x2='76' y2='0' stroke-width='2'/%3E%3Cline x1='0' y1='10' x2='62' y2='10' stroke-width='2'/%3E%3Cline x1='0' y1='20' x2='70' y2='20' stroke-width='2'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .tickets-wall .l2{
+            transform:rotate(3deg) scale(1.06);
+            background-position:160px 80px;          /* lệch ô để pattern nhìn tự nhiên hơn */
+            opacity:.10;                              /* lớp 2 nhạt hơn để không rối mắt */
+            background-image:inherit;                 /* dùng cùng SVG */
+        }
+        /* nếu muốn tăng/giảm độ đậm chung của vé: chỉnh 2 giá trị opacity ở .l1 và .l2 */
+
+        /* ===== NỀN động + pattern vé ===== */
+        html,body{
+            margin:0; color:#fff; font-family:'Roboto',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+            min-height:100vh;
+            background-color: var(--ink);
+            background-image:
+                    radial-gradient(1200px 600px at -10% -35%, rgba(229,9,20,.18), transparent 60%),
+                    radial-gradient(900px 400px at 120% -20%, rgba(34,193,255,.12), transparent 60%),
+                    linear-gradient(180deg, var(--ink), var(--bg)),
+                    url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='160' height='80' viewBox='0 0 160 80'>\
+<rect width='160' height='80' fill='none'/>\
+<g opacity='0.08' stroke='%23cfe3ff' stroke-width='1.2' fill='none'>\
+<path d='M8 20 h110 a10 10 0 0 0 10 -10 a10 10 0 0 1 10 10 v20 a10 10 0 0 1 -10 10 a10 10 0 0 0 -10 10 H8 z'/>\
+<path d='M30 18 v44' stroke-dasharray='6 6'/>\
+<circle cx='120' cy='20' r='3'/><circle cx='120' cy='60' r='3'/>\
+</g></svg>");
+            background-repeat:no-repeat,no-repeat,no-repeat,repeat;
+            background-size:1200px 600px,900px 400px,100% 100%,320px 160px;
+            background-position:-10% -35%,120% -20%,0 0,0 0;
+            background-attachment:fixed, fixed, fixed, fixed;
+            overflow-x:hidden;
+        }
+
+        /* hạt bụi chiếu phim */
+        .grain{
+            pointer-events:none; position:fixed; inset:0; opacity:.14; mix-blend-mode:screen;
+            background-image:radial-gradient(circle at 20% 30%, rgba(255,255,255,.06) 0 2px, transparent 2px),
+            radial-gradient(circle at 70% 60%, rgba(255,255,255,.05) 0 2px, transparent 2px);
+            background-size:200px 200px, 260px 260px;
+            animation: drift 18s linear infinite alternate;
+        }
+        @keyframes drift{
+            from{ transform: translate3d(0,0,0) }
+            to{ transform: translate3d(30px,-25px,0) }
+        }
+
+        /* khoảng trống dưới header */
+        .shell{max-width:1300px;margin:110px auto 48px;padding:0 24px}
+
+        /* ===== LAYOUT 2 CỘT ===== */
+        .layout{ display:grid; grid-template-columns:1.25fr 1fr; gap:28px }
+        @media (max-width: 992px){ .layout{ grid-template-columns:1fr } }
+
+        /* viền filmstrip bo tròn + “lỗ vé” (mask) */
+        .film{
+            position:relative; background:linear-gradient(180deg,#0b152a,#0c162c);
+            border:1px solid var(--border); border-radius:18px; box-shadow:0 14px 32px rgba(0,0,0,.5);
+            overflow:hidden;
+        }
+        .film:before,.film:after{
+            content:""; position:absolute; left:18px; right:18px; height:10px; opacity:.5;
+            background:repeating-linear-gradient(90deg, #142443 0 16px, transparent 16px 32px);
+            filter:drop-shadow(0 0 6px rgba(34,193,255,.2));
+        }
+        .film:before{ top:12px } .film:after{ bottom:12px }
+
+        /* ===== PANEL TRÁI (PROFILE) ===== */
+        .profile-panel{ padding:26px 22px }
+        .hero{
+            display:grid; grid-template-columns:150px 1fr auto; gap:18px; align-items:center; margin-bottom:20px;
+        }
+        @media (max-width: 576px){ .hero{ grid-template-columns:110px 1fr; row-gap:12px } }
+
+        /* Avatar neon pulse */
+        .avatar-wrapper{
+            position:relative; width:150px; height:150px; border-radius:50%; overflow:hidden; cursor:pointer;
+            background:#000; border:2px solid #0e203f;
+            box-shadow:0 0 0 3px rgba(34,193,255,.15), var(--glow);
+            isolation:isolate;
+        }
+        .avatar-wrapper:after{
+            content:""; position:absolute; inset:-15%; border-radius:50%;
+            background:conic-gradient(from 0deg, rgba(34,193,255,.0) 0 70%, rgba(229,9,20,.7) 75%, rgba(34,193,255,.0) 100%);
+            animation: ring 3.5s linear infinite;
+            z-index:-1; filter: blur(14px);
+        }
+        @keyframes ring{ to{ transform: rotate(360deg) } }
+        .avatar-wrapper img{width:100%;height:100%;object-fit:cover;display:block}
+        .avatar-fab{
+            position:absolute; right:8px; bottom:8px; width:42px; height:42px; border-radius:50%;
+            border:1px solid #1b2b4a; background:#0e1a33; color:#cfe3ff;
+            display:flex; align-items:center; justify-content:center;
+            box-shadow: inset 0 0 12px rgba(34,193,255,.12);
+        }
+        .avatar-fab:hover{ background:#112040 }
+
+        .title h3{ margin:0; font-size:2rem; font-weight:900; letter-spacing:.2px }
+        .sub{ color:var(--muted); margin-top:6px }
+        .points{
+            background:#0d1b34; border:1px solid var(--border); border-radius:999px; padding:10px 14px;
+            color:#ffd166; display:inline-flex; gap:8px; align-items:center; height:fit-content; justify-self:end;
+            box-shadow: inset 0 0 0 1px rgba(34,193,255,.15);
+        }
+
+        /* Tabs trái (giữ id/profile.js) */
+        .pillbar{ display:flex; gap:10px; flex-wrap:wrap; margin:8px 0 14px; position:relative }
+        .nav-pills .nav-link{
+            background:linear-gradient(180deg,#0d1a33,#0a1427); border:1px solid var(--border); color:#e6f1ff;
+            border-radius:999px; padding:9px 16px; cursor:pointer; position:relative; overflow:hidden;
+            transition: transform .2s ease;
+        }
+        .nav-pills .nav-link:hover{ transform: translateY(-1px) }
+        .nav-pills .nav-link.active{
+            color:#fff; border-color:var(--blue);
+            box-shadow: 0 0 0 2px rgba(34,193,255,.18) inset, 0 0 24px rgba(34,193,255,.18);
+        }
+
+        /* Nội dung tabs */
+        .tab-card{ background:linear-gradient(180deg,#0b152a 0%, #0c162c 100%); border:1px solid var(--border); border-radius:16px; padding:18px }
+        .list-group-item{ background:transparent; color:#fff; border-color:#153055 }
+        .list-group-item strong{ color:#e8f4ff }
+
+        /* Form tối */
+        .form-control{
+            background:#0e1c37; border:1px solid #17345f; color:#fff; border-radius:10px;
+        }
+        .form-control:focus{ outline:none; border-color:var(--blue); box-shadow:0 0 0 .2rem rgba(34,193,255,.22) }
+        .btn-primary{ background:linear-gradient(90deg, var(--blue), var(--cyan)); border:none; color:#051020; font-weight:800 }
+        .btn-primary:hover{ filter:brightness(1.1) }
+        .btn-warning{ border:none }
+        .btn-secondary{ background:transparent; border:1px solid var(--red); color:#fff }
+        .btn-secondary:hover{ background:var(--red); }
+
+        /* Popover avatar */
+        .popover{
+            position:absolute; z-index:2000; min-width:230px; display:none;
+            background:#0e1a33; border:1px solid var(--border); border-radius:12px; box-shadow:0 18px 40px rgba(0,0,0,.55); padding:8px;
+        }
+        .pop-item{ display:flex; gap:10px; align-items:center; padding:10px 12px; border-radius:10px; color:#e6f1ff; cursor:pointer }
+        .pop-item:hover{ background:#102241 }
+
+        /* Viewer */
+        .viewer{ position:fixed; inset:0; background:rgba(2,8,20,.86); display:none; align-items:center; justify-content:center; z-index:3000; backdrop-filter: blur(1px) }
+        .viewer.open{ display:flex }
+        .viewer img{ max-width:min(92vw,720px); max-height:80vh; border-radius:14px; border:1px solid var(--border); background:#000; box-shadow:var(--glow) }
+        .viewer .close{ position:absolute; top:18px; right:24px; background:transparent; border:none; color:#e6f1ff; font-size:1.7rem; cursor:pointer }
+
+        /* ===== PANEL PHẢI (PROMOTIONS) ===== */
+        .promo-panel{ padding:26px 22px }
+        .promo-head{ display:flex; align-items:center; gap:12px; margin-bottom:12px }
+        .promo-logo{
+            width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+            background:linear-gradient(135deg,#0e1f3d,#0a152c); border:1px solid var(--border); box-shadow:0 0 0 2px rgba(34,193,255,.14) inset;
+        }
+        .promo-sub{ color:var(--muted) }
+
+        /* Băng chuyền news (CSS only) */
+        .rail{ margin-top:12px; overflow:hidden; border:1px solid var(--border); border-radius:14px; background:linear-gradient(180deg,#091326,#0b152a) }
+        .track{
+            display:flex; gap:14px; padding:14px; width:max-content; animation: marquee 22s linear infinite;
+        }
+        .rail:hover .track{ animation-play-state:paused }
+        @keyframes marquee{
+            from{ transform: translateX(0) } to{ transform: translateX(-50%) }
+        }
+        .promo{
+            min-width:310px; max-width:310px; background:#0e1d38; border:1px solid var(--border); border-radius:12px; padding:12px;
+            box-shadow:0 10px 24px rgba(0,0,0,.35); transition:.2s;
+        }
+        .promo:hover{ transform: translateY(-3px) }
+        .tag{ display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border-radius:999px; font-size:.8rem; background:#11264a; border:1px solid #1b3a6b }
+        .ptime{ color:var(--muted); font-size:.85rem }
+        .cta{
+            margin-top:10px; display:inline-flex; gap:8px; align-items:center; padding:9px 12px; border-radius:10px; border:1px solid var(--red);
+            color:#fff; background:linear-gradient(180deg,#161a2a,#10182e);
+        }
+        .cta:hover{ background:var(--red); border-color:var(--red) }
     </style>
 </head>
 <body>
+<div class="grain"></div>
+<!-- Tickets background (static, no falling) -->
+<div class="tickets-wall" aria-hidden="true">
+    <div class="tickets-layer l1"></div>
+    <div class="tickets-layer l2"></div>
+</div>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="#">CineMaster</a>
-    <div class="ms-auto">
-        <button id="logoutBtn" class="btn btn-outline-light">Logout</button>
-    </div>
-</nav>
+<!-- header -->
+<div id="site-header"></div>
 
-<div class="profile-card">
-    <div class="profile-header">
-        <h3 id="fullNameDisplay">Welcome, User!</h3>
-    </div>
-    <div class="avatar-wrapper">
-        <img id="avatarImg" src="/image/avatar.png" alt="Avatar">
-    </div>
+<main class="shell">
+    <div class="layout">
+        <!-- LEFT: PROFILE -->
+        <section class="film profile-panel">
+            <!-- HERO -->
+            <div class="hero">
+                <div class="avatar-wrapper" id="avatarArea" title="Xem/đổi ảnh đại diện">
+                    <img id="avatarImg" src="/image/avatar.png" alt="Avatar">
+                    <button class="avatar-fab" id="avatarFab"><i class="fa-solid fa-camera"></i></button>
+                </div>
+                <div class="title">
+                    <h3 id="fullNameDisplay">Chào mừng, User!</h3>
+                    <div class="sub">Hồ sơ & bảo mật tài khoản</div>
+                </div>
+                <div class="points"><i class="fa-solid fa-star"></i><span id="infoPoints">0</span> điểm</div>
+            </div>
 
-    <div class="row">
-        <div class="col-md-3">
-            <ul class="nav nav-pills flex-column" id="profileTabs">
-                <li class="nav-item"><a class="nav-link active" data-tab="info">Personal Information</a></li>
-                <li class="nav-item"><a class="nav-link" data-tab="edit">Edit Profile</a></li>
-                <li class="nav-item"><a class="nav-link" data-tab="password">Change Password</a></li>
+            <!-- TABS -->
+            <ul class="nav nav-pills pillbar" id="profileTabs">
+                <li class="nav-item"><a class="nav-link active" data-tab="info"><i class="fa-regular fa-id-card me-2"></i>Thông tin</a></li>
+                <li class="nav-item"><a class="nav-link" data-tab="edit"><i class="fa-solid fa-pen-to-square me-2"></i>Chỉnh sửa</a></li>
+                <li class="nav-item"><a class="nav-link" data-tab="password"><i class="fa-solid fa-lock me-2"></i>Mật khẩu</a></li>
             </ul>
-        </div>
-        <div class="col-md-9">
-            <div class="tab-content">
-                <!-- Thông tin -->
+
+            <!-- CONTENT -->
+            <div class="tab-card tab-content">
+                <!-- INFO -->
                 <div id="info" class="tab-pane active">
                     <ul class="list-group">
-                        <li class="list-group-item"><strong>Full Name:</strong> <span id="infoFullName"></span></li>
+                        <li class="list-group-item"><strong>Họ tên:</strong> <span id="infoFullName"></span></li>
                         <li class="list-group-item"><strong>Email:</strong> <span id="infoEmail"></span></li>
-                        <li class="list-group-item"><strong>Phone:</strong> <span id="infoPhone"></span></li>
-                        <li class="list-group-item"><strong>Address:</strong> <span id="infoAddress"></span></li>
-                        <li class="list-group-item"><strong>Role:</strong> <span id="infoRole"></span></li>
-                        <li class="list-group-item"><strong>Created At:</strong> <span id="infoCreatedAt"></span></li>
-                        <li class="list-group-item"><strong>Loyalty Points:</strong> <span id="infoPoints"></span></li>
+                        <li class="list-group-item"><strong>Số điện:</strong> <span id="infoPhone"></span></li>
+                        <li class="list-group-item"><strong>Địa chỉ:</strong> <span id="infoAddress"></span></li>
+                        <li class="list-group-item"><strong>Vai trò:</strong> <span id="infoRole"></span></li>
+                        <li class="list-group-item"><strong>Ngày mở tài khoản:</strong> <span id="infoCreatedAt"></span></li>
                     </ul>
                 </div>
 
-                <!-- Edit Profile -->
+                <!-- EDIT -->
                 <div id="edit" class="tab-pane" style="display:none;">
                     <form id="editForm" enctype="multipart/form-data">
-                        <div class="mb-3"><label for="fullNameInput">Full Name</label><input type="text" id="fullNameInput" name="fullName" class="form-control"></div>
-                        <div class="mb-3"><label for="phoneInput">Phone</label><input type="text" id="phoneInput" name="phoneNumber" class="form-control"></div>
-                        <div class="mb-3"><label for="addressInput">Address</label><input type="text" id="addressInput" name="address" class="form-control"></div>
-                        <div class="mb-3"><label for="avatarFile">Change Avatar</label><input type="file" id="avatarFile" name="avatarFile" class="form-control" accept="image/*"></div>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <div class="mb-3"><label for="fullNameInput">Họ tên</label><input type="text" id="fullNameInput" name="fullName" class="form-control"></div>
+                        <div class="mb-3"><label for="phoneInput">Số điện thoại</label><input type="text" id="phoneInput" name="phoneNumber" class="form-control"></div>
+                        <div class="mb-3"><label for="addressInput">Địa chỉ</label><input type="text" id="addressInput" name="address" class="form-control"></div>
+                            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk me-2"></i>Lưu thay đổi</button>
                     </form>
 
-                    <hr/>
+                    <hr class="my-4" style="border:none;height:1px;background:linear-gradient(90deg,transparent,#1b2b4a,transparent)">
 
                     <!-- Change Email with OTP -->
-                    <h5>Change Email</h5>
+                    <h5>Thay đổi địa chỉ Email</h5>
                     <form id="changeEmailForm">
-                        <div class="mb-3"><label for="newEmail">New Email</label><input type="email" id="newEmail" class="form-control" required></div>
-                        <button type="button" id="sendOtpBtn" class="btn btn-secondary">Send OTP</button>
-
+                        <div class="mb-3"><label for="newEmail" class="form-label">Địa chỉ Email mới</label><input type="email" id="newEmail" class="form-control" required></div>
+                        <button type="button" id="sendOtpBtn" class="btn btn-secondary">Gửi OTP</button>
                         <div id="otpSection" style="display:none; margin-top:15px;">
-                            <div class="mb-3"><label for="otpCode">Enter OTP</label><input type="text" id="otpCode" class="form-control" required></div>
-                            <button type="submit" class="btn btn-success">Verify & Update Email</button>
+                            <div class="mb-3"><label for="otpCode" class="form-label">Gửi OTP</label><input type="text" id="otpCode" class="form-control" required></div>
+                            <button type="submit" class="btn btn-primary">Xác nhận & cập nhật Email</button>
                         </div>
                     </form>
                 </div>
 
-                <!-- Change Password -->
+                <!-- PASSWORD -->
                 <div id="password" class="tab-pane" style="display:none;">
                     <form id="passwordForm">
-                        <div class="mb-3"><label>Current Password</label><input type="password" id="currentPassword" name="currentPassword" class="form-control" required></div>
-                        <div class="mb-3"><label>New Password</label><input type="password" id="newPassword" name="newPassword" class="form-control" required></div>
-                        <div class="mb-3"><label>Confirm New Password</label><input type="password" id="confirmPassword" name="confirmNewPassword" class="form-control" required></div>
-                        <button type="submit" class="btn btn-warning">Change Password</button>
+                        <div class="mb-3"><label class="form-label">Mật khẩu hiện tại</label><input type="password" id="currentPassword" name="currentPassword" class="form-control" required></div>
+                        <div class="mb-3"><label class="form-label">Mật khẩu mới</label><input type="password" id="newPassword" name="newPassword" class="form-control" required></div>
+                        <div class="mb-3"><label class="form-label">Xác nhận mật khẩu mới</label><input type="password" id="confirmPassword" name="confirmNewPassword" class="form-control" required></div>
+                        <button type="submit" class="btn btn-warning"><i class="fa-solid fa-key me-2"></i>Đổi mật khẩu</button>
                     </form>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
 
+            <!-- Avatar Popover & Viewer -->
+            <div id="avatarMenu" class="popover">
+                <div class="pop-item" id="actionView"><i class="fa-regular fa-image"></i> Xem ảnh đại diện</div>
+                <div class="pop-item" id="actionChange"><i class="fa-solid fa-image-portrait"></i> Đổi ảnh đại diện</div>
+            </div>
+            <input type="file" id="quickAvatarFile" accept="image/*" style="display:none;" />
+            <div id="avatarViewer" class="viewer">
+                <button class="close" id="viewerClose" aria-label="Đóng">&times;</button>
+                <img id="viewerImg" src="/image/avatar.png" alt="Avatar preview">
+            </div>
+        </section>
+
+        <!-- RIGHT: PROMOTIONS / NEWS -->
+        <aside class="film promo-panel">
+            <div class="promo-head">
+                <div class="promo-logo"><i class="fa-solid fa-clapperboard"></i></div>
+                <div>
+                    <h4 class="m-0" style="letter-spacing:.3px">Khuyến mãi & Sự kiện</h4>
+                    <div class="promo-sub">Ưu đãi, sự kiện, phát hành lại… (kéo ngang để xem, di chuột để tạm dừng)</div>
+                </div>
+            </div>
+
+            <!-- Rail -->
+            <div class="rail">
+                <div class="track">
+                    <!-- nhân đôi 6–8 card để đủ marquee -->
+                    <div class="promo">
+                        <div class="tag"><i class="fa-solid fa-ticket"></i> Voucher -20%</div>
+                        <div class="mt-2"><strong>Combo bắp nước cuối tuần</strong></div>
+                        <div class="ptime">12/05 – 25/05</div>
+                        <button class="cta mt-2"><i class="fa-solid fa-plus"></i> Xem chi tiết</button>
+                    </div>
+                    <div class="promo">
+                        <div class="tag"><i class="fa-regular fa-calendar"></i> Event</div>
+                        <div class="mt-2"><strong>Đêm công chiếu: World War Z (Re-release)</strong></div>
+                        <div class="ptime">20:00 | CineMaster</div>
+                        <button class="cta mt-2"><i class="fa-solid fa-ticket"></i> Đặt vé</button>
+                    </div>
+                    <div class="promo">
+                        <div class="tag"><i class="fa-solid fa-bolt"></i> Flash</div>
+                        <div class="mt-2"><strong>Mua 2 tặng 1 – ghế đôi</strong></div>
+                        <div class="ptime">Thứ 4 hàng tuần</div>
+                        <button class="cta mt-2"><i class="fa-solid fa-cart-plus"></i> Nhận mã</button>
+                    </div>
+                    <div class="promo">
+                        <div class="tag"><i class="fa-solid fa-crown"></i> Member</div>
+                        <div class="mt-2"><strong>Điểm x2 cho suất sau 21:00</strong></div>
+                        <div class="ptime">Hôm nay</div>
+                        <button class="cta mt-2"><i class="fa-solid fa-arrow-right"></i> Chi tiết</button>
+                    </div>
+
+                    <!-- lặp lại để tạo hiệu ứng cuộn liên tục -->
+                    <div class="promo">
+                        <div class="tag"><i class="fa-solid fa-ticket"></i> Voucher -20%</div>
+                        <div class="mt-2"><strong>Combo bắp nước cuối tuần</strong></div>
+                        <div class="ptime">12/05 – 25/05</div>
+                        <button class="cta mt-2"><i class="fa-solid fa-plus"></i> Xem chi tiết</button>
+                    </div>
+                    <div class="promo">
+                        <div class="tag"><i class="fa-regular fa-calendar"></i> Event</div>
+                        <div class="mt-2"><strong>Đêm công chiếu: World War Z (Re-release)</strong></div>
+                        <div class="ptime">20:00 | CineMaster</div>
+                        <button class="cta mt-2"><i class="fa-solid fa-ticket"></i> Đặt vé</button>
+                    </div>
+                    <div class="promo">
+                        <div class="tag"><i class="fa-solid fa-bolt"></i> Flash</div>
+                        <div class="mt-2"><strong>Mua 2 tặng 1 – ghế đôi</strong></div>
+                        <div class="ptime">Thứ 4 hàng tuần</div>
+                        <button class="cta mt-2"><i class="fa-solid fa-cart-plus"></i> Nhận mã</button>
+                    </div>
+                    <div class="promo">
+                        <div class="tag"><i class="fa-solid fa-crown"></i> Member</div>
+                        <div class="mt-2"><strong>Điểm x2 cho suất sau 21:00</strong></div>
+                        <div class="ptime">Hôm nay</div>
+                        <button class="cta mt-2"><i class="fa-solid fa-arrow-right"></i> Chi tiết</button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</main>
+
+<!-- footer -->
+<div id="site-footer"></div>
+
+<!-- Load header/footer -->
+<script>
+    (async ()=>{
+        try{
+            const [h,f] = await Promise.all([
+                fetch('../home/customer-header.html').then(r=>r.text()),
+                fetch('../home/footer.html').then(r=>r.text())
+            ]);
+            document.getElementById('site-header').innerHTML = h;
+            document.getElementById('site-footer').innerHTML = f;
+        }catch(e){ console.error('Load header/footer error', e); }
+    })();
+</script>
+
+<!-- Script gốc của bạn -->
 <script type="module" src="../js/profile.js"></script>
+
+<!-- Avatar popover + xem/đổi nhanh (hoạt động với api.uploadAvatar) -->
+<script type="module">
+    import { api } from "../js/api.js";
+
+    const avatarArea  = document.getElementById('avatarArea');
+    const avatarImg   = document.getElementById('avatarImg');
+    const menu        = document.getElementById('avatarMenu');
+    const quickFile   = document.getElementById('quickAvatarFile');
+    const actionView  = document.getElementById('actionView');
+    const actionChange= document.getElementById('actionChange');
+
+    const viewer      = document.getElementById('avatarViewer');
+    const viewerImg   = document.getElementById('viewerImg');
+    const viewerClose = document.getElementById('viewerClose');
+
+    function openMenuAt(el){
+        const rect = el.getBoundingClientRect();
+        menu.style.left = `${rect.left + window.scrollX}px`;
+        menu.style.top  = `${rect.bottom + 8 + window.scrollY}px`;
+        menu.style.display = 'block';
+    }
+    function closeMenu(){ menu.style.display = 'none'; }
+
+    ['avatarArea','avatarFab'].forEach(id=>{
+        const el = document.getElementById(id);
+        if(el){
+            el.addEventListener('click', (e)=>{
+                e.stopPropagation();
+                if(menu.style.display === 'block') closeMenu();
+                else openMenuAt(avatarArea);
+            });
+        }
+    });
+    document.addEventListener('click', (e)=>{ if(!menu.contains(e.target)) closeMenu(); });
+
+    // xem avatar
+    actionView.addEventListener('click', ()=>{
+        closeMenu();
+        viewerImg.src = avatarImg.src || '/image/avatar.png';
+        viewer.classList.add('open');
+    });
+    viewerClose.addEventListener('click', ()=> viewer.classList.remove('open'));
+    viewer.addEventListener('click', (e)=>{ if(e.target === viewer) viewer.classList.remove('open'); });
+
+    // đổi avatar nhanh
+    actionChange.addEventListener('click', ()=>{ closeMenu(); quickFile.click(); });
+
+    quickFile.addEventListener('change', async ()=>{
+        const file = quickFile.files?.[0];
+        if(!file) return;
+        try{
+            const url = await api.uploadAvatar(file); // server trả /uploads/xxx
+            avatarImg.src = (url.startsWith('http') ? url : url) + `?t=${Date.now()}`; // chống cache
+            if (typeof window.loadProfile === 'function') window.loadProfile();
+            alert('Đổi ảnh đại diện thành công!');
+        }catch(err){
+            console.error('Upload avatar error:', err);
+            alert(err.message || 'Không thể đổi ảnh đại diện');
+        }finally{
+            quickFile.value = '';
+        }
+    });
+
+    // chuẩn hóa src nếu BE trả thiếu '/'
+    const s = avatarImg.getAttribute('src')||'';
+    if(s && !s.startsWith('http') && !s.startsWith('/')) avatarImg.setAttribute('src','/'+s);
+</script>
 </body>
 </html>
