@@ -1,9 +1,89 @@
-<!-- footer.html -->
-<footer>
-    <p>© 2025 CineMaster. Mọi quyền được bảo lưu.</p>
-    <p>
-        <a href="#">Liên hệ</a> |
-        <a href="#">Điều khoản</a> |
-        <a href="#">Chính sách bảo mật</a>
-    </p>
+<!-- customer-footer.html -->
+<footer class="cm-footer">
+    <div class="footer-container">
+        <p class="copy">
+            © <span id="cmYear"></span> CineMaster. Mọi quyền được bảo lưu.
+        </p>
+        <nav class="footer-links">
+            <a href="#">Liên hệ</a>
+            <span class="sep">|</span>
+            <a href="#">Điều khoản</a>
+            <span class="sep">|</span>
+            <a href="#">Chính sách bảo mật</a>
+        </nav>
+    </div>
 </footer>
+
+<style>
+    /* Font như header */
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
+
+    :root{
+        --primary:#e50914;
+        --footer-bg:#152040;    /* xanh đậm */
+        --footer-ink:#0D1326;   /* xanh-đen nền tổng */
+        --text:#ffffff;
+        --muted:#cfd8e3;
+    }
+
+    .cm-footer{
+        background:
+                radial-gradient(1200px 400px at 120% -20%, rgba(229,9,20,.08), transparent 60%),
+                radial-gradient(800px 300px at -15% -30%, rgba(255,255,255,.06), transparent 60%),
+                linear-gradient(180deg, var(--footer-bg), var(--footer-ink));
+        color:var(--muted);
+        font-family:'Roboto', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        padding: 22px 0;
+        border-top:1px solid rgba(255,255,255,.06);
+    }
+
+    .cm-footer .footer-container{
+        max-width:1300px;
+        margin:0 auto;
+        padding:0 40px;
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        flex-wrap:wrap;
+        row-gap:10px;
+    }
+
+    .cm-footer .copy{
+        margin:0;
+        font-weight:500;
+        letter-spacing:.2px;
+    }
+
+    .cm-footer .footer-links{
+        display:flex;
+        align-items:center;
+        gap:10px;
+        flex-wrap:wrap;
+    }
+    .cm-footer .footer-links a{
+        color:var(--muted);
+        text-decoration:none;
+        font-weight:600;
+        transition:color .2s ease, text-shadow .2s ease;
+    }
+    .cm-footer .footer-links a:hover{
+        color:#fff;
+        text-shadow:0 0 10px rgba(229,9,20,.35);
+    }
+    .cm-footer .sep{ opacity:.35 }
+
+    /* Responsive */
+    @media (max-width: 768px){
+        .cm-footer .footer-container{ padding:0 20px; }
+        .cm-footer .copy{ width:100%; text-align:center; }
+        .cm-footer .footer-links{ width:100%; justify-content:center; }
+    }
+</style>
+
+<script>
+    // năm hiện tại
+    (function(){
+        var y = document.getElementById('cmYear');
+        if(y) y.textContent = new Date().getFullYear();
+    })();
+</script>
