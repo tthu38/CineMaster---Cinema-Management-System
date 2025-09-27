@@ -132,7 +132,7 @@
         .cast-wrapper {
             position: relative;
             width: 100%;
-            margin: 0.5rem auto -80px auto; /* kéo xuống đè lên footer */
+            margin: 0.5rem auto 2rem auto; /* kéo xuống đè lên footer */
             overflow: visible; /* cho phép tràn */
             display: flex;
             justify-content: center;
@@ -261,11 +261,139 @@
             );
             z-index: 1;
         }
+        .age-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #e50914;   /* màu đỏ Netflix */
+            color: #fff;
+            font-weight: bold;
+            font-size: 1rem;
+            padding: 6px 12px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+            z-index: 2;
+        }
+
+        .rating-wrapper {
+            position: relative;
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            max-width: 1000px;
+            width: 90%;
+            margin: 2rem auto; /* cách trên dưới */
+            text-align: center;
+            color: #000; /* chữ đen trên nền trắng */
+        }
+
+        .rating-wrapper .section-title {
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .rating-wrapper {
+            position: relative;
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            max-width: 1000px;   /* giống khung hình ảnh phim */
+            width: 90%;          /* giống khung hình ảnh phim */
+            margin: 5rem auto 2rem auto; /* cách trên nhiều hơn để không đụng ảnh diễn viên */
+            color: #000;
+        }
+
+
+        .rating-summary {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .rating-score {
+            text-align: center;
+        }
+
+        .rating-score .avg {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #e50914;
+        }
+
+        .rating-score .stars {
+            font-size: 1.5rem;
+            color: #ffd700;
+            margin: 0.2rem 0;
+        }
+
+        .rating-score .count {
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .rating-bars {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 6px 0;
+            font-size: 0.9rem;
+        }
+
+        .bar span {
+            width: 40px;
+        }
+
+        .progress {
+            flex: 1;
+            height: 10px;
+            background: #eee;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress .fill {
+            height: 100%;
+            background: #ffd700;
+            border-radius: 5px;
+        }
+
+        .review-btn {
+            margin-top: 1.5rem;
+            background: #e50914;
+            border: none;
+            color: #fff;
+            font-weight: bold;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .review-btn:hover {
+            background: #b20710;
+        }
+
+
+
 
     </style>
 </head>
 <body>
-
+<div id="header"></div>
 <!-- Hero -->
 <section class="hero">
     <img src="../image/poster4.jpg" alt="Hero Image">
@@ -275,10 +403,13 @@
 <div class="hero-card">
     <img src="../image/poster1_1.jpg" alt="Poster Brave">
     <div class="hero-info">
-        <h2><strong>Rebelle</strong></h2>
-        <p>Dans ce film, l'héroïne Mérida cherche un chemin...</p>
+        <h2><strong>Công chúa tóc xù</strong></h2>
+        <p>Lấy bối cảnh ở vùng Cao nguyên xứ Scotland, bộ phim kể câu chuyện về một nàng công chúa tên là Merida, người vô tình gây ra một vụ hỗn loạn trong vương quốc chỉ vì phản đối việc hứa hôn, một tục lệ cổ xưa giữa các bộ lạc. Sau khi tới hỏi ý một mụ phù thủy, Merida đã vô tình biến mẹ mình thành một con gấu và buộc phải hoá giải lời nguyền ấy trước khi quá muộn.</p>
         <p><strong>Sortie:</strong> 2012 • <strong>Durée:</strong> 1h 35min</p>
     </div>
+
+    <!-- Badge độ tuổi -->
+    <div class="age-badge">13+</div>
 </div>
 
 <!-- Thông tin phim -->
@@ -304,12 +435,55 @@
     <button class="cast-btn next-cast">&#10095;</button>
 </div>
 
+<!-- Đánh giá phim -->
+<div class="rating-wrapper">
+    <h4 class="section-title">Đánh giá phim</h4>
+    <div class="rating-summary">
+        <div class="rating-score">
+            <div class="avg">4.5</div>
+            <div class="stars">⭐️⭐️⭐️⭐️⭐️</div>
+            <div class="count">4.5 · 5.2K đánh giá</div>
+        </div>
+        <div class="rating-bars">
+            <div class="bar">
+                <span>5 ⭐</span>
+                <div class="progress"><div class="fill" style="width: 70%;"></div></div>
+            </div>
+            <div class="bar">
+                <span>4 ⭐</span>
+                <div class="progress"><div class="fill" style="width: 50%;"></div></div>
+            </div>
+            <div class="bar">
+                <span>3 ⭐</span>
+                <div class="progress"><div class="fill" style="width: 25%;"></div></div>
+            </div>
+            <div class="bar">
+                <span>2 ⭐</span>
+                <div class="progress"><div class="fill" style="width: 10%;"></div></div>
+            </div>
+            <div class="bar">
+                <span>1 ⭐</span>
+                <div class="progress"><div class="fill" style="width: 5%;"></div></div>
+            </div>
+        </div>
+    </div>
+    <button class="review-btn">Viết đánh giá</button>
+</div>
+
+
+
 <!-- Background cuối trang -->
 <section class="movie-footer">
     <img src="../image/footer1.jpg" alt="Background cuối">
 </section>
 
-
+<script>
+    fetch("../home/menu.html")
+        .then(res => res.text())
+        .then(data => {
+            document.getElementById("header").innerHTML = data;
+        });
+</script>
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         // === Preview hình ảnh phim ===
