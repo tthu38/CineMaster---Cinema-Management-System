@@ -1,17 +1,113 @@
-<!-- header.html -->
-<header class="header">
+
+<!-- guest-header.html -->
+<header class="header cm-header">
     <div class="header-container">
-        <div class="logo-text">CineMaster</div>
-        <nav>
-            <a href="home.html" class="nav-link active">Home</a>
+        <!-- Logo → về trang chủ -->
+        <a href="../home/home.html" class="logo-text">CineMaster</a>
+
+        <!-- Nav -->
+        <nav class="cm-nav">
+            <a href="../home/home.html" class="nav-link">Home</a>
             <a href="#" class="nav-link">Movies</a>
             <a href="#" class="nav-link">Showtimes</a>
             <a href="#" class="nav-link">Theaters</a>
             <a href="#" class="nav-link">Promotions</a>
         </nav>
-        <div class="auth-buttons">
-            <button class="btn-auth" onclick="window.location.href='../user/login.html'">Đăng nhập</button>
-            <button class="btn-auth" onclick="window.location.href='../user/register.html'">Đăng ký</button>
+
+        <!-- Guest: Login + Register -->
+        <div class="auth-wrap">
+            <a href="../user/login.html" class="btn-auth">Login</a>
+            <a href="../user/register.html" class="btn-auth">Register</a>
         </div>
     </div>
 </header>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Bebas+Neue&display=swap');
+
+    :root{
+        --primary:#e50914;
+        --text:#ffffff;
+        --muted:#cfd8e3;
+    }
+
+    body{ padding-top:96px; }
+
+    .cm-header{
+        position:fixed; inset:0 0 auto 0; z-index:100;
+        background: rgba(10,19,38,.94);
+        backdrop-filter: saturate(120%) blur(8px);
+        color:var(--text);
+        border-bottom:1px solid rgba(255,255,255,.06);
+        box-shadow: 0 10px 28px rgba(0,0,0,.45);
+    }
+    .cm-header::after{
+        content:""; position:absolute; left:0; right:0; bottom:0; height:2px;
+        background: linear-gradient(90deg, transparent, rgba(229,9,20,.65), rgba(34,193,255,.35), transparent);
+        pointer-events:none;
+    }
+
+    .cm-header .header-container{
+        max-width:1300px; margin:0 auto;
+        padding:18px 48px;
+        display:flex; align-items:center; justify-content:space-between; gap:24px;
+    }
+
+    .cm-header .logo-text{
+        font-family:'Bebas Neue', sans-serif;
+        letter-spacing:2.5px;
+        font-size:2.4rem;
+        color:var(--primary);
+        text-decoration:none; cursor:pointer;
+        line-height:1;
+        text-shadow: 0 0 10px rgba(229,9,20,.25);
+    }
+
+    .cm-header .cm-nav{ display:flex; gap:28px; align-items:center; }
+
+    .cm-header .nav-link{
+        position:relative;
+        color:var(--muted);
+        text-decoration:none;
+        font-family:'Roboto', sans-serif;
+        font-weight:600;
+        font-size:1.05rem;
+        letter-spacing:.2px;
+        transition:color .2s ease;
+        padding:8px 2px;
+    }
+    .cm-header .nav-link::after{
+        content:""; position:absolute; left:0; right:0; bottom:-6px; height:2px;
+        background: linear-gradient(90deg, rgba(229,9,20,.9), rgba(34,193,255,.6));
+        transform: scaleX(0); transform-origin:left; transition: transform .2s ease;
+    }
+    .cm-header .nav-link:hover,
+    .cm-header .nav-link.active{ color:#fff; }
+    .cm-header .nav-link:hover::after,
+    .cm-header .nav-link.active::after{ transform: scaleX(1); }
+
+    .cm-header .auth-wrap{ display:flex; align-items:center; gap:14px; }
+
+    .cm-header .btn-auth{
+        padding:8px 16px; border-radius:22px; cursor:pointer; white-space:nowrap;
+        border:1.8px solid var(--primary); background:transparent; color:var(--primary); font-weight:800;
+        transition:transform .12s ease, box-shadow .25s ease, background .25s ease, color .25s ease;
+        text-decoration:none;
+    }
+    .cm-header .btn-auth:hover{
+        background:var(--primary); color:#fff;
+        box-shadow:0 0 14px rgba(229,9,20,.55);
+        transform: translateY(-1px);
+    }
+
+    @media (max-width: 1080px){
+        .cm-header .header-container{ padding:16px 28px; }
+        .cm-header .logo-text{ font-size:2.1rem; }
+        .cm-header .cm-nav{ gap:20px; }
+    }
+    @media (max-width: 960px){
+        .cm-header .cm-nav{ display:none; }
+        .cm-header .header-container{ padding:14px 20px; }
+        body{ padding-top:78px; }
+    }
+</style>
