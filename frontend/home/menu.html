@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Header - CineMaster</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+        }
+
+        /* Header */
+        .site-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 40px;
+            background: rgba(0, 0, 0, 0.15); /* trong suốt */
+            backdrop-filter: blur(8px);      /* mờ nền */
+            position: relative;
+        }
+
+        /* Logo bên trái */
+        :root {
+            --primary: #e50914;       /* màu đỏ Netflix */
+            --primary-hover: #ff1e26; /* đỏ sáng hơn khi hover */
+        }
+
+        .logo {
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 2.5px;
+            font-size: 2.4rem;
+            color: var(--primary);
+            text-decoration: none;
+            cursor: pointer;
+            line-height: 1;
+            text-shadow: 0 0 10px rgba(229,9,20,.25);
+            transition: color 0.3s, transform 0.3s, text-shadow 0.3s;
+        }
+
+        .logo:hover {
+            color: var(--primary-hover);
+            transform: scale(1.05); /* hơi phóng to */
+            text-shadow: 0 0 15px rgba(255,30,38,0.6);
+        }
+
+
+
+        /* Menu giữa */
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 40px;
+            margin: 0;
+            padding: 0;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #e50914;
+        }
+    </style>
+</head>
+<body>
+<header class="site-header">
+    <nav class="navbar">
+        <!-- Logo -->
+        <a href="../home/index.html" class="logo">CineMaster</a>
+
+        <!-- Menu giữa -->
+        <ul class="nav-links">
+            <li><a href="../home/home.html">Home</a></li>
+            <li><a href="../movies/movieDetail.html">Thông tin phim</a></li>
+            <li><a href="../home/news.html">Tin tức</a></li>
+            <li><a href="../home/tickets.html">Mua vé</a></li>
+        </ul>
+    </nav>
+</header>
+</body>
+</html>
