@@ -14,8 +14,8 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Entity(name = "Combo")
-@Table(schema = "dbo")
+@Entity
+@Table(name = "Combo")
 public class Combo {
 
     @Id

@@ -201,8 +201,236 @@ const userApi = {
 
 };
 
-// ===== Export gộp =====
+// ===== Account API =====
+const _accountApi = {
+    async getAll() {
+        const token = getValidToken();
+        if (!token) return null;
+        const res = await fetch(`${API_BASE_URL}/accounts`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return handleResponse(res);
+    },
+
+    async getAllPaged(page = 0, size = 10, roleId = null, branchId = null, keyword = "") {
+        const token = getValidToken();
+        if (!token) return null;
+
+        let url = `${API_BASE_URL}/accounts?page=${page}&size=${size}`;
+        if (roleId) url += `&roleId=${roleId}`;
+        if (branchId) url += `&branchId=${branchId}`;
+        if (keyword) url += `&keyword=${encodeURIComponent(keyword)}`;
+
+        console.log("📡 Fetching:", url);
+        const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+        return handleResponse(res);
+    },
+
+    async getById(id) {
+        const token = getValidToken();
+        if (!token) return null;
+        const res = await fetch(`${API_BASE_URL}/accounts/${id}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        return handleResponse(res);
+    },
+
+    async create(accountData, avatarFile) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const formData = new FormData();
+        formData.append(
+            "data", // ✅ phải trùng với @RequestPart("data")
+            new Blob([JSON.stringify(accountData)], { type: "application/json" })
+        );
+        if (avatarFile) {
+            formData.append("avatarFile", avatarFile);
+        }
+
+        const res = await fetch(`${API_BASE_URL}/accounts`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`, // ❌ KHÔNG set Content-Type, để fetch tự gắn
+            },
+            body: formData,
+        });
+        return handleResponse(res);
+    },
+
+    async update(id, accountData, avatarFile) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const formData = new FormData();
+        formData.append(
+            "data", // ✅ giống @RequestPart("data")
+            new Blob([JSON.stringify(accountData)], { type: "application/json" })
+        );
+        if (avatarFile) {
+            formData.append("avatarFile", avatarFile);
+        }
+
+        const res = await fetch(`${API_BASE_URL}/accounts/${id}`, {
+            method: "PUT",
+            headers: {
+                Authorization: `Bearer ${token}`, // không set Content-Type
+            },
+            body: formData,
+        });
+        return handleResponse(res);
+    },
+
+    async remove(id) {
+        const token = getValidToken();
+        if (!token) return null;
+        const res = await fetch(`${API_BASE_URL}/accounts/${id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return handleResponse(res);
+    },
+    async restore(id) {
+        const token = getValidToken();
+        if (!token) return null;
+        const res = await fetch(`${API_BASE_URL}/accounts/${id}/restore`, {
+            method: "PUT",
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return handleResponse(res);
+    }
+
+};
+//=========== Branch =================
+const _branchApi = {
+    async getAll() {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/branches/names`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        return handleResponse(res);
+    }
+};
+
+//================ Combo ==============
+const _comboApi = {
+    async getAll() {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/combos`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        return handleResponse(res);
+    },
+    // CREATE (multipart/form-data)
+    async create(comboData, imageFile) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const formData = new FormData();
+        formData.append(
+            "data", // ✅ trùng @RequestPart("data")
+            new Blob([JSON.stringify(comboData)], { type: "application/json" })
+        );
+
+        if (imageFile) {
+            formData.append("imageFile", imageFile);
+        }
+
+        const res = await fetch(`${API_BASE_URL}/combos`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                // ❌ KHÔNG set Content-Type — fetch tự động gắn boundary
+            },
+            body: formData,
+        });
+
+        return handleResponse(res);
+    },
+    async getById(id) {
+        const token = getValidToken();
+        const res = await fetch(`${API_BASE_URL}/combos/${id}`, {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return handleResponse(res);
+    },
+
+    async update(id, comboData, imageFile) {
+        const token = getValidToken();
+        const formData = new FormData();
+
+        formData.append("data", new Blob([JSON.stringify(comboData)], { type: "application/json" }));
+        if (imageFile) {
+            formData.append("imageFile", imageFile);
+        }
+
+        const res = await fetch(`${API_BASE_URL}/combos/${id}`, {
+            method: "PUT",
+            headers: { Authorization: `Bearer ${token}` },
+            body: formData,
+        });
+
+        return handleResponse(res);
+    },
+
+    // DELETE (soft delete)
+    async delete(id) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/combos/${id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return handleResponse(res);
+    },
+
+    // RESTORE (PUT /{id}/restore)
+    async restore(id) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/combos/${id}/restore`, {
+            method: "PUT",
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return handleResponse(res);
+    },
+};
+
+
+
+export function requireAuth() {
+    const token = getValidToken();
+    if (!token) {
+        // Nếu chưa login → quay về login
+        window.location.href = "../user/login.html";
+        return null;
+    }
+    return token;
+}
+
+// ===== Export =====
 export const api = {
     ...authApi,
     ...userApi,
 };
+
+export const accountApi = _accountApi;
+export const branchApi = _branchApi;
+export const comboApi = _comboApi;
+export { API_BASE_URL };
+

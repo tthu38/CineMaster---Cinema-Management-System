@@ -13,28 +13,33 @@ import java.util.UUID;
 @Service
 public class FileStorageService {
 
-    private final String UPLOAD_DIR = "uploads"; // thư mục ngay trong backend project
+    private final String UPLOAD_DIR = "uploads"; // thư mục uploads trong project
 
-    public String saveFile(MultipartFile file) throws IOException {
+    public String saveFile(MultipartFile file) {
         if (file.isEmpty()) {
-            throw new IOException("File is empty");
+            throw new RuntimeException("File is empty");
         }
 
-        // Tạo thư mục nếu chưa có
-        File dir = new File(UPLOAD_DIR);
-        if (!dir.exists()) {
-            dir.mkdirs();
+        try {
+            // Tạo thư mục nếu chưa tồn tại
+            File dir = new File(UPLOAD_DIR);
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+
+            // Tạo tên file unique
+            String ext = getFileExtension(file.getOriginalFilename());
+            String filename = "avatar_" + UUID.randomUUID() + ext;
+
+            Path path = Paths.get(UPLOAD_DIR, filename);
+            Files.copy(file.getInputStream(), path);
+
+            // ✅ Trả về path chuẩn cho FE (bắt đầu bằng /uploads/)
+            return "/uploads/" + filename;
+
+        } catch (IOException e) {
+            throw new RuntimeException("Could not store file. Error: " + e.getMessage(), e);
         }
-
-        // Đặt tên file unique
-        String ext = getFileExtension(file.getOriginalFilename());
-        String filename = "avatar_" + UUID.randomUUID() + ext;
-
-        Path path = Paths.get(UPLOAD_DIR, filename);
-        Files.copy(file.getInputStream(), path);
-
-        // Trả về URL để FE dùng hiển thị
-        return "/uploads/" + filename;
     }
 
     private String getFileExtension(String filename) {
