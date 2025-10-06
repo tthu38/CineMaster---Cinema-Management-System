@@ -44,8 +44,13 @@ public class Seat {
     @Column(name = "ColumnNumber")
     Integer columnNumber;
 
-    @Size(max = 20)
-    @Nationalized
+    // 👇 CẬP NHẬT 1: Thay đổi kiểu dữ liệu từ String sang Enum
+    @Enumerated(EnumType.STRING)
     @Column(name = "Status", length = 20)
-    String status;
+    SeatStatus status; // <-- Sử dụng Enum SeatStatus
+    public enum SeatStatus {
+        AVAILABLE,
+        BROKEN,   // <-- Đây là giá trị bạn cần
+        RESERVED,
+    }
 }

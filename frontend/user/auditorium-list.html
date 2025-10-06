@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <title>CineMaster • Danh Sách Phòng Chiếu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+    <style>
+        /* CSS CHỦ ĐẠO MỚI (Tối ưu hóa độ sâu và hiệu ứng) */
+        :root{
+            --red:#e50914;
+            --cyan:#22c1ff;
+            --blue:#0aa3ff;
+            --ink:#06101f;
+            --bg:#0b162c;
+            --card-base:#0d182b; /* Màu card cơ bản sáng hơn một chút so với nền */
+            --border:#1b2b4a;
+            --muted:#9aa7b3;
+            --light-text:#e6f1ff;
+            --glow:0 0 20px rgba(34,193,255,.35), 0 0 60px rgba(34,193,255,.15);
+            --shadow-subtle: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.6);
+            --primary-glow: 0 0 10px rgba(34, 193, 255, 0.5); /* Hiệu ứng neon nhẹ */
+        }
+
+        /* TOÀN BỘ CSS NỀN ĐƯỢC GIỮ NGUYÊN */
+        .tickets-wall{ position:fixed; inset:0; pointer-events:none; z-index:0; }
+        .tickets-wall .tickets-layer{ position:absolute; inset:-10%; background-repeat:repeat; background-size:320px 160px; opacity:.14; filter:drop-shadow(0 0 20px rgba(22,40,76,.18)); transform-origin:center center; }
+        .tickets-wall .l1{ transform:rotate(-3deg) scale(1.04); background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='160' viewBox='0 0 320 160'%3E%3Crect fill='none' width='320' height='160'/%3E%3Cg opacity='0.95'%3E%3Cg transform='translate(8,8)'%3E%3Cpath d='M0 24 a12 12 0 0 1 12 -12 h200 a10 10 0 0 0 10 -10 a12 12 0 0 1 12 12 v60 a12 12 0 0 1 -12 12 a10 10 0 0 0 -10 10 H12 a12 12 0 0 1 -12 -12z' fill='%23192A43' stroke='%232c3e66' stroke-width='2'/%3E%3Cline x1='140' y1='12' x2='140' y2='96' stroke='%238fb4ff' stroke-opacity='0.18' stroke-dasharray='6 6' /%3E%3Ccircle cx='60' cy='54' r='22' fill='none' stroke='%238fb4ff' stroke-opacity='0.35' stroke-width='3'/%3E%3Ccircle cx='60' cy='54' r='5' fill='%238fb4ff' opacity='0.3'/%3E%3Cg fill='%238fb4ff' opacity='0.35'%3E%3Ccircle cx='49' cy='44' r='5'/%3E%3Ccircle cx='71' cy='44' r='5'/%3Ccircle cx='49' cy='64' r='5'/%3E%3Ccircle cx='71' cy='64' r='5'/%3E%3C/g%3E%3Cg transform='translate(164,32)' stroke='%23cfe3ff' stroke-opacity='0.38'%3E%3Crect x='0' y='0' width='60' height='24' fill='none'/%3E%3Cpath d='M3 0 v24 M8 0 v24 M11 0 v24 M16 0 v24 M22 0 v24 M27 0 v24 M33 0 v24 M38 0 v24 M45 0 v24 M51 0 v24 M56 0 v24' stroke-width='2'/%3E%3C/g%3E%3Cg transform='translate(164,66)' stroke='%23cfe3ff' stroke-opacity='0.45'%3E%3Cline x1='0' y1='0' x2='76' y2='0' stroke-width='2'/%3E%3Cline x1='0' y1='10' x2='62' y2='10' stroke-width='2'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(8,88)'%3E%3Cpath d='M0 24 a12 12 0 0 1 12 -12 h200 a10 10 0 0 0 10 -10 a12 12 0 0 1 12 12 v60 a12 12 0 0 1 -12 12 a10 10 0 0 0 -10 10 H12 a12 12 0 0 1 -12 -12z' fill='%231b2f50' stroke='%23314774' stroke-width='2'/%3E%3Cline x1='140' y1='12' x2='140' y2='96' stroke='%238fb4ff' stroke-opacity='0.18' stroke-dasharray='6 6'/%3E%3Ccircle cx='60' cy='54' r='22' fill='none' stroke='%23a8c8ff' stroke-opacity='0.32' stroke-width='3'/%3E%3Ccircle cx='60' cy='54' r='5' fill='%23a8c8ff' opacity='0.28'/%3E%3Cg fill='%23a8c8ff' opacity='0.32'%3E%3Ccircle cx='49' cy='44' r='5'/%3E%3Ccircle cx='71' cy='44' r='5'/%3Ccircle cx='49' cy='64' r='5'/%3Ccircle cx='71' cy='64' r='5'/%3E%3C/g%3E%3Cg transform='translate(164,32)' stroke='%23d8e6ff' stroke-opacity='0.38'%3E%3Cpath d='M3 0 v24 M8 0 v24 M11 0 v24 M16 0 v24 M22 0 v24 M27 0 v24 M33 0 v24 M38 0 v24 M45 0 v24 M51 0 v24 M56 0 v24' stroke-width='2'/%3E%3C/g%3E%3Cg transform='translate(164,66)' stroke='%23d8e6ff' stroke-opacity='0.45'%3E%3Cline x1='0' y1='0' x2='76' y2='0' stroke-width='2'/%3E%3Cline x1='0' y1='10' x2='62' y2='10' stroke-width='2'/%3E%3Cline x1='0' y1='20' x2='70' y2='20' stroke-width='2'/%E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+        .tickets-wall .l2{ transform:rotate(3deg) scale(1.06); background-position:160px 80px; opacity:.10; background-image:inherit; }
+        html,body{ margin:0; color:var(--light-text); font-family:'Roboto',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; min-height:100vh; background-color: var(--ink); background-image: radial-gradient(1200px 600px at -10% -35%, rgba(229,9,20,.18), transparent 60%), radial-gradient(900px 400px at 120% -20%, rgba(34,193,255,.12), transparent 60%), linear-gradient(180deg, var(--ink), var(--bg)), url("data:image/svg+xml;utf8,\<svg xmlns='http://www.w3.org/2000/svg' width='160' height='80' viewBox='0 0 160 80'>\ <rect width='160' height='80' fill='none'/>\ <g opacity='0.08' stroke='%23cfe3ff' stroke-width='1.2' fill='none'>\ <path d='M8 20 h110 a10 10 0 0 0 10 -10 a10 10 0 0 1 10 10 v20 a10 10 0 0 1 -10 10 a10 10 0 0 0 -10 10 H8 z'/>\ <path d='M30 18 v44' stroke-dasharray='6 6'/>\ <circle cx='120' cy='20' r='3'/><circle cx='120' cy='60' r='3'/>\ </g></svg>"); background-repeat:no-repeat,no-repeat,no-repeat,repeat; background-size:1200px 600px,900px 400px,100% 100%,320px 160px; background-position:-10% -35%,120% -20%,0 0,0 0; background-attachment:fixed, fixed, fixed, fixed; overflow-x:hidden; }
+        .grain{ pointer-events:none; position:fixed; inset:0; opacity:.14; mix-blend-mode:screen; background-image:radial-gradient(circle at 20% 30%, rgba(255,255,255,.06) 0 2px, transparent 2px), radial-gradient(circle at 70% 60%, rgba(255,255,255,.05) 0 2px, transparent 2px); background-size:200px 200px, 260px 260px; animation: drift 18s linear infinite alternate; }
+        @keyframes drift{ from{ transform: translate3d(0,0,0) } to{ transform: translate3d(30px,-25px,0) } }
+
+        .shell{max-width:1300px;margin:110px auto 48px;padding:0 24px}
+        .layout{ display:block; }
+
+        .film{
+            position:relative;
+            background:linear-gradient(180deg, var(--card-base), var(--bg));
+            border:1px solid var(--border);
+            border-radius:22px; /* Mềm mại hơn */
+            box-shadow:var(--shadow-card); /* Bóng sâu hơn */
+            overflow:hidden;
+        }
+        /* Loại bỏ hiệu ứng cắt vé cũ, thay bằng viền glow mờ */
+        .film:before, .film:after {
+            content: none;
+        }
+        .branch-panel{
+            padding:30px 26px;
+            border: 1px solid rgba(34, 193, 255, 0.1); /* Viền mờ */
+            box-shadow: 0 0 40px rgba(34, 193, 255, 0.08); /* Glow nhẹ xung quanh card lớn */
+        }
+
+        /* Tiêu đề chính */
+        .header-title {
+            margin-bottom: 25px;
+        }
+        .header-title h2 {
+            font-size: 2.8rem; /* Lớn hơn */
+            font-weight: 900;
+            color: var(--light-text);
+            text-shadow: var(--primary-glow); /* Hiệu ứng neon nhẹ */
+            letter-spacing: 1px;
+        }
+
+        /* Card chứa bảng */
+        .tab-card {
+            background:var(--card-base);
+            border:1px solid var(--border);
+            border-radius:18px; /* Mềm mại hơn */
+            padding:22px;
+            box-shadow:var(--shadow-subtle);
+        }
+        .tab-card h2 {
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+            color: var(--cyan);
+            font-weight: 700;
+        }
+
+        /* Input/Select (Dropdown Lọc) */
+        .form-control{
+            background:rgba(255, 255, 255, 0.05); /* Rất tối */
+            border:1px solid var(--border);
+            color:var(--light-text);
+            border-radius:10px;
+            min-width: 200px;
+        }
+        .form-control:focus{
+            outline:none;
+            border-color:var(--cyan);
+            box-shadow:0 0 0 .2rem rgba(34,193,255,.3); /* Shadow nổi bật */
+        }
+
+        /* Nút Tải Lại */
+        .btn-secondary{
+            background:transparent;
+            border:1px solid var(--red);
+            color:var(--light-text);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover{
+            background:var(--red);
+            box-shadow: 0 0 15px rgba(229, 9, 20, 0.5);
+        }
+
+        /* Bảng */
+        .table-branch {
+            width: 100%;
+            border-collapse: separate; /* Tách biệt hàng */
+            border-spacing: 0 8px; /* Khoảng cách giữa các hàng */
+            color: var(--light-text);
+        }
+        .table-branch th, .table-branch td {
+            border: none; /* Loại bỏ viền cứng */
+            padding: 14px;
+            vertical-align: middle;
+        }
+        .table-branch thead th {
+            background: #10203a;
+            color: var(--cyan);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        /* Làm tròn góc cho header */
+        .table-branch thead tr:first-child th:first-child { border-radius: 12px 0 0 0; }
+        .table-branch thead tr:first-child th:last-child { border-radius: 0 12px 0 0; }
+
+        /* Style cho Body của bảng */
+        .table-branch tbody tr {
+            background: #132742; /* Màu hàng tối hơn */
+            border-radius: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        .table-branch tbody tr:hover {
+            background: #1a3556; /* Sáng hơn khi hover */
+            transform: translateY(-2px); /* Hiệu ứng nâng nhẹ */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5), 0 0 15px rgba(34, 193, 255, 0.1);
+        }
+        /* Đảm bảo nội dung không bị dính vào góc tròn */
+        .table-branch tbody tr td:first-child { border-radius: 8px 0 0 8px; }
+        .table-branch tbody tr td:last-child { border-radius: 0 8px 8px 0; }
+
+        /* 🔥 CSS MỚI BỔ SUNG CHO THANH PHÂN TRANG (PAGINATION) */
+        .pagination .page-item .page-link {
+            background-color: var(--card-base);
+            border: 1px solid var(--border);
+            color: var(--light-text);
+            transition: all 0.3s ease;
+        }
+        .pagination .page-item.active .page-link {
+            background-color: var(--blue);
+            border-color: var(--blue);
+            color: white;
+            box-shadow: 0 0 10px rgba(10, 163, 255, 0.5);
+        }
+        .pagination .page-item .page-link:hover {
+            background-color: #1a3556;
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+    </style>
+
+</head>
+<body>
+<div class="grain"></div>
+<div class="tickets-wall" aria-hidden="true">
+    <div class="tickets-layer l1"></div>
+    <div class="tickets-layer l2"></div>
+</div>
+
+<div id="site-header"></div>
+
+<main class="shell">
+    <div class="layout">
+        <section class="film branch-panel">
+
+            <div class="header-title">
+                <h2 id="page-title"><i class="fa-solid fa-layer-group me-3"></i> Danh Sách Phòng Chiếu</h2>
+            </div>
+
+            <div id="auditorium-list-container" class="tab-card">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="m-0">Tất Cả Các Phòng Chiếu</h2>
+
+                    <div class="d-flex align-items-center">
+                        <label for="filterBranchID" class="me-3 text-uppercase fw-bold text-muted" style="letter-spacing: 0.5px;">Lọc theo Chi Nhánh:</label>
+                        <select id="filterBranchID" class="form-control me-3" style="width: 250px;">
+                            <option value="">--- Tất Cả Chi Nhánh ---</option>
+                        </select>
+                        <button id="load-auditoriums" class="btn btn-secondary"><i class="fa-solid fa-rotate me-2"></i>Tải Lại</button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="auditorium-table" class="table-branch">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên Phòng</th>
+                            <th>Chi Nhánh</th>
+                            <th>Loại</th>
+                            <th>Sức Chứa</th>
+                        </tr>
+                        </thead>
+                        <tbody id="auditoriums-body">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-center mt-4">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination pagination-sm" id="pagination-footer">
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+        </section>
+    </div>
+</main>
+
+<div id="site-footer"></div>
+
+<script>
+    // Giả định tải header/footer
+    (async ()=>{
+        try{
+            const [h,f] = await Promise.all([
+                fetch('../home/customer-header.html').then(r=>r.text()),
+                fetch('../home/footer.html').then(r=>r.text())
+            ]);
+            document.getElementById('site-header').innerHTML = h;
+            document.getElementById('site-footer').innerHTML = f;
+        }catch(e){ console.error('Load header/footer error', e); }
+    })();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="../js/auditorium-list-api.js"></script>
+</body>
+</html>

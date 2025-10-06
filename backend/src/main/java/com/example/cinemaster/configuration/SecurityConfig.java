@@ -30,7 +30,12 @@ public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {
             "/api/v1/auth/**",   // login, register, google, logout
             "/api/v1/password/**", // quên mật khẩu, reset password
-            "/uploads/**"        // file ảnh public
+            "/uploads/**",// file ảnh public
+            "/api/v1/branches/**",//crud branch, chỉ để tạm thời để test thôi nhé
+            "/api/v1/auditoriums/**",//crud auditorium, chỉ để tạm thời để test thôi nhé
+            "/api/v1/seats/**",//crud seat, chỉ để tạm thời để test thôi nhé
+            "/api/v1/seattypes/**",
+            "/api/v1/screening-periods/**",
     };
 
     @Bean
@@ -42,9 +47,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .anyRequest().authenticated()
+//                                .anyRequest().permitAll() // <-- THAY anyRequest().authenticated() bằng permitAll()
                 )
                 // 👇 filter JWT chạy trước UsernamePasswordAuthenticationFilter
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        // cmmt tạm để test
 
         return http.build();
     }
