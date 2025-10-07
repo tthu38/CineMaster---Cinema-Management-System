@@ -23,14 +23,17 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    // 👇 inject JwtAuthenticationFilter do mình định nghĩa
     private final JwtAuthenticationFilter jwtFilter;
 
     // 👇 endpoints public không cần login
     private final String[] PUBLIC_ENDPOINTS = {
-            "/api/v1/auth/**",   // login, register, google, logout
-            "/api/v1/password/**", // quên mật khẩu, reset password
-            "/uploads/**"        // file ảnh public
+            "/api/v1/auth/**",      // login, register, google, logout
+            "/api/v1/password/**",  // quên mật khẩu, reset password
+            "/uploads/**",          // file ảnh public
+            "/api/v1/movies/**",     // ✅ public toàn bộ movies Huyền thay đổi
+            "/api/v1/news/**",
+            "/api/v1/users/news-image",
+            "/api/v1/feedback/**"
     };
 
     @Bean
@@ -40,20 +43,20 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()
-                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()  // ✅ áp dụng cho tất cả method
                         .anyRequest().authenticated()
                 )
-                // 👇 filter JWT chạy trước UsernamePasswordAuthenticationFilter
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
 
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOriginPattern("*"); // cho FE call thoải mái
-        config.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","OPTIONS"));
+        config.addAllowedOriginPattern("*");
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("*"));
         config.setAllowCredentials(true);
 

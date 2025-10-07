@@ -13,28 +13,42 @@ import java.util.UUID;
 @Service
 public class FileStorageService {
 
-    private final String UPLOAD_DIR = "uploads"; // thư mục ngay trong backend project
+    private final String UPLOAD_DIR = "uploads";  // Avatar
+    private final String POSTER_DIR = "posters";  // Poster phim
+    private final String NEWS_DIR = "news";        // Ảnh tin tức
 
-    public String saveFile(MultipartFile file) throws IOException {
-        if (file.isEmpty()) {
-            throw new IOException("File is empty");
+    // Lưu avatar
+    public String saveFile(MultipartFile file) {
+        return saveToDir(file, UPLOAD_DIR, "avatar_");
+    }
+
+    // Lưu poster
+    public String savePosterFile(MultipartFile file) {
+        return saveToDir(file, POSTER_DIR, "poster_");
+    }
+
+    // Lưu news
+    public String saveNewsFile(MultipartFile file) {
+        return saveToDir(file, NEWS_DIR, "news_");
+    }
+
+    private String saveToDir(MultipartFile file, String baseDir, String prefix) {
+        if (file.isEmpty()) throw new RuntimeException("File is empty");
+
+        try {
+            File dir = new File(baseDir);
+            if (!dir.exists()) dir.mkdirs();
+
+            String ext = getFileExtension(file.getOriginalFilename());
+            String filename = prefix + UUID.randomUUID() + ext;
+
+            Path path = Paths.get(baseDir, filename);
+            Files.copy(file.getInputStream(), path);
+
+            return "/" + baseDir + "/" + filename; // path trả về cho FE
+        } catch (IOException e) {
+            throw new RuntimeException("Could not store file. Error: " + e.getMessage(), e);
         }
-
-        // Tạo thư mục nếu chưa có
-        File dir = new File(UPLOAD_DIR);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-
-        // Đặt tên file unique
-        String ext = getFileExtension(file.getOriginalFilename());
-        String filename = "avatar_" + UUID.randomUUID() + ext;
-
-        Path path = Paths.get(UPLOAD_DIR, filename);
-        Files.copy(file.getInputStream(), path);
-
-        // Trả về URL để FE dùng hiển thị
-        return "/uploads/" + filename;
     }
 
     private String getFileExtension(String filename) {

@@ -2,7 +2,7 @@
 const LOGIN_PAGE = "../user/login.html";
 const TOKEN_KEY = "accessToken";
 const HOME_PAGE = "home.html";
-const API_BASE_URL = "http://localhost:8080/api/v1/auth";
+const API_BASE_URL = "http://localhost:8080/api/v1/auth/movies";
 
 // ====== Logout ======
 window.handleLogout = async function handleLogout() {

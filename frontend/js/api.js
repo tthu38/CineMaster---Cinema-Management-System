@@ -148,7 +148,6 @@ const userApi = {
         return handleResponse(res);
     },
 
-    // Gửi OTP về email mới khi user muốn đổi email
     async sendOtpChangeEmail(email) {
         const token = getValidToken();
         if (!token) return null;
@@ -164,7 +163,6 @@ const userApi = {
         return handleResponse(res);
     },
 
-    // Xác thực OTP và đổi email
     async verifyEmailChange(email, otp) {
         const token = getValidToken();
         if (!token) return null;
@@ -179,7 +177,7 @@ const userApi = {
         });
         return handleResponse(res);
     },
-    // Quên mật khẩu - gửi OTP
+
     async requestPasswordReset(email) {
         const res = await fetch(`${API_BASE_URL}/auth/request-otp`, {
             method: "POST",
@@ -189,7 +187,6 @@ const userApi = {
         return handleResponse(res);
     },
 
-    // Quên mật khẩu - xác thực OTP + đặt mật khẩu mới
     async resetPassword(email, otp, newPassword) {
         const res = await fetch(`${API_BASE_URL}/auth/reset`, {
             method: "POST",
@@ -199,10 +196,68 @@ const userApi = {
         return handleResponse(res);
     },
 
+    // 👇 Thêm mới hàm reset bằng token
+    async resetByToken(token, newPassword) {
+        const res = await fetch(`${API_BASE_URL}/auth/reset-by-token`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token, newPassword }),
+        });
+        return handleResponse(res);
+    },
+
+};
+
+// ===== Movie API public =====
+export const moviesApi = {
+    async getAll() {
+        const res = await fetch(`${API_BASE_URL}/movies`);
+        return handleResponse(res);
+    },
+
+    async getById(id) {
+        const res = await fetch(`${API_BASE_URL}/movies/${id}`);
+        return handleResponse(res);
+    },
+
+    async create(movieData, posterFile) {
+        const formData = new FormData();
+        formData.append("movie", new Blob([JSON.stringify(movieData)], { type: "application/json" })); // Fix consistency
+        if (posterFile) formData.append("posterFile", posterFile);
+
+        const res = await fetch(`${API_BASE_URL}/movies`, {
+            method: "POST",
+            body: formData
+        });
+        return handleResponse(res);
+    },
+
+    async update(id, movieData, posterFile) {
+        const formData = new FormData();
+        // 👇 Gửi JSON Blob thay vì string
+        formData.append("movie", new Blob([JSON.stringify(movieData)], { type: "application/json" }));
+        if (posterFile) {
+            formData.append("posterFile", posterFile);
+        }
+
+        const res = await fetch(`${API_BASE_URL}/movies/${id}`, {
+            method: "PUT",
+            body: formData
+        });
+        return handleResponse(res);
+    },
+
+    async remove(id) {
+        const res = await fetch(`${API_BASE_URL}/movies/${id}`, {
+            method: 'DELETE'
+        });
+        return handleResponse(res);
+    }
 };
 
 // ===== Export gộp =====
 export const api = {
     ...authApi,
     ...userApi,
+    // ...moviesApi, // Uncomment nếu cần export movies
 };

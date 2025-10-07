@@ -26,11 +26,8 @@ public class FileController {
             @AuthenticationPrincipal Account account
     ) {
         ApiResponse<String> response = new ApiResponse<>();
-
         try {
             String avatarUrl = fileStorageService.saveFile(avatarFile);
-
-            // cập nhật vào DB
             account.setAvatarUrl(avatarUrl);
             accountRepository.save(account);
 
@@ -42,6 +39,24 @@ public class FileController {
         } catch (Exception e) {
             response.setCode(9999);
             response.setMessage("Upload avatar thất bại: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    @PostMapping("/news-image")
+    public ResponseEntity<ApiResponse<String>> uploadNewsImage(
+            @RequestParam("file") MultipartFile file
+    ) {
+        ApiResponse<String> response = new ApiResponse<>();
+        try {
+            String url = fileStorageService.saveNewsFile(file);
+            response.setCode(1000);
+            response.setMessage("Upload thành công");
+            response.setResult(url);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.setCode(9999);
+            response.setMessage("Upload thất bại: " + e.getMessage());
             return ResponseEntity.status(500).body(response);
         }
     }

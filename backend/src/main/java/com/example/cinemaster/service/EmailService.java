@@ -82,4 +82,40 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    //Counter Password
+    @Value("${app.frontend.invite-password-url}")
+    private String invitePasswordUrl;
+
+    public void sendInviteEmail(String to, String token) throws MessagingException {
+        String subject = "Thiết lập mật khẩu tài khoản của bạn";
+        String link = invitePasswordUrl + "?token=" + token;
+
+        String content = """
+            <div style="font-family: Arial, sans-serif; line-height:1.6;">
+              <h3>Xin chào!</h3>
+              <p>Chúng tôi đã tạo tài khoản cho bạn. Vui lòng bấm nút bên dưới để đặt mật khẩu lần đầu:</p>
+              <p>
+                <a href="%s"
+                   style="display:inline-block;padding:10px 16px;text-decoration:none;border-radius:6px;
+                          background:#16a34a;color:#fff;font-weight:600">
+                  Đặt mật khẩu
+                </a>
+              </p>
+              <p>Nếu nút không hoạt động, copy link sau vào trình duyệt:</p>
+              <p><a href="%s">%s</a></p>
+              <hr/>
+              <small>Liên kết này sẽ hết hạn sau 30 phút.</small>
+            </div>
+            """.formatted(link, link, link);
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(content, true);
+
+        mailSender.send(message);
+    }
+
+
 }
