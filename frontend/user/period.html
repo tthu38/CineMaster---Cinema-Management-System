@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <title>CineMaster • Quản Lý Khoảng Thời Gian Chiếu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+    <style>
+        /* ========================================= */
+        /* CSS CHỦ ĐẠO & THIẾT KẾ CƠ BẢN */
+        /* ========================================= */
+        :root{
+            --red:#e50914; --cyan:#22c1ff; --blue:#0aa3ff; --ink:#06101f;
+            --bg:#0b162c; --card:#0c1324; --border:#1b2b4a; --muted:#9aa7b3;
+            --muted2:#cfe3ff; --glow:0 0 20px rgba(34,193,255,.35), 0 0 60px rgba(34,193,255,.15);
+        }
+        html,body{ margin:0; color:#fff; font-family:'Roboto',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; min-height:100vh; background-color: var(--ink); background-image: radial-gradient(1200px 600px at -10% -35%, rgba(229,9,20,.18), transparent 60%), radial-gradient(900px 400px at 120% -20%, rgba(34,193,255,.12), transparent 60%), linear-gradient(180deg, var(--ink), var(--bg)), url("data:image/svg+xml;utf8,\<svg xmlns='http://www.w3.org/2000/svg' width='160' height='80' viewBox='0 0 160 80'>\ <rect width='160' height='80' fill='none'/>\ <g opacity='0.08' stroke='%23cfe3ff' stroke-width='1.2' fill='none'>\ <path d='M8 20 h110 a10 10 0 0 0 10 -10 a10 10 0 0 1 10 10 v20 a10 10 0 0 1 -10 10 a10 10 0 0 0 -10 10 H8 z'/>\ <path d='M30 18 v44' stroke-dasharray='6 6'/>\ <circle cx='120' cy='20' r='3'/><circle cx='120' cy='60' r='3'/>\ </g></svg>"); background-repeat:no-repeat,no-repeat,no-repeat,repeat; background-size:1200px 600px,900px 400px,100% 100%,320px 160px; background-position:-10% -35%,120% -20%,0 0,0 0; background-attachment:fixed, fixed, fixed, fixed; overflow-x:hidden; }
+        .shell{max-width:1300px;margin:110px auto 48px;padding:0 24px}
+        .layout{ display:block; }
+        .film{ position:relative; background:linear-gradient(180deg,#0b152a,#0c162c); border:1px solid var(--border); border-radius:18px; box-shadow:0 14px 32px rgba(0,0,0,.5); overflow:hidden; margin-bottom: 28px; }
+        .film:before,.film:after{ content:""; position:absolute; left:18px; right:18px; height:10px; opacity:.5; background:repeating-linear-gradient(90deg, #142443 0 16px, transparent 16px 32px); filter:drop-shadow(0 0 6px rgba(34,193,255,.2)); }
+        .film:before{ top:12px } .film:after{ bottom:12px }
+        .branch-panel{ padding:26px 22px }
+        /* Style cho input/select/button */
+        .form-control{
+            background:#0e1c37;
+            border:1px solid #17345f;
+            color:#fff;
+            border-radius:10px;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus{
+            outline:none;
+            border-color:var(--cyan);
+            box-shadow:0 0 0 .2rem rgba(34,193,255,.3);
+        }
+        .btn-primary{
+            background:linear-gradient(90deg, var(--blue), var(--cyan));
+            border:none;
+            color:#051020;
+            font-weight:800;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover{
+            opacity: 0.9;
+            box-shadow: 0 0 10px rgba(34,193,255,.5);
+        }
+        .btn-warning {
+            background-color: #ffc107;
+            color: #212529;
+            border: none;
+            font-weight: 700;
+        }
+        .btn-secondary{
+            background:transparent;
+            border:1px solid var(--red);
+            color:#fff;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover{
+            background:var(--red);
+            box-shadow: 0 0 10px rgba(229,9,20,.5);
+        }
+        .tab-card {
+            background:linear-gradient(180deg,#0b152a 0%, #0c162c 100%);
+            border:1px solid var(--border);
+            border-radius:16px;
+            padding:24px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+        .header-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .header-title h2 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--muted2);
+            text-shadow: 0 0 5px rgba(34,193,255,.15);
+        }
+
+        /* ========================================= */
+        /* STYLE CHO BẢNG & DANH SÁCH */
+        /* ========================================= */
+        .table-branch {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+            color: #e6f1ff;
+        }
+        .table-branch th, .table-branch td {
+            border: none;
+            padding: 12px 15px;
+            vertical-align: middle;
+            background: var(--card);
+        }
+        .table-branch thead th {
+            background: transparent;
+            color: var(--cyan);
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .table-branch tr td:first-child {
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+        .table-branch tr td:last-child {
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+        .table-branch tr:hover td {
+            background: #112040;
+            box-shadow: 0 0 10px rgba(34,193,255,.1);
+            cursor: default;
+        }
+        .table-branch td:first-child {
+            font-weight: bold;
+            color: var(--cyan);
+            opacity: 0.8;
+        }
+        /* CSS cho Poster trong Bảng */
+        .movie-poster-img {
+            width: 50px;
+            height: 75px;
+            object-fit: cover;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            vertical-align: middle;
+        }
+        /* CSS cho Phân trang */
+        .pagination .page-item .page-link {
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            color: var(--muted2);
+            transition: all 0.3s ease;
+        }
+        .pagination .page-item.active .page-link {
+            background-color: var(--blue);
+            border-color: var(--blue);
+            color: white;
+        }
+        .pagination .page-item .page-link:hover {
+            background-color: #112040;
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        /* CSS MỚI CHO CHECKBOX LIST */
+        .branch-checkbox-list {
+            background:#0e1c37;
+            border:1px solid #17345f;
+            border-radius:10px;
+            padding: 10px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        .form-check {
+            padding: 4px 0 4px 1.5rem;
+        }
+        .form-check-label {
+            color: #fff;
+            cursor: pointer;
+        }
+        .form-check-input {
+            border: 1px solid var(--border);
+            background-color: #17345f;
+            margin-top: 0.4em;
+            vertical-align: top;
+        }
+        .form-check-input:checked {
+            background-color: var(--blue);
+            border-color: var(--blue);
+        }
+    </style>
+
+</head>
+<body>
+<div class="grain"></div>
+<div class="tickets-wall" aria-hidden="true">
+    <div class="tickets-layer l1"></div>
+    <div class="tickets-layer l2"></div>
+</div>
+
+<div id="site-header"></div>
+
+<main class="shell">
+    <div class="layout">
+        <section class="film branch-panel">
+            <div class="header-title">
+                <h2 id="form-title"><i class="fa-solid fa-calendar-plus me-3"></i>Thêm Khoảng Thời Gian Chiếu</h2>
+            </div>
+
+            <div class="tab-card mb-4">
+                <form id="period-form">
+                    <input type="hidden" id="periodID" value="">
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="movieID">Phim</label>
+                            <select id="movieID" class="form-control" required>
+                                <option value="" disabled selected hidden>Đang tải phim...</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label>Chi Nhánh <span class="badge bg-info text-dark ms-2" id="branch-hint" style="font-size: 0.7em;">(Chọn nhiều chi nhánh)</span></label>
+                            <div id="branchCheckboxContainer" class="branch-checkbox-list">
+                                Đang tải chi nhánh...
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="startDate">Ngày Bắt Đầu</label>
+                            <input type="date" id="startDate" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="endDate">Ngày Kết Thúc</label>
+                            <input type="date" id="endDate" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div id="movie-poster-preview" class="mb-4 text-center" style="display:none;">
+                        <img id="poster-img-preview" src="" alt="Poster Phim" style="max-width: 150px; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,.5);">
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="button" id="cancel-btn" class="btn btn-secondary me-2" style="display: none;"><i class="fa-solid fa-xmark me-2"></i>Hủy</button>
+                        <button type="submit" id="submit-btn" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Tạo Khoảng Chiếu</button>
+                    </div>
+                </form>
+            </div>
+
+
+            <div id="period-list-container" class="tab-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="m-0"><i class="fa-solid fa-layer-group me-2"></i> Danh Sách Khoảng Thời Gian Chiếu</h2>
+
+                    <div class="d-flex align-items-center">
+                        <select id="filterBranchID" class="form-control w-auto me-3">
+                            <option value="all">Lọc theo Chi nhánh...</option>
+                        </select>
+                        <button id="load-periods" class="btn btn-secondary" onclick="loadPeriods(0, true)"><i class="fa-solid fa-rotate me-2"></i>Tải Lại</button>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="period-table" class="table-branch">
+                        <thead>
+                        <tr>
+                            <th style="width: 5%;">ID</th>
+                            <th style="width: 8%;">Poster</th>
+                            <th style="width: 17%;">Phim</th>
+                            <th style="width: 20%;">Chi Nhánh</th>
+                            <th style="width: 12%;">Ngày Bắt Đầu</th>
+                            <th style="width: 12%;">Ngày Kết Thúc</th>
+                            <th style="width: 11%;">Trạng Thái</th>
+                            <th style="width: 15%;">Hành động</th>
+                        </tr>
+                        </thead>
+                        <tbody id="periods-body">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-center mt-4">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination pagination-sm" id="pagination-footer">
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+        </section>
+
+    </div>
+</main>
+
+<div id="site-footer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // Giả định tải header/footer
+    (async ()=>{
+        try{
+            const [h,f] = await Promise.all([
+                fetch('../home/customer-header.html').then(r=>r.text()),
+                fetch('../home/footer.html').then(r=>r.text())
+            ]);
+            document.getElementById('site-header').innerHTML = h;
+            document.getElementById('site-footer').innerHTML = f;
+        }catch(e){ console.error('Load header/footer error', e); }
+    })();
+</script>
+
+<script type="module" src="../js/period-crud.js"></script>
+</body>
+</html>

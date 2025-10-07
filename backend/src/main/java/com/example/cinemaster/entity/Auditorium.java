@@ -39,4 +39,8 @@ public class Auditorium {
     @Nationalized
     @Column(name = "Type", nullable = false, length = 20)
     String type;
+
+    @Column(name = "IsActive")
+    @Builder.Default
+    Boolean isActive = true;
 }

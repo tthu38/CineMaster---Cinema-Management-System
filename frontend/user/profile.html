@@ -174,7 +174,7 @@
 
         /* Popover avatar */
         .popover{
-            position:absolute; z-index:2000; min-width:230px; display:none;
+            position:fixed; z-index:2000; min-width:230px; display:none;
             background:#0e1a33; border:1px solid var(--border); border-radius:12px; box-shadow:0 18px 40px rgba(0,0,0,.55); padding:8px;
         }
         .pop-item{ display:flex; gap:10px; align-items:center; padding:10px 12px; border-radius:10px; color:#e6f1ff; cursor:pointer }
@@ -239,6 +239,16 @@
                     <img id="avatarImg" src="/image/avatar.png" alt="Avatar">
                     <button class="avatar-fab" id="avatarFab"><i class="fa-solid fa-camera"></i></button>
                 </div>
+                <!-- Avatar Popover & Viewer -->
+                <div id="avatarMenu" class="popover">
+                    <div class="pop-item" id="actionView"><i class="fa-regular fa-image"></i> Xem ảnh đại diện</div>
+                    <div class="pop-item" id="actionChange"><i class="fa-solid fa-image-portrait"></i> Đổi ảnh đại diện</div>
+                </div>
+                <input type="file" id="quickAvatarFile" accept="image/*" style="display:none;" />
+                <div id="avatarViewer" class="viewer">
+                    <button class="close" id="viewerClose" aria-label="Đóng">&times;</button>
+                    <img id="viewerImg" src="/image/avatar.png" alt="Avatar preview">
+                </div>
                 <div class="title">
                     <h3 id="fullNameDisplay">Chào mừng, User!</h3>
                     <div class="sub">Hồ sơ & bảo mật tài khoản</div>
@@ -301,16 +311,7 @@
                 </div>
             </div>
 
-            <!-- Avatar Popover & Viewer -->
-            <div id="avatarMenu" class="popover">
-                <div class="pop-item" id="actionView"><i class="fa-regular fa-image"></i> Xem ảnh đại diện</div>
-                <div class="pop-item" id="actionChange"><i class="fa-solid fa-image-portrait"></i> Đổi ảnh đại diện</div>
-            </div>
-            <input type="file" id="quickAvatarFile" accept="image/*" style="display:none;" />
-            <div id="avatarViewer" class="viewer">
-                <button class="close" id="viewerClose" aria-label="Đóng">&times;</button>
-                <img id="viewerImg" src="/image/avatar.png" alt="Avatar preview">
-            </div>
+
         </section>
 
         <!-- RIGHT: PROMOTIONS / NEWS -->

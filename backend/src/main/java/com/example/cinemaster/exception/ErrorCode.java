@@ -15,8 +15,11 @@ public enum ErrorCode {
     INVALID_TOKEN(1007, "Invalid token", HttpStatus.UNAUTHORIZED),
     TOKEN_EXPIRED(1008, "Token is expired", HttpStatus.UNAUTHORIZED),
     PHONE_NOT_FOUND(1009, "Phone not found", HttpStatus.NOT_FOUND),
-    ROLE_NOT_FOUND(10010, "Role not found", HttpStatus.NOT_FOUND),
-    INVALID_EMAIL_FORMAT(10011, "Invalid email format", HttpStatus.BAD_REQUEST),
+    ROLE_NOT_FOUND(1010, "Role not found", HttpStatus.NOT_FOUND),
+    INVALID_EMAIL_FORMAT(1011, "Invalid email format", HttpStatus.BAD_REQUEST),
+    DISCOUNT_NOT_FOUND(1012, "Discount not found", HttpStatus.NOT_FOUND),
+    DISCOUNT_CODE_EXISTS(1013, "Discount code already exists", HttpStatus.BAD_REQUEST),
+    INVALID_DISCOUNT(1014, "Invalid discount data", HttpStatus.BAD_REQUEST),
     ;
 
     private int code;

@@ -303,6 +303,38 @@ const _accountApi = {
 };
 //=========== Branch =================
 const _branchApi = {
+
+    // 📌 Lấy tất cả chi nhánh (Admin/Manager)
+    async getAllBranches() {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/branches`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Lấy tất cả chi nhánh đang hoạt động (Client/Staff)
+    async getAllActive() {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/branches/active`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Lấy danh sách tên chi nhánh (Dropdown)
     async getAll() {
         const token = getValidToken();
         if (!token) return null;
@@ -315,7 +347,93 @@ const _branchApi = {
             },
         });
         return handleResponse(res);
-    }
+    },
+
+    // 📌 Lấy chi nhánh theo ID (Client/Staff)
+    async getById(id) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/branches/${id}`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Lấy chi nhánh theo ID (Admin)
+    async getByIdAdmin(id) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/branches/${id}/admin`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Tạo mới chi nhánh
+    async create(data) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/branches`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Cập nhật chi nhánh
+    async update(id, data) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/branches/${id}`, {
+            method: 'PUT',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(res);
+    },
+
+    // DELETE (soft delete)
+    async delete(id) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/branches/${id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return handleResponse(res);
+    },
+
+    // RESTORE (PUT /{id}/restore)
+    async restore(id) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/branches/${id}/restore`, {
+            method: "PUT",
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return handleResponse(res);
+    },
 };
 
 //================ Combo ==============
@@ -411,6 +529,424 @@ const _comboApi = {
     },
 };
 
+// ============ Auditorium =================
+const _auditoriumApi = {
+
+    // 📌 Lấy tất cả phòng chiếu (Admin / Manager)
+    async getAll() {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/auditoriums`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Lấy tất cả phòng chiếu đang hoạt động (Client / Staff)
+    async getAllActive() {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/auditoriums/active`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Lấy danh sách phòng chiếu theo BranchID (Admin)
+    async getByBranch(branchId) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/auditoriums/branch/${branchId}`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Lấy danh sách phòng chiếu đang hoạt động theo BranchID (Client)
+    async getActiveByBranch(branchId) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/auditoriums/branch/${branchId}/active`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Lấy phòng chiếu theo ID (Client / Staff)
+    async getById(id) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/auditoriums/${id}`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Lấy phòng chiếu theo ID (Admin)
+    async getByIdAdmin(id) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/auditoriums/${id}/admin`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Tạo mới phòng chiếu
+    async create(data) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/auditoriums`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Cập nhật phòng chiếu
+    async update(id, data) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/auditoriums/${id}`, {
+            method: "PUT",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Xóa mềm (Deactivate)
+    async deactivate(id) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/auditoriums/${id}`, {
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Khôi phục (Activate)
+    async activate(id) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/auditoriums/${id}/activate`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return handleResponse(res);
+    },
+};
+
+// ============ SEAT API =================
+const _seatApi = {
+
+    // 📌 Lấy tất cả ghế (Admin / Manager)
+    async getAll() {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/seats`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Lấy ghế theo ID
+    async getById(id) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/seats/${id}`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Tạo ghế mới
+    async create(data) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/seats`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Cập nhật ghế
+    async update(id, data) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/seats/${id}`, {
+            method: "PUT",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Xóa ghế
+    async delete(id) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/seats/${id}`, {
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Tạo hàng loạt ghế (Bulk Create)
+    async createBulk(data) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/seats/bulk`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Cập nhật hàng loạt ghế (Bulk Update Row)
+    async bulkUpdateRow(data) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/seats/bulk-update-row`, {
+            method: "PUT",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(res);
+    },
+};
+
+// ============ SEAT TYPE API =================
+const _seatTypeApi = {
+
+    // 📌 Lấy danh sách loại ghế (Dùng cho dropdown)
+    async getAll() {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/seattypes`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+        return handleResponse(res);
+    },
+};
+
+// ============ SCREENING PERIOD API =================
+const _screeningPeriodApi = {
+    // 📌 Tạo mới kỳ chiếu
+    async create(data) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/screening-periods`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Lấy toàn bộ danh sách kỳ chiếu
+    async getAll() {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/screening-periods`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Lấy kỳ chiếu theo ID
+    async getById(id) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/screening-periods/${id}`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Lấy kỳ chiếu theo BranchID
+    async getByBranch(branchId) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/screening-periods/branch/${branchId}`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Cập nhật kỳ chiếu
+    async update(id, data) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/screening-periods/${id}`, {
+            method: "PUT",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Xóa kỳ chiếu
+    async delete(id) {
+        const token = getValidToken();
+        if (!token) return null;
+
+        const res = await fetch(`${API_BASE_URL}/screening-periods/${id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return handleResponse(res);
+    },
+};
+
+// ============ MOVIE API =================
+const _movieApi = {
+    // 📌 Lấy toàn bộ danh sách phim
+    async getAll() {
+        const token = getValidToken();
+        const res = await fetch(`${API_BASE_URL}/movies`, {
+            method: "GET",
+            headers: {
+                Authorization: token ? `Bearer ${token}` : undefined,
+                "Content-Type": "application/json",
+            },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Lấy phim đang chiếu
+    async getNowShowing() {
+        const token = getValidToken();
+        const res = await fetch(`${API_BASE_URL}/movies/now-showing`, {
+            method: "GET",
+            headers: {
+                Authorization: token ? `Bearer ${token}` : undefined,
+                "Content-Type": "application/json",
+            },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Lấy phim sắp chiếu
+    async getComingSoon() {
+        const token = getValidToken();
+        const res = await fetch(`${API_BASE_URL}/movies/coming-soon`, {
+            method: "GET",
+            headers: {
+                Authorization: token ? `Bearer ${token}` : undefined,
+                "Content-Type": "application/json",
+            },
+        });
+        return handleResponse(res);
+    },
+};
 
 
 export function requireAuth() {
@@ -432,5 +968,12 @@ export const api = {
 export const accountApi = _accountApi;
 export const branchApi = _branchApi;
 export const comboApi = _comboApi;
+export const auditoriumApi = _auditoriumApi;
+export const seatApi = _seatApi;
+export const seatTypeApi = _seatTypeApi;
+export const screeningPeriodApi = _screeningPeriodApi;
+export const movieApi = _movieApi;
+
+
 export { API_BASE_URL };
 

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <title>CineMaster • Quản Lý Ghế Ngồi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+    <style>
+        /* CSS NỀN TẢNG GỐC (GIỮ NGUYÊN) */
+        :root{
+            --red:#e50914;
+            --cyan:#22c1ff;
+            --blue:#0aa3ff;
+            --ink:#06101f;
+            --bg:#0b162c;
+            --card:#0c1324;
+            --border:#1b2b4a;
+            --muted:#9aa7b3;
+            --muted2:#cfe3ff;
+            --glow:0 0 20px rgba(34,193,255,.35), 0 0 60px rgba(34,193,255,.15);
+        }
+        .tickets-wall{ position:fixed; inset:0; pointer-events:none; z-index:0; }
+        .tickets-wall .tickets-layer{ position:absolute; inset:-10%; opacity:.14; filter:drop-shadow(0 0 20px rgba(22,40,76,.18)); transform-origin:center center; }
+        .tickets-wall .l1{ transform:rotate(-3deg) scale(1.04); background-image:url("data:image/svg+xml;utf8,..."); background-repeat:no-repeat,no-repeat,no-repeat,repeat; background-size:1200px 600px,900px 400px,100% 100%,320px 160px; background-position:-10% -35%,120% -20%,0 0,0 0; background-attachment:fixed, fixed, fixed, fixed; overflow-x:hidden; }
+        .tickets-wall .l2{ transform:rotate(3deg) scale(1.06); background-position:160px 80px; opacity:.10; background-image:inherit; }
+        html,body{ margin:0; color:#fff; font-family:'Roboto',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; min-height:100vh; background-color: var(--ink); background-image: radial-gradient(1200px 600px at -10% -35%, rgba(229,9,20,.18), transparent 60%), radial-gradient(900px 400px at 120% -20%, rgba(34,193,255,.12), transparent 60%), linear-gradient(180deg, var(--ink), var(--bg)), url("data:image/svg+xml;utf8,\<svg xmlns='http://www.w3.org/2000/svg' width='160' height='80' viewBox='0 0 160 80'>\ <rect width='160' height='80' fill='none'/>\ <g opacity='0.08' stroke='%23cfe3ff' stroke-width='1.2' fill='none'>\ <path d='M8 20 h110 a10 10 0 0 0 10 -10 a10 10 0 0 1 10 10 v20 a10 10 0 0 1 -10 10 a10 10 0 0 0 -10 10 H8 z'/>\ <path d='M30 18 v44' stroke-dasharray='6 6'/>\ <circle cx='120' cy='20' r='3'/><circle cx='120' cy='60' r='3'/>\ </g></svg>"); background-repeat:no-repeat,no-repeat,no-repeat,repeat; background-size:1200px 600px,900px 400px,100% 100%,320px 160px; background-position:-10% -35%,120% -20%,0 0,0 0; background-attachment:fixed, fixed, fixed, fixed; overflow-x:hidden; }
+        .grain{ pointer-events:none; position:fixed; inset:0; opacity:.14; mix-blend-mode:screen; background-image:radial-gradient(circle at 20% 30%, rgba(255,255,255,.06) 0 2px, transparent 2px), radial-gradient(circle at 70% 60%, rgba(255,255,255,.05) 0 2px, transparent 2px); background-size:200px 200px, 260px 260px; animation: drift 18s linear infinite alternate; }
+        @keyframes drift{ from{ transform: translate3d(0,0,0) } to{ transform: translate3d(30px,-25px,0) } }
+        .shell{max-width:1300px;margin:110px auto 48px;padding:0 24px}
+        .layout{ display:grid; grid-template-columns:1fr; gap:28px }
+        .film{ position:relative; background:linear-gradient(180deg,#0b152a,#0c162c); border:1px solid var(--border); border-radius:18px; box-shadow:0 14px 32px rgba(0,0,0,.5); overflow:hidden; }
+        .film:before,.film:after{ content:""; position:absolute; left:18px; right:18px; height:10px; opacity:.5; background:repeating-linear-gradient(90deg, #142443 0 16px, transparent 16px 32px); filter:drop-shadow(0 0 6px rgba(34,193,255,.2)); }
+        .film:before{ top:12px } .film:after{ bottom:12px }
+        .branch-panel{ padding:26px 22px }
+        .form-control{ background:#0e1c37; border:1px solid #17345f; color:#fff; border-radius:10px; }
+        .form-control:focus{ outline:none; border-color:var(--blue); box-shadow:0 0 0 .2rem rgba(34,193,255,.22) }
+        .btn-primary{ background:linear-gradient(90deg, var(--blue), var(--cyan)); border:none; color:#051020; font-weight:800 }
+        .btn-primary:hover{ filter:brightness(1.1) }
+        .btn-warning{ border:none; color: #000 !important; }
+        .btn-secondary{ background:transparent; border:1px solid var(--red); color:#fff }
+        .btn-secondary:hover{ background:var(--red); }
+        .tab-card { background:linear-gradient(180deg,#0b152a 0%, #0c162c 100%); border:1px solid var(--border); border-radius:16px; padding:18px }
+        .tab-card h2 { font-size: 1.5rem; margin-bottom: 1rem; color: #fff; font-weight: 700; }
+        .table-branch { width: 100%; border-collapse: collapse; color: #e6f1ff; }
+        .table-branch th, .table-branch td { border: 1px solid var(--border); padding: 10px; vertical-align: middle; }
+        .table-branch thead th { background: #132742; color: var(--cyan); }
+        .table-branch tr:hover { background: #112040; }
+        .header-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .header-title h2 { font-size: 2rem; font-weight: 900; }
+        .action-btns button:first-child { margin-right: 5px; }
+
+        /* ======================== SƠ ĐỒ GHẾ KIỂU CGV / LOTTE ======================== */
+        #seat-diagram {
+            padding: 50px 20px;
+            background: #060c18;
+            border-radius: 16px;
+            border: 2px solid var(--border);
+            overflow-x: auto;
+            text-align: center;
+        }
+
+        /* Màn hình */
+        .screen {
+            width: 80%;
+            height: 28px;
+            background: linear-gradient(90deg, #4a6fb4, #1e3c72);
+            border-radius: 14px 14px 0 0;
+            margin: 0 auto 50px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+            color: #fff;
+            font-weight: bold;
+            line-height: 28px;
+            letter-spacing: 1px;
+            position: relative;
+        }
+        .screen::after {
+            content: "";
+            position: absolute;
+            bottom: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70%;
+            height: 3px;
+            background: linear-gradient(to right, #22c1ff, transparent);
+            opacity: 0.5;
+        }
+
+        /* Hàng ghế */
+        .seat-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 14px;
+            position: relative;
+            transform: perspective(500px) rotateX(10deg); /* vòng cung nhẹ hướng về màn hình */
+        }
+
+        /* Ký hiệu hàng */
+        .seat-label {
+            width: 28px;
+            text-align: right;
+            margin-right: 16px;
+            font-weight: bold;
+            color: var(--cyan);
+            font-size: 1rem;
+        }
+
+        /* Ghế */
+        .seat-box {
+            width: 36px;
+            height: 36px;
+            line-height: 36px;
+            text-align: center;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+            color: #000;
+            font-weight: 600;
+        }
+        .seat-box:hover {
+            transform: scale(1.15);
+            box-shadow: 0 0 12px rgba(255,255,255,0.4);
+        }
+
+        /* --- TẠO LỐI ĐI GIỮA (KIỂU CGV/Lotte) --- */
+        .seat-box:nth-child(6) {
+            margin-right: 60px; /* khoảng cách giữa 2 cụm ghế */
+        }
+
+        /* --- MÀU GHẾ --- */
+        .seat-type-normal { background-color: #4caf50; }   /* Ghế thường */
+        .seat-type-vip { background-color: #007bff; }      /* Ghế VIP */
+        .seat-type-couple { background-color: #9c27b0; width: 80px; } /* Ghế đôi */
+
+        /* --- TRẠNG THÁI GHẾ --- */
+        .seat-reserved { background-color: #ff7043 !important; }
+        .seat-broken { background-color: #d32f2f !important; }
+        .seat-selected { background-color: var(--cyan) !important; color: #000; }
+
+        /* --- Hiệu ứng sáng dần theo hàng --- */
+        .seat-row:nth-child(odd) .seat-box { filter: brightness(0.95); }
+        .seat-row:nth-child(even) .seat-box { filter: brightness(1.1); }
+
+        /* Hiệu ứng hover toàn hàng */
+        .seat-row:hover .seat-box:not(.seat-selected) {
+            filter: brightness(1.3);
+        }
+
+        /* Animation khi load ghế */
+        @keyframes seatFade {
+            from { opacity: 0; transform: translateY(10px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .seat-box {
+            animation: seatFade 0.25s ease forwards;
+        }
+
+        /* CHÚ THÍCH (LEGEND) */
+        .seat-legend {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            padding: 10px 0;
+            border-top: 1px solid var(--border);
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            color: var(--muted2);
+            font-size: 0.9rem;
+        }
+        .legend-color-box {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            margin-right: 6px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        /* --- CSS TÙY CHỈNH CHO PHÂN TRANG (PAGINATION) --- */
+        #pagination-controls .page-link {
+            background-color: var(--ink) !important; /* Nền tối tuyệt đối */
+            color: var(--muted2) !important;        /* Chữ màu trắng/xanh nhạt */
+            border: 1px solid var(--border) !important; /* Viền màu border */
+        }
+
+        /* Hover/Focus cho nút thường */
+        #pagination-controls .page-item:not(.active) .page-link:hover,
+        #pagination-controls .page-item:not(.active) .page-link:focus {
+            background-color: #1a3052 !important; /* Màu nền tối hơn khi hover */
+            color: #fff !important;               /* Chữ trắng rõ nét */
+            box-shadow: none !important;          /* Loại bỏ box-shadow Bootstrap */
+        }
+
+        /* Nút Active (Trang hiện tại) */
+        #pagination-controls .page-item.active .page-link {
+            background-color: var(--blue) !important; /* Nền xanh dương đậm */
+            border-color: var(--blue) !important;     /* Viền xanh đậm */
+            color: var(--ink) !important;             /* Chữ màu tối nổi bật */
+            font-weight: 700;
+        }
+
+        /* Nút Disabled (Previous/Next ở 2 đầu) */
+        #pagination-controls .page-item.disabled .page-link {
+            opacity: 0.5; /* Làm mờ nút bị disabled */
+        }
+
+    </style>
+
+</head>
+<body>
+<div class="grain"></div>
+<div class="tickets-wall" aria-hidden="true">
+    <div class="tickets-layer l1"></div>
+    <div class="tickets-layer l2"></div>
+</div>
+
+<div id="site-header"></div>
+
+<main class="shell">
+    <div class="layout">
+        <section class="film branch-panel">
+
+            <div class="header-title">
+                <h2 id="page-main-title"><i class="fa-solid fa-chair me-3"></i> Quản Lý Ghế Ngồi</h2>
+            </div>
+
+            <div id="diagram-container" class="tab-card mb-4">
+                <h2 class="m-0 mb-3"><i class="fa-solid fa-map-marked-alt me-2"></i> Sơ Đồ Ghế Phòng Chiếu (Click để Sửa)</h2>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="diagramBranchID">Lọc theo Chi Nhánh</label>
+                        <select id="diagramBranchID" class="form-control" required>
+                            <option value="" disabled selected hidden>--- Chọn Chi Nhánh ---</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="diagramAuditoriumID">Chọn Phòng Chiếu để xem Sơ Đồ</label>
+                        <select id="diagramAuditoriumID" class="form-control" required>
+                            <option value="" disabled selected hidden>--- Chọn Phòng Chiếu ---</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="seat-diagram" class="d-flex flex-column align-items-center mt-3 p-4">
+                    <p class="text-center" style="color:var(--muted)">Vui lòng chọn Phòng Chiếu để hiển thị sơ đồ.</p>
+                </div>
+
+                <div id="seat-legend" class="seat-legend">
+                    <div class="legend-item"><div class="legend-color-box seat-type-normal"></div>Ghế Thường</div>
+                    <div class="legend-item"><div class="legend-color-box seat-type-vip"></div>Ghế VIP</div>
+                    <div class="legend-item"><div class="legend-color-box seat-type-couple"></div>Ghế Đôi</div>
+                    <div class="legend-item"><div class="legend-color-box seat-reserved"></div>Đang bảo trì</div>
+                    <div class="legend-item"><div class="legend-color-box seat-broken"></div>Hỏng</div>
+                    <div class="legend-item"><div class="legend-color-box seat-selected"></div>Đang chọn (Sửa)</div>
+                </div>
+            </div>
+
+            <div class="tab-card mb-4">
+                <h2 id="form-title" class="m-0 mb-3"><i class="fa-solid fa-plus me-2"></i> Thêm Ghế Ngồi Mới (Đơn Lẻ)</h2>
+                <form id="seat-form">
+                    <input type="hidden" id="seatID" value="">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="singleBranchID">Chi Nhánh</label>
+                            <select id="singleBranchID" class="form-control" required>
+                                <option value="" disabled selected hidden>--- Chọn Chi Nhánh ---</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="auditoriumID">Phòng Chiếu</label>
+                            <select id="auditoriumID" class="form-control" required>
+                                <option value="" disabled selected hidden>--- Chọn Phòng Chiếu ---</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="typeID">Loại Ghế</label>
+                            <select id="typeID" class="form-control" required>
+                                <option value="" disabled selected hidden>--- Chọn Loại Ghế ---</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-3 mb-3"><label for="seatRow">Dãy Ghế (Row)</label><input type="text" id="seatRow" class="form-control" placeholder="Ví dụ: A" required></div>
+                        <div class="col-md-3 mb-3"><label for="columnNumber">Cột Ghế (Column)</label><input type="number" id="columnNumber" min="1" class="form-control" placeholder="Ví dụ: 5" required></div>
+                        <div class="col-md-3 mb-3"><label for="seatNumber">Số Ghế (Full Number)</label><input type="text" id="seatNumber" class="form-control" placeholder="Ví dụ: A5" required></div>
+                        <div class="col-md-3 mb-3">
+                            <label for="status">Trạng Thái</label>
+                            <select id="status" class="form-control" required>
+                                <option value="" disabled selected hidden>Chọn trạng thái</option>
+                                <option value="Available">Available</option>
+                                <option value="Broken">Broken</option>
+                                <option value="Reserved">Reserved</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="button" id="cancel-btn" class="btn btn-secondary me-2" style="display: none;"><i class="fa-solid fa-xmark me-2"></i>Hủy</button>
+                        <button type="submit" id="submit-btn" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Tạo Ghế Ngồi</button>
+                    </div>
+                </form>
+            </div>
+
+
+            <div class="tab-card mb-4">
+                <h2 class="m-0 mb-3"><i class="fa-solid fa-layer-group me-2"></i> Tạo Sơ Đồ Ghế Hàng Loạt</h2>
+                <form id="bulk-seat-form">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="bulkBranchID">Chi Nhánh</label>
+                            <select id="bulkBranchID" class="form-control" required>
+                                <option value="" disabled selected hidden>--- Chọn Chi Nhánh ---</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="bulkAuditoriumID">Phòng Chiếu</label>
+                            <select id="bulkAuditoriumID" class="form-control" required>
+                                <option value="" disabled selected hidden>--- Chọn Phòng Chiếu ---</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="bulkTypeID">Loại Ghế Mặc Định</label>
+                            <select id="bulkTypeID" class="form-control" required>
+                                <option value="" disabled selected hidden>--- Chọn Loại Ghế ---</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="rowCount">Số Dãy (Hàng)</label>
+                            <input type="number" id="rowCount" min="1" class="form-control" placeholder="Ví dụ: 10" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="columnCount">Số Cột (Ghế/Dãy)</label>
+                            <input type="number" id="columnCount" min="1" class="form-control" placeholder="Ví dụ: 18" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="startChar">Ký tự Dãy Bắt đầu</label>
+                            <input type="text" id="startChar" maxlength="1" pattern="[A-Za-z]" class="form-control" placeholder="Ví dụ: A" required>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa-solid fa-magic me-2"></i> Tạo Hàng Loạt (<span id="totalSeats">0</span> ghế)
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+
+            <div class="tab-card mb-4">
+                <h2 class="m-0 mb-3"><i class="fa-solid fa-arrows-rotate me-2"></i> Cập Nhật Loại/Trạng Thái Ghế theo Dãy</h2>
+                <form id="bulk-update-form">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="updateBranchID">Chi Nhánh</label>
+                            <select id="updateBranchID" class="form-control" required>
+                                <option value="" disabled selected hidden>--- Chọn Chi Nhánh ---</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="updateAuditoriumID">Phòng Chiếu</label>
+                            <select id="updateAuditoriumID" class="form-control" required>
+                                <option value="" disabled selected hidden>--- Chọn Phòng Chiếu ---</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="rowToUpdate">Dãy Ghế (Row)</label>
+                            <input type="text" id="rowToUpdate" maxlength="1" pattern="[A-Za-z]" class="form-control" placeholder="Ví dụ: E" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="newTypeID">Loại Ghế Mới (Tùy chọn)</label>
+                            <select id="newTypeID" class="form-control">
+                                <option value="" selected>--- Không thay đổi Loại ghế ---</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="newStatusSelect">Trạng Thái Mới (Tùy chọn)</label>
+                            <select id="newStatusSelect" class="form-control">
+                                <option value="" selected>--- Không thay đổi Trạng thái ---</option>
+                                <option value="Available">Available</option>
+                                <option value="Broken">Broken</option>
+                                <option value="Reserved">Reserved</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check pt-2">
+                                <input class="form-check-input" type="checkbox" id="isConvertCoupleSeat">
+                                <label class="form-check-label text-warning" for="isConvertCoupleSeat">
+                                    **Áp dụng Logic GỘP Ghế (Đơn -> Đôi/VIP)**
+                                </label>
+                                <small class="d-block text-danger mt-1">
+                                    *Chỉ dùng khi chuyển từ ghế đơn sang ghế đôi/VIP.
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="form-check pt-2">
+                                <input class="form-check-input" type="checkbox" id="isSeparateCoupleSeat">
+                                <label class="form-check-label text-warning" for="isSeparateCoupleSeat">
+                                    **Áp dụng Logic TÁCH Ghế (Đôi/VIP -> Đơn)**
+                                </label>
+                                <small class="d-block text-danger mt-1">
+                                    *Chỉ dùng khi chuyển từ ghế đôi/VIP sang ghế đơn.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="submit" class="btn btn-warning text-dark">
+                            <i class="fa-solid fa-pencil me-2"></i> Cập Nhật Hàng Loạt Dãy Ghế
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="seat-list-container" class="tab-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="m-0"><i class="fa-solid fa-list me-2"></i> Danh Sách Ghế Ngồi</h2>
+                    <button id="load-seats" class="btn btn-secondary"><i class="fa-solid fa-rotate me-2"></i>Tải Lại</button>
+                </div>
+
+                <div class="table-responsive">
+                    <table id="seat-table" class="table-branch">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Phòng Chiếu</th>
+                            <th>Dãy/Cột</th>
+                            <th>Số Ghế</th>
+                            <th>Loại Ghế</th>
+                            <th>Trạng Thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                        </thead>
+                        <tbody id="seats-body">
+                        </tbody>
+                    </table>
+                </div>
+                <div id="pagination-controls" class="d-flex justify-content-center mt-3">
+                </div>
+            </div>
+
+        </section>
+
+    </div>
+</main>
+
+<div id="site-footer"></div>
+
+<script>
+    // Giả định tải header/footer
+    (async ()=>{
+        try{
+            const [h,f] = await Promise.all([
+                fetch('../home/customer-header.html').then(r=>r.text()),
+                fetch('../home/footer.html').then(r=>r.text())
+            ]);
+            document.getElementById('site-header').innerHTML = h;
+            document.getElementById('site-footer').innerHTML = f;
+        }catch(e){ console.error('Load header/footer error', e); }
+    })();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script type="module" src="../js/seatManagement.js"></script>
+
+</body>
+</html>

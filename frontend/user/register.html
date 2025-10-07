@@ -3,62 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <title>Đăng ký tài khoản</title>
+    <!-- Font đẹp cho tiếng Việt -->
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <style>
+        :root {
+            --primary-color: #e50914;
+            --background-color: #0D1326;
+            --text-color: #ffffff;
+            --card-background: #1b2645;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
+            background: var(--background-color);
+            font-family: 'Be Vietnam Pro', sans-serif;
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
             display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            flex-direction: column;
+            min-height: 100vh;
         }
+
         .container {
-            background: #fff;
+            width: 100%;
+            max-width: 400px;
+            margin: auto;
+            background: linear-gradient(160deg, var(--card-background), #10182f);
             padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            width: 400px;
-        }
-        h2 {
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
             text-align: center;
-            color: #333;
+        }
+
+        h2 {
             margin-bottom: 20px;
+            font-weight: 700;
+            color: var(--primary-color);
+            letter-spacing: .5px;
         }
+
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 18px;
+            text-align: left;
         }
+
         label {
             display: block;
             margin-bottom: 6px;
-            color: #555;
+            font-weight: 600;
+            font-size: 0.95rem;
         }
+
         input {
             width: 100%;
-            padding: 10px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #2e3b65;
+            background: #0f1a36;
+            color: #fff;
+            font-size: 0.95rem;
         }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 6px rgba(229,9,20,.6);
+        }
+
         button {
             width: 100%;
             padding: 12px;
-            background: #1976d2;
+            background: var(--primary-color);
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-top: 5px;
+            transition: background .3s ease, transform .2s ease;
         }
-        button:hover {
-            background: #125a9c;
+
+        button:hover:not(:disabled) {
+            background: #b20710;
+            transform: translateY(-2px);
         }
+
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
         #result {
             margin-top: 15px;
-            text-align: center;
+            font-weight: 600;
+        }
+
+        /* password rules */
+        .password-rules {
+            font-size: 0.85rem;
+            margin-top: 8px;
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .password-rules li {
+            margin: 4px 0;
+            color: #bbb;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .password-rules li.valid {
+            color: #4caf50;
+            font-weight: 600;
+        }
+
+        .password-rules li::before {
+            content: "•";
+            color: currentColor;
             font-weight: bold;
         }
     </style>
 </head>
 <body>
+<div id="header"></div>
+
 <div class="container">
     <h2>Đăng ký</h2>
     <form id="registerForm">
@@ -77,12 +150,30 @@
         <div class="form-group">
             <label for="password">Mật khẩu</label>
             <input type="password" id="password" required>
+            <ul class="password-rules" id="passwordRules">
+                <li id="rule-length">Ít nhất 8 ký tự</li>
+                <li id="rule-uppercase">Bắt đầu bằng chữ in hoa</li>
+                <li id="rule-number">Chứa ít nhất 1 số</li>
+                <li id="rule-special">Chứa ít nhất 1 ký tự đặc biệt</li>
+            </ul>
         </div>
-        <button type="submit">Đăng ký</button>
+        <button type="submit" id="registerBtn" disabled>Đăng ký</button>
     </form>
     <div id="result"></div>
 </div>
 
+<div id="footer"></div>
+
 <script src="../js/register.js"></script>
+<script>
+    // load header & footer
+    fetch("../home/header.html")
+        .then(res => res.text())
+        .then(html => document.getElementById("header").innerHTML = html);
+
+    fetch("../home/footer.html")
+        .then(res => res.text())
+        .then(html => document.getElementById("footer").innerHTML = html);
+</script>
 </body>
 </html>
