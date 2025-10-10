@@ -30,7 +30,9 @@ public class SecurityConfig {
     private final String[] PUBLIC_ENDPOINTS = {
             "/api/v1/auth/**",   // login, register, google, logout
             "/api/v1/password/**", // quên mật khẩu, reset password
-            "/uploads/**"        // file ảnh public
+            "/uploads/**",   // file ảnh public
+            "/api/v1/movies/**",
+            "/api/v1/feedback/**",    // đọc review công khai
     };
 
     @Bean

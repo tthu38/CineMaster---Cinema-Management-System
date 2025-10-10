@@ -20,6 +20,10 @@ public enum ErrorCode {
     DISCOUNT_NOT_FOUND(1012, "Discount not found", HttpStatus.NOT_FOUND),
     DISCOUNT_CODE_EXISTS(1013, "Discount code already exists", HttpStatus.BAD_REQUEST),
     INVALID_DISCOUNT(1014, "Invalid discount data", HttpStatus.BAD_REQUEST),
+    // --- 🔹 AUDITORIUM ---
+    AUDITORIUM_NOT_FOUND(1015, "Auditorium not found", HttpStatus.NOT_FOUND),
+    AUDITORIUM_INACTIVE(1016, "Auditorium is inactive", HttpStatus.BAD_REQUEST),
+    AUDITORIUM_ALREADY_EXISTS(1017, "Auditorium already exists in this branch", HttpStatus.BAD_REQUEST),
     ;
 
     private int code;

@@ -71,10 +71,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
             await accountApi.update(accountId, accountData, avatarFile);
             alert("Cập nhật thành công!");
-            window.location.href = "viewUser.html";
+
+            // Nếu đang mở trong iframe (tức là trong dashboard)
+            if (window.top !== window.self && window.top.loadIframe) {
+                window.top.loadIframe("../user/viewUser.html");
+            } else {
+                // nếu chạy độc lập (test riêng file updateUser.html)
+                window.location.href = "viewUser.html";
+            }
         } catch (err) {
             console.error("Error updating account:", err);
             alert("Lỗi khi cập nhật account!");
         }
+
     });
 });

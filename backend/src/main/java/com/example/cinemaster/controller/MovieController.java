@@ -7,6 +7,7 @@ import com.example.cinemaster.entity.Movie;
 import com.example.cinemaster.repository.MovieRepository;
 import com.example.cinemaster.service.FileStorageService;
 import com.example.cinemaster.service.MovieService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -60,9 +61,15 @@ public class MovieController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<MovieResponse>> getMovieById(@PathVariable Integer id) {
-        MovieResponse movie = movieService.getById(id);
-        return ResponseEntity.ok(new ApiResponse<>(1000, "Success", movie));
+        try {
+            MovieResponse movie = movieService.getById(id);
+            return ResponseEntity.ok(new ApiResponse<>(1000, "Success", movie));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(404)
+                    .body(new ApiResponse<>(404, e.getMessage(), null));
+        }
     }
+
 
     @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<ApiResponse<MovieResponse>> createMovie(

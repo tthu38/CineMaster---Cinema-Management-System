@@ -1,38 +1,45 @@
 package com.example.cinemaster.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Nationalized;
 
 import java.time.Instant;
 
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Getter
 @Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
+@Table(name = "MovieFeedback")
 public class MovieFeedback {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "FeedbackID", nullable = false)
-    private Integer id;
+    @Column(name = "FeedbackID")
+    Integer feedbackId;
 
-    @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "MovieID", nullable = false)
+    Movie movie;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AccountID", nullable = false)
-    private Account accountID;
+    Account account;
 
     @Column(name = "Rating")
-    private Integer rating;
+    Integer rating;  // 1-5 sao
 
     @Nationalized
     @Lob
     @Column(name = "Comment")
-    private String comment;
+    String comment;
 
     @ColumnDefault("getdate()")
     @Column(name = "CreatedAt")
-    private Instant createdAt;
-
+    Instant createdAt;
 }

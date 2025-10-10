@@ -33,4 +33,10 @@ public class DiscountRequest {
     Integer maxUsage;
 
     String discountStatus;
+
+    @AssertTrue(message = "Either percentOff or fixedAmount must be provided, not both or none.")
+    public boolean isValidDiscountValue() {
+        return (percentOff != null ^ fixedAmount != null);
+    }
+
 }

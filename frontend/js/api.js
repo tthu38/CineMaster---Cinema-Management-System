@@ -908,10 +908,81 @@ const _screeningPeriodApi = {
 
 // ============ MOVIE API =================
 const _movieApi = {
-    // 📌 Lấy toàn bộ danh sách phim
-    async getAll() {
+    // 📌 Lấy toàn bộ danh sách phim (public)
+    async getAll(status = "") {
+        let url = `${API_BASE_URL}/movies`;
+        if (status) url += `?status=${encodeURIComponent(status)}`;
+
+        const res = await fetch(url, { method: "GET" });
+        return handleResponse(res);
+    },
+
+    // 📌 Lấy phim đang chiếu (public)
+    async getNowShowing() {
+        return this.getAll("Now Showing");
+    },
+
+    // 📌 Lấy phim sắp chiếu (public)
+    async getComingSoon() {
+        return this.getAll("Coming Soon");
+    },
+
+    // 📌 Lấy chi tiết phim theo ID (public)
+    async getById(id) {
+        const res = await fetch(`${API_BASE_URL}/movies/${id}`, { method: "GET" });
+        return handleResponse(res);
+    },
+
+    // 📌 Thêm phim mới (cần token)
+    async create(formData) {
         const token = getValidToken();
         const res = await fetch(`${API_BASE_URL}/movies`, {
+            method: "POST",
+            headers: {
+                Authorization: token ? `Bearer ${token}` : undefined,
+            },
+            body: formData,
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Cập nhật phim (cần token)
+    async update(id, formData) {
+        const token = getValidToken();
+        const res = await fetch(`${API_BASE_URL}/movies/${id}`, {
+            method: "PUT",
+            headers: {
+                Authorization: token ? `Bearer ${token}` : undefined,
+            },
+            body: formData,
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Xóa phim (cần token)
+    async delete(id) {
+        const token = getValidToken();
+        const res = await fetch(`${API_BASE_URL}/movies/${id}`, {
+            method: "DELETE",
+            headers: {
+                Authorization: token ? `Bearer ${token}` : undefined,
+            },
+        });
+        return handleResponse(res);
+    },
+};
+
+
+
+// ============ NEWS API =================
+const _newsApi = {
+    // 📌 Lấy toàn bộ tin tức (có thể filter theo category)
+    async getAll(category = "") {
+        const token = getValidToken();
+        let url = `${API_BASE_URL}/news`;
+        if (category) url += `?category=${encodeURIComponent(category)}`;
+
+        const res = await fetch(url, {
             method: "GET",
             headers: {
                 Authorization: token ? `Bearer ${token}` : undefined,
@@ -921,10 +992,10 @@ const _movieApi = {
         return handleResponse(res);
     },
 
-    // 📌 Lấy phim đang chiếu
-    async getNowShowing() {
+    // 📌 Lấy tin tức theo ID
+    async getById(id) {
         const token = getValidToken();
-        const res = await fetch(`${API_BASE_URL}/movies/now-showing`, {
+        const res = await fetch(`${API_BASE_URL}/news/${id}`, {
             method: "GET",
             headers: {
                 Authorization: token ? `Bearer ${token}` : undefined,
@@ -934,15 +1005,207 @@ const _movieApi = {
         return handleResponse(res);
     },
 
-    // 📌 Lấy phim sắp chiếu
-    async getComingSoon() {
+    // 📌 Tạo tin tức mới (multipart/form-data)
+    async create(formData) {
         const token = getValidToken();
-        const res = await fetch(`${API_BASE_URL}/movies/coming-soon`, {
-            method: "GET",
+        const res = await fetch(`${API_BASE_URL}/news`, {
+            method: "POST",
             headers: {
                 Authorization: token ? `Bearer ${token}` : undefined,
+            },
+            body: formData, // gồm: { data: JSON Blob, imageFile }
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Cập nhật tin tức (multipart/form-data)
+    async update(id, formData) {
+        const token = getValidToken();
+        const res = await fetch(`${API_BASE_URL}/news/${id}`, {
+            method: "PUT",
+            headers: {
+                Authorization: token ? `Bearer ${token}` : undefined,
+            },
+            body: formData,
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Xóa tin tức (soft delete)
+    async delete(id) {
+        const token = getValidToken();
+        const res = await fetch(`${API_BASE_URL}/news/${id}`, {
+            method: "DELETE",
+            headers: {
+                Authorization: token ? `Bearer ${token}` : undefined,
+            },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Khôi phục tin tức
+    async restore(id) {
+        const token = getValidToken();
+        const res = await fetch(`${API_BASE_URL}/news/${id}/restore`, {
+            method: "PUT",
+            headers: {
+                Authorization: token ? `Bearer ${token}` : undefined,
+            },
+        });
+        return handleResponse(res);
+    },
+};
+
+// ============ FEEDBACK API =================
+const _feedbackApi = {
+    // 📌 Lấy danh sách feedback của phim (public)
+    async getByMovie(movieId) {
+        const url = `${API_BASE_URL}/feedback/movie/${movieId}`;
+        const res = await fetch(url, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Tạo feedback (yêu cầu login)
+    async create(movieId, feedbackData) {
+        const token = getValidToken();
+        if (!token) throw new Error("Bạn cần đăng nhập để gửi đánh giá!");
+
+        const res = await fetch(`${API_BASE_URL}/feedback/movie/${movieId}`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
                 "Content-Type": "application/json",
             },
+            body: JSON.stringify(feedbackData),
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Cập nhật feedback (yêu cầu login)
+    async update(id, feedbackData) {
+        const token = getValidToken();
+        if (!token) throw new Error("Bạn cần đăng nhập để chỉnh sửa đánh giá!");
+
+        const res = await fetch(`${API_BASE_URL}/feedback/${id}`, {
+            method: "PUT",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(feedbackData),
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Xóa feedback (yêu cầu login)
+    async delete(id) {
+        const token = getValidToken();
+        if (!token) throw new Error("Bạn cần đăng nhập để xóa đánh giá!");
+
+        const res = await fetch(`${API_BASE_URL}/feedback/${id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return handleResponse(res);
+    },
+};
+
+// ============ DISCOUNT API =================
+const _discountApi = {
+    // 📌 Lấy toàn bộ discount (public)
+    async getAll() {
+        const res = await fetch(`${API_BASE_URL}/discounts`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Lấy discount theo ID (public)
+    async getById(id) {
+        const res = await fetch(`${API_BASE_URL}/discounts/${id}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Lọc discount theo trạng thái (public)
+    async getByStatus(status) {
+        const res = await fetch(`${API_BASE_URL}/discounts/status/${status}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Tạo discount mới (yêu cầu login)
+    async create(data) {
+        const token = getValidToken();
+        if (!token) throw new Error("Bạn cần đăng nhập để tạo discount!");
+
+        const res = await fetch(`${API_BASE_URL}/discounts`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Cập nhật discount (yêu cầu login)
+    async update(id, data) {
+        const token = getValidToken();
+        if (!token) throw new Error("Bạn cần đăng nhập để chỉnh sửa discount!");
+
+        const res = await fetch(`${API_BASE_URL}/discounts/${id}`, {
+            method: "PUT",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Xóa mềm discount (PUT /{id}/delete)
+    async softDelete(id) {
+        const token = getValidToken();
+        if (!token) throw new Error("Bạn cần đăng nhập để xóa discount!");
+
+        const res = await fetch(`${API_BASE_URL}/discounts/${id}/delete`, {
+            method: "PUT",
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Khôi phục discount (PUT /{id}/restore)
+    async restore(id) {
+        const token = getValidToken();
+        if (!token) throw new Error("Bạn cần đăng nhập để khôi phục discount!");
+
+        const res = await fetch(`${API_BASE_URL}/discounts/${id}/restore`, {
+            method: "PUT",
+            headers: { Authorization: `Bearer ${token}` },
+        });
+        return handleResponse(res);
+    },
+
+    // 📌 Xóa vĩnh viễn discount (DELETE)
+    async hardDelete(id) {
+        const token = getValidToken();
+        if (!token) throw new Error("Bạn cần đăng nhập để xóa vĩnh viễn discount!");
+
+        const res = await fetch(`${API_BASE_URL}/discounts/${id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
         });
         return handleResponse(res);
     },
@@ -973,7 +1236,10 @@ export const seatApi = _seatApi;
 export const seatTypeApi = _seatTypeApi;
 export const screeningPeriodApi = _screeningPeriodApi;
 export const movieApi = _movieApi;
+export const newsApi = _newsApi;
+export const feedbackApi = _feedbackApi;
+export const discountApi = _discountApi;
 
 
-export { API_BASE_URL };
+export { getValidToken, handleResponse, API_BASE_URL };
 

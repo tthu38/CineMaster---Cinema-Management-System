@@ -6,20 +6,24 @@ import com.example.cinemaster.entity.Discount;
 import org.mapstruct.*;
 import java.time.LocalDate;
 
-@Mapper(componentModel = "spring")
+@Mapper(
+        componentModel = "spring",
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+)
 public interface DiscountMapper {
-
     Discount toEntity(DiscountRequest request);
 
     DiscountResponse toResponse(Discount entity);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateDiscountFromRequest(DiscountRequest request, @MappingTarget Discount discount);
 
     @AfterMapping
-    default void setCreateAt(@MappingTarget Discount discount) {
+    default void setDefaultValues(@MappingTarget Discount discount) {
         if (discount.getCreateAt() == null) {
             discount.setCreateAt(LocalDate.now());
+        }
+        if (discount.getDiscountStatus() == null) {
+            discount.setDiscountStatus("ACTIVE");
         }
     }
 }

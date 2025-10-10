@@ -26,11 +26,8 @@ public class FileController {
             @AuthenticationPrincipal Account account
     ) {
         ApiResponse<String> response = new ApiResponse<>();
-
         try {
             String avatarUrl = fileStorageService.saveFile(avatarFile);
-
-            // cập nhật vào DB
             account.setAvatarUrl(avatarUrl);
             accountRepository.save(account);
 

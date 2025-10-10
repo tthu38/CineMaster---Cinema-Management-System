@@ -19,6 +19,11 @@ public class AuditoriumController {
 
     private final AuditoriumService auditoriumService;
 
+    @GetMapping
+    public ResponseEntity<List<AuditoriumResponse>> list(@RequestParam(required = false) Integer branchId) {
+        return ResponseEntity.ok(auditoriumService.listByBranch(branchId));
+    }
+
     // --- READ ALL (CHO ADMIN/MANAGER) ---
     @GetMapping
     public List<AuditoriumResponse> getAllAuditoriums() {

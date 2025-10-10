@@ -22,4 +22,7 @@ public class SeatResponse {
     // Thông tin từ SeatType Entity
     Integer typeID;
     String typeName;
+
+    Integer branchID;
+    String branchName;
 }

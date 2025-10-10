@@ -3,28 +3,34 @@ package com.example.cinemaster.repository;
 import com.example.cinemaster.entity.ScreeningPeriod;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
 public interface ScreeningPeriodRepository extends JpaRepository<ScreeningPeriod, Integer> {
 
-    /**
-     * Sửa lỗi: Tên thuộc tính ID trong Entity Branch là 'id', nên phải dùng **findByBranch_Id**.
-     * Tối ưu hóa: Dùng @EntityGraph để EAGER load (tải ngay lập tức) các quan hệ 'movie' và 'branch'
-     * trong một truy vấn duy nhất.
-     */
-
-    // 1. Tối ưu hóa cho phương thức findAll() cơ bản (chống N+1 Selects)
     @EntityGraph(attributePaths = {"movie", "branch"})
     @Override
     List<ScreeningPeriod> findAll();
 
-    // 2. Tìm kiếm theo BranchID và tối ưu hóa (Sửa lỗi cú pháp)
-    // Tên phương thức được đổi từ findByBranch_BranchID thành **findByBranch_Id**
     @EntityGraph(attributePaths = {"movie", "branch"})
     List<ScreeningPeriod> findByBranch_Id(Integer branchId);
+
+    @Query("""
+        SELECT p FROM ScreeningPeriod p
+        WHERE (:branchId IS NULL OR p.branch.id = :branchId)          
+          AND (:from IS NULL OR p.endDate   >= :from)
+          AND (:to   IS NULL OR p.startDate <= :to)
+          AND (p.isActive = true)                                      
+        ORDER BY p.startDate
+    """)
+    List<ScreeningPeriod> findActive(@Param("branchId") Integer branchId,
+                                     @Param("from") LocalDate from,
+                                     @Param("to")   LocalDate to);
 
     // Bạn có thể thêm các tùy chỉnh khác nếu cần, ví dụ:
     // boolean existsByMovie_MovieIDAndBranch_Id(Integer movieID, Integer branchID);

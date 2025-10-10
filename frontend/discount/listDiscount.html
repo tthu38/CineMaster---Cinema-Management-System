@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>CineMaster • Ưu đãi khuyến mãi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background: #fff7f2;
+            font-family: 'Roboto', sans-serif;
+            padding: 40px 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #e60012;
+            font-weight: 700;
+            margin-bottom: 30px;
+        }
+
+        .discount-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .discount-card {
+            background: #fff;
+            width: 240px;
+            border-radius: 16px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+            overflow: hidden;
+            border: 1px solid #f0e0d9;
+            position: relative;
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .discount-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+
+        .discount-header {
+            background: #fff2ea;
+            color: #b36b4b;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-align: center;
+            padding: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed #e5c3a5;
+        }
+
+        .discount-header span {
+            margin: 0 10px;
+        }
+
+        .discount-card img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+        }
+
+        .discount-content {
+            text-align: center;
+            padding: 10px 8px 16px;
+        }
+
+        .discount-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+        }
+
+        .discount-expiry {
+            color: #666;
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+        }
+
+        .price {
+            font-size: 0.95rem;
+            margin-bottom: 6px;
+        }
+
+        .old-price {
+            text-decoration: line-through;
+            color: #999;
+            margin-right: 6px;
+        }
+
+        .new-price {
+            font-weight: 700;
+            color: #222;
+        }
+
+        .discount-rate {
+            font-weight: 700;
+            color: #e60012;
+            font-size: 0.9rem;
+        }
+
+        .discount-card::before, .discount-card::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #fff7f2;
+            border-radius: 50%;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .discount-card::before { left: -10px; }
+        .discount-card::after { right: -10px; }
+    </style>
+</head>
+<body>
+
+<h1>🎟️ Ưu Đãi CineMaster</h1>
+
+<div class="discount-list" id="discount-list">
+    <!-- Cards will render here -->
+</div>
+
+<script>
+    const API_URL = "http://localhost:8080/api/v1/discounts";
+    const DEFAULT_IMG = "https://cdn-icons-png.flaticon.com/512/2331/2331970.png";
+
+    async function loadDiscounts() {
+        try {
+            const res = await fetch(API_URL);
+            const data = await res.json();
+            const list = data.result || data;
+
+            const container = document.getElementById("discount-list");
+
+            if (!list.length) {
+                container.innerHTML = `<p style="color:#555;">Không có ưu đãi nào hiện tại.</p>`;
+                return;
+            }
+
+            container.innerHTML = list.map(d => {
+                const percent = d.percentOff ? `${d.percentOff}% giảm` : "";
+                const status = d.discountStatus === "EXPIRED" ? "Hết hạn" : d.discountStatus;
+                const expiry = d.expiryDate ? new Date(d.expiryDate).toLocaleDateString('vi-VN') : "Không rõ";
+
+                // Giá mẫu minh họa (nếu bạn chưa có old/new price trong DB)
+                const oldPrice = d.fixedAmount ? (d.fixedAmount * 1.2).toLocaleString("vi-VN") + "đ" : "";
+                const newPrice = d.fixedAmount ? d.fixedAmount.toLocaleString("vi-VN") + "đ" : "";
+
+                return `
+            <div class="discount-card">
+              <div class="discount-header">
+                <span>SPECIAL</span>
+                <span>${status}</span>
+              </div>
+              <img src="${d.imageUrl || DEFAULT_IMG}" alt="${d.code}">
+              <div class="discount-content">
+                <div class="discount-title">${d.discountDescription || d.code}</div>
+                <div class="discount-expiry">HSD: ${expiry}</div>
+                <div class="price">
+                  ${oldPrice ? `<span class="old-price">${oldPrice}</span>` : ""}
+                  ${newPrice ? `<span class="new-price">${newPrice}</span>` : ""}
+                </div>
+                ${percent ? `<div class="discount-rate">${percent}</div>` : ""}
+              </div>
+            </div>
+          `;
+            }).join("");
+        } catch (err) {
+            console.error(err);
+            document.getElementById("discount-list").innerHTML =
+                `<p style="color:red;">Lỗi tải dữ liệu khuyến mãi!</p>`;
+        }
+    }
+
+    loadDiscounts();
+</script>
+</body>
+</html>

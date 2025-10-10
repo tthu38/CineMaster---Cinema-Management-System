@@ -2,12 +2,16 @@ package com.example.cinemaster.controller;
 
 import com.example.cinemaster.dto.request.ScreeningPeriodRequest;
 import com.example.cinemaster.dto.response.ScreeningPeriodResponse;
+import com.example.cinemaster.mapper.ScreeningPeriodMapper;
 import com.example.cinemaster.service.ScreeningPeriodService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
 @RestController
@@ -16,6 +20,7 @@ import java.util.List;
 public class ScreeningPeriodController {
 
     private final ScreeningPeriodService screeningPeriodService;
+    private final ScreeningPeriodMapper screeningPeriodMapper;
 
     // POST: /api/v1/screening-periods
     @PostMapping
@@ -52,5 +57,16 @@ public class ScreeningPeriodController {
     public ResponseEntity<Void> deletePeriod(@PathVariable Integer id) {
         screeningPeriodService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // GET: /api/v1/screening-periods/active
+    @GetMapping("/active")
+    public ResponseEntity<List<ScreeningPeriodResponse>> active(
+            @RequestParam(required = false) Integer branchId,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate onDate
+    ) {
+        var date = (onDate != null) ? onDate : LocalDate.now(ZoneId.of("Asia/Ho_Chi_Minh"));
+        var list = screeningPeriodService.findActive(branchId, date);
+        return ResponseEntity.ok(screeningPeriodMapper.toLiteList(list));
     }
 }

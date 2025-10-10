@@ -68,6 +68,7 @@ public class AccountManageService {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Account not found"));
 
+        account.setEmail(request.getEmail());
         account.setFullName(request.getFullName());
         account.setPhoneNumber(request.getPhoneNumber());
         account.setAddress(request.getAddress());
