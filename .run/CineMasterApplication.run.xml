@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="CineMasterApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
-    <option name="ALTERNATIVE_JRE_PATH" value="21" />
+    <option name="ALTERNATIVE_JRE_PATH" value="22" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <module name="CineMaster" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.cinemaster.CineMasterApplication" />

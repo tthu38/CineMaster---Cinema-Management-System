@@ -34,4 +34,6 @@ public class ScreeningPeriod {
 
     @Column(name = "EndDate")
     LocalDate endDate;
+    @Column(name = "IsActive")
+    Boolean isActive;
 }

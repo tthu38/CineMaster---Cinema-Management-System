@@ -1,0 +1,90 @@
+<!-- showtime-edit.html -->
+<div class="modal fade" id="showtimeEditModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="background:#0e1d38; color:#e6f1ff">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fa-solid fa-pen-to-square me-2"></i>Cập nhật / Xóa lịch chiếu
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+
+            <div class="modal-body">
+                <div id="steAlert" class="alert alert-danger d-none"></div>
+
+                <div class="row g-3">
+                    <!-- Branch (khóa để không đổi branch khi edit) -->
+                    <div class="col-md-6">
+                        <label class="form-label">Rạp/Chi nhánh</label>
+                        <select id="steBranch" class="form-select" disabled></select>
+                        <div class="form-text">Không đổi chi nhánh ở bước cập nhật.</div>
+                    </div>
+
+                    <!-- Screening Period -->
+                    <div class="col-md-6">
+                        <label class="form-label">Khoảng chiếu (Screening Period)</label>
+                        <select id="stePeriod" class="form-select">
+                            <option value="">— Chọn period —</option>
+                        </select>
+                        <div class="form-text" id="stePeriodHint"></div>
+                    </div>
+
+                    <!-- Auditorium -->
+                    <div class="col-md-6">
+                        <label class="form-label">Phòng chiếu (Auditorium)</label>
+                        <select id="steAuditorium" class="form-select">
+                            <option value="">— Chọn phòng —</option>
+                        </select>
+                    </div>
+
+                    <!-- Language -->
+                    <div class="col-md-6">
+                        <label class="form-label">Ngôn ngữ</label>
+                        <select id="steLanguage" class="form-select">
+                            <option value="Vietnamese">Tiếng Việt</option>
+                            <option value="English">English</option>
+                        </select>
+                    </div>
+
+                    <!-- Date / Time -->
+                    <div class="col-md-4">
+                        <label class="form-label">Ngày chiếu</label>
+                        <input id="steDate" type="date" class="form-control"/>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Giờ bắt đầu</label>
+                        <input id="steStart" type="time" class="form-control" step="60"/>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Giờ kết thúc</label>
+                        <input id="steEnd" type="time" class="form-control" step="60"/>
+                    </div>
+
+                    <!-- Price -->
+                    <div class="col-md-6">
+                        <label class="form-label">Giá vé</label>
+                        <input id="stePrice" type="number" min="0" step="1000" class="form-control" placeholder="120000"/>
+                    </div>
+
+                    <!-- Cleanup hint -->
+                    <div class="col-12">
+                        <div id="steCleanupHint" class="form-text"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer d-flex w-100 justify-content-between">
+                <button id="steDelete" class="btn btn-outline-danger">
+                    <i class="fa-solid fa-trash me-2"></i>Xóa lịch chiếu
+                </button>
+
+                <div class="d-flex gap-2">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <button id="steSubmit" class="btn btn-primary">
+                        <i class="fa-solid fa-floppy-disk me-2"></i>Lưu thay đổi
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

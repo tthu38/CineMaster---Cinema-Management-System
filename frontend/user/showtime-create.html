@@ -1,0 +1,82 @@
+<!-- showtime-create.html -->
+<div class="modal fade" id="showtimeCreateModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <form class="modal-content" id="showtimeCreateForm"
+              style="background:#0e1d38; color:#e6f1ff; border-radius:18px; overflow:hidden;">
+            <div class="modal-header">
+                <h5 class="modal-title">Tạo lịch chiếu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+
+            <div class="modal-body">
+                <div id="stcAlert" class="alert alert-danger d-none"></div>
+
+                <div class="row g-3">
+                    <!-- Branch -->
+                    <div class="col-md-6">
+                        <label class="form-label">Rạp/Chi nhánh</label>
+                        <select id="stcBranch" class="form-select"></select>
+                    </div>
+
+                    <!-- Screening Period -->
+                    <div class="col-md-6">
+                        <label class="form-label">Khoảng chiếu (Screening Period)</label>
+                        <select id="stcPeriod" class="form-select">
+                            <option value="">— Chọn period —</option>
+                        </select>
+                        <div class="form-text" id="stcPeriodHint"></div>
+                    </div>
+
+                    <!-- Auditorium -->
+                    <div class="col-md-6">
+                        <label class="form-label">Phòng chiếu (Auditorium)</label>
+                        <select id="stcAuditorium" class="form-select">
+                            <option value="">— Chọn phòng —</option>
+                        </select>
+                    </div>
+
+                    <!-- Language -->
+                    <div class="col-md-6">
+                        <label class="form-label">Ngôn ngữ</label>
+                        <select id="stcLanguage" class="form-select">
+                            <option value="Vietnamese">Tiếng Việt</option>
+                            <option value="English">English</option>
+                        </select>
+                    </div>
+
+                    <!-- Date -->
+                    <div class="col-md-4">
+                        <label class="form-label">Ngày chiếu</label>
+                        <input id="stcDate" type="date" class="form-control"/>
+                    </div>
+
+                    <!-- Start/End time -->
+                    <div class="col-md-4">
+                        <label class="form-label">Giờ bắt đầu</label>
+                        <input id="stcStart" type="time" class="form-control" step="60"/>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Giờ kết thúc</label>
+                        <input id="stcEnd" type="time" class="form-control" step="60"/>
+                    </div>
+                    <div class="col-12">
+                        <div id="stcCleanupHint" class="form-text"></div>
+                    </div>
+
+
+                    <!-- Price -->
+                    <div class="col-md-6">
+                        <label class="form-label">Giá vé</label>
+                        <input id="stcPrice" type="number" min="0" step="1000" class="form-control" placeholder="120000"/>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button id="stcSubmit" type="button" class="btn btn-primary">
+                    <i class="fa-solid fa-floppy-disk me-2"></i>Lưu
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

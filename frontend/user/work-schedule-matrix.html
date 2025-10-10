@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>CineMaster • Lịch làm việc</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        :root{
+            --red:#e50914;
+            --cyan:#22c1ff;
+            --blue:#0aa3ff;
+            --ink:#06101f;
+            --bg:#0b162c;
+            --border:#1b2b4a;
+            --muted:#9aa7b3;
+        }
+
+        /* ===== Background (glows + ticket pattern like profile) ===== */
+        html,body{
+            margin:0; min-height:100vh; color:#e6eefc;
+            font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+            background:
+                    radial-gradient(1200px 600px at -10% -35%, rgba(229,9,20,.18), transparent 60%),
+                    radial-gradient(900px 400px at 120% -20%, rgba(34,193,255,.12), transparent 60%),
+                    linear-gradient(180deg, var(--ink), var(--bg)),
+                    url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='160' height='80' viewBox='0 0 160 80'>\
+<rect width='160' height='80' fill='none'/>\
+<g opacity='0.08' stroke='%23cfe3ff' stroke-width='1.2' fill='none'>\
+<path d='M8 20 h110 a10 10 0 0 0 10 -10 a10 10 0 0 1 10 10 v20 a10 10 0 0 1 -10 10 a10 10 0 0 0 -10 10 H8 z'/>\
+<path d='M30 18 v44' stroke-dasharray='6 6'/>\
+<circle cx='120' cy='20' r='3'/><circle cx='120' cy='60' r='3'/>\
+</g></svg>");
+            background-repeat:no-repeat,no-repeat,no-repeat,repeat;
+            background-size:1200px 600px,900px 400px,100% 100%,320px 160px;
+            background-position:-10% -35%,120% -20%,0 0,0 0;
+            background-attachment:fixed,fixed,fixed,fixed;
+            overflow-x:hidden;
+        }
+        /* film grain */
+        .grain{
+            position:fixed; inset:0; pointer-events:none; opacity:.14; mix-blend-mode:screen; z-index:0;
+            background-image:
+                    radial-gradient(circle at 20% 30%, rgba(255,255,255,.06) 0 2px, transparent 2px),
+                    radial-gradient(circle at 70% 60%, rgba(255,255,255,.05) 0 2px, transparent 2px);
+            background-size:200px 200px, 260px 260px;
+            animation: drift 18s linear infinite alternate;
+        }
+        @keyframes drift{ to{ transform: translate3d(30px,-25px,0) } }
+
+        /* static ticket wall under content */
+        .tickets-wall{ position:fixed; inset:0; pointer-events:none; z-index:0; }
+        .tickets-layer{
+            position:absolute; inset:-10%;
+            background-repeat:repeat; background-size:320px 160px;
+            opacity:.16; /* tăng nhẹ để thấy rõ */
+            filter:drop-shadow(0 0 20px rgba(22,40,76,.18));
+            transform-origin:center center;
+            background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='160' viewBox='0 0 320 160'%3E%3Crect fill='none' width='320' height='160'/%3E%3Cg opacity='0.95'%3E%3Cg transform='translate(8,8)'%3E%3Cpath d='M0 24 a12 12 0 0 1 12 -12 h200 a10 10 0 0 0 10 -10 a12 12 0 0 1 12 12 v60 a12 12 0 0 1 -12 12 a10 10 0 0 0 -10 10 H12 a12 12 0 0 1 -12 -12z' fill='%23192A43' stroke='%232c3e66' stroke-width='2'/%3E%3Cline x1='140' y1='12' x2='140' y2='96' stroke='%238fb4ff' stroke-opacity='0.18' stroke-dasharray='6 6'/%3E%3Ccircle cx='60' cy='54' r='22' fill='none' stroke='%238fb4ff' stroke-opacity='0.35' stroke-width='3'/%3E%3Ccircle cx='60' cy='54' r='5' fill='%238fb4ff' opacity='0.3'/%3E%3C/g%3E%3Cg transform='translate(164,32)' stroke='%23cfe3ff' stroke-opacity='0.38'%3E%3Crect x='0' y='0' width='60' height='24' fill='none'/%3E%3Cpath d='M3 0 v24 M8 0 v24 M11 0 v24 M16 0 v24 M22 0 v24 M27 0 v24 M33 0 v24 M38 0 v24 M45 0 v24 M51 0 v24 M56 0 v24' stroke-width='2'/%3E%3C/g%3E%3Cg transform='translate(164,66)' stroke='%23cfe3ff' stroke-opacity='0.45'%3E%3Cline x1='0' y1='0' x2='76' y2='0' stroke-width='2'/%3E%3Cline x1='0' y1='10' x2='62' y2='10' stroke-width='2'/%3E%3Cline x1='0' y1='20' x2='70' y2='20' stroke-width='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .tickets-wall .l1{ transform:rotate(-3deg) scale(1.04) }
+        .tickets-wall .l2{ transform:rotate(3deg) scale(1.06); background-position:160px 80px; opacity:.12 }
+
+        /* content spacing above background */
+        .shell{ max-width:1300px; margin:110px auto 48px; padding:0 24px; position:relative; z-index:1 }
+
+        /* toolbar */
+        .toolbar{
+            background:linear-gradient(90deg,#0c152a,#0e1c37);
+            padding:12px 16px; border:1px solid var(--border);
+            border-radius:14px; box-shadow:0 8px 22px rgba(0,0,0,.35);
+            display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:16px;
+        }
+        .form-control,.form-select{
+            background:#0e1c37; color:#fff; border:1px solid #17345f; border-radius:10px
+        }
+        .form-control:focus,.form-select:focus{
+            outline:none; border-color:var(--blue); box-shadow:0 0 0 .2rem rgba(34,193,255,.22)
+        }
+        .btn-primary{
+            background:linear-gradient(90deg, var(--blue), var(--cyan));
+            border:none; color:#051020; font-weight:800
+        }
+        .btn-primary:hover{ filter:brightness(1.1) }
+        .muted{ color:var(--muted) }
+
+        /* cards (no film/perforation) */
+        .card{ background:linear-gradient(180deg,#0b152a 0%, #0c162c 100%); border:1px solid var(--border); border-radius:18px; box-shadow:0 14px 32px rgba(0,0,0,.5) }
+
+        /* table */
+        .table thead th{
+            color:#9db4ff; text-align:center; background:#0d1b34; position:sticky; top:0; z-index:2;
+            border-bottom:1px solid var(--border); white-space:pre-line;
+        }
+        .table th.sticky-col{ position:sticky; left:0; z-index:3; background:#0d1b34 }
+        .table-bordered>:not(caption)>*{ border-color:var(--border) }
+
+        .schedule-cell{
+            cursor:pointer; min-width:160px; min-height:64px; vertical-align:top; text-align:left; padding:10px;
+            background:rgba(14,28,55,.35); border-radius:10px; transition: background .2s, transform .15s;
+        }
+        .schedule-cell:hover{ outline:1px dashed var(--cyan); background:rgba(34,193,255,.10); transform: translateY(-1px) }
+
+        /* legend chip & staff pills (NO ticket perforation) */
+        #legend{ display:flex; flex-wrap:wrap; gap:.35rem; }
+        .chip{
+            display:inline-block; padding:.25rem .6rem; border-radius:999px; font-size:.85rem; color:#fff;
+            border:1px solid rgba(34,193,255,.15); background:#112241;
+        }
+        .cell-stack{
+            display:flex; flex-direction:column; align-items:flex-start; gap:6px;
+            /* no max-height, no overflow => không còn scroll */
+        }
+        .pill{
+            display:block; width:fit-content;white-space:nowrap; padding:.25rem .6rem; border-radius:999px; font-size:.9rem;
+            color:#fff; background:#142243; border:1px solid rgba(255,255,255,.12);
+        }
+
+        /* modal tone */
+        .modal-content{
+            background: linear-gradient(180deg,#0b152a 0%, #0c162c 100%);
+            border:1px solid var(--border); border-radius:16px; box-shadow: 0 24px 60px rgba(0,0,0,.6);
+        }
+        .modal-header,.modal-footer{ border-color:var(--border) }
+        #assignModal .input-group .input-group-text{
+            background:#0e1c37; color:#9db4ff; border-color:#17345f; font-weight:600;
+        }
+        #assignModal .form-control{
+            background:#0e1c37; color:#e6eefc; border:1px solid #17345f;
+        }
+        #assignModal #m-checkAll, #assignModal #m-uncheckAll{
+            border-color:#17345f; color:#d5e2ff; background:#0e1c37;
+        }
+        #assignModal #m-staffList{
+            background:#0b1326; border:1px solid #17345f; border-radius:14px; padding:10px;
+        }
+        #assignModal #m-staffList label{
+            background:#0e1c37; border:1px solid #17345f; border-radius:12px;
+            padding:.6rem .75rem; margin:.35rem .1rem; transition:.15s ease;
+            display:flex; align-items:center; gap:.5rem;
+        }
+        #assignModal #m-staffList label:hover{ transform: translateY(-1px); border-color:#246bff80; box-shadow:0 6px 16px rgba(0,0,0,.25) }
+        #assignModal #m-staffList input[type="checkbox"]{ transform: scale(1.15); accent-color: var(--blue); }
+        #assignModal #m-staffList .m-staff:checked + span{ color:#ffffff; font-weight:600 }
+    </style>
+</head>
+<body>
+
+<!-- Background layers (ONLY ONCE) -->
+<div class="grain" aria-hidden="true"></div>
+<div class="tickets-wall" aria-hidden="true">
+    <div class="tickets-layer l1"></div>
+    <div class="tickets-layer l2"></div>
+</div>
+
+<!-- Header placeholder -->
+<div id="site-header" style="position:fixed; inset-inline:0; top:0; z-index:10;"></div>
+
+<main class="shell">
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <h2 class="h4 m-0">Lịch làm việc</h2>
+        <div class="d-flex gap-2">
+            <input type="week" id="weekPicker" class="form-control" style="width:170px">
+            <input type="number" id="branchId" class="form-control" placeholder="Branch ID" style="width:140px">
+            <button class="btn btn-primary" id="btnLoad" type="button">Cập nhật</button>
+            <button class="btn btn-outline-light" id="btnEditShiftHours" type="button">Chỉnh sửa giờ làm</button>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="card mb-3">
+        <div id="legend" class="p-3">—</div>
+    </div>
+
+    <!-- Table -->
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-dark table-bordered align-middle text-center m-0">
+                <thead id="thead"></thead>
+                <tbody id="tbody">
+                <tr><td class="text-center py-4">Loading…</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="card-body small muted" id="rangeText"></div>
+    </div>
+</main>
+
+<!-- Footer placeholder -->
+<div id="site-footer"></div>
+
+<!-- Assign Modal -->
+<div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <form class="modal-content" id="assignForm">
+            <div class="modal-header">
+                <h5 class="modal-title">Phân công nhân viên</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <div class="small muted mb-1" id="m-hint">—</div>
+                <div class="text-danger small mb-2" id="m-error"></div>
+                <input type="hidden" id="m-date"><input type="hidden" id="m-shift">
+
+                <div class="input-group mb-2">
+                    <span class="input-group-text">Tìm</span>
+                    <input type="text" class="form-control" id="m-filter" placeholder="Nhập tên nhân viên...">
+                    <button class="btn btn-outline-light" type="button" id="m-checkAll">Chọn tất cả</button>
+                    <button class="btn btn-outline-light" type="button" id="m-uncheckAll">Bỏ chọn</button>
+                </div>
+                <div id="m-staffList"><!-- JS render --></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Cancel</button>
+                <button class="btn btn-primary" type="submit">Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Shift Hours Modal -->
+<div class="modal fade" id="shiftHoursModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" id="shiftHoursForm">
+            <div class="modal-header">
+                <h5 class="modal-title">Chỉnh sửa giờ làm</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-2">
+                    <label class="form-label">Ca sáng</label>
+                    <div class="input-group">
+                        <span class="input-group-text">From</span>
+                        <input type="time" class="form-control" id="h-morning-from" required>
+                        <span class="input-group-text">To</span>
+                        <input type="time" class="form-control" id="h-morning-to" required>
+                    </div>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Ca chiều</label>
+                    <div class="input-group">
+                        <span class="input-group-text">From</span>
+                        <input type="time" class="form-control" id="h-afternoon-from" required>
+                        <span class="input-group-text">To</span>
+                        <input type="time" class="form-control" id="h-afternoon-to" required>
+                    </div>
+                </div>
+                <div class="mb-1">
+                    <label class="form-label">Ca tối</label>
+                    <div class="input-group">
+                        <span class="input-group-text">From</span>
+                        <input type="time" class="form-control" id="h-evening-from" required>
+                        <span class="input-group-text">To</span>
+                        <input type="time" class="form-control" id="h-evening-to" required>
+                    </div>
+                </div>
+                <div class="text-danger small mt-2" id="shiftHoursError"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Hủy</button>
+                <button class="btn btn-primary" type="submit">Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+<!-- Load header/footer -->
+<script>
+    (async ()=>{
+        try{
+            const [h,f] = await Promise.all([
+                fetch('../home/customer-header.html').then(r=>r.text()),
+                fetch('../home/footer.html').then(r=>r.text())
+            ]);
+            document.getElementById('site-header').innerHTML = h;
+            document.getElementById('site-footer').innerHTML = f;
+        }catch(e){ console.error('Load header/footer error', e); }
+    })();
+</script>
+
+<!-- Your JS (unchanged) -->
+<script type="module" src="../js/work-schedule-matrix.js?v=with-header"></script>
+</body>
+</html>

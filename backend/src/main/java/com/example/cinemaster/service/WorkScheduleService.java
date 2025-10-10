@@ -1,0 +1,176 @@
+// src/main/java/com/example/cinemaster/service/WorkScheduleService.java
+package com.example.cinemaster.service;
+
+import com.example.cinemaster.dto.request.*;
+import com.example.cinemaster.dto.response.*;
+import com.example.cinemaster.entity.*;
+import com.example.cinemaster.mapper.WorkScheduleMapper;
+import com.example.cinemaster.repository.*;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class WorkScheduleService {
+
+    private final WorkScheduleRepository repo;
+    private final AccountRepository accountRepo;
+    private final BranchRepository branchRepo;
+
+    // ===== CRUD =====
+    public WorkScheduleResponse create(WorkScheduleCreateRequest req) {
+        Account acc = accountRepo.findById(req.accountId())
+                .orElseThrow(() -> new EntityNotFoundException("Account not found: " + req.accountId()));
+        Branch br = branchRepo.findById(req.branchId())
+                .orElseThrow(() -> new EntityNotFoundException("Branch not found: " + req.branchId()));
+
+        // Không cho tạo nếu staff không cùng branch
+        ensureAccountBelongsToBranch(acc, br.getId());
+
+        WorkSchedule e = new WorkSchedule();
+        e.setAccountID(acc);
+        e.setBranchID(br);
+        e.setShiftDate(req.shiftDate());
+        e.setStartTime(req.startTime());
+        e.setEndTime(req.endTime());
+        e.setShiftType(req.shiftType());
+        e.setNote(req.note());
+        return WorkScheduleMapper.toResponse(repo.save(e));
+    }
+
+    public WorkScheduleResponse update(Integer id, WorkScheduleUpdateRequest req) {
+        WorkSchedule e = repo.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Schedule not found: " + id));
+        e.setShiftDate(req.shiftDate());
+        e.setStartTime(req.startTime());
+        e.setEndTime(req.endTime());
+        e.setShiftType(req.shiftType());
+        e.setNote(req.note());
+        return WorkScheduleMapper.toResponse(repo.save(e));
+    }
+
+    public void delete(Integer id) {
+        if (!repo.existsById(id)) throw new EntityNotFoundException("Schedule not found: " + id);
+        repo.deleteById(id);
+    }
+
+    public WorkScheduleResponse get(Integer id) {
+        return repo.findById(id)
+                .map(WorkScheduleMapper::toResponse)
+                .orElseThrow(() -> new EntityNotFoundException("Schedule not found: " + id));
+    }
+
+    public PageResponse<WorkScheduleResponse> search(Integer accountId, Integer branchId, LocalDate from, LocalDate to, Pageable pageable) {
+        Specification<WorkSchedule> spec = Specification.allOf(
+                WorkScheduleRepository.hasAccount(accountId),
+                WorkScheduleRepository.hasBranch(branchId),
+                WorkScheduleRepository.dateBetween(from, to)
+        );
+        Page<WorkSchedule> page = repo.findAll(spec, pageable);
+        List<WorkScheduleResponse> items = page.stream().map(WorkScheduleMapper::toResponse).toList();
+        return new PageResponse<>(items, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages());
+    }
+
+    // ===== Matrix + Cell =====
+    public Map<String, Map<String, List<WorkScheduleCellAssignmentResponse>>> getMatrix(LocalDate from, LocalDate to, Integer branchId) {
+        var spec = Specification.allOf(
+                WorkScheduleRepository.hasBranch(branchId),   // bắt buộc theo branch
+                WorkScheduleRepository.dateBetween(from, to)
+        );
+
+        List<WorkSchedule> rows = repo.findAll(spec);
+
+        // Ẩn mọi lịch mà account không thuộc đúng branch (dữ liệu cũ bị sai)
+        if (branchId != null) {
+            rows = rows.stream()
+                    .filter(ws -> {
+                        Account a = ws.getAccountID();
+                        return a != null && a.getBranch() != null
+                                && Objects.equals(a.getBranch().getId(), branchId);
+                    })
+                    .toList();
+        }
+
+        return rows.stream().collect(Collectors.groupingBy(
+                ws -> ws.getShiftDate().toString(),
+                Collectors.groupingBy(
+                        WorkSchedule::getShiftType,
+                        Collectors.mapping(ws -> WorkScheduleCellAssignmentResponse.builder()
+                                        .scheduleId(ws.getId())
+                                        .branchId(ws.getBranchID() != null ? ws.getBranchID().getId() : null)
+                                        .accountId(ws.getAccountID() != null ? ws.getAccountID().getAccountID() : null)
+                                        .accountName(ws.getAccountID() != null ? ws.getAccountID().getFullName() : null)
+                                        .build(),
+                                Collectors.toList()
+                        )
+                )
+        ));
+    }
+
+    public List<WorkScheduleCellAssignmentResponse> getCell(Integer branchId, LocalDate date, String shiftType) {
+        return repo.findByBranchID_IdAndShiftDateAndShiftType(branchId, date, shiftType).stream()
+                .map(ws -> WorkScheduleCellAssignmentResponse.builder()
+                        .scheduleId(ws.getId())
+                        .accountId(ws.getAccountID() != null ? ws.getAccountID().getAccountID() : null)
+                        .accountName(ws.getAccountID() != null ? ws.getAccountID().getFullName() : null)
+                        .build())
+                .toList();
+    }
+
+    // ===== Upsert 1 ô với nhiều nhân viên =====
+    @Transactional
+    public WorkScheduleResponse upsertCellMany(WorkScheduleUpsertCellManyRequest req) {
+        var br = branchRepo.findById(req.getBranchId())
+                .orElseThrow(() -> new EntityNotFoundException("Branch not found: " + req.getBranchId()));
+
+        // Xóa toàn bộ cell cũ
+        repo.deleteCell(req.getBranchId(), req.getDate(), req.getShiftType());
+
+        var defaults = Map.of(
+                "MORNING",   new LocalTime[]{LocalTime.of(8,0),  LocalTime.of(12,0)},
+                "AFTERNOON", new LocalTime[]{LocalTime.of(13,0), LocalTime.of(17,0)},
+                "NIGHT",     new LocalTime[]{LocalTime.of(18,0), LocalTime.of(22,0)}
+        );
+        var times = defaults.getOrDefault(req.getShiftType(), new LocalTime[]{LocalTime.of(8,0), LocalTime.of(12,0)});
+
+        WorkSchedule last = null;
+
+        if (req.getAccountIds() != null) {
+            for (Integer accId : req.getAccountIds()) {
+                var acc = accountRepo.findById(accId)
+                        .orElseThrow(() -> new EntityNotFoundException("Account not found: " + accId));
+
+                // ÉP LUẬT: nhân viên phải thuộc đúng branch
+                ensureAccountBelongsToBranch(acc, req.getBranchId());
+
+                var e = new WorkSchedule();
+                e.setBranchID(br);
+                e.setAccountID(acc);
+                e.setShiftDate(req.getDate());
+                e.setShiftType(req.getShiftType());
+                e.setStartTime(times[0]);
+                e.setEndTime(times[1]);
+                last = repo.save(e);
+            }
+        }
+        return last == null ? null : WorkScheduleMapper.toResponse(last);
+    }
+
+    // ===== Helper: dùng trong class này =====
+    private void ensureAccountBelongsToBranch(Account acc, Integer branchId) {
+        Integer accBranch = acc.getBranch() != null ? acc.getBranch().getId() : null;
+        if (!Objects.equals(accBranch, branchId)) {
+            throw new IllegalArgumentException(
+                    "Staff " + acc.getAccountID() + " không thuộc branch " + branchId);
+        }
+    }
+}

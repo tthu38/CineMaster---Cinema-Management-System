@@ -1,10 +1,12 @@
 package com.example.cinemaster.repository;
 
+import com.example.cinemaster.dto.response.StaffSimpleResponse;
 import com.example.cinemaster.entity.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface AccountRepository extends JpaRepository<Account, Integer> {
@@ -22,5 +24,22 @@ public interface AccountRepository extends JpaRepository<Account, Integer> {
     Optional<Account> findLatestByEmail(@Param("email") String email);
 
     Optional<Account> findByEmail(String email);
+
+    @Query("""
+       select new com.example.cinemaster.dto.response.StaffSimpleResponse(a.accountID, a.fullName)
+         from Account a
+       where a.role.roleName = 'Staff' and (a.isActive = true or a.isActive is null)
+       order by a.fullName asc
+       """)
+    List<StaffSimpleResponse> findAllStaffSimple();
+    // AccountRepository.java
+    @Query("""
+       SELECT a
+       FROM Account a
+       JOIN a.branch b        
+       WHERE a.role.id = 3
+         AND b.id = :branchId
+    """)
+    List<Account> findStaffsByBranch(@Param("branchId") Integer branchId);
 
 }

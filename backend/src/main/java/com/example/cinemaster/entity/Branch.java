@@ -51,4 +51,7 @@ public class Branch {
 
     @Column(name = "CloseTime")
     LocalTime closeTime;
+
+    @Column(name = "IsActive")            // <-- map cột IsActive
+    private Boolean isActive;
 }
