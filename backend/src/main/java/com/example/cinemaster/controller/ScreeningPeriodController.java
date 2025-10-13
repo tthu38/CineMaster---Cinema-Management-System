@@ -29,19 +29,16 @@ public class ScreeningPeriodController {
         return ResponseEntity.status(HttpStatus.CREATED).body(screeningPeriodService.create(request));
     }
 
-    // GET: /api/v1/screening-periods
     @GetMapping
     public ResponseEntity<List<ScreeningPeriodResponse>> getAllPeriods() {
         return ResponseEntity.ok(screeningPeriodService.getAll());
     }
 
-    // GET: /api/v1/screening-periods/{id}
     @GetMapping("/{id}")
     public ResponseEntity<ScreeningPeriodResponse> getPeriodById(@PathVariable Integer id) {
         return ResponseEntity.ok(screeningPeriodService.getById(id));
     }
 
-    // GET: /api/v1/screening-periods/branch/{branchId} (Dùng cho lọc)
     @GetMapping("/branch/{branchId}")
     public ResponseEntity<List<ScreeningPeriodResponse>> getPeriodsByBranchId(@PathVariable Integer branchId) {
         return ResponseEntity.ok(screeningPeriodService.getByBranchId(branchId));
@@ -60,7 +57,6 @@ public class ScreeningPeriodController {
         return ResponseEntity.noContent().build();
     }
 
-    // GET: /api/v1/screening-periods/active
     @GetMapping("/active")
     public ResponseEntity<List<ScreeningPeriodResponse>> active(
             @RequestParam(required = false) Integer branchId,

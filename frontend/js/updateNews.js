@@ -1,12 +1,14 @@
 import { handleResponse, API_BASE_URL } from "./api.js";
 import { newsApi } from "./api/newsApi.js";
 import { getValidToken } from "./api/config.js";
+import Swal from "https://cdn.jsdelivr.net/npm/sweetalert2@11/+esm";
 
 const params = new URLSearchParams(window.location.search);
 const newsId = params.get("id");
+
 if (!newsId) {
-    alert("Thiếu ID tin tức!");
-    window.location.href = "listNews.html";
+    Swal.fire("Thiếu ID!", "Không tìm thấy ID tin tức cần cập nhật.", "warning")
+        .then(() => window.location.href = "listNews.html");
 }
 
 document.getElementById("add-detail").onclick = () => addDetailForm();
@@ -43,16 +45,21 @@ function addDetailForm(detail = {}) {
                 body: fd,
             });
             const data = await handleResponse(res);
-            if (data) urlInput.value = data;
+            if (data) {
+                urlInput.value = data;
+                Swal.fire("Tải lên thành công!", "Ảnh section đã được cập nhật.", "success");
+            }
         } catch {
-            alert("Lỗi upload ảnh section!");
+            Swal.fire("Lỗi", "Không thể upload ảnh section!", "error");
         }
     };
 
     document.getElementById("details-container").appendChild(div);
 }
 
-// Load dữ liệu hiện tại
+// =========================
+// 📦 Load dữ liệu hiện tại
+// =========================
 (async () => {
     try {
         const n = await newsApi.getById(newsId);
@@ -61,14 +68,16 @@ function addDetailForm(detail = {}) {
         document.getElementById("category").value = n.category;
         document.getElementById("remark").value = n.remark || "";
         document.getElementById("active").value = n.active ? "true" : "false";
-
         (n.details || []).forEach(d => addDetailForm(d));
-    } catch {
-        alert("Không tải được tin tức!");
+    } catch (err) {
+        console.error("❌ Lỗi tải tin:", err);
+        Swal.fire("Lỗi", "Không thể tải dữ liệu tin tức.", "error");
     }
 })();
 
-// Submit cập nhật
+// =========================
+// 💾 Submit cập nhật
+// =========================
 document.getElementById("update-news-form").onsubmit = async e => {
     e.preventDefault();
 
@@ -96,11 +105,11 @@ document.getElementById("update-news-form").onsubmit = async e => {
     if (img) formData.append("imageFile", img);
 
     try {
-        await newsApi.update(newsId, formData);
-        alert("✅ Cập nhật thành công!");
+        await newsApi.update(newsId, newsData, img);
+        await Swal.fire("Thành công!", "Tin tức đã được cập nhật.", "success");
         window.location.href = "listNews.html";
     } catch (err) {
         console.error("❌", err);
-        alert("Cập nhật thất bại!");
+        Swal.fire("Lỗi", err.message || "Không thể cập nhật tin tức.", "error");
     }
 };

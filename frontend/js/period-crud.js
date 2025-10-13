@@ -43,7 +43,7 @@ async function loadForeignKeys() {
 
     try {
         // --- 1️⃣ Load chi nhánh ---
-        const branches = await branchApi.getAllBranches();
+        const branches = await branchApi.getAll();
         allBranches = Array.isArray(branches) ? branches : [];
 
         filterBranchSelect.innerHTML = `<option value="all" selected>Lọc theo Chi nhánh...</option>`;
