@@ -20,8 +20,11 @@ public class AuthService {
     private final JwtService jwtService;
 
     public AuthResponse login(LoginRequest request) {
+
         String phone = LoginUtil.normalizePhoneVN(request.getPhoneNumber());
-        if (phone == null) throw new BadCredentialsException("Số điện thoại không hợp lệ");
+        if (phone == null) {
+            throw new BadCredentialsException("Số điện thoại không hợp lệ");
+        }
 
         Account acc = accountRepository.findByPhoneNumberAndIsActiveTrue(phone)
                 .orElseThrow(() -> new BadCredentialsException("Sai số điện thoại hoặc tài khoản bị khoá"));
@@ -31,9 +34,17 @@ public class AuthService {
         }
 
         String role = acc.getRole() != null ? acc.getRole().getRoleName() : "Customer";
+
         String token = jwtService.generateAccessToken(acc.getAccountID(), acc.getPhoneNumber(), role);
 
-        return new AuthResponse(token, "Bearer", 60 * 60);
+        return AuthResponse.builder()
+                .accessToken(token)
+                .tokenType("Bearer")
+                .expiresIn(60 * 60)
+                .email(acc.getEmail())
+                .fullName(acc.getFullName())
+                .role(role)
+                .build();
     }
 
     public Account getCurrentUser() {

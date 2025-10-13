@@ -42,7 +42,8 @@ async function handleResponse(res) {
 }
 
 // ===== Auth API =====
-const authApi = {
+// ===== Auth API =====
+export const authApi = {
     async googleLogin(idToken) {
         const res = await fetch(`${API_BASE_URL}/auth/google`, {
             method: "POST",
@@ -72,17 +73,18 @@ const authApi = {
     },
 
     async logout() {
-        const token = getValidToken();
+        const token = localStorage.getItem("accessToken");
         if (token) {
             await fetch(`${API_BASE_URL}/auth/logout`, {
                 method: 'POST',
                 headers: { Authorization: `Bearer ${token}` },
             });
         }
-        localStorage.removeItem('accessToken');
-        window.location.href = '../home/home.html'; // redirect về login
+        localStorage.clear();
+        window.location.href = "../home/home.html";
     },
 };
+
 
 // ===== User API =====
 const userApi = {

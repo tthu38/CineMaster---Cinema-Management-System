@@ -14,6 +14,7 @@ public interface ScreeningPeriodMapper {
             @Mapping(target = "id",          source = "id"),
             @Mapping(target = "movieId",     source = "movie.movieID"),
             @Mapping(target = "movieTitle",  source = "movie.title"),
+            @Mapping(target = "duration", source = "movie.duration"),
             @Mapping(target = "branchId",    source = "branch.id"),
             @Mapping(target = "branchName",  source = "branch.branchName"),
             @Mapping(target = "startDate",   source = "startDate"),

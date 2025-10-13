@@ -85,8 +85,7 @@ public class DiscountService {
     public void softDelete(Integer id) {
         Discount discount = discountRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.DISCOUNT_NOT_FOUND));
-
-        discount.setDiscountStatus("DELETED");
+        discount.setDiscountStatus("Inactive"); // ✅ soft delete -> inactive
         discountRepository.save(discount);
     }
 
@@ -94,20 +93,19 @@ public class DiscountService {
         Discount discount = discountRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.DISCOUNT_NOT_FOUND));
 
-        if (!"DELETED".equalsIgnoreCase(discount.getDiscountStatus())) {
+        if (!"Inactive".equalsIgnoreCase(discount.getDiscountStatus())) {
             throw new AppException(ErrorCode.INVALID_DISCOUNT);
         }
 
         if (discount.getExpiryDate() != null &&
                 discount.getExpiryDate().isBefore(LocalDate.now())) {
-            discount.setDiscountStatus("EXPIRED");
+            discount.setDiscountStatus("Expired");
         } else {
-            discount.setDiscountStatus("ACTIVE");
+            discount.setDiscountStatus("Active");
         }
 
         discountRepository.save(discount);
     }
-
     public void hardDelete(Integer id) {
         Discount discount = discountRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.DISCOUNT_NOT_FOUND));

@@ -26,17 +26,11 @@ public class ScreeningPeriodService {
     private final BranchRepository branchRepository;
     private final ScreeningPeriodMapper mapper;
 
-    // ----------------------------------------------------------------------
-    // --- 1. FIND ACTIVE (gộp từ file đầu tiên)
-    // ----------------------------------------------------------------------
     public List<ScreeningPeriod> findActive(Integer branchId, LocalDate onDate) {
-        // Trả về tất cả period đang bao phủ ngày onDate
-        return screeningPeriodRepository.findActive(branchId, onDate, onDate);
+        return screeningPeriodRepository.findActive(branchId, onDate);
     }
 
-    // ----------------------------------------------------------------------
-    // --- 2. CREATE
-    // ----------------------------------------------------------------------
+
     @Transactional
     public ScreeningPeriodResponse create(ScreeningPeriodRequest request) {
         Movie movie = movieRepository.findById(request.getMovieId())
@@ -56,17 +50,11 @@ public class ScreeningPeriodService {
         return mapper.toLite(screeningPeriodRepository.save(newPeriod));
     }
 
-    // ----------------------------------------------------------------------
-    // --- 3. READ ALL
-    // ----------------------------------------------------------------------
     @Transactional(readOnly = true)
     public List<ScreeningPeriodResponse> getAll() {
         return mapper.toLiteList(screeningPeriodRepository.findAll());
     }
 
-    // ----------------------------------------------------------------------
-    // --- 4. READ BY ID
-    // ----------------------------------------------------------------------
     @Transactional(readOnly = true)
     public ScreeningPeriodResponse getById(Integer id) {
         ScreeningPeriod period = screeningPeriodRepository.findById(id)
@@ -74,9 +62,6 @@ public class ScreeningPeriodService {
         return mapper.toLite(period);
     }
 
-    // ----------------------------------------------------------------------
-    // --- 5. UPDATE
-    // ----------------------------------------------------------------------
     @Transactional
     public ScreeningPeriodResponse update(Integer id, ScreeningPeriodRequest request) {
         ScreeningPeriod existingPeriod = screeningPeriodRepository.findById(id)
@@ -100,10 +85,6 @@ public class ScreeningPeriodService {
         return mapper.toLite(updated);
     }
 
-
-    // ----------------------------------------------------------------------
-    // --- 6. DELETE (Cứng / Mềm)
-    // ----------------------------------------------------------------------
     @Transactional
     public void delete(Integer id) {
         ScreeningPeriod period = screeningPeriodRepository.findById(id)
@@ -119,17 +100,11 @@ public class ScreeningPeriodService {
         }
     }
 
-    // ----------------------------------------------------------------------
-    // --- 7. READ BY BRANCH ID
-    // ----------------------------------------------------------------------
     @Transactional(readOnly = true)
     public List<ScreeningPeriodResponse> getByBranchId(Integer branchId) {
         return mapper.toLiteList(screeningPeriodRepository.findByBranch_Id(branchId));
     }
 
-    // ----------------------------------------------------------------------
-    // --- 8. DEACTIVATE ALL BY BRANCH (THÁC ĐỔ)
-    // ----------------------------------------------------------------------
     @Transactional
     public void deactivatePeriodsByBranch(Integer branchId) {
         List<ScreeningPeriod> periodsToDeactivate = screeningPeriodRepository.findByBranch_Id(branchId);

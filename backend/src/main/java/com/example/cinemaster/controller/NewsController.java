@@ -5,6 +5,7 @@ import com.example.cinemaster.dto.response.ApiResponse;
 import com.example.cinemaster.dto.response.NewsResponse;
 import com.example.cinemaster.service.NewsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,6 +28,7 @@ public class NewsController {
     }
 
     // Tạo mới tin tức
+    @PreAuthorize("hasRole('Admin')")
     @PostMapping(consumes = {"multipart/form-data"})
     public ApiResponse<NewsResponse> create(
             @RequestPart("data") NewsRequest request,
@@ -35,6 +37,7 @@ public class NewsController {
     }
 
     // Cập nhật tin tức
+    @PreAuthorize("hasRole('Admin')")
     @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
     public ApiResponse<NewsResponse> update(
             @PathVariable Integer id,
@@ -44,12 +47,14 @@ public class NewsController {
     }
 
     // Xoá tin tức
+    @PreAuthorize("hasRole('Admin')")
     @DeleteMapping("/{id}")
     public ApiResponse<Void> delete(@PathVariable Integer id) {
         newsService.delete(id);
         return new ApiResponse<>(1000, "Success", null);
     }
 
+    @PreAuthorize("hasRole('Admin')")
     @PutMapping("/{id}/restore")
     public ApiResponse<Void> restore(@PathVariable Integer id) {
         newsService.restore(id);

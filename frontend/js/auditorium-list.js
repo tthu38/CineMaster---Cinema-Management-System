@@ -1,8 +1,7 @@
-// ===============================
-// 📂 auditorium-list.js
-// Danh Sách Phòng Chiếu (Client / Staff)
-// ===============================
-import { auditoriumApi, branchApi, requireAuth } from "./api.js";
+import { auditoriumApi } from "./api/auditoriumApi.js";
+import { branchApi } from "./api/branchApi.js";
+import { requireAuth } from "./api/config.js";
+
 import Swal from "https://cdn.jsdelivr.net/npm/sweetalert2@11/+esm";
 
 // --- DOM Elements ---

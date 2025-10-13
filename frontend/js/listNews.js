@@ -1,14 +1,10 @@
-import { newsApi } from "./api.js"; // ⚠️ đường dẫn tùy cấu trúc thư mục của bạn
+import { newsApi } from "./api/newsApi.js";
 
-// =============================
-// 🔹 HÀM TẢI DANH SÁCH TIN TỨC
-// =============================
 async function loadNews(category = "") {
     const newsList = document.getElementById("news-list");
     newsList.innerHTML = `<div class="text-center w-100 py-5 text-muted">Đang tải tin tức...</div>`;
 
     try {
-        // ✅ Gọi qua newsApi
         const data = await newsApi.getAll(category);
         newsList.innerHTML = "";
 
@@ -21,7 +17,6 @@ async function loadNews(category = "") {
             const col = document.createElement("div");
             col.className = "col-md-6 col-lg-4 d-flex";
 
-            // 🔹 Hành động theo trạng thái
             let actions = "";
             if (news.active) {
                 actions = `
@@ -38,7 +33,6 @@ async function loadNews(category = "") {
                     </button>`;
             }
 
-            // 🔹 Card hiển thị tin
             col.innerHTML = `
                 <div class="news-card flex-fill">
                     <img src="${news.imageUrl || '/assets/img/no-image.png'}" alt="${news.title}">
@@ -73,9 +67,7 @@ async function loadNews(category = "") {
             });
         });
 
-        // =============================
         // 🔹 SỰ KIỆN KHÔI PHỤC
-        // =============================
         document.querySelectorAll(".restore-btn").forEach(btn => {
             btn.addEventListener("click", async () => {
                 const id = btn.dataset.id;
@@ -97,9 +89,7 @@ async function loadNews(category = "") {
     }
 }
 
-// =============================
 // 🔹 SIDEBAR FILTER
-// =============================
 document.querySelectorAll(".category-link").forEach(link => {
     link.addEventListener("click", e => {
         e.preventDefault();
@@ -109,7 +99,4 @@ document.querySelectorAll(".category-link").forEach(link => {
     });
 });
 
-// =============================
-// 🔹 LOAD MẶC ĐỊNH
-// =============================
 loadNews();

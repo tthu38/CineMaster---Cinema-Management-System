@@ -1,4 +1,4 @@
-import { accountApi } from "./api.js";
+import { accountApi } from "./api/accountApi.js";
 
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("createAccountForm");

@@ -5,188 +5,293 @@
     <title>CineMaster • Quản Lý Phòng Chiếu</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Bootstrap -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 
     <style>
-        /* CSS CHỦ ĐẠO (Đảm bảo tính nhất quán màu sắc) */
-        :root{
-            --red:#e50914; --cyan:#22c1ff; --blue:#0aa3ff; --ink:#06101f;
-            --bg:#0b162c; --card:#0c1324; --border:#1b2b4a; --muted:#9aa7b3;
-            --muted2:#cfe3ff; --glow:0 0 20px rgba(34,193,255,.35), 0 0 60px rgba(34,193,255,.15);
+        :root {
+            --ink: #06101f;
+            --bg: #0b162c;
+            --border: #1b2b4a;
+            --blue: #0aa3ff;
+            --cyan: #22c1ff;
+            --red: #e50914;
         }
-        /* TOÀN BỘ CSS NỀN ĐƯỢC GIỮ NGUYÊN */
-        .tickets-wall{ position:fixed; inset:0; pointer-events:none; z-index:0; }
-        .tickets-wall .tickets-layer{ position:absolute; inset:-10%; background-repeat:repeat; background-size:320px 160px; opacity:.14; filter:drop-shadow(0 0 20px rgba(22,40,76,.18)); transform-origin:center center; }
-        .tickets-wall .l1{ transform:rotate(-3deg) scale(1.04); background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='160' viewBox='0 0 320 160'%3E%3Crect fill='none' width='320' height='160'/%3E%3Cg opacity='0.95'%3E%3Cg transform='translate(8,8)'%3E%3Cpath d='M0 24 a12 12 0 0 1 12 -12 h200 a10 10 0 0 0 10 -10 a12 12 0 0 1 12 12 v60 a12 12 0 0 1 -12 12 a10 10 0 0 0 -10 10 H12 a12 12 0 0 1 -12 -12z' fill='%23192A43' stroke='%232c3e66' stroke-width='2'/%3E%3Cline x1='140' y1='12' x2='140' y2='96' stroke='%238fb4ff' stroke-opacity='0.18' stroke-dasharray='6 6' /%3E%3Ccircle cx='60' cy='54' r='22' fill='none' stroke='%238fb4ff' stroke-opacity='0.35' stroke-width='3'/%3E%3Ccircle cx='60' cy='54' r='5' fill='%238fb4ff' opacity='0.3'/%3E%3Cg fill='%238fb4ff' opacity='0.35'%3E%3Ccircle cx='49' cy='44' r='5'/%3E%3Ccircle cx='71' cy='44' r='5'/%3Ccircle cx='49' cy='64' r='5'/%3E%3Ccircle cx='71' cy='64' r='5'/%3E%3C/g%3E%3Cg transform='translate(164,32)' stroke='%23cfe3ff' stroke-opacity='0.38'%3E%3Crect x='0' y='0' width='60' height='24' fill='none'/%3E%3Cpath d='M3 0 v24 M8 0 v24 M11 0 v24 M16 0 v24 M22 0 v24 M27 0 v24 M33 0 v24 M38 0 v24 M45 0 v24 M51 0 v24 M56 0 v24' stroke-width='2'/%3E%3C/g%3E%3Cg transform='translate(164,66)' stroke='%23cfe3ff' stroke-opacity='0.45'%3E%3Cline x1='0' y1='0' x2='76' y2='0' stroke-width='2'/%3E%3Cline x1='0' y1='10' x2='62' y2='10' stroke-width='2'/%3C/g%3E%3C/g%3E%3Cg transform='translate(8,88)'%3E%3Cpath d='M0 24 a12 12 0 0 1 12 -12 h200 a10 10 0 0 0 10 -10 a12 12 0 0 1 12 12 v60 a12 12 0 0 1 -12 12 a10 10 0 0 0 -10 10 H12 a12 12 0 0 1 -12 -12z' fill='%231b2f50' stroke='%23314774' stroke-width='2'/%3E%3Cline x1='140' y1='12' x2='140' y2='96' stroke='%238fb4ff' stroke-opacity='0.18' stroke-dasharray='6 6'/%3E%3Ccircle cx='60' cy='54' r='22' fill='none' stroke='%23a8c8ff' stroke-opacity='0.32' stroke-width='3'/%3E%3Ccircle cx='60' cy='54' r='5' fill='%23a8c8ff' opacity='0.28'/%3E%3Cg fill='%23a8c8ff' opacity='0.32'%3E%3Ccircle cx='49' cy='44' r='5'/%3E%3Ccircle cx='71' cy='44' r='5'/%3Ccircle cx='49' cy='64' r='5'/%3E%3Ccircle cx='71' cy='64' r='5'/%3E%3C/g%3E%3Cg transform='translate(164,32)' stroke='%23d8e6ff' stroke-opacity='0.38'%3E%3Cpath d='M3 0 v24 M8 0 v24 M11 0 v24 M16 0 v24 M22 0 v24 M27 0 v24 M33 0 v24 M38 0 v24 M45 0 v24 M51 0 v24 M56 0 v24' stroke-width='2'/%3E%3C/g%3E%3Cg transform='translate(164,66)' stroke='%23d8e6ff' stroke-opacity='0.45'%3E%3Cline x1='0' y1='0' x2='76' y2='0' stroke-width='2'/%3E%3Cline x1='0' y1='10' x2='62' y2='10' stroke-width='2'/%3E%3Cline x1='0' y1='20' x2='70' y2='20' stroke-width='2'/%E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
-        .tickets-wall .l2{ transform:rotate(3deg) scale(1.06); background-position:160px 80px; opacity:.10; background-image:inherit; }
-        html,body{ margin:0; color:#fff; font-family:'Roboto',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; min-height:100vh; background-color: var(--ink); background-image: radial-gradient(1200px 600px at -10% -35%, rgba(229,9,20,.18), transparent 60%), radial-gradient(900px 400px at 120% -20%, rgba(34,193,255,.12), transparent 60%), linear-gradient(180deg, var(--ink), var(--bg)), url("data:image/svg+xml;utf8,\<svg xmlns='http://www.w3.org/2000/svg' width='160' height='80' viewBox='0 0 160 80'>\ <rect width='160' height='80' fill='none'/>\ <g opacity='0.08' stroke='%23cfe3ff' stroke-width='1.2' fill='none'>\ <path d='M8 20 h110 a10 10 0 0 0 10 -10 a10 10 0 0 1 10 10 v20 a10 10 0 0 1 -10 10 a10 10 0 0 0 -10 10 H8 z'/>\ <path d='M30 18 v44' stroke-dasharray='6 6'/>\ <circle cx='120' cy='20' r='3'/><circle cx='120' cy='60' r='3'/>\ </g></svg>"); background-repeat:no-repeat,no-repeat,no-repeat,repeat; background-size:1200px 600px,900px 400px,100% 100%,320px 160px; background-position:-10% -35%,120% -20%,0 0,0 0; background-attachment:fixed, fixed, fixed, fixed; overflow-x:hidden; }
-        .grain{ pointer-events:none; position:fixed; inset:0; opacity:.14; mix-blend-mode:screen; background-image:radial-gradient(circle at 20% 30%, rgba(255,255,255,.06) 0 2px, transparent 2px), radial-gradient(circle at 70% 60%, rgba(255,255,255,.05) 0 2px, transparent 2px); background-size:200px 200px, 260px 260px; animation: drift 18s linear infinite alternate; }
-        @keyframes drift{ from{ transform: translate3d(0,0,0) } to{ transform: translate3d(30px,-25px,0) } }
 
-        .shell{max-width:1300px;margin:110px auto 48px;padding:0 24px}
-        .layout{ display:block; }
-
-        .film{ position:relative; background:linear-gradient(180deg,#0b152a,#0c162c); border:1px solid var(--border); border-radius:18px; box-shadow:0 14px 32px rgba(0,0,0,.5); overflow:hidden; margin-bottom: 28px; }
-        .film:before,.film:after{ content:""; position:absolute; left:18px; right:18px; height:10px; opacity:.5; background:repeating-linear-gradient(90deg, #142443 0 16px, transparent 16px 32px); filter:drop-shadow(0 0 6px rgba(34,193,255,.2)); }
-        .film:before{ top:12px } .film:after{ bottom:12px }
-        .branch-panel{ padding:26px 22px }
-
-        /* Các style khác giữ nguyên */
-        .form-control{ background:#0e1c37; border:1px solid #17345f; color:#fff; border-radius:10px; }
-        .form-control:focus{ outline:none; border-color:var(--blue); box-shadow:0 0 0 .2rem rgba(34,193,255,.22) }
-        .btn-primary{ background:linear-gradient(90deg, var(--blue), var(--cyan)); border:none; color:#051020; font-weight:800 }
-        .btn-secondary{ background:transparent; border:1px solid var(--red); color:#fff }
-        .btn-secondary:hover{ background:var(--red); }
-        .tab-card { background:linear-gradient(180deg,#0b152a 0%, #0c162c 100%); border:1px solid var(--border); border-radius:16px; padding:18px }
-        .tab-card h2 { font-size: 1.5rem; margin-bottom: 1rem; color: #fff; font-weight: 700; }
-        .header-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .header-title h2 { font-size: 2rem; font-weight: 900; }
-        .table-branch { width: 100%; border-collapse: collapse; color: #e6f1ff; }
-        .table-branch th, .table-branch td { border: 1px solid var(--border); padding: 10px; vertical-align: middle; }
-        .table-branch thead th { background: #132742; color: var(--cyan); }
-        .table-branch tr:hover { background: #112040; }
-        .delete-btn { background-color: var(--red); }
-        .edit-btn { background-color: #ffc107; color: #000; }
-        .delete-btn:hover { background-color: #c90a16; }
-        .edit-btn:hover { background-color: #e5b000; }
-
-        /* --- CSS TÙY CHỈNH CHO PHÂN TRANG (PAGINATION) --- */
-        #pagination-controls .page-item a.page-link {
-            background-color: #132742;
-            border: 1px solid var(--border);
-            color: var(--muted2);
-            font-weight: 500;
+        html,body{
+            margin:0;
+            font-family:'Roboto',sans-serif;
+            color:#fff;
+            min-height:100vh;
+            background-color:var(--ink);
+            background-image:
+                    radial-gradient(1200px 600px at -10% -35%, rgba(229,9,20,.18), transparent 60%),
+                    radial-gradient(900px 400px at 120% -20%, rgba(34,193,255,.12), transparent 60%),
+                    linear-gradient(180deg, var(--ink), var(--bg));
+            background-repeat:no-repeat,no-repeat,no-repeat;
+            background-size:1200px 600px,900px 400px,100% 100%;
+            background-position:-10% -35%,120% -20%,0 0;
+            background-attachment:fixed,fixed,fixed;
         }
-        #pagination-controls .page-item.active a.page-link {
-            background: linear-gradient(90deg, var(--blue), var(--cyan));
+
+        /* 🎟️ Tickets background */
+        .tickets-wall{
+            position:fixed; inset:0; pointer-events:none; z-index:0; /* Changed z-index */
+        }
+        .tickets-wall .tickets-layer{
+            position:absolute; inset:-10%;
+            background-repeat:repeat;
+            background-size:320px 160px;
+            opacity:.10;
+            filter:drop-shadow(0 0 20px rgba(22,40,76,.18));
+            transform-origin:center center;
+        }
+        .tickets-wall .l1{
+            transform:rotate(-3deg) scale(1.04);
+            background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='160' viewBox='0 0 320 160'%3E%3Crect fill='none' width='320' height='160'/%3E%3Cg opacity='0.95'%3E%3Cg transform='translate(8,8)'%3E%3Cpath d='M0 24 a12 12 0 0 1 12 -12 h200 a10 10 0 0 0 10 -10 a12 12 0 0 1 12 12 v60 a12 12 0 0 1 -12 12 a10 10 0 0 0 -10 10 H12 a12 12 0 0 1 -12 -12z' fill='%23192A43' stroke='%232c3e66' stroke-width='2'/%3E%3Cline x1='140' y1='12' x2='140' y2='96' stroke='%238fb4ff' stroke-opacity='0.18' stroke-dasharray='6 6' /%3E%3Ccircle cx='60' cy='54' r='22' fill='none' stroke='%238fb4ff' stroke-opacity='0.35' stroke-width='3'/%3E%3Ccircle cx='60' cy='54' r='5' fill='%238fb4ff' opacity='0.3'/%3E%3Cg fill='%238fb4ff' opacity='0.35'%3E%3Ccircle cx='49' cy='44' r='5'/%3E%3Ccircle cx='71' cy='44' r='5'/%3E%3Ccircle cx='49' cy='64' r='5'/%3E%3Ccircle cx='71' cy='64' r='5'/%3E%3C/g%3E%3Cg transform='translate(164,32)' stroke='%23cfe3ff' stroke-opacity='0.38'%3E%3Crect x='0' y='0' width='60' height='24' fill='none'/%3E%3Cpath d='M3 0 v24 M8 0 v24 M11 0 v24 M16 0 v24 M22 0 v24 M27 0 v24 M33 0 v24 M38 0 v24 M45 0 v24 M51 0 v24 M56 0 v24' stroke-width='2'/%3E%3C/g%3E%3Cg transform='translate(164,66)' stroke='%23cfe3ff' stroke-opacity='0.45'%3E%3Cline x1='0' y1='0' x2='76' y2='0' stroke-width='2'/%3E%3Cline x1='0' y1='10' x2='62' y2='10' stroke-width='2'/%3E%3Cline x1='0' y1='20' x2='70' y2='20' stroke-width='2'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(8,88)'%3E%3Cpath d='M0 24 a12 12 0 0 1 12 -12 h200 a10 10 0 0 0 10 -10 a12 12 0 0 1 12 12 v60 a12 12 0 0 1 -12 12 a10 10 0 0 0 -10 10 H12 a12 12 0 0 1 -12 -12z' fill='%231b2f50' stroke='%23314774' stroke-width='2'/%3E%3Cline x1='140' y1='12' x2='140' y2='96' stroke='%238fb4ff' stroke-opacity='0.18' stroke-dasharray='6 6'/%3E%3Ccircle cx='60' cy='54' r='22' fill='none' stroke='%23a8c8ff' stroke-opacity='0.32' stroke-width='3'/%3E%3Ccircle cx='60' cy='54' r='5' fill='%23a8c8ff' opacity='0.28'/%3E%3Cg fill='%23a8c8ff' opacity='0.32'%3E%3Ccircle cx='49' cy='44' r='5'/%3E%3Ccircle cx='71' cy='44' r='5'/%3E%3Ccircle cx='49' cy='64' r='5'/%3E%3Ccircle cx='71' cy='64' r='5'/%3E%3C/g%3E%3Cg transform='translate(164,32)' stroke='%23d8e6ff' stroke-opacity='0.38'%3E%3Cpath d='M3 0 v24 M8 0 v24 M11 0 v24 M16 0 v24 M22 0 v24 M27 0 v24 M33 0 v24 M38 0 v24 M45 0 v24 M51 0 v24 M56 0 v24' stroke-width='2'/%3E%3C/g%3E%3Cg transform='translate(164,66)' stroke='%23d8e6ff' stroke-opacity='0.45'%3E%3Cline x1='0' y1='0' x2='76' y2='0' stroke-width='2'/%3E%3Cline x1='0' y1='10' x2='62' y2='10' stroke-width='2'/%3E%3Cline x1='0' y1='20' x2='70' y2='20' stroke-width='2'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .tickets-wall .l2{
+            transform:rotate(3deg) scale(1.06);
+            background-position:160px 80px;
+            opacity:.10;
+            background-image:inherit;
+        }
+        /* 🌌 Grain noise */
+        .grain {
+            pointer-events: none;
+            position: fixed; inset: 0;
+            opacity: .12;
+            mix-blend-mode: screen;
+            background-image:
+                    radial-gradient(circle at 20% 30%, rgba(255,255,255,.06) 0 2px, transparent 2px),
+                    radial-gradient(circle at 70% 60%, rgba(255,255,255,.05) 0 2px, transparent 2px);
+            background-size: 200px 200px, 260px 260px;
+            animation: drift 18s linear infinite alternate;
+            z-index: 1;
+        }
+        @keyframes drift {
+            from { transform: translate3d(0,0,0) }
+            to { transform: translate3d(30px,-25px,0) }
+        }
+        /* Layout */
+        .shell {
+            position: relative;
+            max-width:1300px;margin:120px auto 48px;padding:0 24px;position:relative;z-index:10;}
+
+        /* 🎬 Film panel glass style */
+        .header, .film {
+            /* Nền thủy tinh bán trong suốt */
+            background: rgba(12, 22, 44, 0.15);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            /* Viền mờ cho hợp tông */
+            border: 1px solid rgba(34, 193, 255, 0.2);
+            border-radius: 18px;
+            box-shadow: 0 14px 32px rgba(0, 0, 0, .5);
+        }
+        .header {
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .film {
+            position:relative;
+            /* Nền "thủy tinh" bán trong suốt */
+            background: rgba(8, 20, 40, 0.25);
+            /* Tăng độ mờ để hiệu ứng rõ hơn */
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(10px);
+            /* Đổi viền sang dạng mờ cho hợp tông */
+            border: 1px solid rgba(34, 193, 255, 0.25);
+            border-radius:18px;
+            box-shadow:0 0 40px rgba(10,50,100,.45);
+            overflow:hidden;
+            /* Đảm bảo toàn bộ chữ bên trong là màu trắng */
+            color: #fff;
+        }
+        .film::before, .film::after {
+            content:""; position:absolute; left:0; right:0; height:12px;
+            /* Đổi màu của dải sang dạng mờ */
+            background:repeating-linear-gradient(90deg,rgba(34,193,255,0.15) 0 14px,transparent 14px 28px);
+            filter:drop-shadow(0 0 8px rgba(34,193,255,.25));
+        }
+        .film::before { top:10px; } .film::after { bottom:10px; }
+        /* Áp dụng cho TẤT CẢ ô nhập liệu */
+        /* 🧾 Form controls */
+        .form-control {
+            background: rgba(14, 28, 55, 0.4);
+            border: 1px solid rgba(34, 193, 255, 0.2);
+            color: #fff;
+            border-radius: 10px;
+            transition: all .25s ease;
+        }
+        .form-control:focus {
+            background: rgba(10, 25, 50, 0.6);
             border-color: var(--cyan);
-            color: #000;
-            font-weight: 800;
+            box-shadow: 0 0 10px rgba(34, 193, 255, 0.4);
         }
-        #pagination-controls .page-item a.page-link:hover {
-            background-color: #17345f;
-            color: var(--cyan);
-        }
-        #pagination-controls .page-item.disabled a.page-link {
-            color: var(--muted);
-            background-color: #0e1c37;
-            border-color: #17345f;
-            cursor: not-allowed;
-        }
-    </style>
 
+        /* Buttons */
+        .btn-primary {
+            background: linear-gradient(90deg, var(--blue), var(--cyan));
+            border: none;
+            color: #fff; /* Đổi thành màu trắng */
+            font-weight: 800;
+            /* Tùy chọn: Thêm bóng chữ cho dễ đọc hơn */
+            text-shadow: 0 1px 2px rgb(234, 234, 234);
+        }
+        .btn-primary:hover { filter:brightness(1.1); }
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--red);
+            color: #fff;
+            border-radius: 10px;
+        }
+        .btn-secondary:hover { background: var(--red); }
+
+        /* Table style (glass style) */
+        /* 📊 Bảng trong suốt glassmorphism */
+        .table-branch {
+            width: 100%;
+            border-collapse: collapse;
+            color: #e6f1ff;
+            background: rgba(10, 25, 50, 0.5) !important;             /* 👈 Nền cực nhẹ để thấy xuyên */
+            backdrop-filter: blur(12px) saturate(160%);    /* 👈 Làm mờ nền */
+            -webkit-backdrop-filter: blur(12px) saturate(160%);
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid rgba(34, 193, 255, 0.25);    /* 👈 Viền kính */
+            box-shadow: 0 0 20px rgba(10, 50, 100, 0.35);  /* 👈 Hiệu ứng phát sáng nhẹ */
+
+        }
+        .table-branch > tbody > tr > td {
+            background-color: transparent !important;
+            color: #e6f1ff !important;
+        }
+
+        /* 🌈 Header trong suốt mờ và sáng hơn */
+        .table-branch thead th {
+            background: rgba(16, 34, 65, 0.35);   /* 👈 Trong hơn */
+            backdrop-filter: blur(5px);
+            color: #58c6ff;
+            text-align: center;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(34, 193, 255, 0.25);
+        }
+
+        /* Ô dữ liệu */
+        .table-branch th,
+        .table-branch td {
+            border: 1px solid rgba(34, 193, 255, 0.12);
+            padding: 12px 14px;
+            vertical-align: middle;
+        }
+
+        /* Dòng hover sáng mờ nhẹ */
+        .table-branch tbody tr:hover {
+            background: rgba(34, 193, 255, 0.10);
+            box-shadow: inset 0 0 20px rgba(34, 193, 255, 0.15);
+            transform: scale(1.005);
+            transition: all 0.25s ease;
+        }
+
+        /* Màu chữ của các trạng thái */
+        .table-branch td span.status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .status.ACTIVE   { color:#00e676; background:rgba(0,230,118,0.08); }
+        .status.INACTIVE { color:#ffc400; background:rgba(255,196,0,0.08); }
+        .status.EXPIRED  { color:#ff5252; background:rgba(229,9,20,0.08); }
+
+        .table-responsive {
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(34,193,255,0.12); /* glow tổng thể */
+        }
+
+    </style>
 </head>
+
 <body>
-<div class="grain"></div>
 <div class="tickets-wall" aria-hidden="true">
     <div class="tickets-layer l1"></div>
     <div class="tickets-layer l2"></div>
 </div>
-
-<div id="site-header"></div>
+<div class="grain"></div>
 
 <main class="shell">
-    <div class="layout">
-        <section class="film branch-panel">
-            <div class="header-title">
-                <h2 id="form-title"><i class="fa-solid fa-plus me-3"></i>Thêm Phòng Chiếu Mới</h2>
-            </div>
+    <section class="film p-4">
+        <div class="header-title mb-4">
+            <h2 id="form-title"><i class="fa-solid fa-plus me-3"></i>Thêm Phòng Chiếu Mới</h2>
+        </div>
 
-            <div class="tab-card mb-4">
-                <form id="auditorium-form">
-                    <input type="hidden" id="auditoriumID" value="">
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3"><label for="auditoriumName">Tên Phòng</label><input type="text" id="auditoriumName" class="form-control" required></div>
-
-                        <div class="col-md-6 mb-3">
-                            <label for="branchID">Chi Nhánh</label>
-                            <select id="branchID" class="form-control" required>
-                                <option value="" disabled selected>Đang tải chi nhánh...</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-4 mb-3"><label for="capacity">Sức Chứa (Ghế)</label><input type="number" id="capacity" min="10" class="form-control" required></div>
-                        <div class="col-md-8 mb-3">
-                            <label for="type">Loại Phòng</label>
-                            <select id="type" class="form-control" required>
-                                <option value="" disabled selected hidden>Chọn loại phòng</option>
-                                <option value="4DX">4DX</option>
-                                <option value="Standard">Standard</option>
-                                <option value="IMAX">IMAX</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="d-flex justify-content-end mt-4">
-                        <button type="button" id="cancel-btn" class="btn btn-secondary me-2" style="display: none;"><i class="fa-solid fa-xmark me-2"></i>Hủy</button>
-                        <button type="submit" id="submit-btn" class="btn btn-primary"><i class="fa-solid fa-plus me-2"></i>Tạo Phòng Chiếu</button>
-                    </div>
-                </form>
-            </div>
-
-
-            <div id="auditorium-list-container" class="tab-card">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h2 class="m-0"><i class="fa-solid fa-layer-group me-2"></i> Danh Sách Phòng Chiếu</h2>
-
-                    <div class="d-flex align-items-center">
-                        <label for="filterBranchID" class="me-2 text-white-50 fw-bold">Lọc theo CN:</label>
-                        <select id="filterBranchID" class="form-control me-3" style="width: 250px;">
-                        </select>
-                        <button id="load-auditoriums" class="btn btn-secondary"><i class="fa-solid fa-rotate me-2"></i>Tải Lại</button>
-                    </div>
+        <!-- FORM -->
+        <form id="auditorium-form" class="mb-5">
+            <input type="hidden" id="auditoriumID" />
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="auditoriumName" class="form-label">Tên Phòng</label>
+                    <input type="text" id="auditoriumName" class="form-control" required />
                 </div>
-
-                <div class="table-responsive">
-                    <table id="auditorium-table" class="table-branch">
-                        <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Tên Phòng</th>
-                            <th>Chi Nhánh</th>
-                            <th>Loại</th>
-                            <th>Sức Chứa</th>
-                            <th>Trạng thái 🔥</th>
-                            <th>Hành động</th>
-                        </tr>
-                        </thead>
-                        <tbody id="auditoriums-body">
-                        </tbody>
-                    </table>
+                <div class="col-md-6 mb-3">
+                    <label for="branchID" class="form-label">Chi Nhánh</label>
+                    <select id="branchID" class="form-control" required>
+                        <option value="">Đang tải chi nhánh...</option>
+                    </select>
                 </div>
-
-                <div id="pagination-controls" class="d-flex justify-content-center mt-3">
+                <div class="col-md-4 mb-3">
+                    <label for="capacity" class="form-label">Sức Chứa (Ghế)</label>
+                    <input type="number" id="capacity" class="form-control" min="10" required />
+                </div>
+                <div class="col-md-8 mb-3">
+                    <label for="type" class="form-label">Loại Phòng</label>
+                    <select id="type" class="form-control" required>
+                        <option value="" hidden>Chọn loại phòng</option>
+                        <option value="Standard">Standard</option>
+                        <option value="IMAX">IMAX</option>
+                        <option value="4DX">4DX</option>
+                    </select>
                 </div>
             </div>
+            <div class="text-end">
+                <button type="button" id="cancel-btn" class="btn btn-secondary me-2" style="display:none;">Hủy</button>
+                <button type="submit" id="submit-btn" class="btn btn-primary">Tạo Phòng Chiếu</button>
+            </div>
+        </form>
 
-        </section>
+        <!-- TABLE -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="m-0"><i class="fa-solid fa-layer-group me-2"></i>Danh Sách Phòng Chiếu</h2>
+            <div class="d-flex align-items-center">
+                <label for="filterBranchID" class="me-2 text-white-50 fw-bold">Lọc theo CN:</label>
+                <select id="filterBranchID" class="form-control me-3" style="width:250px;"></select>
+                <button id="load-auditoriums" class="btn btn-secondary"><i class="fa-solid fa-rotate me-2"></i>Tải Lại</button>
+            </div>
+        </div>
 
-    </div>
+        <div class="table-responsive">
+            <table id="auditorium-table" class="table-branch">
+                <thead>
+                <tr>
+                    <th>ID</th><th>Tên Phòng</th><th>Chi Nhánh</th><th>Loại</th><th>Sức Chứa</th><th>Trạng Thái</th><th>Hành Động</th>
+                </tr>
+                </thead>
+                <tbody id="auditoriums-body"></tbody>
+            </table>
+        </div>
+        <div id="pagination-controls" class="mt-3 d-flex justify-content-center"></div>
+    </section>
 </main>
 
-<div id="site-footer"></div>
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    // Giả định tải header/footer
-    (async ()=>{
-        try{
-            const [h,f] = await Promise.all([
-                fetch('../home/customer-header.html').then(r=>r.text()),
-                fetch('../home/footer.html').then(r=>r.text())
-            ]);
-            document.getElementById('site-header').innerHTML = h;
-            document.getElementById('site-footer').innerHTML = f;
-        }catch(e){ console.error('Load header/footer error', e); }
-    })();
-</script>
-
 <script type="module" src="../js/auditorium-management.js"></script>
-
 </body>
 </html>

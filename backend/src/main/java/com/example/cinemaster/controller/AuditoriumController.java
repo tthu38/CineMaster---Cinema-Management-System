@@ -3,13 +3,14 @@ package com.example.cinemaster.controller;
 import com.example.cinemaster.dto.request.AuditoriumRequest;
 import com.example.cinemaster.dto.response.AuditoriumResponse;
 import com.example.cinemaster.service.AuditoriumService;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.Valid;
+
 import java.util.List;
 
 @RestController
@@ -19,29 +20,9 @@ public class AuditoriumController {
 
     private final AuditoriumService auditoriumService;
 
-    @GetMapping
-    public ResponseEntity<List<AuditoriumResponse>> list(@RequestParam(required = false) Integer branchId) {
-        return ResponseEntity.ok(auditoriumService.listByBranch(branchId));
-    }
-
-    // --- READ ALL (CHO ADMIN/MANAGER) ---
-    @GetMapping
-    public List<AuditoriumResponse> getAllAuditoriums() {
-        return auditoriumService.getAllAuditoriums();
-    }
-
     @GetMapping("/active")
-    public List<AuditoriumResponse> getAllActiveAuditoriums() {
-        return auditoriumService.getAllActiveAuditoriums();
-    }
-
-    @GetMapping("/{id}/admin")
-    public ResponseEntity<AuditoriumResponse> getAuditoriumByIdAdmin(@PathVariable Integer id) {
-        try {
-            return ResponseEntity.ok(auditoriumService.getAuditoriumByIdForAdmin(id));
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<List<AuditoriumResponse>> getAllActiveAuditoriums() {
+        return ResponseEntity.ok(auditoriumService.getAllActiveAuditoriums());
     }
 
     @GetMapping("/{id}")
@@ -53,29 +34,64 @@ public class AuditoriumController {
         }
     }
 
-    @GetMapping("/branch/{branchId}")
-    public List<AuditoriumResponse> getAuditoriumsByBranchId(@PathVariable Integer branchId) {
-        return auditoriumService.getAuditoriumsByBranchId(branchId);
-    }
-
     @GetMapping("/branch/{branchId}/active")
-    public List<AuditoriumResponse> getActiveAuditoriumsByBranchId(@PathVariable Integer branchId) {
-        return auditoriumService.getActiveAuditoriumsByBranchId(branchId);
+    public ResponseEntity<List<AuditoriumResponse>> getActiveAuditoriumsByBranchId(@PathVariable Integer branchId) {
+        return ResponseEntity.ok(auditoriumService.getActiveAuditoriumsByBranchId(branchId));
     }
 
 
-    @PostMapping
-    public ResponseEntity<AuditoriumResponse> createAuditorium(@Valid @RequestBody AuditoriumRequest request) {
+    @PreAuthorize("hasAnyRole('Admin','Manager')")
+    @GetMapping
+    public ResponseEntity<List<AuditoriumResponse>> getAllAuditoriums() {
+        return ResponseEntity.ok(auditoriumService.getAllAuditoriums());
+    }
+
+    // 🟣 Lọc phòng chiếu theo chi nhánh (có thể có branchId = null)
+    @PreAuthorize("hasAnyRole('Admin','Manager')")
+    @GetMapping("/branch")
+    public ResponseEntity<List<AuditoriumResponse>> listByBranch(
+            @RequestParam(required = false) Integer branchId) {
+        return ResponseEntity.ok(auditoriumService.listByBranch(branchId));
+    }
+
+    // 🟣 Lấy tất cả phòng chiếu theo chi nhánh cụ thể
+    @PreAuthorize("hasAnyRole('Admin','Manager')")
+    @GetMapping("/branch/{branchId}")
+    public ResponseEntity<List<AuditoriumResponse>> getAuditoriumsByBranchId(@PathVariable Integer branchId) {
+        return ResponseEntity.ok(auditoriumService.getAuditoriumsByBranchId(branchId));
+    }
+
+    // 🟣 Lấy chi tiết phòng chiếu (Admin xem được kể cả phòng bị khóa)
+    @PreAuthorize("hasAnyRole('Admin','Manager')")
+    @GetMapping("/{id}/admin")
+    public ResponseEntity<AuditoriumResponse> getAuditoriumByIdAdmin(@PathVariable Integer id) {
         try {
-            return new ResponseEntity<>(auditoriumService.createAuditorium(request), HttpStatus.CREATED);
+            return ResponseEntity.ok(auditoriumService.getAuditoriumByIdForAdmin(id));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // ===========================================================
+    // 🔐 ADMIN — CRUD quản lý phòng chiếu
+    // ===========================================================
+    @PreAuthorize("hasRole('Admin')")
+    @PostMapping
+    public ResponseEntity<AuditoriumResponse> createAuditorium(
+            @Valid @RequestBody AuditoriumRequest request) {
+        try {
+            AuditoriumResponse created = auditoriumService.createAuditorium(request);
+            return new ResponseEntity<>(created, HttpStatus.CREATED);
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 
+    @PreAuthorize("hasRole('Admin')")
     @PutMapping("/{id}")
-    public ResponseEntity<AuditoriumResponse> updateAuditorium(@PathVariable Integer id,
-                                                               @Valid @RequestBody AuditoriumRequest request) {
+    public ResponseEntity<AuditoriumResponse> updateAuditorium(
+            @PathVariable Integer id,
+            @Valid @RequestBody AuditoriumRequest request) {
         try {
             return ResponseEntity.ok(auditoriumService.updateAuditorium(id, request));
         } catch (EntityNotFoundException e) {
@@ -85,6 +101,7 @@ public class AuditoriumController {
         }
     }
 
+    @PreAuthorize("hasRole('Admin')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deactivateAuditorium(@PathVariable Integer id) {
         try {
@@ -97,6 +114,7 @@ public class AuditoriumController {
         }
     }
 
+    @PreAuthorize("hasRole('Admin')")
     @PostMapping("/{id}/activate")
     public ResponseEntity<Void> activateAuditorium(@PathVariable Integer id) {
         try {

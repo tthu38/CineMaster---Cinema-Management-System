@@ -12,23 +12,26 @@ import java.util.Optional;
 
 @Repository
 public interface AuditoriumRepository extends JpaRepository<Auditorium, Integer> {
-    // 1. Tìm tất cả các phòng chiếu CÒN HOẠT ĐỘNG
+
     List<Auditorium> findByIsActiveTrue();
 
-    // 2. Tìm phòng chiếu theo Branch ID và CÒN HOẠT ĐỘNG
     List<Auditorium> findByBranch_IdAndIsActiveTrue(Integer branchId);
 
-    // 3. Tìm phòng chiếu theo ID, CHỈ nếu nó CÒN HOẠT ĐỘNG
     Optional<Auditorium> findByAuditoriumIDAndIsActiveTrue(Integer id);
 
-    // Phương thức cũ (giữ lại)
     List<Auditorium> findByBranch_Id(Integer branchId);
 
+    @Query("""
+        SELECT a FROM Auditorium a
+        WHERE a.branch.id = :branchId
+          AND (a.isActive = true OR a.isActive IS NULL)
+    """)
+    List<Auditorium> findActiveByBranch(@Param("branchId") Integer branchId);
+
     @Modifying
-    // 🔥 Sửa thành a.branch.id (thuộc tính branch trong Auditorium -> thuộc tính id trong Branch)
     @Query("UPDATE Auditorium a SET a.isActive = :isActive WHERE a.branch.id = :branchId")
     int updateIsActiveStatusByBranchId(
-            @Param("branchId") Integer branchId, // Dùng Integer để khớp với Branch.id
+            @Param("branchId") Integer branchId,
             @Param("isActive") boolean isActive
     );
 }

@@ -1,9 +1,5 @@
-// ===============================
-// 📂 branchManagement.js
-// Quản lý chi nhánh (Admin / Manager)
-// ===============================
-
-import { branchApi, requireAuth } from "../js/api.js";
+import { branchApi } from "./api/branchApi.js";
+import { requireAuth } from "./api/config.js";
 import Swal from "https://cdn.jsdelivr.net/npm/sweetalert2@11/+esm";
 
 // --- PHÂN TRANG ---
@@ -123,7 +119,7 @@ async function loadBranches() {
     paginationControls.innerHTML = "";
 
     try {
-        const res = await branchApi.getAllBranches();
+        const res = await branchApi.getAll();
         if (!res) throw new Error("Không thể kết nối máy chủ");
         allBranchesData = Array.isArray(res) ? res : res.result || [];
         displayBranches(1);

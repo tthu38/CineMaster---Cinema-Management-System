@@ -10,6 +10,7 @@ import com.example.cinemaster.service.MovieService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,40 +25,25 @@ public class MovieController {
     private final MovieService movieService;
     private final FileStorageService fileStorageService;
 
-    // ==============================
-    // 🔹 Giữ nguyên code gốc của bạn
-    // ==============================
-
     @GetMapping
     public ResponseEntity<ApiResponse<List<Movie>>> getAllMovies() {
-        ApiResponse<List<Movie>> res = new ApiResponse<>();
-        res.setCode(1000);
-        res.setMessage("Success");
-        res.setResult(movieRepository.findAll());
+        ApiResponse<List<Movie>> res = new ApiResponse<>(1000, "Success", movieRepository.findAll());
         return ResponseEntity.ok(res);
     }
 
     @GetMapping("/now-showing")
     public ResponseEntity<ApiResponse<List<Movie>>> getNowShowing() {
-        ApiResponse<List<Movie>> res = new ApiResponse<>();
-        res.setCode(1000);
-        res.setMessage("Success");
-        res.setResult(movieRepository.findByStatusIgnoreCase("Now Showing"));
+        ApiResponse<List<Movie>> res = new ApiResponse<>(1000, "Success",
+                movieRepository.findByStatusIgnoreCase("Now Showing"));
         return ResponseEntity.ok(res);
     }
 
     @GetMapping("/coming-soon")
     public ResponseEntity<ApiResponse<List<Movie>>> getComingSoon() {
-        ApiResponse<List<Movie>> res = new ApiResponse<>();
-        res.setCode(1000);
-        res.setMessage("Success");
-        res.setResult(movieRepository.findByStatusIgnoreCase("Coming Soon"));
+        ApiResponse<List<Movie>> res = new ApiResponse<>(1000, "Success",
+                movieRepository.findByStatusIgnoreCase("Coming Soon"));
         return ResponseEntity.ok(res);
     }
-
-    // ==============================
-    // 🔹 Thêm các phần còn thiếu
-    // ==============================
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<MovieResponse>> getMovieById(@PathVariable Integer id) {
@@ -70,7 +56,7 @@ public class MovieController {
         }
     }
 
-
+    @PreAuthorize("hasRole('Admin')")
     @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<ApiResponse<MovieResponse>> createMovie(
             @RequestPart("movie") MovieRequest request,
@@ -84,6 +70,7 @@ public class MovieController {
         return ResponseEntity.ok(new ApiResponse<>(1000, "Created", created));
     }
 
+    @PreAuthorize("hasRole('Admin')")
     @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
     public ResponseEntity<ApiResponse<MovieResponse>> updateMovie(
             @PathVariable Integer id,
@@ -98,6 +85,7 @@ public class MovieController {
         return ResponseEntity.ok(new ApiResponse<>(1000, "Updated", updated));
     }
 
+    @PreAuthorize("hasRole('Admin')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteMovie(@PathVariable Integer id) {
         movieService.delete(id);

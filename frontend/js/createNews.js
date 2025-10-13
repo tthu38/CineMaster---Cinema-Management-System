@@ -1,4 +1,6 @@
-import { newsApi, API_BASE_URL, getValidToken, handleResponse } from "./api.js";
+import { API_BASE_URL, handleResponse } from "./api.js";
+import { newsApi } from "./api/newsApi.js";
+import { getValidToken } from "./api/config.js";
 
 document.getElementById("add-detail").onclick = () => addDetailForm();
 

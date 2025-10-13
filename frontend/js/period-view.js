@@ -1,16 +1,8 @@
-// ============================================================================
-// 🎬 CineMaster • VIEW SCREENING PERIODS (DANH SÁCH KHOẢNG THỜI GIAN CHIẾU)
-// Đã chuyển toàn bộ sang dùng api.js module (ES6 imports)
-// ============================================================================
+import { requireAuth } from "./api/config.js";
+import { screeningPeriodApi } from './api/screeningPeriodApi.js';
+import { branchApi } from "./api/branchApi.js";
 
-import { requireAuth, branchApi, screeningPeriodApi } from "../js/api.js";
-
-// Kiểm tra đăng nhập (nếu chưa có token thì tự quay lại trang login)
 requireAuth();
-
-// =========================================================================
-// BIẾN & DOM ELEMENTS
-// =========================================================================
 
 const periodsBody = document.getElementById("periods-body");
 const filterBranchSelect = document.getElementById("filterBranchID");
@@ -25,10 +17,7 @@ const PAGE_SIZE = 10;
 let currentPage = 0;
 const TABLE_COLSPAN = 6;
 
-// =========================================================================
 // HÀM TẢI KHÓA NGOẠI (BRANCH, MOVIE)
-// =========================================================================
-
 async function loadForeignKeys() {
     try {
         // --- 1️⃣ Lấy danh sách Chi nhánh ---
@@ -61,10 +50,7 @@ async function loadForeignKeys() {
     }
 }
 
-// =========================================================================
 // HÀM LOAD DANH SÁCH KHOẢNG CHIẾU (READ + PHÂN TRANG)
-// =========================================================================
-
 async function loadPeriods(loadFromApi = false, page = 0) {
     try {
         currentPage = page;
@@ -150,10 +136,7 @@ async function loadPeriods(loadFromApi = false, page = 0) {
     }
 }
 
-// =========================================================================
 // HÀM PHÂN TRANG
-// =========================================================================
-
 function renderPagination(totalPages, currentPage) {
     paginationFooter.innerHTML = "";
 
@@ -188,10 +171,7 @@ function renderPagination(totalPages, currentPage) {
     `;
 }
 
-// =========================================================================
 // GẮN SỰ KIỆN & KHỞI TẠO
-// =========================================================================
-
 if (filterBranchSelect) {
     filterBranchSelect.addEventListener("change", () => loadPeriods(true));
 }

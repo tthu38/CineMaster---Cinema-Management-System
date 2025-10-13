@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -22,7 +23,7 @@ public class ScreeningPeriodController {
     private final ScreeningPeriodService screeningPeriodService;
     private final ScreeningPeriodMapper screeningPeriodMapper;
 
-    // POST: /api/v1/screening-periods
+    @PreAuthorize("hasRole('Admin')")
     @PostMapping
     public ResponseEntity<ScreeningPeriodResponse> createPeriod(@RequestBody ScreeningPeriodRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(screeningPeriodService.create(request));
@@ -46,13 +47,13 @@ public class ScreeningPeriodController {
         return ResponseEntity.ok(screeningPeriodService.getByBranchId(branchId));
     }
 
-    // PUT: /api/v1/screening-periods/{id}
+    @PreAuthorize("hasRole('Admin')")
     @PutMapping("/{id}")
     public ResponseEntity<ScreeningPeriodResponse> updatePeriod(@PathVariable Integer id, @RequestBody ScreeningPeriodRequest request) {
         return ResponseEntity.ok(screeningPeriodService.update(id, request));
     }
 
-    // DELETE: /api/v1/screening-periods/{id}
+    @PreAuthorize("hasRole('Admin')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePeriod(@PathVariable Integer id) {
         screeningPeriodService.delete(id);
@@ -69,4 +70,5 @@ public class ScreeningPeriodController {
         var list = screeningPeriodService.findActive(branchId, date);
         return ResponseEntity.ok(screeningPeriodMapper.toLiteList(list));
     }
+
 }

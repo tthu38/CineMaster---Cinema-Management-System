@@ -25,4 +25,6 @@ public class ScreeningPeriodResponse {
     LocalDate startDate;
     LocalDate endDate;
     Boolean isActive;
+
+    Integer duration;
 }

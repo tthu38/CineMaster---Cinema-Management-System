@@ -1,8 +1,8 @@
-// =============================================================
-// 📂 period-crud.js — Quản lý Khoảng Thời Gian Chiếu (Admin/Manager)
-// =============================================================
 
-import { requireAuth, branchApi, movieApi, screeningPeriodApi } from "./api.js";
+import { screeningPeriodApi } from './api/screeningPeriodApi.js';
+import { movieApi } from "./api/movieApi.js";
+import { requireAuth } from "./api/config.js";
+import { branchApi } from "./api/branchApi.js";
 import Swal from "https://cdn.jsdelivr.net/npm/sweetalert2@11/+esm";
 
 requireAuth();

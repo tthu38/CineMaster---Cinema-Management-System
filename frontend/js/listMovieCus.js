@@ -1,8 +1,4 @@
-// ===========================
-// 🎬 CineMaster • Movie List (Public View)
-// ===========================
-
-import { movieApi } from "./api.js";
+import { movieApi } from "./api/movieApi.js";
 
 const movieList = document.getElementById("movie-list");
 const btnNow = document.getElementById("btn-now-showing");

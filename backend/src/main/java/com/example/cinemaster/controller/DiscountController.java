@@ -7,6 +7,7 @@ import com.example.cinemaster.service.DiscountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,6 +19,7 @@ public class DiscountController {
 
     private final DiscountService discountService;
 
+    @PreAuthorize("hasRole('Admin')")
     @PostMapping
     public ResponseEntity<ApiResponse<DiscountResponse>> create(@Valid @RequestBody DiscountRequest request) {
         DiscountResponse response = discountService.create(request);
@@ -58,6 +60,7 @@ public class DiscountController {
         return ResponseEntity.ok(api);
     }
 
+    @PreAuthorize("hasRole('Admin')")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<DiscountResponse>> update(
             @PathVariable Integer id,
@@ -71,6 +74,7 @@ public class DiscountController {
         return ResponseEntity.ok(api);
     }
 
+    @PreAuthorize("hasRole('Admin')")
     @PutMapping("/{id}/delete")
     public ResponseEntity<ApiResponse<Void>> softDelete(@PathVariable Integer id) {
         discountService.softDelete(id);
@@ -80,6 +84,7 @@ public class DiscountController {
         return ResponseEntity.ok(api);
     }
 
+    @PreAuthorize("hasRole('Admin')")
     @PutMapping("/{id}/restore")
     public ResponseEntity<ApiResponse<Void>> restore(@PathVariable Integer id) {
         discountService.restore(id);
@@ -89,6 +94,7 @@ public class DiscountController {
         return ResponseEntity.ok(api);
     }
 
+    @PreAuthorize("hasRole('Admin')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> hardDelete(@PathVariable Integer id) {
         discountService.hardDelete(id);

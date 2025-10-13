@@ -7,21 +7,18 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            /* Bảng màu Dark Theme mới để khớp với giao diện */
-            --theme-bg: #161d31;         /* Nền xanh đậm chính */
-            --theme-sidebar: #090e26;     /* Nền sidebar hơi sáng hơn một chút */
-            --theme-primary: #00BFFF;     /* Xanh da trời sáng cho các mục active */
-            --theme-text: #E2E8F0;        /* Màu chữ chính (trắng xám) */
-            --theme-text-secondary: #a0aec0; /* Màu chữ phụ (xám hơn) */
-            --theme-hover-bg: rgba(0, 191, 255, 0.1); /* Nền khi hover */
-            --theme-border: #2d3748;      /* Màu đường kẻ */
+            --theme-bg: #161d31;
+            --theme-sidebar: #090e26;
+            --theme-primary: #00BFFF;
+            --theme-text: #E2E8F0;
+            --theme-text-secondary: #a0aec0;
+            --theme-hover-bg: rgba(0, 191, 255, 0.1);
+            --theme-border: #2d3748;
 
-            /* Ghi đè các biến cũ để tương thích */
             --primary-color: var(--theme-primary);
             --secondary-color: var(--theme-text-secondary);
             --background-color: var(--theme-bg);
@@ -44,11 +41,9 @@
             min-height: 100vh;
         }
 
-        /* Sidebar - Đã cập nhật màu sắc */
         #sidebar {
             width: 260px;
             background-color: var(--sidebar-bg);
-            /* Thay đổi đổ bóng cho phù hợp nền tối */
             box-shadow: 2px 0 15px rgba(0,0,0,0.2);
             position: fixed;
             left: 0;
@@ -62,19 +57,16 @@
             padding: 1.5rem 1.25rem;
             font-size: 1.5rem;
             font-weight: 700;
-            /* Chữ màu trắng sáng */
             color: var(--theme-text);
-            /* Đường kẻ mờ hơn */
             border-bottom: 1px solid var(--theme-border);
             text-align: center;
         }
 
         .list-group-item {
-            background-color: transparent; /* Nền trong suốt */
+            background-color: transparent;
             border: none;
             padding: 1rem 1.5rem;
             font-size: 1rem;
-            /* Màu chữ phụ */
             color: var(--theme-text-secondary);
             transition: all 0.2s ease-in-out;
         }
@@ -86,19 +78,19 @@
             color: var(--secondary-color);
         }
 
-        /* Hover & Active State - Đã cập nhật màu */
-        .list-group-item:hover, .list-group-item.active {
+        .list-group-item:hover,
+        .list-group-item.active {
             background-color: var(--theme-hover-bg);
             color: var(--theme-primary);
             border-left: 4px solid var(--theme-primary);
             font-weight: 600;
         }
 
-        .list-group-item:hover i, .list-group-item.active i {
+        .list-group-item:hover i,
+        .list-group-item.active i {
             color: var(--theme-primary);
         }
 
-        /* Main content */
         #main-content {
             flex-grow: 1;
             margin-left: 260px;
@@ -114,15 +106,9 @@
         }
 
         @media (max-width: 992px) {
-            #sidebar {
-                left: -260px;
-            }
-            #main-content {
-                margin-left: 0;
-            }
-            body.sidebar-toggled #sidebar {
-                left: 0;
-            }
+            #sidebar { left: -260px; }
+            #main-content { margin-left: 0; }
+            body.sidebar-toggled #sidebar { left: 0; }
         }
     </style>
 </head>
@@ -151,8 +137,29 @@
             </a>
 
             <a href="#" class="list-group-item list-group-item-action"
-               onclick="loadIframe('../order/viewOrder.html', this); return false;">
-                <i class="fas fa-shopping-cart"></i> Quản lý đơn hàng
+               onclick="loadIframe('../user/manage-auditorium.html', this); return false;">
+                <i class="fas fa-store"></i> Quản lý phòng chiếu
+            </a>
+
+            <a href="#" class="list-group-item list-group-item-action"
+               onclick="loadIframe('../user/branch-list.html', this); return false;">
+                <i class="fas fa-code-branch"></i> Quản lý chi nhánh
+            </a>
+
+            <a href="#" class="list-group-item list-group-item-action"
+               onclick="loadIframe('../movies/listMovies.html', this); return false;">
+                <i class="fas fa-film"></i> Quản lý phim
+            </a>
+
+            <a href="#" class="list-group-item list-group-item-action"
+               onclick="loadIframe('../discount/createDiscount.html', this); return false;">
+                <i class="fas fa-ticket-alt"></i> Mã Giảm Giá
+            </a>
+
+            <!-- ✅ MỤC MỚI: QUẢN LÝ HẠNG THÀNH VIÊN -->
+            <a href="#" class="list-group-item list-group-item-action"
+               onclick="loadIframe('../user/membership-levels.html', this); return false;">
+                <i class="fas fa-crown"></i> Quản lý hạng thành viên
             </a>
 
             <a href="#" class="list-group-item list-group-item-action"
@@ -172,26 +179,27 @@
     </aside>
 
     <div id="main-content">
-        <iframe id="main-frame" src="dashboard_home.html"></iframe>
+        <iframe
+                id="main-frame"
+                src="dashboard_home.html"
+                sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"
+                width="100%"
+                height="100%">
+        </iframe>
+
     </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
     function loadIframe(url, element) {
-        // Cập nhật src cho iframe
-        document.getElementById('main-frame').src = url;
+        const frame = document.getElementById('main-frame');
+        frame.src = url;
 
-        // Xóa class 'active' khỏi tất cả các mục
-        document.querySelectorAll('.list-group-item').forEach(el => {
-            el.classList.remove('active');
-        });
-
-        // Thêm class 'active' vào mục vừa được nhấp
-        if (element) {
-            element.classList.add('active');
-        }
+        document.querySelectorAll('.list-group-item').forEach(el => el.classList.remove('active'));
+        if (element) element.classList.add('active');
     }
 </script>
 </body>

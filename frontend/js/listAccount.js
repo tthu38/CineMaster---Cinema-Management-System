@@ -1,4 +1,6 @@
-import { accountApi, branchApi, requireAuth } from './api.js';
+import { branchApi } from "./api/branchApi.js";
+import { requireAuth } from "./api/config.js";
+import { accountApi } from "./api/accountApi.js";
 
 const table = document.getElementById("accountTable");
 const pagination = document.getElementById("pagination");
@@ -19,80 +21,76 @@ let currentRestoreId = null;
 let currentRoleId = null;
 let currentKeyword = "";
 let currentBranchId = null;
+let initialized = false;
 
-// ===== Event search =====
+// ========================= SEARCH =========================
 document.getElementById("searchInput").addEventListener("input", e => {
-    currentKeyword = e.target.value;
+    currentKeyword = e.target.value.trim();
     loadAccounts(0);
 });
 
-// ===== Event chọn branch =====
+// ========================= BRANCH FILTER =========================
 branchSelect.addEventListener("change", e => {
-    currentBranchId = e.target.value || null;
+    const val = e.target.value;
+    currentBranchId = val === "" || val === "undefined" ? null : Number(val);
+    console.log("🔍 Branch filter:", currentBranchId);
     loadAccounts(0);
 });
 
-// ===== Load account =====
+// ========================= LOAD ACCOUNTS =========================
 async function loadAccounts(page = 0) {
     table.innerHTML = `<tr><td colspan="9" class="text-center">Đang tải...</td></tr>`;
     try {
         const res = await accountApi.getAllPaged(
-            page,
-            pageSize,
-            currentRoleId,
-            currentBranchId,
-            currentKeyword
+            page, pageSize, currentRoleId, currentBranchId, currentKeyword
         );
         renderTable(res.content);
         renderPagination(res);
         currentPage = res.page;
     } catch (err) {
-        console.error("Error loading accounts:", err);
+        console.error("❌ Error loading accounts:", err);
         table.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Không thể tải danh sách account</td></tr>`;
     }
 }
 
-// ===== Load branch list =====
+// ========================= LOAD BRANCHES =========================
 async function loadBranches() {
     try {
-        const branches = await branchApi.getAll(); // 👈 gọi API chung
+        const branches = await branchApi.getAll();
         branchSelect.innerHTML = `<option value="">Tất cả chi nhánh</option>`;
+
         branches.forEach(b => {
-            branchSelect.innerHTML += `<option value="${b.id}">${b.branchName}</option>`;
+            // ✅ Dò key chính xác: branchID, id, hoặc branchId
+            const branchValue = b.branchID ?? b.id ?? b.branchId;
+            branchSelect.innerHTML += `<option value="${branchValue}">${b.branchName}</option>`;
         });
+
     } catch (err) {
         console.error("❌ Error loading branches:", err);
         branchSelect.innerHTML = `<option value="">(Lỗi tải chi nhánh)</option>`;
     }
 }
 
-// 🎯 Event khi chọn chi nhánh
-branchSelect.addEventListener("change", e => {
-    currentBranchId = e.target.value || null;
-    loadAccounts(0);
-});
 
-
-// ===== Render bảng account =====
-function renderTable(accounts) {
+// ========================= RENDER TABLE =========================
+function renderTable(accounts = []) {
     table.innerHTML = "";
-    if (!accounts || accounts.length === 0) {
+    if (accounts.length === 0) {
         table.innerHTML = `<tr><td colspan="9" class="text-center">Chưa có account nào</td></tr>`;
         return;
     }
 
     accounts.forEach(acc => {
         const profileImg = acc.avatarUrl
-            ? `<img src="${acc.avatarUrl.startsWith("http") ? acc.avatarUrl : "http://localhost:8080" + acc.avatarUrl}" alt="Profile" class="profile-img">`
-            : 'No Image';
+            ? `<img src="${acc.avatarUrl.startsWith("http") ? acc.avatarUrl : "http://localhost:8080" + acc.avatarUrl}" class="profile-img">`
+            : `<span class="text-muted">No Image</span>`;
 
-        const isActiveDot = acc.isActive
-            ? `<span class="status-dot status-active"></span>`
-            : `<span class="status-dot status-inactive"></span>`;
+        const statusDot = `<span class="status-dot ${acc.isActive ? "status-active" : "status-inactive"}"
+                                title="${acc.isActive ? "Đang hoạt động" : "Đã vô hiệu hóa"}"></span>`;
 
         const actionButtons = acc.isActive
             ? `
-                <a href="updateUser.html?id=${acc.accountID}" class="btn btn-sm btn-warning">Sửa</a>
+                <a href="updateUser.html?id=${acc.accountID}" class="btn btn-sm btn-warning me-1">Sửa</a>
                 <button class="btn btn-sm btn-danger btn-delete" data-id="${acc.accountID}" data-name="${acc.fullName || acc.email}">Xóa</button>
               `
             : `
@@ -100,20 +98,26 @@ function renderTable(accounts) {
               `;
 
         table.innerHTML += `
-            <tr>
+            <tr data-id="${acc.accountID}">
               <td>${acc.accountID}</td>
               <td>${profileImg}</td>
               <td>${acc.email}</td>
               <td>${acc.fullName || ""}</td>
               <td>${acc.phoneNumber || ""}</td>
-              <td>${isActiveDot}</td>
+              <td>${statusDot}</td>
               <td>${acc.roleName || ""}</td>
               <td>${acc.branchName || ""}</td>
               <td>${actionButtons}</td>
-            </tr>`;
+            </tr>
+        `;
     });
 
-    // Gắn event cho nút Xóa / Khôi phục
+    attachRowEvents();
+}
+
+// ========================= ATTACH EVENTS =========================
+function attachRowEvents() {
+    // Nút Xóa
     document.querySelectorAll(".btn-delete").forEach(btn => {
         btn.addEventListener("click", () => {
             currentDeleteId = btn.dataset.id;
@@ -122,6 +126,7 @@ function renderTable(accounts) {
         });
     });
 
+    // Nút Khôi phục
     document.querySelectorAll(".btn-restore").forEach(btn => {
         btn.addEventListener("click", () => {
             currentRestoreId = btn.dataset.id;
@@ -131,43 +136,34 @@ function renderTable(accounts) {
     });
 }
 
-// ===== Render phân trang =====
+// ========================= PAGINATION =========================
 function renderPagination(pageData) {
     pagination.innerHTML = "";
     if (pageData.totalPages <= 1) return;
 
-    // Prev
-    pagination.innerHTML += `
-      <button class="btn btn-sm btn-secondary me-1"
-              ${pageData.page === 0 ? "disabled" : ""}
-              onclick="loadAccounts(${pageData.page - 1})">&laquo;</button>
+    const createBtn = (page, label, disabled = false, active = false) => `
+        <button class="btn btn-sm ${active ? "btn-primary" : "btn-secondary"} me-1"
+                ${disabled ? "disabled" : ""}
+                onclick="loadAccounts(${page})">${label}</button>
     `;
 
+    pagination.innerHTML += createBtn(pageData.page - 1, "&laquo;", pageData.page === 0);
     for (let i = 0; i < pageData.totalPages; i++) {
-        pagination.innerHTML += `
-          <button class="btn btn-sm ${i === pageData.page ? 'btn-primary' : 'btn-secondary'} me-1"
-                  onclick="loadAccounts(${i})">${i + 1}</button>
-        `;
+        pagination.innerHTML += createBtn(i, i + 1, false, i === pageData.page);
     }
-
-    // Next
-    pagination.innerHTML += `
-      <button class="btn btn-sm btn-secondary"
-              ${pageData.page === pageData.totalPages - 1 ? "disabled" : ""}
-              onclick="loadAccounts(${pageData.page + 1})">&raquo;</button>
-    `;
+    pagination.innerHTML += createBtn(pageData.page + 1, "&raquo;", pageData.page === pageData.totalPages - 1);
 }
 
-// ===== Delete / Restore =====
+// ========================= DELETE / RESTORE =========================
 confirmDeleteBtn.addEventListener("click", async () => {
     if (!currentDeleteId) return;
     try {
         await accountApi.remove(currentDeleteId);
         deleteModal.hide();
-        loadAccounts(currentPage);
+        updateRowStatus(currentDeleteId, false);
     } catch (err) {
-        console.error("Error deleting account:", err);
-        alert("❌ Vô hiệu hóa thất bại!");
+        console.error("❌ Error deleting account:", err);
+        alert("Vô hiệu hóa thất bại!");
     }
 });
 
@@ -176,29 +172,56 @@ confirmRestoreBtn.addEventListener("click", async () => {
     try {
         await accountApi.restore(currentRestoreId);
         restoreModal.hide();
-        loadAccounts(currentPage);
+        updateRowStatus(currentRestoreId, true);
     } catch (err) {
-        console.error("Error restoring account:", err);
-        alert("❌ Khôi phục thất bại!");
+        console.error("❌ Error restoring account:", err);
+        alert("Khôi phục thất bại!");
     }
 });
 
-// ===== Gắn sự kiện cho filter button =====
+// ========================= CẬP NHẬT DÒNG TRONG BẢNG =========================
+function updateRowStatus(accountID, isActive) {
+    const row = table.querySelector(`tr[data-id="${accountID}"]`);
+    if (!row) return;
+
+    // Cập nhật chấm trạng thái
+    const dotCell = row.children[5];
+    dotCell.innerHTML = `<span class="status-dot ${isActive ? "status-active" : "status-inactive"}"
+                             title="${isActive ? "Đang hoạt động" : "Đã vô hiệu hóa"}"></span>`;
+
+    // Cập nhật cột hành động
+    const actionCell = row.children[8];
+    actionCell.innerHTML = isActive
+        ? `
+            <a href="updateUser.html?id=${accountID}" class="btn btn-sm btn-warning me-1">Sửa</a>
+            <button class="btn btn-sm btn-danger btn-delete" data-id="${accountID}">Xóa</button>
+          `
+        : `
+            <button class="btn btn-sm btn-success btn-restore" data-id="${accountID}">Khôi phục</button>
+          `;
+
+    attachRowEvents(); // gắn lại event cho nút mới
+}
+
+// ========================= ROLE FILTER BUTTONS =========================
 document.querySelectorAll(".filter-btn").forEach(btn => {
     btn.addEventListener("click", () => {
+        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
         currentRoleId = btn.dataset.role || null;
-        console.log("🔍 Filter roleId:", currentRoleId); // log ra roleId
         loadAccounts(0);
     });
 });
 
-// ===== Init =====
+// ========================= INIT =========================
 async function init() {
+    if (initialized) return; // tránh gọi lại
+    initialized = true;
+
     if (!requireAuth()) return;
     await loadBranches();
-    loadAccounts();
+    await loadAccounts();
 }
 
-
 window.loadAccounts = loadAccounts;
-init();
+document.addEventListener("DOMContentLoaded", init);

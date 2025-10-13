@@ -1,9 +1,4 @@
-// ===============================
-// 📂 branchList.js
-// Hiển thị danh sách chi nhánh đang hoạt động (Client/Customer)
-// ===============================
-
-import { branchApi } from "../js/api.js";
+import { branchApi } from "./api/branchApi.js";
 
 // --- BIẾN PHÂN TRANG ---
 let allBranchesData = [];

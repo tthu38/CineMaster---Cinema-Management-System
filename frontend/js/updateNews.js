@@ -1,4 +1,6 @@
-import { newsApi, getValidToken, handleResponse, API_BASE_URL } from "./api.js";
+import { handleResponse, API_BASE_URL } from "./api.js";
+import { newsApi } from "./api/newsApi.js";
+import { getValidToken } from "./api/config.js";
 
 const params = new URLSearchParams(window.location.search);
 const newsId = params.get("id");

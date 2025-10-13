@@ -9,6 +9,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,13 +24,11 @@ public class SeatController {
         this.seatService = seatService;
     }
 
-    // GET: /api/v1/seats
     @GetMapping
     public List<SeatResponse> getAllSeats() {
         return seatService.getAllSeats();
     }
 
-    // GET: /api/v1/seats/{id}
     @GetMapping("/{id}")
     public ResponseEntity<SeatResponse> getSeatById(@PathVariable Integer id) {
         try {
@@ -40,7 +39,7 @@ public class SeatController {
         }
     }
 
-    // POST: /api/v1/seats
+    @PreAuthorize("hasRole('Admin')")
     @PostMapping
     public ResponseEntity<SeatResponse> createSeat(@Valid @RequestBody SeatRequest request) {
         try {
@@ -51,7 +50,7 @@ public class SeatController {
         }
     }
 
-    // PUT: /api/v1/seats/{id}
+    @PreAuthorize("hasRole('Admin')")
     @PutMapping("/{id}")
     public ResponseEntity<SeatResponse> updateSeat(@PathVariable Integer id, @Valid @RequestBody SeatRequest request) {
         try {
@@ -62,7 +61,7 @@ public class SeatController {
         }
     }
 
-    // DELETE: /api/v1/seats/{id}
+    @PreAuthorize("hasRole('Admin')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSeat(@PathVariable Integer id) {
         try {
@@ -73,14 +72,14 @@ public class SeatController {
         }
     }
 
-    // ENDPOINT MỚI CHO TẠO HÀNG LOẠT
+    @PreAuthorize("hasRole('Admin')")
     @PostMapping("/bulk") // API: POST /api/v1/seats/bulk
     public ResponseEntity<List<SeatResponse>> createBulkSeats(@Valid @RequestBody BulkSeatRequest request) {
         List<SeatResponse> seats = seatService.createBulkSeats(request);
         return new ResponseEntity<>(seats, HttpStatus.CREATED);
     }
 
-    @PutMapping("/bulk-update-row") // API: PUT /api/v1/seats/bulk-update-row
+    @PreAuthorize("hasRole('Admin')")
     public ResponseEntity<List<SeatResponse>> bulkUpdateSeatRow(@Valid @RequestBody BulkSeatUpdateRequest request) {
         List<SeatResponse> seats = seatService.bulkUpdateSeatRow(request);
         return new ResponseEntity<>(seats, HttpStatus.OK);

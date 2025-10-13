@@ -1,8 +1,4 @@
-// ===========================
-// 🎬 CineMaster • List Movies
-// ===========================
-
-import { movieApi } from "./api.js";
+import { movieApi } from "./api/movieApi.js";
 
 const tbody = document.getElementById("movies-body");
 const pageNumbers = document.getElementById("page-numbers");

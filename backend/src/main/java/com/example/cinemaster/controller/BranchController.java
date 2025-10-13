@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +22,8 @@ public class BranchController {
     private final BranchService branchService;
     private final BranchRepository branchRepository;
 
-    // --- CREATE ---
+    // CREATE
+    @PreAuthorize("hasRole('Admin')")
     @PostMapping
     public ResponseEntity<BranchResponse> createBranch(@RequestBody @Valid BranchRequest request) {
         BranchResponse createdBranch = branchService.createBranch(request);
@@ -56,7 +58,8 @@ public class BranchController {
         return ResponseEntity.ok(branch);
     }
 
-    // --- UPDATE ---
+    // UPDATE
+    @PreAuthorize("hasRole('Admin')")
     @PutMapping("/{id}")
     public ResponseEntity<BranchResponse> updateBranch(
             @PathVariable Integer id,
@@ -66,14 +69,16 @@ public class BranchController {
         return ResponseEntity.ok(updatedBranch);
     }
 
-    // --- DEACTIVATE (Soft Delete) ---
+    // Soft Delete
+    @PreAuthorize("hasRole('Admin')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deactivateBranch(@PathVariable Integer id) {
         branchService.deactivateBranch(id);
         return ResponseEntity.noContent().build();
     }
 
-    // --- ACTIVATE (Restore) ---
+    // Restore
+    @PreAuthorize("hasRole('Admin')")
     @PutMapping("/{id}/restore")
     public ResponseEntity<Void> activateBranch(@PathVariable Integer id) {
         branchService.activateBranch(id);

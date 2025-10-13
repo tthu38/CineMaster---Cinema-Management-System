@@ -78,6 +78,7 @@ public class AuthController {
         if (idTokenStr == null || idTokenStr.isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
+
         try {
             GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
                     new NetHttpTransport(), GsonFactory.getDefaultInstance()
@@ -116,12 +117,24 @@ public class AuthController {
             String roleName = account.getRole() != null ? account.getRole().getRoleName() : "Customer";
             String token = jwtService.generateAccessToken(account.getAccountID(), account.getEmail(), roleName);
 
-            return ResponseEntity.ok(new AuthResponse(token, "Bearer", 3600));
+            // ✅ Trả về đầy đủ thông tin
+            AuthResponse response = AuthResponse.builder()
+                    .accessToken(token)
+                    .tokenType("Bearer")
+                    .expiresIn(3600)
+                    .email(account.getEmail())
+                    .fullName(account.getFullName())
+                    .role(roleName)
+                    .build();
+
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
             log.error("Google login thất bại", e);
             return ResponseEntity.status(401).build();
         }
     }
+
 
     // ===== Logout =====
     @PostMapping("/logout")

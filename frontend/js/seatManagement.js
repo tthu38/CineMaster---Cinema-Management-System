@@ -1,4 +1,8 @@
-import { seatApi, seatTypeApi, auditoriumApi, branchApi, requireAuth } from "./api.js";
+import { seatTypeApi } from "./api.js";
+import { seatApi } from "./api/seatApi.js";
+import { auditoriumApi } from "./api/auditoriumApi.js";
+import { branchApi } from "./api/branchApi.js";
+import { requireAuth } from "./api/config.js";
 requireAuth();
 
 // --- DOM ---

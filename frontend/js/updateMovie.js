@@ -1,5 +1,5 @@
 // /js/updateMovie.js
-import { movieApi } from "./api.js";
+import { movieApi } from "./api/movieApi.js";
 
 const form = document.getElementById("movie-form");
 const params = new URLSearchParams(window.location.search);

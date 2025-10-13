@@ -1,4 +1,4 @@
-import { movieApi } from "./api.js";
+import { movieApi } from "./api/movieApi.js";
 
 const form = document.getElementById("movie-form");
 

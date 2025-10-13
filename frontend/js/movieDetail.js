@@ -1,4 +1,6 @@
-import { movieApi, feedbackApi, getValidToken } from "./api.js";
+import { movieApi } from "./api/movieApi.js";
+import { feedbackApi } from "./api/feedbackApi.js";
+import { getValidToken } from "./api/config.js";
 
 const params = new URLSearchParams(window.location.search);
 const movieId = params.get("id");

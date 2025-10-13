@@ -1,7 +1,4 @@
-// ================================
-// 🎬 CINE MASTER • NEWS DETAIL PAGE
-// ================================
-import { newsApi } from "./api.js";
+import { newsApi } from "./api/newsApi.js";
 
 // Lấy ID tin tức từ URL (?id=)
 const newsId = new URLSearchParams(window.location.search).get("id");
