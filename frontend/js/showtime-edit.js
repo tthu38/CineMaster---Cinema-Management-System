@@ -176,7 +176,7 @@ async function reloadPeriodsAndAuditoriums({ branchId = null, onDate = null } = 
 
 async function loadBranches() {
     try {
-        const branches = await branchApi.getAllActiveBranches() ?? [];
+        const branches = await branchApi.getAllActive() ?? [];
         console.log('🟢 Branches:', branches);
         el.branch.innerHTML = branches.map(b =>
             `<option value="${b.id ?? b.branchId}">${b.name ?? b.branchName}</option>`

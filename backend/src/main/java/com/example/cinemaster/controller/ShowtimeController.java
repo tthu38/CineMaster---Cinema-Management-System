@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -25,6 +26,7 @@ public class ShowtimeController {
         this.service = service;
     }
 
+    @PreAuthorize("hasRole('Admin')")
     @PostMapping
     public ResponseEntity<ShowtimeResponse> create(@Valid @RequestBody ShowtimeCreateRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(request));
@@ -52,12 +54,14 @@ public class ShowtimeController {
         return ResponseEntity.ok(service.search(periodId, auditoriumId, from, to, pageable));
     }
 
+    @PreAuthorize("hasRole('Admin')")
     @PutMapping("/{id}")
     public ResponseEntity<ShowtimeResponse> update(@PathVariable Integer id,
                                                    @Valid @RequestBody ShowtimeUpdateRequest request) {
         return ResponseEntity.ok(service.update(id, request));
     }
 
+    @PreAuthorize("hasRole('Admin')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         service.delete(id);

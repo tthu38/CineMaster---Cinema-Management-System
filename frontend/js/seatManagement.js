@@ -42,7 +42,7 @@ async function loadBranches() {
         const selects = [diagramBranchSelect, singleBranchSelect, bulkBranchSelect, updateBranchSelect];
         selects.forEach(sel => {
             sel.innerHTML = `<option value="" disabled selected hidden>--- Chọn Chi Nhánh ---</option>`;
-            branches.forEach(b => sel.appendChild(new Option(b.branchName, b.id)));
+            branches.forEach(b => sel.appendChild(new Option(b.branchName, b.branchID || b.branchId || b.id)));
         });
     } catch (err) { console.error("❌ Lỗi tải chi nhánh:", err); }
 }
@@ -71,7 +71,7 @@ async function updateAuditoriumOptions(branchSelect, branchId) {
     if (!branchId) return;
 
     try {
-        const auds = await auditoriumApi.getByBranch(branchId);
+        const auds = await auditoriumApi.getActiveByBranch(branchId);
         if (!auds?.length) {
             target.innerHTML += `<option disabled>(Không có phòng chiếu)</option>`;
             return;

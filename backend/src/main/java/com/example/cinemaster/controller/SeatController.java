@@ -80,6 +80,7 @@ public class SeatController {
     }
 
     @PreAuthorize("hasRole('Admin')")
+    @PutMapping("/bulk-update-row")
     public ResponseEntity<List<SeatResponse>> bulkUpdateSeatRow(@Valid @RequestBody BulkSeatUpdateRequest request) {
         List<SeatResponse> seats = seatService.bulkUpdateSeatRow(request);
         return new ResponseEntity<>(seats, HttpStatus.OK);

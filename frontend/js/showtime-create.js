@@ -118,7 +118,7 @@ function toISO(dateStr, timeStr) {
 /* ================= LOAD BRANCHES ================= */
 async function loadBranches() {
     try {
-        const branches = await branchApi.getAllActiveBranches() ?? [];
+        const branches = await branchApi.getAllActive() ?? [];
         el.branch.innerHTML = branches
             .map(b => `<option value="${b.id ?? b.branchId}">${b.name ?? b.branchName}</option>`)
             .join('');

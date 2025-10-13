@@ -149,10 +149,11 @@ branchSelect.addEventListener('change', load);
 /* ====================== Load Data ====================== */
 async function loadBranches() {
     try {
-        const branches = await branchApi.getAllActiveBranches() ?? [];
-        const options = [{ id: '', name: 'Tất cả rạp' }, ...branches];
+        // ✅ Dùng API public, tương thích alias
+        const branches = await branchApi.getAllActive() ?? [];
+        const options = [{ id: '', branchName: 'Tất cả rạp' }, ...branches];
         branchSelect.innerHTML = options
-            .map(b => `<option value="${b.id}">${b.name}</option>`)
+            .map(b => `<option value="${b.id}">${b.branchName}</option>`)
             .join('');
     } catch (err) {
         console.error('Không tải được danh sách rạp:', err);
@@ -169,8 +170,8 @@ async function load(){
     contentArea.innerHTML = `<div class="text-center py-5 text-info">Đang tải lịch chiếu...</div>`;
 
     try {
-        // ✅ Dùng đúng API BE: /api/v1/showtimes/week
-        data = await showtimeApi.week({ anchor, branchId });
+        // ✅ Dùng API /showtimes/week (public)
+        data = await showtimeApi.getWeek({ anchor, branchId }) ?? [];
     } catch(err) {
         console.error(err);
         contentArea.innerHTML = `<div class="alert alert-danger">
