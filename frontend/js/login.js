@@ -25,32 +25,37 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
         const data = await authApi.login({ phoneNumber, password });
         console.log("✅ Login response:", data);
 
-        // Lấy thông tin từ backend
         const token = data.accessToken || data.result?.accessToken;
-        const role = data.role || data.result?.role || "Customer";
-        const fullName = data.fullName || data.result?.fullName || "";
-        const email = data.email || data.result?.email || "";
-        const branchId = data.branchId || data.result?.branchId || null;
-        const branchName = data.branchName || data.result?.branchName || "";
-
-
         if (!token) throw new Error("Không nhận được access token từ server");
 
-        // Lưu vào localStorage
+        // Lưu token trước để dùng cho API profile
         localStorage.setItem("accessToken", token);
-        localStorage.setItem("role", role);
-        localStorage.setItem("fullName", fullName);
-        localStorage.setItem("email", email);
-        localStorage.setItem("branchId", branchId);
-        localStorage.setItem("branchName", branchName);
 
+        // ✅ Gọi API profile để lấy đủ thông tin user
+        const res = await fetch("http://localhost:8080/api/v1/users/profile", {
+            headers: { "Authorization": "Bearer " + token }
+        });
 
-        // Ghi nhớ tài khoản nếu chọn “Remember me”
+        if (!res.ok) throw new Error("Không lấy được thông tin hồ sơ người dùng");
+        const profileData = await res.json();
+        const profile = profileData.result;
+
+        // ✅ Lưu toàn bộ thông tin user vào localStorage
+        localStorage.setItem("accountId", profile.id);
+        localStorage.setItem("fullName", profile.fullName || "");
+        localStorage.setItem("email", profile.email || "");
+        localStorage.setItem("avatarUrl", profile.avatarUrl || "../assets/default-avatar.png");
+        localStorage.setItem("role", profile.roleName || "Customer");
+        localStorage.setItem("branchId", profile.branchId || "");
+        localStorage.setItem("branchName", profile.branchName || "");
+        localStorage.setItem("loyaltyPoints", profile.loyaltyPoints || 0);
+
+        // ✅ Ghi nhớ tài khoản nếu chọn “Remember me”
         if (rememberMe) localStorage.setItem("rememberedUsername", phoneNumber);
         else localStorage.removeItem("rememberedUsername");
 
-        // ✅ Chuyển hướng theo role
-        redirectByRole(role);
+        // ✅ Chuyển hướng theo vai trò
+        redirectByRole(profile.roleName || "Customer");
 
     } catch (err) {
         console.error("❌ Login lỗi:", err);
@@ -69,20 +74,26 @@ window.handleCredentialResponse = async function (response) {
         console.log("✅ Google login response:", data);
 
         const token = data.accessToken || data.result?.accessToken;
-        const role = data.role || data.result?.role || "Customer";
-        const fullName = data.fullName || data.result?.fullName || "";
-        const email = data.email || data.result?.email || "";
-
         if (!token) throw new Error("Không nhận được access token từ server");
 
-        // Lưu vào localStorage
+        // Lưu token trước để gọi API profile
         localStorage.setItem("accessToken", token);
-        localStorage.setItem("role", role);
-        localStorage.setItem("fullName", fullName);
-        localStorage.setItem("email", email);
 
-        // ✅ Chuyển hướng theo role
-        redirectByRole(role);
+        // ✅ Lấy thông tin user từ profile API
+        const res = await fetch("http://localhost:8080/api/v1/users/profile", {
+            headers: { "Authorization": "Bearer " + token }
+        });
+
+        const profileData = await res.json();
+        const profile = profileData.result;
+
+        localStorage.setItem("accountId", profile.id);
+        localStorage.setItem("fullName", profile.fullName || "");
+        localStorage.setItem("email", profile.email || "");
+        localStorage.setItem("avatarUrl", profile.avatarUrl || "../assets/default-avatar.png");
+        localStorage.setItem("role", profile.roleName || "Customer");
+
+        redirectByRole(profile.roleName || "Customer");
 
     } catch (err) {
         console.error("❌ Google login lỗi:", err);
@@ -93,20 +104,16 @@ window.handleCredentialResponse = async function (response) {
 // ========== Hàm chuyển hướng theo role ==========
 function redirectByRole(role) {
     console.log("➡️ Redirect by role:", role);
-
     switch (role) {
         case "Admin":
             window.location.href = "../home/dashboardAdmin.html";
             break;
-
         case "Manager":
             window.location.href = "../home/dashboardManager.html";
             break;
-
         case "Staff":
             window.location.href = "../home/dashboardStaff.html";
             break;
-
         default:
             window.location.href = "../home/home.html";
             break;

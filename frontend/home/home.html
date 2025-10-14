@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CineMaster - Trang chủ</title>
+
+    <!-- FONT & ICON -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
@@ -82,33 +84,6 @@
             padding: 0 40px;
         }
 
-        /* Info under active */
-        .movie-info { text-align: center; margin-top: 20px; }
-        .movie-title { font-size: 2rem; font-weight: 700; margin-bottom: 10px; }
-        .movie-meta { font-size: 0.9rem; color: #aaa; margin-bottom: 15px; }
-        .hero-buttons { display: flex; justify-content: center; gap: 12px; }
-        .btn {
-            padding: 10px 20px; border: none; border-radius: 4px;
-            font-size: 1rem; font-weight: 700; cursor: pointer;
-            display: flex; align-items: center; gap: 8px;
-        }
-        .btn-watch { background-color: var(--primary-color); color: #fff; }
-        .btn-list { background-color: rgba(255,255,255,0.2); color: #fff; }
-
-        /* SEARCH BAR */
-        .search-bar { margin: 40px auto; text-align: center; }
-        .search-bar input {
-            width: 50%; padding: 12px 20px;
-            border: none; border-radius: 4px 0 0 4px;
-            font-size: 1rem;
-        }
-        .search-bar button {
-            padding: 12px 20px; border: none;
-            border-radius: 0 4px 4px 0;
-            background: var(--primary-color); color: #fff;
-            font-weight: 600; cursor: pointer;
-        }
-
         /* MOVIE SECTIONS */
         .movie-section { padding: 20px 60px; }
         .movie-section h2 { margin-bottom: 15px; }
@@ -127,17 +102,14 @@
         .movie-card img { width: 100%; height: 70%; object-fit: cover; }
         .movie-card h3 { font-size: 1rem; margin: 8px; flex-grow: 1; }
         .movie-card p { font-size: 0.85rem; margin: 0 8px 8px; color: #bbb; }
-        .movie-card, .showtime-card {
-            background: var(--card-background);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-        }
 
         /* SHOWTIMES */
         .showtimes { display: flex; flex-wrap: wrap; gap: 20px; }
         .showtime-card {
             flex: 1 1 300px;
             background: var(--card-background);
-            border-radius: 6px; padding: 15px 20px; color: #fff;
+            border-radius: 6px; padding: 15px 20px;
+            color: #fff;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .showtime-card:hover { transform: translateY(-5px); box-shadow: 0 6px 20px rgba(0,0,0,0.6); }
@@ -153,7 +125,8 @@
 </head>
 
 <body>
-<!-- HEADER -->
+
+<!-- ✅ HEADER (tự load, hiển thị avatar & tên ngay) -->
 <div id="header"></div>
 
 <!-- HERO CAROUSEL -->
@@ -188,20 +161,26 @@
 
 <script>
     /* ================= HEADER ================= */
-    fetch("../home/customer-header.html")
-        .then(res => res.text())
-        .then(html => {
-            document.getElementById("header").innerHTML = html;
-            // ✅ ép trình duyệt chạy script trong file header
-            const scripts = document.getElementById("header").querySelectorAll("script");
-            scripts.forEach(oldScript => {
-                const newScript = document.createElement("script");
-                if (oldScript.src) newScript.src = oldScript.src;
-                else newScript.textContent = oldScript.textContent;
-                document.body.appendChild(newScript);
+    (async function loadHeader() {
+        const headerEl = document.getElementById("header");
+        try {
+            const res = await fetch("../home/customer-header.html");
+            const html = await res.text();
+            headerEl.innerHTML = html;
+
+            // ✅ Ép chạy script bên trong file header
+            const scripts = headerEl.querySelectorAll("script");
+            scripts.forEach(s => {
+                const ns = document.createElement("script");
+                if (s.src) ns.src = s.src;
+                else ns.textContent = s.textContent;
+                document.body.appendChild(ns);
             });
-        })
-        .catch(err => console.error("Lỗi load header:", err));
+
+        } catch (err) {
+            console.error("Lỗi load header:", err);
+        }
+    })();
 
     /* ================= FOOTER ================= */
     fetch("../home/footer.html")
@@ -247,17 +226,16 @@
         const wrap = document.getElementById(containerId);
         if (!Array.isArray(list)) {
             wrap.innerHTML = `<div style="color:#aaa">Không có dữ liệu phim.</div>`;
-            console.error("⚠️ API không trả về mảng:", list);
             return;
         }
         wrap.innerHTML = "";
         list.forEach(m => {
             wrap.innerHTML += `
-                    <div class="movie-card">
-                        <img src="${m.posterUrl || '../assets/default-movie.jpg'}" alt="${m.title}">
-                        <h3>${m.title}</h3>
-                        <p>${m.genre || ''}</p>
-                    </div>`;
+            <div class="movie-card">
+                <img src="${m.posterUrl || '../assets/default-movie.jpg'}" alt="${m.title}">
+                <h3>${m.title}</h3>
+                <p>${m.genre || ''}</p>
+            </div>`;
         });
     }
 
@@ -265,38 +243,37 @@
         try {
             const token = localStorage.getItem("accessToken");
             const headers = token ? { "Authorization": "Bearer " + token } : {};
-
             const res = await fetch("http://localhost:8080/api/v1/auth/showtimes/today", { headers });
             const showtimes = await res.json();
-
             const container = document.getElementById("today-showtimes");
+
             if (!Array.isArray(showtimes)) {
                 container.innerHTML = `<div style="color:#aaa">Không có suất chiếu hôm nay.</div>`;
-                console.error("⚠️ API /showtimes/today không trả về mảng:", showtimes);
                 return;
             }
 
             container.innerHTML = "";
             showtimes.forEach(st => {
                 container.innerHTML += `
-                        <div class="showtime-card">
-                            <h3>${st.movieTitle || 'Phim'}</h3>
-                            <p>${st.branchName || ''}</p>
-                            <div class="times">
-                                ${(st.times || []).map(t => `<span>${t}</span>`).join('')}
-                            </div>
-                        </div>`;
+                <div class="showtime-card">
+                    <h3>${st.movieTitle || 'Phim'}</h3>
+                    <p>${st.branchName || ''}</p>
+                    <div class="times">
+                        ${(st.times || []).map(t => `<span>${t}</span>`).join('')}
+                    </div>
+                </div>`;
             });
         } catch (err) {
             console.error("❌ Lỗi load showtimes:", err);
         }
     }
 
-    // ================= INIT =================
+    /* ================= INIT ================= */
     document.addEventListener("DOMContentLoaded", () => {
         loadMovies();
         loadTodayShowtimes();
     });
 </script>
+
 </body>
 </html>

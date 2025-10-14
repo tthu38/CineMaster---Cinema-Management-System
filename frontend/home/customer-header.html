@@ -1,4 +1,4 @@
-<!-- customer-header.html -->
+<!-- ✅ customer-header.html (phiên bản fix cứng) -->
 <header class="header cm-header">
     <div class="header-container">
         <!-- Logo -->
@@ -9,7 +9,6 @@
             <a href="../home/home.html" class="nav-link">Home</a>
             <a href="../movies/listMovieCus.html" class="nav-link">Movies</a>
             <a href="../user/showtimes-calendar.html" class="nav-link">Showtimes</a>
-<!--            <a href="../branch/theaterCus.html" class="nav-link">Theaters</a>-->
             <a href="../discount/listDiscount.html" class="nav-link">Promotions</a>
         </nav>
 
@@ -28,7 +27,6 @@
 
     body { padding-top:96px; }
 
-    /* HEADER BASE */
     .cm-header {
         position:fixed; inset:0 0 auto 0; z-index:100;
         background:rgba(10,19,38,.94);
@@ -48,7 +46,6 @@
         display:flex; align-items:center; justify-content:space-between; gap:24px;
     }
 
-    /* LOGO */
     .logo-text{
         font-family:'Bebas Neue', sans-serif;
         letter-spacing:2.5px; font-size:2.4rem;
@@ -56,7 +53,6 @@
         text-shadow:0 0 10px rgba(229,9,20,.25);
     }
 
-    /* NAVIGATION */
     .cm-nav{ display:flex; gap:28px; align-items:center; }
     .nav-link{
         position:relative; color:var(--muted);
@@ -72,7 +68,6 @@
     .nav-link:hover,.nav-link.active{ color:#fff; }
     .nav-link:hover::after,.nav-link.active::after{ transform:scaleX(1); }
 
-    /* AUTH AREA */
     .auth-wrap{ display:flex; align-items:center; gap:14px; }
     .btn-auth,.btn-auth-outline{
         padding:8px 16px; border-radius:22px; cursor:pointer;
@@ -94,7 +89,6 @@
         box-shadow:0 0 12px rgba(255,255,255,.3);
     }
 
-    /* USER INFO */
     .user-info{ display:flex; align-items:center; gap:12px; position:relative; }
     .user-avatar{
         width:40px; height:40px; border-radius:50%;
@@ -103,7 +97,6 @@
     }
     .user-name{ color:#eef3ff; font-weight:700; }
 
-    /* DROPDOWN */
     .dropdown-menu{
         display:none; position:absolute; right:0; top:50px;
         background:rgba(15,22,40,.95); border:1px solid rgba(255,255,255,.1);
@@ -126,8 +119,6 @@
         from{opacity:0; transform:translateY(-5px);}
         to{opacity:1; transform:translateY(0);}
     }
-
-    /* RESPONSIVE */
     @media (max-width:960px){
         .cm-nav{ display:none; }
         .header-container{ padding:14px 20px; }
@@ -136,16 +127,15 @@
 </style>
 
 <script>
-    (function initCustomerHeader() {
+    (function renderFixedHeader() {
         const authArea = document.getElementById("authArea");
         if (!authArea) return;
 
         const token = localStorage.getItem("accessToken");
         const name = localStorage.getItem("fullName") || "User";
         const avatar = localStorage.getItem("avatarUrl") || "../assets/default-avatar.png";
-        const accountId = localStorage.getItem("accountId"); // ✅ thêm để biết ai đang đăng nhập
+        const accountId = localStorage.getItem("accountId");
 
-        // ❌ Nếu chưa đăng nhập
         if (!token) {
             authArea.innerHTML = `
             <button class="btn-auth" onclick="location.href='../user/login.html'">Login</button>
@@ -154,26 +144,24 @@
             return;
         }
 
-        // ✅ Nếu đã đăng nhập
-
+        // ✅ Nếu đã login thì render luôn avatar + tên
         authArea.innerHTML = `
-<div class="user-info">
-    <div class="user-dropdown">
-        <img src="${avatar}" alt="avatar" class="user-avatar" id="userAvatar">
-        <div class="dropdown-menu" id="dropdownMenu">
-            <a href="../user/profile.html?id=${accountId || ''}">👤 Profile</a>
-            <a href="../tickets/my-tickets.html">🎟 My Tickets</a>
-            <a href="../user/membership.html">⭐ Membership</a>
-            <hr>
-            <a href="#" onclick="logoutUser()">🚪 Log out</a>
+        <div class="user-info">
+            <div class="user-dropdown">
+                <img src="${avatar}" alt="avatar" class="user-avatar" id="userAvatar">
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="../user/profile.html?id=${accountId || ''}">👤 Profile</a>
+                    <a href="../tickets/my-tickets.html">🎟 My Tickets</a>
+                    <a href="../user/membership.html">⭐ Membership</a>
+                    <hr>
+                    <a href="#" id="logoutBtn">🚪 Log out</a>
+                </div>
+            </div>
+            <span class="user-name">${name}</span>
         </div>
-    </div>
-    <span class="user-name">${name}</span>
-</div>
-`;
+    `;
 
-
-        // Dropdown toggle
+        // Toggle dropdown
         const avatarEl = document.getElementById("userAvatar");
         const dropdown = document.getElementById("dropdownMenu");
         if (avatarEl && dropdown) {
@@ -184,16 +172,28 @@
             document.addEventListener("click", () => dropdown.classList.remove("show"));
         }
 
-        // Active highlight menu
+        // Logout
+        const logoutBtn = document.getElementById("logoutBtn");
+        logoutBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            location.href = "../user/login.html";
+        });
+
+        // Highlight menu active
         const current = window.location.pathname.split("/").pop();
         document.querySelectorAll(".cm-nav .nav-link").forEach(link => {
             if (link.getAttribute("href").includes(current)) link.classList.add("active");
         });
-    })();
 
-    // ===================== LOGOUT =====================
-    function logoutUser() {
-        localStorage.clear();
-        location.href = "../user/login.html";
-    }
+        // Cập nhật realtime khi đổi avatar hoặc tên
+        window.addEventListener("storage", (e) => {
+            if (e.key === "avatarUrl" || e.key === "fullName") {
+                const img = document.getElementById("userAvatar");
+                const nameEl = document.querySelector(".user-name");
+                if (e.key === "avatarUrl" && img) img.src = e.newValue || "../assets/default-avatar.png";
+                if (e.key === "fullName" && nameEl) nameEl.textContent = e.newValue || "User";
+            }
+        });
+    })();
 </script>

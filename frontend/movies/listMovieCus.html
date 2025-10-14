@@ -434,7 +434,27 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="module" src="../js/listMovieCus.js"></script>
 <script>
-    fetch("../home/customer-header.html").then(r=>r.text()).then(h=>document.getElementById("header").innerHTML=h);
+    /* ================= HEADER (fix cứng, đồng bộ avatar + tên) ================= */
+    (async function loadHeader() {
+        const headerEl = document.getElementById("header");
+        try {
+            const res = await fetch("../home/customer-header.html");
+            const html = await res.text();
+            headerEl.innerHTML = html;
+
+            // ✅ ép chạy script trong file header
+            const scripts = headerEl.querySelectorAll("script");
+            scripts.forEach(s => {
+                const ns = document.createElement("script");
+                if (s.src) ns.src = s.src;
+                else ns.textContent = s.textContent;
+                document.body.appendChild(ns);
+            });
+        } catch (err) {
+            console.error("Lỗi load header:", err);
+        }
+    })();
+
     fetch("../home/footer.html").then(r=>r.text()).then(h=>document.getElementById("footer").innerHTML=h);
 
     document.querySelectorAll('.filter-tabs button').forEach(button => {
