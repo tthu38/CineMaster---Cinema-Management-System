@@ -10,10 +10,24 @@ const previewImg = document.getElementById("previewImg");
 const result = document.getElementById("result");
 const btnReset = document.getElementById("btnReset");
 
+let currentRole = null;
+let managerBranchId = null;
+
 // ===== Khi trang load =====
 document.addEventListener("DOMContentLoaded", async () => {
     if (!requireAuth()) return;
-    await loadBranches();
+
+    currentRole = localStorage.getItem("role");
+    managerBranchId = localStorage.getItem("branchId");
+
+    if (currentRole === "Manager") {
+        // 🔒 Manager chỉ thấy chi nhánh của chính họ
+        branchSelect.innerHTML = `<option value="${managerBranchId}">Chi nhánh của bạn (#${managerBranchId})</option>`;
+        branchSelect.disabled = true;
+    } else {
+        // 👑 Admin: load toàn bộ chi nhánh
+        await loadBranches();
+    }
 });
 
 // ===== Load danh sách chi nhánh =====
@@ -49,8 +63,11 @@ form.addEventListener("submit", async (e) => {
     e.preventDefault();
     result.textContent = "";
 
-    // ✅ Lấy và kiểm tra branchId
-    const branchIdValue = parseInt(branchSelect.value, 10);
+    // ✅ Lấy branchId đúng cách
+    const branchIdValue = currentRole === "Manager"
+        ? parseInt(managerBranchId, 10)
+        : parseInt(branchSelect.value, 10);
+
     if (!branchIdValue || isNaN(branchIdValue)) {
         alert("⚠️ Vui lòng chọn chi nhánh hợp lệ!");
         return;
@@ -85,9 +102,9 @@ form.addEventListener("submit", async (e) => {
     }
 });
 
-// ===== Reset form =====
-btnReset.addEventListener("click", () => {
-    form.reset();
-    previewImg.style.display = "none";
-    result.textContent = "";
+const btnCancel = document.getElementById("btnCancel");
+btnCancel.addEventListener("click", () => {
+    // Quay lại trang danh sách combo
+    window.location.href = "listCombo.html";
 });
+

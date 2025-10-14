@@ -189,8 +189,23 @@ async function load(){
 }
 
 /* ====================== Init ====================== */
-(async function init(){
-    await loadBranches();
-    await load();
+(async function init() {
+    // 🔹 Lấy role & branchId từ localStorage (được set khi đăng nhập)
+    const role = localStorage.getItem("role");
+    const branchId = localStorage.getItem("branchId");
+
+    if (role === "Manager" && branchId) {
+        const branchWrapper = branchSelect.closest('.form-group, .mb-3, div') ?? branchSelect.parentElement;
+        if (branchWrapper) branchWrapper.style.display = "none";
+
+        branchSelect.innerHTML = `<option value="${branchId}" selected>Chi nhánh của tôi (#${branchId})</option>`;
+        branchSelect.value = branchId;
+
+        await load();
+    } else {
+        await loadBranches();
+        await load();
+    }
 })();
 window.reloadCalendar = load;
+

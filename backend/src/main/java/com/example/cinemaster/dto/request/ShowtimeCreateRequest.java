@@ -15,5 +15,6 @@ public record ShowtimeCreateRequest(
         @Pattern(regexp = "^(Vietnamese|English)$", message = "language must be Vietnamese or English")
         String language,
         @NotNull @DecimalMin(value = "0.0") BigDecimal price
+
 ) {}
 

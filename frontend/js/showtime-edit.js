@@ -90,6 +90,15 @@ export async function openShowtimeEdit(showtimeId) {
     // 🔹 1. Load chi nhánh trước
     await loadBranches();
 
+    // 🔒 Nếu là Manager → khóa dropdown chi nhánh
+    const role = localStorage.getItem("role");
+    const managerBranch = localStorage.getItem("branchId");
+    if (role === "Manager" && managerBranch) {
+        el.branch.value = String(managerBranch);
+        el.branch.disabled = true;
+    }
+
+
     // 🔹 2. Set giá trị branch sau khi dropdown đã render
     if (branchId) {
         el.branch.value = String(branchId);
@@ -174,18 +183,44 @@ async function reloadPeriodsAndAuditoriums({ branchId = null, onDate = null } = 
     }
 }
 
+/* ================= LOAD BRANCHES (phân quyền Manager) ================= */
 async function loadBranches() {
     try {
+        const role = localStorage.getItem("role");
+        const branchId = localStorage.getItem("branchId");
+
+        // 🔒 Manager chỉ được xem đúng chi nhánh của mình
+        if (role === "Manager" && branchId) {
+            const branch = await branchApi.getById(branchId);
+            if (branch) {
+                el.branch.innerHTML = `
+                    <option value="${branch.id ?? branch.branchId}" selected>
+                        ${branch.name ?? branch.branchName ?? "Chi nhánh của tôi"}
+                    </option>`;
+                el.branch.disabled = true;
+            } else {
+                el.branch.innerHTML = `<option value="">(Không tải được chi nhánh của bạn)</option>`;
+                el.branch.disabled = true;
+            }
+            return;
+        }
+
+        // 🟢 Admin xem được tất cả chi nhánh
         const branches = await branchApi.getAllActive() ?? [];
-        console.log('🟢 Branches:', branches);
-        el.branch.innerHTML = branches.map(b =>
-            `<option value="${b.id ?? b.branchId}">${b.name ?? b.branchName}</option>`
-        ).join('');
+        el.branch.innerHTML = branches
+            .map(b => `<option value="${b.id ?? b.branchId}">
+                ${b.name ?? b.branchName}
+            </option>`)
+            .join('');
+        el.branch.disabled = false;
+
     } catch (e) {
         console.error('❌ Lỗi load branches:', e);
         showError('Không tải được danh sách chi nhánh.');
+        el.branch.innerHTML = `<option value="">(Không tải được rạp)</option>`;
     }
 }
+
 
 // ================= BUFFER & DURATION =================
 async function loadDaySlotsForAuditoriumDay() {

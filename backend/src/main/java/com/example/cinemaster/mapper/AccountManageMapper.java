@@ -10,12 +10,13 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface AccountManageMapper {
 
-    @Mapping(source = "role.id", target = "roleId")
-    @Mapping(source = "role.roleName", target = "roleName")
-    @Mapping(source = "branch.id", target = "branchId")
-    @Mapping(source = "branch.branchName", target = "branchName")
+    @Mapping(target = "roleId", expression = "java(entity.getRole() != null ? entity.getRole().getId() : null)")
+    @Mapping(target = "roleName", expression = "java(entity.getRole() != null ? entity.getRole().getRoleName() : null)")
+    @Mapping(target = "branchId", expression = "java(entity.getBranch() != null ? entity.getBranch().getId() : null)")
+    @Mapping(target = "branchName", expression = "java(entity.getBranch() != null ? entity.getBranch().getBranchName() : null)")
     AccountResponse toResponse(Account entity);
 
     Account toEntity(AccountRequest dto);
 }
+
 

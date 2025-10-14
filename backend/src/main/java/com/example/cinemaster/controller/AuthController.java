@@ -1,12 +1,14 @@
 package com.example.cinemaster.controller;
 
 import com.example.cinemaster.dto.request.LoginRequest;
+import com.example.cinemaster.dto.response.AccountResponse;
 import com.example.cinemaster.dto.response.ApiResponse;
 import com.example.cinemaster.dto.response.AuthResponse;
 import com.example.cinemaster.entity.Account;
 import com.example.cinemaster.entity.Role;
 import com.example.cinemaster.repository.AccountRepository;
 import com.example.cinemaster.repository.RoleRepository;
+import com.example.cinemaster.security.AccountPrincipal;
 import com.example.cinemaster.service.AuthService;
 import com.example.cinemaster.service.JwtService;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
@@ -21,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -146,6 +149,24 @@ public class AuthController {
         jwtService.invalidateToken(token);
         log.info("Token invalidated: {}", token);
         return ResponseEntity.ok(Map.of("message", "Logout successful"));
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<AccountResponse> getCurrentUser(Authentication authentication) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof AccountPrincipal user)) {
+            return ResponseEntity.status(401).build();
+        }
+
+        AccountResponse res = AccountResponse.builder()
+                .accountID(user.getId())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .roleName(user.getRole())
+                .branchId(user.getBranchId())
+                .branchName(user.getBranchName())
+                .build();
+
+        return ResponseEntity.ok(res);
     }
 }
 

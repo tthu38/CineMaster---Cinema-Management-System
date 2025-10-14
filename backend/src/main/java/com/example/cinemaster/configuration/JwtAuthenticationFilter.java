@@ -2,6 +2,7 @@ package com.example.cinemaster.configuration;
 
 import com.example.cinemaster.entity.Account;
 import com.example.cinemaster.repository.AccountRepository;
+import com.example.cinemaster.security.AccountPrincipal;
 import com.example.cinemaster.service.JwtService;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.IOException;
 import java.util.Collections;
 
@@ -56,20 +58,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // Lấy accountId, phone và role từ token
         Integer accountId = jwtService.extractAccountId(jwt);
-        String phone = jwtService.extractPhone(jwt);
         String roleName = jwtService.extractRole(jwt);
 
         if (accountId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            // Truy vấn DB để check account có tồn tại và active
             Account account = accountRepository.findById(accountId).orElse(null);
 
             if (account != null && Boolean.TRUE.equals(account.getIsActive())) {
                 var authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + roleName));
 
+                AccountPrincipal principal = AccountPrincipal.builder()
+                        .id(account.getAccountID())
+                        .email(account.getEmail())
+                        .fullName(account.getFullName())
+                        .role(roleName)
+                        .branchId(account.getBranch() != null ? account.getBranch().getId() : null)
+                        .branchName(account.getBranch() != null ? account.getBranch().getBranchName() : null)
+                        .authorities(authorities)
+                        .build();
+
                 UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(account, null, authorities);
+                        new UsernamePasswordAuthenticationToken(principal, null, authorities);
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authToken);

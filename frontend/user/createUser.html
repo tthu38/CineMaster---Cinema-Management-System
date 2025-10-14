@@ -2,18 +2,21 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>CineMaster • Sửa Account</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Thêm Account • CineMaster</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        :root{
-            --ink:#06101f;
-            --bg:#0b162c;
-            --border:#1b2b4a;
-            --blue:#0aa3ff;
-            --cyan:#22c1ff;
-            --red:#e50914;
+        :root {
+            --ink: #06101f;
+            --bg: #0b162c;
+            --border: #1b2b4a;
+            --blue: #0aa3ff;
+            --cyan: #22c1ff;
+            --red: #e50914;
         }
 
         html,body{
@@ -56,229 +59,393 @@
         }
 
         /* 🌌 Grain */
-        .grain{
-            pointer-events:none;
-            position:fixed; inset:0;
-            opacity:.14;
-            mix-blend-mode:screen;
+        .grain {
+            pointer-events: none;
+            position: fixed; inset: 0;
+            opacity: .14;
+            mix-blend-mode: screen;
             background-image:
                     radial-gradient(circle at 20% 30%, rgba(255,255,255,.06) 0 2px, transparent 2px),
                     radial-gradient(circle at 70% 60%, rgba(255,255,255,.05) 0 2px, transparent 2px);
-            background-size:200px 200px, 260px 260px;
+            background-size: 200px 200px, 260px 260px;
             animation: drift 18s linear infinite alternate;
-            z-index:0; /* Changed z-index */
+            z-index: 5;
         }
-        @keyframes drift{
-            from{ transform: translate3d(0,0,0) }
-            to{ transform: translate3d(30px,-25px,0) }
-        }
-
-        .container{
-            margin-top:60px;
-            max-width:900px;
-            position:relative;
-            z-index:10; /* nổi lên trên tickets + grain */
+        @keyframes drift {
+            from { transform: translate3d(0,0,0) }
+            to { transform: translate3d(30px,-25px,0) }
         }
 
+        .container {
+            margin-top: 60px;
+            max-width: 1200px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header, .film {
+            /* Nền thủy tinh bán trong suốt */
+            background: rgba(12, 22, 44, 0.15);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            /* Viền mờ cho hợp tông */
+            border: 1px solid rgba(34, 193, 255, 0.2);
+            border-radius: 18px;
+            box-shadow: 0 14px 32px rgba(0, 0, 0, .5);
+        }
+        .header {
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
         .film {
             position:relative;
-            background:linear-gradient(180deg,#0b152a,#0c162c);
-            border:1px solid var(--border);
+            /* Nền "thủy tinh" bán trong suốt */
+            background: rgba(8, 20, 40, 0.45);
+            /* Tăng độ mờ để hiệu ứng rõ hơn */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            /* Đổi viền sang dạng mờ cho hợp tông */
+            border: 1px solid rgba(34, 193, 255, 0.25);
             border-radius:18px;
-            box-shadow:0 14px 32px rgba(0,0,0,.5);
+            box-shadow:0 0 40px rgba(10,50,100,.45);
             overflow:hidden;
-            z-index:1;
-            padding-top:40px;    /* ⬅ đẩy nội dung xuống dưới filmstrip trên */
-            padding-bottom:40px;/* ⬅ đẩy nội dung lên trên filmstrip dưới */
+            /* Đảm bảo toàn bộ chữ bên trong là màu trắng */
+            color: #fff;
         }
-
         .film::before, .film::after {
-            content:"";
-            position:absolute;
-            left:18px; right:18px;
-            height:10px; opacity:.5;
-            background:repeating-linear-gradient(
-                    90deg,
-                    #142443 0 16px,
-                    transparent 16px 32px
-            );
-            filter:drop-shadow(0 0 6px rgba(34,193,255,.2));
-            z-index:0;
+            content:""; position:absolute; left:0; right:0; height:12px;
+            /* Đổi màu của dải sang dạng mờ */
+            background:repeating-linear-gradient(90deg,rgba(34,193,255,0.15) 0 14px,transparent 14px 28px);
+            filter:drop-shadow(0 0 8px rgba(34,193,255,.25));
         }
-
-        .film::before { top:12px; }
-        .film::after  { bottom:12px; }
-
-        .film > * {
-            position:relative;
-            z-index:2;
+        .film::before { top:10px; } .film::after { bottom:10px; }
+        /* Áp dụng cho TẤT CẢ ô nhập liệu */
+        .form-control, .form-select {
+            background: rgba(14, 28, 55, 0.4) !important;
+            border: 1px solid rgba(34, 193, 255, 0.2);
+            color: #fff !important;
+            border-radius: 10px;
+            transition: all .25s ease;
         }
-
-
-        .form-control,
-        .form-select {
-            background:#0e1c37;
-            border:1px solid #17345f;
-            color:#fff !important; /* Đã cập nhật: Đảm bảo màu chữ là màu trắng */
-            border-radius:12px;
-            padding: 0.75rem 1rem;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
+        .form-control:focus, .form-select:focus {
+            background: rgba(10, 25, 50, 0.6);
+            border-color: var(--cyan);
+            box-shadow: 0 0 10px rgba(34, 193, 255, 0.4);
+            color: #fff !important;
         }
-        .form-control:focus,
-        .form-select:focus {
-            border-color:var(--blue);
-            box-shadow:0 0 0 0.25rem rgba(34,193,255,.15), 0 4px 12px rgba(10,163,255,.1);
-            transform: translateY(-1px);
-            background: #0f1d38;
-        }
-        .form-control::placeholder {
-            color: #8fb4ff;
-            opacity: 0.8;
-        }
-        .form-select {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%238fb4ff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
-            background-size: 16px 12px;
-            background-position: right 0.75rem center;
-            background-repeat: no-repeat;
-            padding-right: 2.5rem;
+        .form-control::placeholder, .form-select::placeholder {
+            color: #ccc !important;
         }
         .form-select option {
-            background: #0e1c37;
+            background: #0b162c;
+            color: #fff;
+        }
+        .btn-primary {
+            background: linear-gradient(90deg, var(--blue), var(--cyan));
+            border: none;
+            color: #fff; /* Đổi thành màu trắng */
+            font-weight: 800;
+            /* Tùy chọn: Thêm bóng chữ cho dễ đọc hơn */
+            text-shadow: 0 1px 2px rgb(234, 234, 234);
+        }
+        .btn-primary:hover { filter:brightness(1.1); }
+        .btn-danger, .btn-warning { border: none; border-radius: 10px; }
+        .btn-danger:hover { background-color: #c82333; transform: translateY(-1px); }
+        .btn-warning:hover { background-color: #e0a800; transform: translateY(-1px); }
+
+        /* Filter buttons */
+        .filter-btn {
+            border-radius: 10px 0 0 10px;
+            color: #fff;
+            border: 1px solid var(--border);
+            background: transparent;
+        }
+        .filter-btn:last-child {
+            border-radius: 0 10px 10px 0;
+        }
+        .filter-btn.active {
+            background: var(--blue);
             color: #fff;
         }
 
-        .btn-primary{
-            background:linear-gradient(90deg, var(--blue), var(--cyan));
-            border:none;
-            font-weight:700;
-            color:#051020;
-            border-radius:12px;
-            padding: 0.75rem 2rem;
+        table { color: #fff; }
+        .table {
+            background-color: rgba(10, 25, 50, 0.5) !important; /* Đổi sang màu bán trong suốt */
+            backdrop-filter: blur(4px); /* Thêm hiệu ứng mờ */
+            color: #e6f1ff !important;
+            width: 100%;
+            box-shadow: 0 0 30px rgba(10, 50, 100, 0.35);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(34, 193, 255, 0.15); /* Thêm viền mờ cho đẹp hơn */
+        }
+
+        /* Thêm quy tắc này ngay bên dưới để đảm bảo các ô trong bảng không có nền trắng */
+        .table > tbody > tr > td {
+            background-color: transparent !important;
+            color: #e6f1ff !important;
+        }
+        /* ... */
+        .table thead th {
+            /* Tiêu đề bảng bán trong suốt + hiệu ứng blur */
+            background: rgba(16, 34, 65, 0.4);
+            backdrop-filter: blur(5px);
+            font-weight: 600;
+            text-align: center;
+        }
+        .table tbody tr:nth-of-type(even) {
+            background-color: var(--bs-table-striped-bg);
+        }
+        .table tbody tr:hover {
+            background-color: var(--bs-table-hover-bg);
+            color: var(--bs-table-hover-color);
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+        /* Dark modal */
+        /* =================== TRUE GLASS MODAL =================== */
+        .modal-content.glass-modal {
+            background: rgba(8, 16, 32, 0.35) !important; /* nền mờ trong suốt */
+            backdrop-filter: blur(18px) saturate(160%) !important;
+            -webkit-backdrop-filter: blur(18px) saturate(160%);
+            border: 1px solid rgba(34, 193, 255, 0.35) !important;
+            border-radius: 18px;
+            color: #e6f1ff !important;
+            box-shadow: 0 0 35px rgba(34,193,255,0.2);
             transition: all 0.3s ease;
         }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(10,163,255,.3);
-        }
-        .btn-danger{ border:none; border-radius:12px; }
-        .btn-warning{ border:none; border-radius:12px; }
-        .btn-secondary { border-radius:12px; }
 
-        table{ color:#fff; }
-        thead{ background:#102241; }
+        /* header + footer trong suốt */
+        .modal-content.glass-modal .modal-header,
+        .modal-content.glass-modal .modal-footer {
+            background: rgba(10, 20, 40, 0.45) !important;
+            border-color: rgba(34,193,255,0.25) !important;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        /* input field */
+        .modal-content.glass-modal .form-control {
+            background: rgba(14, 29, 56, 0.55);
+            border: 1px solid rgba(34,193,255,0.25);
+            color: #fff;
+            border-radius: 10px;
+            transition: all 0.25s ease;
+        }
+        .modal-content.glass-modal .form-control:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 10px rgba(34,193,255,0.4);
+            background: rgba(10, 25, 50, 0.65);
+        }
+
+        /* label */
+        .modal-content.glass-modal .form-label {
+            color: #cfe3ff;
+            font-weight: 500;
+        }
+
+        /* button glow */
+        .modal-content.glass-modal .btn-primary {
+            background: linear-gradient(90deg, var(--blue), var(--cyan));
+            border: none;
+            color: #051020;
+            font-weight: 700;
+            box-shadow: 0 0 12px rgba(34,193,255,0.35);
+            transition: 0.3s ease;
+        }
+        .modal-content.glass-modal .btn-primary:hover {
+            box-shadow: 0 0 22px rgba(34,193,255,0.65);
+            transform: translateY(-1px);
+        }
+        .modal-content.glass-modal .btn-outline:hover {
+            color: var(--cyan);
+            border-color: var(--cyan);
+            box-shadow: 0 0 14px rgba(34,193,255,0.4);
+        }
+
+        .modal-content {
+            background-color: transparent !important;
+        }
+        #previewImg {
+            max-width: 100px;
+            max-height: 100px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+
+        /* Search input */
+        #searchInput, #branchFilter {
+            background: rgba(14, 28, 55, 0.4);
+            border: 1px solid rgba(34, 193, 255, 0.2);
+            color: #fff;
+            border-radius: 10px;
+            transition: all .25s ease;
+        }
+        #searchInput:focus, #branchFilter:focus {
+            background: rgba(10, 25, 50, 0.6);
+            border-color: var(--cyan);
+            box-shadow: 0 0 10px rgba(34, 193, 255, 0.4);
+        }
+
+        /* 🔧 Làm nền .film trong suốt hơn, tương tự membership-levels */
+        .film {
+            background: rgba(8, 20, 40, 0.35) !important; /* giảm độ đặc */
+            backdrop-filter: blur(14px) saturate(160%) !important; /* tăng độ mờ và saturation */
+            -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
+            border: 1px solid rgba(34, 193, 255, 0.28) !important;
+            box-shadow: 0 0 40px rgba(10, 50, 100, 0.35);
+        }
+
+        /* Làm header hòa nền */
+        .header {
+            background: rgba(12, 22, 44, 0.08) !important;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(34,193,255,0.15);
+        }
+
+        /* Nâng độ hòa trộn cho hiệu ứng */
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+        /* 🎨 Giữ toàn bộ chữ trong bảng combo màu trắng */
+        .table,
+        .table th,
+        .table td {
+            color: #fff !important;
+        }
+
+        /* Nếu muốn nhấn tiêu đề cột hơn chút */
+        .table thead th {
+            color: #58c6ff !important; /* xanh nhạt như trang Membership */
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        /* Dòng trong bảng khi hover */
+        .table tbody tr:hover td {
+            color: #e6f1ff !important; /* nhẹ hơn để nổi */
+        }
+
+
+        /* ===== Bảng chữ trắng ===== */
+        .table, .table th, .table td { color: #e6f1ff !important; }
+        .table thead th { color: #58c6ff !important; font-weight: 700; text-transform: uppercase; }
 
         .form-label {
+            color: #cfe3ff;
             font-weight: 500;
-            color: #a8c8ff;
-            margin-bottom: 0.5rem;
         }
 
-        /* Cập nhật CSS để tăng khoảng cách cho form (theo yêu cầu trước) */
-        .film .card-body {
-            padding-left: 30px;
-            padding-right: 30px;
+        .form-check-label {
+            color: #fff;
         }
-        .film .card-header {
-            padding-left: 30px;
-            padding-right: 30px;
-            padding-top: 15px;
-            padding-bottom: 15px;
-            background: #102241;
-            border-bottom: 1px solid var(--border);
-            border-top-left-radius: 18px;
-            border-top-right-radius: 18px;
-            font-weight: 700;
+
+        .form-check-input:checked {
+            background-color: var(--cyan);
+            border-color: var(--cyan);
         }
-        .mb-3 {
-            margin-bottom: 1.0rem !important;
+
+        #result {
+            color: #e6f1ff;
+        }
+
+        .text-muted {
+            color: #ccc !important;
+        }
+
+        .form-text {
+            color: #ccc;
         }
     </style>
 </head>
 <body>
+<div class="grain"></div>
 <div class="tickets-wall" aria-hidden="true">
     <div class="tickets-layer l1"></div>
     <div class="tickets-layer l2"></div>
 </div>
-<div class="grain"></div>
 
 <div class="container">
-    <h2 class="text-center mb-4">Thêm Account</h2>
+    <div class="header">
+        <h2>Thêm Account</h2>
+    </div>
 
-    <div class="film mb-4">
-        <div class="card-body">
-            <form id="createAccountForm" enctype="multipart/form-data" method="post">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email <span class="text-muted">(bắt buộc)</span></label>
-                            <input type="email" id="email" name="email" class="form-control" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Mật khẩu <span class="text-muted">(bắt buộc)</span></label>
-                            <input type="password" id="password" name="password" class="form-control" required minlength="6" placeholder="Ít nhất 6 ký tự">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="fullname" class="form-label">Họ và tên</label>
-                            <input type="text" id="fullname" name="fullname" class="form-control">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="phone" class="form-label">Số điện thoại</label>
-                            <input type="tel" id="phone" name="phone" class="form-control">
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="address" class="form-label">Địa chỉ</label>
-                            <input type="text" id="address" name="address" class="form-control">
-                        </div>
+    <div class="film p-4">
+        <form id="createAccountForm" enctype="multipart/form-data" method="post">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email <span class="text-muted">(bắt buộc)</span></label>
+                        <input type="email" id="email" name="email" class="form-control" required>
                     </div>
 
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="avatarFile" class="form-label">Ảnh đại diện (upload file)</label>
-                            <input type="file" id="avatarFile" name="avatarFile" class="form-control" accept="image/*">
-                            <div class="form-text">Nếu bạn upload file, server sẽ lưu file. Nếu không, bạn có thể dùng URL ảnh bên dưới.</div>
-                        </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Mật khẩu <span class="text-muted">(bắt buộc)</span></label>
+                        <input type="password" id="password" name="password" class="form-control" required minlength="6" placeholder="Ít nhất 6 ký tự">
+                    </div>
 
+                    <div class="mb-3">
+                        <label for="fullname" class="form-label">Họ và tên</label>
+                        <input type="text" id="fullname" name="fullname" class="form-control">
+                    </div>
 
-                        <div class="mb-3">
-                            <label for="roleId" class="form-label">Vai trò</label>
-                            <select id="roleId" name="roleId" class="form-select" required>
-                                <option value="3">Staff</option>
-                                <option value="2">Manager</option>
-                            </select>
-                        </div>
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Số điện thoại</label>
+                        <input type="tel" id="phone" name="phone" class="form-control">
+                    </div>
 
-
-                        <div class="mb-3">
-                            <label for="branch" class="form-label">Chi nhánh</label>
-                            <select id="branch" name="branchId" class="form-select">
-                                <option value="">-- Chọn chi nhánh --</option>
-                                <option value="4">Chi nhánh 1</option>
-                                <option value="5">Chi nhánh 2</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="isActive" class="form-label">Trạng thái hoạt động</label>
-                            <select id="isActive" name="isActive" class="form-select">
-                                <option value="true">Active</option>
-                                <option value="false">Inactive</option>
-                            </select>
-                        </div>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Địa chỉ</label>
+                        <input type="text" id="address" name="address" class="form-control">
                     </div>
                 </div>
 
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label for="avatarFile" class="form-label">Ảnh đại diện (upload file)</label>
+                        <input type="file" id="avatarFile" name="avatarFile" class="form-control" accept="image/*">
+                        <div class="form-text">Nếu bạn upload file, server sẽ lưu file. Nếu không, bạn có thể dùng URL ảnh bên dưới.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="roleId" class="form-label">Vai trò</label>
+                        <select id="roleId" name="roleId" class="form-select" required>
+                            <option value="3">Staff</option>
+                            <option value="2">Manager</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="branch" class="form-label">Chi nhánh</label>
+                        <select id="branch" name="branchId" class="form-select">
+                            <option value="">-- Chọn chi nhánh --</option>
+                            <option value="4">Chi nhánh 1</option>
+                            <option value="5">Chi nhánh 2</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="isActive" class="form-label">Trạng thái hoạt động</label>
+                        <select id="isActive" name="isActive" class="form-select">
+                            <option value="true">Active</option>
+                            <option value="false">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center">
                 <button type="submit" class="btn btn-primary">Tạo mới</button>
-                <a href="viewUser.html" class="btn btn-secondary">Hủy</a>
-            </form>
-        </div>
+                <a href="viewUser.html" class="btn btn-secondary ms-2">Hủy</a>
+            </div>
+        </form>
     </div>
 </div>
 
+<!-- JS -->
 <script type="module" src="../js/createUser.js"></script>
 </body>
 </html>

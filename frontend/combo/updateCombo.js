@@ -13,20 +13,34 @@ const comboId = params.get("id");
 const btnChangeImage = document.getElementById("btnChangeImage");
 
 let comboCache = null;
+let currentRole = null;
+let managerBranchId = null;
 
 // ===== Khi trang load =====
 document.addEventListener("DOMContentLoaded", async () => {
     if (!requireAuth()) return;
-    await loadBranches();
+
+    currentRole = localStorage.getItem("role");
+    managerBranchId = localStorage.getItem("branchId");
+
+    // 🔹 Nếu là Manager → chỉ thấy chi nhánh của mình
+    if (currentRole === "Manager") {
+        branchSelect.innerHTML = `<option value="${managerBranchId}">Chi nhánh của bạn (#${managerBranchId})</option>`;
+        branchSelect.disabled = true;
+    } else {
+        await loadBranches(); // Admin load tất cả chi nhánh
+    }
+
+    // 🔹 Tải chi tiết combo
     if (comboId) await loadComboDetail(comboId);
 
-    // 🔹 Cho phép click icon camera để chọn ảnh
+    // 🔹 Click biểu tượng camera để chọn ảnh
     if (btnChangeImage) {
         btnChangeImage.addEventListener("click", () => imageInput.click());
     }
 });
 
-// ===== Load danh sách chi nhánh =====
+// ===== Load danh sách chi nhánh (chỉ dành cho Admin) =====
 async function loadBranches() {
     try {
         const branches = await branchApi.getNames();
@@ -58,12 +72,21 @@ async function loadComboDetail(id) {
         document.getElementById("descriptionCombo").value = combo.descriptionCombo || "";
         document.getElementById("items").value = combo.items || "";
         document.getElementById("available").checked = combo.available ?? false;
-        branchSelect.value = combo.branchId || "";
+
+        // Nếu là Admin → có thể chọn chi nhánh
+        if (currentRole === "Admin") {
+            branchSelect.value = combo.branchId || "";
+        } else {
+            // Manager: khóa chi nhánh của mình
+            branchSelect.value = managerBranchId;
+        }
 
         // Ảnh preview
         if (combo.imageURL) {
             const baseURL = API_BASE_URL.replace("/api/v1", "");
-            previewImg.src = combo.imageURL.startsWith("http") ? combo.imageURL : `${baseURL}${combo.imageURL}`;
+            previewImg.src = combo.imageURL.startsWith("http")
+                ? combo.imageURL
+                : `${baseURL}${combo.imageURL}`;
             previewImg.style.display = "block";
         } else {
             previewImg.style.display = "none";
@@ -86,7 +109,12 @@ form.addEventListener("submit", async (e) => {
     e.preventDefault();
     result.textContent = "";
 
-    const branchIdValue = parseInt(branchSelect.value, 10);
+    // ✅ Nếu Manager → luôn dùng branchId của chính họ
+    const branchIdValue =
+        currentRole === "Manager"
+            ? parseInt(managerBranchId, 10)
+            : parseInt(branchSelect.value, 10);
+
     if (!branchIdValue || isNaN(branchIdValue)) {
         alert("❌ Vui lòng chọn chi nhánh hợp lệ!");
         return;

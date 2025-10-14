@@ -14,7 +14,11 @@ public class AuthResponse {
     private String tokenType;
     private long expiresIn;
 
-    private String email;      // 👈 thêm
-    private String fullName;   // 👈 thêm
+    private String email;
+    private String fullName;
     private String role;
+
+    // ✅ Thêm 2 field này để Manager có chi nhánh
+    private Integer branchId;
+    private String branchName;
 }

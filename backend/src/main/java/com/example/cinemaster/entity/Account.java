@@ -65,7 +65,7 @@ public class Account {
     @JoinColumn(name = "RoleID")
     Role role;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "BranchID")
     Branch branch;
 

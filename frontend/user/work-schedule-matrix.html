@@ -144,6 +144,14 @@
         #assignModal #m-staffList label:hover{ transform: translateY(-1px); border-color:#246bff80; box-shadow:0 6px 16px rgba(0,0,0,.25) }
         #assignModal #m-staffList input[type="checkbox"]{ transform: scale(1.15); accent-color: var(--blue); }
         #assignModal #m-staffList .m-staff:checked + span{ color:#ffffff; font-weight:600 }
+        tbody.readonly .schedule-cell {
+            cursor: default !important;
+            background-color: rgba(255,255,255,0.02);
+        }
+        tbody.readonly .schedule-cell:hover {
+            background-color: rgba(255,255,255,0.05);
+        }
+
     </style>
 </head>
 <body>

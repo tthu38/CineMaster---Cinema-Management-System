@@ -44,6 +44,8 @@ public class AuthService {
                 .email(acc.getEmail())
                 .fullName(acc.getFullName())
                 .role(role)
+                .branchId(acc.getBranch() != null ? acc.getBranch().getId() : null)           // ✅ thêm dòng này
+                .branchName(acc.getBranch() != null ? acc.getBranch().getBranchName() : null) // ✅ thêm dòng này
                 .build();
     }
 

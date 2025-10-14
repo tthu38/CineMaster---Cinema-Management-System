@@ -22,12 +22,12 @@ public class WorkSchedule {
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "AccountID", nullable = false)
-    private Account accountID;
+    private Account account;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "BranchID", nullable = false)
-    private Branch branchID;
+    private Branch branch;
 
     @NotNull
     @Column(name = "ShiftDate", nullable = false)
@@ -50,5 +50,4 @@ public class WorkSchedule {
     @Nationalized
     @Column(name = "Note")
     private String note;
-
 }

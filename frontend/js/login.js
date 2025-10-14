@@ -30,6 +30,9 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
         const role = data.role || data.result?.role || "Customer";
         const fullName = data.fullName || data.result?.fullName || "";
         const email = data.email || data.result?.email || "";
+        const branchId = data.branchId || data.result?.branchId || null;
+        const branchName = data.branchName || data.result?.branchName || "";
+
 
         if (!token) throw new Error("Không nhận được access token từ server");
 
@@ -38,6 +41,9 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
         localStorage.setItem("role", role);
         localStorage.setItem("fullName", fullName);
         localStorage.setItem("email", email);
+        localStorage.setItem("branchId", branchId);
+        localStorage.setItem("branchName", branchName);
+
 
         // Ghi nhớ tài khoản nếu chọn “Remember me”
         if (rememberMe) localStorage.setItem("rememberedUsername", phoneNumber);

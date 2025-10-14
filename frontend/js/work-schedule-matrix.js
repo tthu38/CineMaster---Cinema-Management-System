@@ -1,4 +1,4 @@
-// ================= WORK SCHEDULE MATRIX =================
+/// ================= WORK SCHEDULE MATRIX =================
 import workScheduleApi from './api/workScheduleApi.js';
 import staffApi from './api/staffApi.js';
 
@@ -37,6 +37,39 @@ const f = {
     list: document.getElementById('m-staffList'),
     form: document.getElementById('assignForm'),
 };
+
+// ===== ROLE & BRANCH =====
+const role = localStorage.getItem("role");
+const myBranchId = Number(localStorage.getItem("branchId"));
+
+// ===== AUTO SET BRANCH FOR MANAGER + STAFF =====
+if ((role === "Manager" || role === "Staff") && branchInp) {
+    branchInp.value = myBranchId;
+    branchInp.readOnly = true;
+    branchInp.classList.add("bg-light"); // hiển thị kiểu khóa
+}
+
+
+// ===== RESTRICT UI FOR STAFF =====
+if (role === "Staff") {
+    // Ẩn nút “Chỉnh giờ làm”
+    if (btnEditShiftHours) btnEditShiftHours.style.display = "none";
+
+    // Ẩn nút “Lưu” trong modal assign
+    if (f.form) {
+        const saveBtn = f.form.querySelector('button[type="submit"]');
+        if (saveBtn) saveBtn.style.display = "none";
+    }
+
+    // Chặn click vào cell để không mở modal assign
+    tbody.addEventListener('click', e => {
+        e.stopPropagation();
+        e.preventDefault();
+    }, true);
+
+    // Làm nhạt bảng để user biết là “readonly”
+    tbody.classList.add("readonly");
+}
 
 // ===== constants =====
 const SHIFTS = ['MORNING', 'AFTERNOON', 'NIGHT'];
@@ -150,7 +183,11 @@ async function load(){
     const wk = weekPicker.value;
     if(!wk) return;
     const branchId = branchInp.value ? Number(branchInp.value) : null;
-    if(!branchId){ alert('Vui lòng nhập Branch ID.'); return; }
+    if(!branchId){
+        alert('Không xác định được chi nhánh làm việc.');
+        return;
+    }
+
 
     STATE.branchId = branchId;
     STATE.dates = weekDates(wk);
@@ -190,6 +227,7 @@ tbody.addEventListener('click', async (e)=>{
     if(!td) return;
     const date = td.dataset.date;
     const shift = td.dataset.shift;
+
     f.date.value = date;
     f.shift.value = shift;
     f.err.textContent = '';
@@ -200,11 +238,29 @@ tbody.addEventListener('click', async (e)=>{
         const selected = new Set((assigned||[]).map(x => x.accountId));
         renderStaffCheckboxes(selected);
         assignModal.show();
+
+        if (role === "Staff") {
+            // ẩn nút lưu, khóa checkbox
+            f.form.querySelector('button[type="submit"]').style.display = "none";
+            f.list.querySelectorAll('input[type="checkbox"]').forEach(i => i.disabled = true);
+            f.checkAll.style.display = "none";
+            f.uncheckAll.style.display = "none";
+            f.filter.disabled = true;
+        } else {
+            // Manager/Admin thì hiển thị lại nếu ẩn
+            f.form.querySelector('button[type="submit"]').style.display = "";
+            f.list.querySelectorAll('input[type="checkbox"]').forEach(i => i.disabled = false);
+            f.checkAll.style.display = "";
+            f.uncheckAll.style.display = "";
+            f.filter.disabled = false;
+        }
+
     }catch(err){
         console.error(err);
         f.err.textContent = 'Không tải được dữ liệu ô.';
     }
 });
+
 
 function renderStaffCheckboxes(selected){
     const q = f.filter.value.trim().toLowerCase();

@@ -8,7 +8,7 @@ let currentBranch = "";
 let currentAvailable = "";
 let currentKeyword = "";
 
-// ===== Toast & Confirm Modal =====
+/* ==================== TOAST & CONFIRM ==================== */
 function showToast(message, type = "success") {
     const bg = type === "error" ? "bg-danger" : "bg-success";
     const toastEl = document.createElement("div");
@@ -38,15 +38,26 @@ function showConfirm(message, onConfirm) {
     okBtn.addEventListener("click", handleOk);
 }
 
-// ===== INIT =====
+/* ==================== INIT ==================== */
 document.addEventListener("DOMContentLoaded", init);
 
 async function init() {
     if (!requireAuth()) return;
-    await loadBranches();
-    await loadCombos();
 
-    document.getElementById("branchFilter").addEventListener("change", handleFilters);
+    const role = localStorage.getItem("role");
+    const branchId = localStorage.getItem("branchId");
+
+    if (role === "Manager") {
+        // 🔒 Manager chỉ được xem combo của chi nhánh mình
+        document.getElementById("branchFilter").style.display = "none"; // ẩn dropdown chi nhánh
+        await loadCombosByBranch(branchId);
+    } else {
+        // Admin load tất cả
+        await loadBranches();
+        await loadCombos();
+    }
+
+    // Filter buttons
     document.querySelectorAll(".filter-btn").forEach(btn => {
         btn.addEventListener("click", () => {
             document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
@@ -56,14 +67,19 @@ async function init() {
         });
     });
 
+    // Search input
     const searchInput = document.getElementById("searchInput");
     searchInput.addEventListener("input", () => {
         currentKeyword = searchInput.value.trim().toLowerCase();
         handleFilters();
     });
+
+    // Branch filter (Admin only)
+    const branchSelect = document.getElementById("branchFilter");
+    if (branchSelect) branchSelect.addEventListener("change", handleFilters);
 }
 
-// ===== LOAD BRANCHES =====
+/* ==================== LOAD BRANCHES ==================== */
 async function loadBranches() {
     try {
         const data = await branchApi.getAll();
@@ -77,7 +93,7 @@ async function loadBranches() {
     }
 }
 
-// ===== LOAD COMBOS =====
+/* ==================== LOAD COMBOS ==================== */
 async function loadCombos() {
     try {
         const data = await comboApi.getAll();
@@ -88,9 +104,20 @@ async function loadCombos() {
     }
 }
 
-// ===== FILTER =====
+/* ==================== LOAD COMBOS THEO CHI NHÁNH (MANAGER) ==================== */
+async function loadCombosByBranch(branchId) {
+    try {
+        const data = await comboApi.getByBranch(branchId);
+        allCombos = data || [];
+        renderTable(allCombos);
+    } catch (err) {
+        console.error("❌ Lỗi khi tải combo chi nhánh:", err);
+    }
+}
+
+/* ==================== FILTER ==================== */
 function handleFilters() {
-    const branchId = document.getElementById("branchFilter").value;
+    const branchId = document.getElementById("branchFilter")?.value || "";
     currentBranch = branchId;
 
     let filtered = [...allCombos];
@@ -106,17 +133,16 @@ function handleFilters() {
             return text.includes(keyword) || price.includes(keyword);
         });
     }
+
     renderTable(filtered);
 }
 
-// ===== DELETE / RESTORE =====
 window.deleteCombo = function (id) {
     showConfirm("Bạn có chắc muốn ẩn combo này không?", async () => {
         try {
             await comboApi.delete(id);
-            showToast("✅ Combo đã được ẩn (xóa mềm)!");
-            await loadCombos();
-            handleFilters();
+            showToast("✅ Combo đã được ẩn!");
+            await refreshAfterAction();
         } catch (err) {
             console.error("❌ Lỗi khi xóa combo:", err);
             showToast("⚠️ Lỗi khi xóa combo!", "error");
@@ -129,8 +155,7 @@ window.restoreCombo = function (id) {
         try {
             await comboApi.restore(id);
             showToast("♻️ Combo đã được khôi phục!");
-            await loadCombos();
-            handleFilters();
+            await refreshAfterAction();
         } catch (err) {
             console.error("❌ Lỗi khi khôi phục combo:", err);
             showToast("⚠️ Lỗi khi khôi phục combo!", "error");
@@ -138,7 +163,15 @@ window.restoreCombo = function (id) {
     });
 };
 
-// ===== TABLE RENDER =====
+async function refreshAfterAction() {
+    const role = localStorage.getItem("role");
+    const branchId = localStorage.getItem("branchId");
+    if (role === "Manager") await loadCombosByBranch(branchId);
+    else await loadCombos();
+    handleFilters();
+}
+
+/* ==================== TABLE RENDER ==================== */
 function renderTable(data) {
     if (dataTable) dataTable.destroy();
 
@@ -162,7 +195,11 @@ function renderTable(data) {
         <td>${c.price.toLocaleString("vi-VN")} đ</td>
         <td title="${c.descriptionCombo || ""}">${c.descriptionCombo || ""}</td>
         <td title="${c.items || ""}">${c.items || ""}</td>
-        <td><span class="status-dot ${c.available ? "status-active" : "status-inactive"}"></span></td>
+        <td>
+          <span class="badge ${c.available ? "bg-success" : "bg-secondary"}">
+            ${c.available ? "Có sẵn" : "Hết hàng"}
+          </span>
+        </td>
         <td>${c.branchName || ""}</td>
         <td>
           <a href="updateCombo.html?id=${c.id}" class="btn btn-warning btn-sm me-2">Sửa</a>

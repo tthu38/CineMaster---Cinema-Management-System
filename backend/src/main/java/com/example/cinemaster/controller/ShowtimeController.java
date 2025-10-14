@@ -4,12 +4,14 @@ import com.example.cinemaster.dto.request.ShowtimeCreateRequest;
 import com.example.cinemaster.dto.request.ShowtimeUpdateRequest;
 import com.example.cinemaster.dto.response.DayScheduleResponse;
 import com.example.cinemaster.dto.response.ShowtimeResponse;
+import com.example.cinemaster.security.AccountPrincipal;
 import com.example.cinemaster.service.ShowtimeService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -26,10 +28,16 @@ public class ShowtimeController {
         this.service = service;
     }
 
-    @PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasAnyRole('Admin','Manager')")
     @PostMapping
-    public ResponseEntity<ShowtimeResponse> create(@Valid @RequestBody ShowtimeCreateRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(service.create(request));
+    public ResponseEntity<ShowtimeResponse> create(
+            @Valid @RequestBody ShowtimeCreateRequest request,
+            Authentication auth) {
+
+        AccountPrincipal user = (AccountPrincipal) auth.getPrincipal();
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(service.create(request, user));
     }
 
     @GetMapping("/{id}")
@@ -54,20 +62,29 @@ public class ShowtimeController {
         return ResponseEntity.ok(service.search(periodId, auditoriumId, from, to, pageable));
     }
 
-    @PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasAnyRole('Admin','Manager')")
     @PutMapping("/{id}")
-    public ResponseEntity<ShowtimeResponse> update(@PathVariable Integer id,
-                                                   @Valid @RequestBody ShowtimeUpdateRequest request) {
-        return ResponseEntity.ok(service.update(id, request));
+    public ResponseEntity<ShowtimeResponse> update(
+            @PathVariable Integer id,
+            @Valid @RequestBody ShowtimeUpdateRequest request,
+            Authentication auth) {
+
+        AccountPrincipal user = (AccountPrincipal) auth.getPrincipal();
+        if (user.hasRole("Manager")) {
+            return ResponseEntity.ok(service.update(id, request, user));
+        }
+        return ResponseEntity.ok(service.update(id, request, null));
     }
 
-    @PreAuthorize("hasRole('Admin')")
+
+    @PreAuthorize("hasAnyRole('Admin','Manager')")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Integer id) {
-        service.delete(id);
+    public ResponseEntity<Void> delete(@PathVariable Integer id, Authentication auth) {
+        AccountPrincipal user = (AccountPrincipal) auth.getPrincipal();
+        service.delete(id, user);
         return ResponseEntity.noContent().build();
     }
-    // ShowtimeController.java (thêm)
+
     @GetMapping("/next-week")
     public ResponseEntity<List<DayScheduleResponse>> nextWeek(
             @RequestParam(required = false) Integer branchId
@@ -80,7 +97,7 @@ public class ShowtimeController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate anchor,
             @RequestParam(required = false) Integer branchId
     ){
-        // anchor = null -> service sẽ mặc định dùng LocalDate.now()
+
         return ResponseEntity.ok(service.getWeekSchedule(anchor, branchId));
     }
 

@@ -1,4 +1,3 @@
-// src/main/java/com/example/cinemaster/service/WorkScheduleService.java
 package com.example.cinemaster.service;
 
 import com.example.cinemaster.dto.request.*;
@@ -25,104 +24,81 @@ public class WorkScheduleService {
     private final WorkScheduleRepository repo;
     private final AccountRepository accountRepo;
     private final BranchRepository branchRepo;
+    private final WorkScheduleMapper mapper; // ✅ inject mapper bean
 
     // ===== CRUD =====
     public WorkScheduleResponse create(WorkScheduleCreateRequest req) {
-        Account acc = accountRepo.findById(req.accountId())
-                .orElseThrow(() -> new EntityNotFoundException("Account not found: " + req.accountId()));
-        Branch br = branchRepo.findById(req.branchId())
-                .orElseThrow(() -> new EntityNotFoundException("Branch not found: " + req.branchId()));
+        Account acc = accountRepo.findById(req.getAccountId())
+                .orElseThrow(() -> new EntityNotFoundException("Account not found: " + req.getAccountId()));
+        Branch br = branchRepo.findById(req.getBranchId())
+                .orElseThrow(() -> new EntityNotFoundException("Branch not found: " + req.getBranchId()));
 
-        // Không cho tạo nếu staff không cùng branch
         ensureAccountBelongsToBranch(acc, br.getId());
 
-        WorkSchedule e = new WorkSchedule();
-        e.setAccountID(acc);
-        e.setBranchID(br);
-        e.setShiftDate(req.shiftDate());
-        e.setStartTime(req.startTime());
-        e.setEndTime(req.endTime());
-        e.setShiftType(req.shiftType());
-        e.setNote(req.note());
-        return WorkScheduleMapper.toResponse(repo.save(e));
+        // Dùng mapper thay vì set thủ công
+        WorkSchedule e = mapper.toEntity(req, acc, br);
+        return mapper.toResponse(repo.save(e));
     }
 
     public WorkScheduleResponse update(Integer id, WorkScheduleUpdateRequest req) {
         WorkSchedule e = repo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Schedule not found: " + id));
-        e.setShiftDate(req.shiftDate());
-        e.setStartTime(req.startTime());
-        e.setEndTime(req.endTime());
-        e.setShiftType(req.shiftType());
-        e.setNote(req.note());
-        return WorkScheduleMapper.toResponse(repo.save(e));
+        mapper.updateEntity(req, e);
+        return mapper.toResponse(repo.save(e));
     }
 
     public void delete(Integer id) {
-        if (!repo.existsById(id)) throw new EntityNotFoundException("Schedule not found: " + id);
+        if (!repo.existsById(id))
+            throw new EntityNotFoundException("Schedule not found: " + id);
         repo.deleteById(id);
     }
 
     public WorkScheduleResponse get(Integer id) {
         return repo.findById(id)
-                .map(WorkScheduleMapper::toResponse)
+                .map(mapper::toResponse)
                 .orElseThrow(() -> new EntityNotFoundException("Schedule not found: " + id));
     }
 
-    public PageResponse<WorkScheduleResponse> search(Integer accountId, Integer branchId, LocalDate from, LocalDate to, Pageable pageable) {
+    public PageResponse<WorkScheduleResponse> search(Integer accountId, Integer branchId,
+                                                     LocalDate from, LocalDate to, Pageable pageable) {
         Specification<WorkSchedule> spec = Specification.allOf(
                 WorkScheduleRepository.hasAccount(accountId),
                 WorkScheduleRepository.hasBranch(branchId),
                 WorkScheduleRepository.dateBetween(from, to)
         );
         Page<WorkSchedule> page = repo.findAll(spec, pageable);
-        List<WorkScheduleResponse> items = page.stream().map(WorkScheduleMapper::toResponse).toList();
-        return new PageResponse<>(items, page.getNumber(), page.getSize(), page.getTotalElements(), page.getTotalPages());
+        List<WorkScheduleResponse> items = page.stream()
+                .map(mapper::toResponse)
+                .toList();
+        return new PageResponse<>(items, page.getNumber(), page.getSize(),
+                page.getTotalElements(), page.getTotalPages());
     }
 
     // ===== Matrix + Cell =====
     public Map<String, Map<String, List<WorkScheduleCellAssignmentResponse>>> getMatrix(LocalDate from, LocalDate to, Integer branchId) {
         var spec = Specification.allOf(
-                WorkScheduleRepository.hasBranch(branchId),   // bắt buộc theo branch
+                WorkScheduleRepository.hasBranch(branchId),
                 WorkScheduleRepository.dateBetween(from, to)
         );
 
         List<WorkSchedule> rows = repo.findAll(spec);
 
-        // Ẩn mọi lịch mà account không thuộc đúng branch (dữ liệu cũ bị sai)
         if (branchId != null) {
             rows = rows.stream()
                     .filter(ws -> {
-                        Account a = ws.getAccountID();
+                        Account a = ws.getAccount();
                         return a != null && a.getBranch() != null
                                 && Objects.equals(a.getBranch().getId(), branchId);
                     })
                     .toList();
         }
 
-        return rows.stream().collect(Collectors.groupingBy(
-                ws -> ws.getShiftDate().toString(),
-                Collectors.groupingBy(
-                        WorkSchedule::getShiftType,
-                        Collectors.mapping(ws -> WorkScheduleCellAssignmentResponse.builder()
-                                        .scheduleId(ws.getId())
-                                        .branchId(ws.getBranchID() != null ? ws.getBranchID().getId() : null)
-                                        .accountId(ws.getAccountID() != null ? ws.getAccountID().getAccountID() : null)
-                                        .accountName(ws.getAccountID() != null ? ws.getAccountID().getFullName() : null)
-                                        .build(),
-                                Collectors.toList()
-                        )
-                )
-        ));
+        return mapper.toMatrix(rows);
     }
 
     public List<WorkScheduleCellAssignmentResponse> getCell(Integer branchId, LocalDate date, String shiftType) {
-        return repo.findByBranchID_IdAndShiftDateAndShiftType(branchId, date, shiftType).stream()
-                .map(ws -> WorkScheduleCellAssignmentResponse.builder()
-                        .scheduleId(ws.getId())
-                        .accountId(ws.getAccountID() != null ? ws.getAccountID().getAccountID() : null)
-                        .accountName(ws.getAccountID() != null ? ws.getAccountID().getFullName() : null)
-                        .build())
+        return repo.findByBranch_IdAndShiftDateAndShiftType(branchId, date, shiftType).stream()
+                .map(mapper::toCellAssignment)
                 .toList();
     }
 
@@ -132,15 +108,15 @@ public class WorkScheduleService {
         var br = branchRepo.findById(req.getBranchId())
                 .orElseThrow(() -> new EntityNotFoundException("Branch not found: " + req.getBranchId()));
 
-        // Xóa toàn bộ cell cũ
         repo.deleteCell(req.getBranchId(), req.getDate(), req.getShiftType());
 
         var defaults = Map.of(
-                "MORNING",   new LocalTime[]{LocalTime.of(8,0),  LocalTime.of(12,0)},
-                "AFTERNOON", new LocalTime[]{LocalTime.of(13,0), LocalTime.of(17,0)},
-                "NIGHT",     new LocalTime[]{LocalTime.of(18,0), LocalTime.of(22,0)}
+                "MORNING", new LocalTime[]{LocalTime.of(8, 0), LocalTime.of(12, 0)},
+                "AFTERNOON", new LocalTime[]{LocalTime.of(13, 0), LocalTime.of(17, 0)},
+                "NIGHT", new LocalTime[]{LocalTime.of(18, 0), LocalTime.of(22, 0)}
         );
-        var times = defaults.getOrDefault(req.getShiftType(), new LocalTime[]{LocalTime.of(8,0), LocalTime.of(12,0)});
+        var times = defaults.getOrDefault(req.getShiftType(),
+                new LocalTime[]{LocalTime.of(8, 0), LocalTime.of(12, 0)});
 
         WorkSchedule last = null;
 
@@ -149,28 +125,49 @@ public class WorkScheduleService {
                 var acc = accountRepo.findById(accId)
                         .orElseThrow(() -> new EntityNotFoundException("Account not found: " + accId));
 
-                // ÉP LUẬT: nhân viên phải thuộc đúng branch
                 ensureAccountBelongsToBranch(acc, req.getBranchId());
 
-                var e = new WorkSchedule();
-                e.setBranchID(br);
-                e.setAccountID(acc);
-                e.setShiftDate(req.getDate());
-                e.setShiftType(req.getShiftType());
-                e.setStartTime(times[0]);
-                e.setEndTime(times[1]);
+                WorkSchedule e = mapper.toEntityForUpsert(acc, br, req, times);
                 last = repo.save(e);
             }
         }
-        return last == null ? null : WorkScheduleMapper.toResponse(last);
+        return last == null ? null : mapper.toResponse(last);
     }
 
-    // ===== Helper: dùng trong class này =====
-    private void ensureAccountBelongsToBranch(Account acc, Integer branchId) {
+    // ===== Helper =====
+    public void ensureScheduleInBranch(Integer scheduleId, Integer managerBranchId) {
+        WorkSchedule ws = repo.findById(scheduleId)
+                .orElseThrow(() -> new EntityNotFoundException("Schedule not found: " + scheduleId));
+
+        Integer scheduleBranch = ws.getBranch().getId();
+        if (!Objects.equals(scheduleBranch, managerBranchId)) {
+            throw new IllegalArgumentException("Bạn không có quyền sửa lịch của chi nhánh khác!");
+        }
+    }
+
+    // Kiểm tra: nhân viên có thuộc chi nhánh đang thao tác không
+    // WorkScheduleService.java
+    public void ensureAccountBelongsToBranch(Account acc, Integer branchId) {
+        if (acc == null) {
+            throw new IllegalArgumentException("Account is null");
+        }
         Integer accBranch = acc.getBranch() != null ? acc.getBranch().getId() : null;
         if (!Objects.equals(accBranch, branchId)) {
             throw new IllegalArgumentException(
-                    "Staff " + acc.getAccountID() + " không thuộc branch " + branchId);
+                    "Nhân viên #" + acc.getAccountID() + " không thuộc chi nhánh " + branchId
+            );
         }
     }
+
+    public void ensureAccountBelongsToBranchs(Integer accountId, Integer branchId) {
+        Account acc = accountRepo.findById(accountId)
+                .orElseThrow(() -> new EntityNotFoundException("Account not found: " + accountId));
+
+        Integer accBranch = acc.getBranch() != null ? acc.getBranch().getId() : null;
+        if (!Objects.equals(accBranch, branchId)) {
+            throw new IllegalArgumentException("Nhân viên #" + accountId + " không thuộc chi nhánh #" + branchId);
+        }
+    }
+
+
 }

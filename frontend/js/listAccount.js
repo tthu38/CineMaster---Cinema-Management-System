@@ -23,6 +23,9 @@ let currentKeyword = "";
 let currentBranchId = null;
 let initialized = false;
 
+let currentRole = null;
+let managerBranchId = null;
+
 // ========================= SEARCH =========================
 document.getElementById("searchInput").addEventListener("input", e => {
     currentKeyword = e.target.value.trim();
@@ -41,9 +44,18 @@ branchSelect.addEventListener("change", e => {
 async function loadAccounts(page = 0) {
     table.innerHTML = `<tr><td colspan="9" class="text-center">Đang tải...</td></tr>`;
     try {
+        let branchFilter = currentBranchId;
+
+        // Nếu đang xem danh sách staff
+        const viewingStaff = currentRoleId && Number(currentRoleId) === 2; // giả sử 2 = Staff RoleId
+        if (viewingStaff && (currentRole === "Manager" || currentRole === "Staff")) {
+            branchFilter = managerBranchId; // chỉ staff của chi nhánh mình
+        }
+
         const res = await accountApi.getAllPaged(
-            page, pageSize, currentRoleId, currentBranchId, currentKeyword
+            page, pageSize, currentRoleId, branchFilter, currentKeyword
         );
+
         renderTable(res.content);
         renderPagination(res);
         currentPage = res.page;
@@ -53,6 +65,7 @@ async function loadAccounts(page = 0) {
     }
 }
 
+
 // ========================= LOAD BRANCHES =========================
 async function loadBranches() {
     try {
@@ -60,17 +73,14 @@ async function loadBranches() {
         branchSelect.innerHTML = `<option value="">Tất cả chi nhánh</option>`;
 
         branches.forEach(b => {
-            // ✅ Dò key chính xác: branchID, id, hoặc branchId
             const branchValue = b.branchID ?? b.id ?? b.branchId;
             branchSelect.innerHTML += `<option value="${branchValue}">${b.branchName}</option>`;
         });
-
     } catch (err) {
         console.error("❌ Error loading branches:", err);
         branchSelect.innerHTML = `<option value="">(Lỗi tải chi nhánh)</option>`;
     }
 }
-
 
 // ========================= RENDER TABLE =========================
 function renderTable(accounts = []) {
@@ -88,14 +98,39 @@ function renderTable(accounts = []) {
         const statusDot = `<span class="status-dot ${acc.isActive ? "status-active" : "status-inactive"}"
                                 title="${acc.isActive ? "Đang hoạt động" : "Đã vô hiệu hóa"}"></span>`;
 
-        const actionButtons = acc.isActive
-            ? `
+        let actionButtons = "";
+
+// 🧑‍💼 ADMIN: full quyền
+        if (currentRole === "Admin") {
+            actionButtons = acc.isActive
+                ? `
+            <a href="updateUser.html?id=${acc.accountID}" class="btn btn-sm btn-warning me-1">Sửa</a>
+            <button class="btn btn-sm btn-danger btn-delete" data-id="${acc.accountID}" data-name="${acc.fullName || acc.email}">Xóa</button>
+          `
+                : `
+            <button class="btn btn-sm btn-success btn-restore" data-id="${acc.accountID}" data-name="${acc.fullName || acc.email}">Khôi phục</button>
+          `;
+        }
+// 🧑‍💼 MANAGER: CRUD staff của chi nhánh mình, chỉ xem customer
+        else if (currentRole === "Manager") {
+            if (acc.roleName === "Staff") {
+                actionButtons = acc.isActive
+                    ? `
                 <a href="updateUser.html?id=${acc.accountID}" class="btn btn-sm btn-warning me-1">Sửa</a>
                 <button class="btn btn-sm btn-danger btn-delete" data-id="${acc.accountID}" data-name="${acc.fullName || acc.email}">Xóa</button>
               `
-            : `
+                    : `
                 <button class="btn btn-sm btn-success btn-restore" data-id="${acc.accountID}" data-name="${acc.fullName || acc.email}">Khôi phục</button>
               `;
+            } else {
+                actionButtons = `<span class="text-muted">—</span>`;
+            }
+        }
+// 👷 STAFF: chỉ xem (không CRUD) staff & customer
+        else if (currentRole === "Staff") {
+            actionButtons = `<span class="text-muted">—</span>`;
+        }
+
 
         table.innerHTML += `
             <tr data-id="${acc.accountID}">
@@ -117,7 +152,6 @@ function renderTable(accounts = []) {
 
 // ========================= ATTACH EVENTS =========================
 function attachRowEvents() {
-    // Nút Xóa
     document.querySelectorAll(".btn-delete").forEach(btn => {
         btn.addEventListener("click", () => {
             currentDeleteId = btn.dataset.id;
@@ -126,7 +160,6 @@ function attachRowEvents() {
         });
     });
 
-    // Nút Khôi phục
     document.querySelectorAll(".btn-restore").forEach(btn => {
         btn.addEventListener("click", () => {
             currentRestoreId = btn.dataset.id;
@@ -184,12 +217,10 @@ function updateRowStatus(accountID, isActive) {
     const row = table.querySelector(`tr[data-id="${accountID}"]`);
     if (!row) return;
 
-    // Cập nhật chấm trạng thái
     const dotCell = row.children[5];
     dotCell.innerHTML = `<span class="status-dot ${isActive ? "status-active" : "status-inactive"}"
                              title="${isActive ? "Đang hoạt động" : "Đã vô hiệu hóa"}"></span>`;
 
-    // Cập nhật cột hành động
     const actionCell = row.children[8];
     actionCell.innerHTML = isActive
         ? `
@@ -200,7 +231,7 @@ function updateRowStatus(accountID, isActive) {
             <button class="btn btn-sm btn-success btn-restore" data-id="${accountID}">Khôi phục</button>
           `;
 
-    attachRowEvents(); // gắn lại event cho nút mới
+    attachRowEvents();
 }
 
 // ========================= ROLE FILTER BUTTONS =========================
@@ -215,11 +246,32 @@ document.querySelectorAll(".filter-btn").forEach(btn => {
 
 // ========================= INIT =========================
 async function init() {
-    if (initialized) return; // tránh gọi lại
+    if (initialized) return;
     initialized = true;
 
     if (!requireAuth()) return;
-    await loadBranches();
+
+    currentRole = localStorage.getItem("role");
+    managerBranchId = localStorage.getItem("branchId");
+
+    console.log("🧭 Role:", currentRole, "Branch:", managerBranchId);
+
+    if (currentRole === "Manager") {
+        // Manager: chỉ xem/CRUD staff của chi nhánh mình
+        branchSelect.parentElement.style.display = "none";
+        currentBranchId = Number(managerBranchId);
+    }
+    else if (currentRole === "Staff") {
+        // Staff: chỉ xem staff của chi nhánh mình (readonly)
+        branchSelect.parentElement.style.display = "none";
+        currentBranchId = Number(managerBranchId);
+    }
+    else {
+        // Admin: xem tất cả chi nhánh
+        await loadBranches();
+    }
+
+
     await loadAccounts();
 }
 

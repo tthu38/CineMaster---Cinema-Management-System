@@ -17,24 +17,34 @@ public class NoShiftOverlapValidator implements ConstraintValidator<NoShiftOverl
     public boolean isValid(WorkScheduleCreateRequest req, ConstraintValidatorContext ctx) {
         if (req == null) return true;
 
-        if (req.startTime() != null && req.endTime() != null && !req.startTime().isBefore(req.endTime())) {
+        // ===== Kiểm tra thời gian hợp lệ =====
+        if (req.getStartTime() != null && req.getEndTime() != null && !req.getStartTime().isBefore(req.getEndTime())) {
             ctx.disableDefaultConstraintViolation();
             ctx.buildConstraintViolationWithTemplate("StartTime phải nhỏ hơn EndTime")
                     .addPropertyNode("startTime").addConstraintViolation();
             return false;
         }
-        if (req.accountId() == null || req.shiftDate() == null || req.startTime() == null || req.endTime() == null) {
+
+        if (req.getAccountId() == null || req.getShiftDate() == null ||
+                req.getStartTime() == null || req.getEndTime() == null) {
             return true; // để @NotNull khác xử lý
         }
 
-        boolean overlapped = repo.existsByAccountID_AccountIDAndShiftDateAndStartTimeLessThanAndEndTimeGreaterThan(
-                req.accountId(), req.shiftDate(), req.endTime(), req.startTime());
+        // ===== Kiểm tra trùng ca =====
+        boolean overlapped = repo.existsByAccount_AccountIDAndShiftDateAndStartTimeLessThanAndEndTimeGreaterThan(
+                req.getAccountId(),
+                req.getShiftDate(),
+                req.getEndTime(),
+                req.getStartTime()
+        );
+
         if (overlapped) {
             ctx.disableDefaultConstraintViolation();
             ctx.buildConstraintViolationWithTemplate("Trùng ca với lịch khác trong ngày")
                     .addConstraintViolation();
             return false;
         }
+
         return true;
     }
 }

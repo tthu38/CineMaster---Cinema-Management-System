@@ -47,7 +47,6 @@
             text-align: center;
         }
 
-        /* ✅ CSS CHO KHỐI THÔNG TIN MANAGER */
         .sidebar-user-info {
             padding: 1rem 1.25rem;
             text-align: center;
@@ -97,6 +96,7 @@
         iframe { width: 100%; min-height: 100vh; border: none; }
     </style>
 </head>
+
 <body>
 <div id="wrapper">
     <aside id="sidebar">
@@ -104,46 +104,47 @@
             <i class="fas fa-film"></i> CineMaster
         </div>
 
+        <!-- ✅ Thông tin Manager -->
         <div class="sidebar-user-info">
-            <div class="manager-name"><%= manager.fullName %></div>
-            <div class="branch-name">
-                <i class="fas fa-store"></i> Chi nhánh: <%= manager.branchName %>
+            <div class="manager-name" id="managerName">Đang tải...</div>
+            <div class="branch-name" id="branchName">
+                <i class="fas fa-store"></i> Chi nhánh: ...
             </div>
         </div>
 
+        <!-- ✅ Sidebar menu -->
         <div class="sidebar-content">
             <div class="list-group list-group-flush my-3">
                 <a href="#" class="list-group-item list-group-item-action active"
                    onclick="loadIframe('manager_dashboard_home.html', this); return false;">
                     <i class="fas fa-chart-line"></i> Tổng quan chi nhánh
                 </a>
-
                 <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('manager/showtimes.html', this); return false;">
+                   onclick="loadIframe('../user/showtimes-calendar.html', this); return false;">
                     <i class="fas fa-clock"></i> Quản lý lịch chiếu
                 </a>
-
                 <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('manager/staff.html', this); return false;">
+                   onclick="loadIframe('../user/viewUser.html', this); return false;">
                     <i class="fas fa-users-cog"></i> Quản lý nhân viên
                 </a>
 
                 <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('manager/movies.html', this); return false;">
+                   onclick="loadIframe('../user/work-schedule-matrix.html', this); return false;">
+                    <i class="fas fa-users-cog"></i> Quản lý ca làm
+                </a>
+                <a href="#" class="list-group-item list-group-item-action"
+                   onclick="loadIframe('../movies/listMovies.html', this); return false;">
                     <i class="fas fa-film"></i> Danh sách phim
                 </a>
-
                 <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('manager/combos.html', this); return false;">
+                   onclick="loadIframe('../combo/listCombo.html', this); return false;">
                     <i class="fas fa-box-open"></i> Quản lý combo
                 </a>
-
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('manager/revenue.html', this); return false;">
                     <i class="fas fa-coins"></i> Báo cáo doanh thu
                 </a>
-
-                <a href="/logout" class="list-group-item list-group-item-action text-danger mt-auto">
+                <a href="../user/login.html" class="list-group-item list-group-item-action text-danger mt-auto" id="logoutBtn">
                     <i class="fas fa-sign-out-alt"></i> Đăng xuất
                 </a>
             </div>
@@ -156,11 +157,39 @@
 </div>
 
 <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const token = localStorage.getItem("accessToken");
+        const role = localStorage.getItem("role");
+        const fullName = localStorage.getItem("fullName") || "Manager";
+        const branchName = localStorage.getItem("branchName") || "(Không xác định)";
+        const branchId = localStorage.getItem("branchId");
+
+        // Nếu chưa login hoặc không phải Manager → quay về login
+        if (!token || role !== "Manager") {
+            window.location.href = "../user/login.html";
+            return;
+        }
+
+        // ✅ Hiển thị thông tin Manager từ localStorage
+        document.getElementById("managerName").textContent = fullName;
+        document.getElementById("branchName").innerHTML =
+            `<i class="fas fa-store"></i> Chi nhánh: ${branchName}`;
+
+        // Nếu cần, giữ lại branchId cho API khác sử dụng
+        if (branchId) localStorage.setItem("branchId", branchId);
+    });
+
+    // ✅ Đổi trang iframe
     function loadIframe(url, element) {
         document.getElementById('main-frame').src = url;
         document.querySelectorAll('.list-group-item').forEach(el => el.classList.remove('active'));
         if (element) element.classList.add('active');
     }
+
+    // ✅ Đăng xuất
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+        localStorage.clear();
+    });
 </script>
 </body>
 </html>

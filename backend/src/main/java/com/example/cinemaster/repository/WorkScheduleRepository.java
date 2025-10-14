@@ -1,4 +1,3 @@
-// com.example.cinemaster.repository.WorkScheduleRepository
 package com.example.cinemaster.repository;
 
 import com.example.cinemaster.entity.WorkSchedule;
@@ -16,28 +15,28 @@ public interface WorkScheduleRepository
     @Modifying
     @Query("""
            DELETE FROM WorkSchedule ws
-           WHERE ws.branchID.id = :branchId
-             AND ws.shiftDate   = :date
-             AND ws.shiftType   = :shiftType
+           WHERE ws.branch.id = :branchId
+             AND ws.shiftDate = :date
+             AND ws.shiftType = :shiftType
            """)
     void deleteCell(@Param("branchId") Integer branchId,
                     @Param("date") LocalDate date,
                     @Param("shiftType") String shiftType);
 
     // Lấy tất cả record trong 1 ô
-    List<WorkSchedule> findByBranchID_IdAndShiftDateAndShiftType(Integer branchId,
-                                                                 LocalDate date,
-                                                                 String shiftType);
+    List<WorkSchedule> findByBranch_IdAndShiftDateAndShiftType(Integer branchId,
+                                                               LocalDate date,
+                                                               String shiftType);
 
     // ---- Specifications dùng cho search ----
     static Specification<WorkSchedule> hasAccount(Integer accountId) {
         return (root, q, cb) -> accountId == null ? cb.conjunction()
-                : cb.equal(root.get("accountID").get("accountID"), accountId);
+                : cb.equal(root.get("account").get("accountID"), accountId);
     }
 
     static Specification<WorkSchedule> hasBranch(Integer branchId) {
         return (root, q, cb) -> branchId == null ? cb.conjunction()
-                : cb.equal(root.get("branchID").get("id"), branchId);
+                : cb.equal(root.get("branch").get("id"), branchId);
     }
 
     static Specification<WorkSchedule> dateBetween(LocalDate from, LocalDate to) {
@@ -50,10 +49,10 @@ public interface WorkScheduleRepository
         };
     }
 
-    // Kiểm tra overlap (tuỳ bạn có dùng hay không)
-    boolean existsByAccountID_AccountIDAndShiftDateAndStartTimeLessThanAndEndTimeGreaterThan(
+    // Kiểm tra overlap
+    boolean existsByAccount_AccountIDAndShiftDateAndStartTimeLessThanAndEndTimeGreaterThan(
             Integer accountId, LocalDate shiftDate, LocalTime newEnd, LocalTime newStart);
 
-    boolean existsByAccountID_AccountIDAndShiftDateAndStartTimeLessThanAndEndTimeGreaterThanAndIdNot(
+    boolean existsByAccount_AccountIDAndShiftDateAndStartTimeLessThanAndEndTimeGreaterThanAndIdNot(
             Integer accountId, LocalDate shiftDate, LocalTime newEnd, LocalTime newStart, Integer excludeId);
 }

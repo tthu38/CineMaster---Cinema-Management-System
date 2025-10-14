@@ -87,13 +87,22 @@ export function openShowtimeCreate({ defaultDate = null, branchId = null } = {})
     state.movieDurationMin = null;
     state.daySlots = [];
 
-    if (branchId) el.branch.value = String(branchId);
+    // 🔒 Manager: gán chi nhánh cố định
+    const role = localStorage.getItem("role");
+    const managerBranch = localStorage.getItem("branchId");
+    if (role === "Manager" && managerBranch) {
+        el.branch.value = String(managerBranch);
+        el.branch.disabled = true;
+    } else if (branchId) {
+        el.branch.value = String(branchId);
+    }
 
     onBranchChange()
         .then(loadDaySlotsForAuditoriumDay)
         .then(recalcEnd)
         .finally(() => modal.show());
 }
+
 
 /* ================= HELPERS ================= */
 function addDaysYMD(ymd, days) {
@@ -115,18 +124,40 @@ function toISO(dateStr, timeStr) {
     return `${dateStr}T${timeStr}:00`;
 }
 
-/* ================= LOAD BRANCHES ================= */
+/* ================= LOAD BRANCHES (phân quyền) ================= */
 async function loadBranches() {
     try {
+        const role = localStorage.getItem("role");
+        const branchId = localStorage.getItem("branchId");
+
+        // Nếu là Manager → chỉ cho phép đúng chi nhánh của mình
+        if (role === "Manager" && branchId) {
+            const branch = await branchApi.getById(branchId);
+            if (branch) {
+                el.branch.innerHTML = `<option value="${branch.id ?? branch.branchId}" selected>
+                    ${branch.name ?? branch.branchName ?? "Chi nhánh của tôi"}
+                </option>`;
+                el.branch.disabled = true; // 🔒 khóa dropdown
+            } else {
+                el.branch.innerHTML = `<option value="">(Không tải được chi nhánh của bạn)</option>`;
+                el.branch.disabled = true;
+            }
+            return;
+        }
+
+        // Nếu là Admin → xem được tất cả
         const branches = await branchApi.getAllActive() ?? [];
         el.branch.innerHTML = branches
             .map(b => `<option value="${b.id ?? b.branchId}">${b.name ?? b.branchName}</option>`)
             .join('');
+        el.branch.disabled = false;
+
     } catch (err) {
         console.error('Không tải được chi nhánh:', err);
         el.branch.innerHTML = `<option value="">(Không tải được rạp)</option>`;
     }
 }
+
 
 /* ================= NORMALIZE FIELDS ================= */
 const getPeriodId = p => p?.periodId ?? p?.id ?? null;

@@ -10,7 +10,6 @@ import java.util.List;
 
 public interface ShowtimeRepository extends JpaRepository<Showtime, Integer>, JpaSpecificationExecutor<Showtime> {
 
-    // Lấy trong [start, end) + join đúng mapping
     @Query("""
            SELECT s FROM Showtime s
              JOIN s.period p
@@ -35,7 +34,6 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Integer>, Jp
                        @Param("startTime") LocalDateTime startTime,
                        @Param("endTime") LocalDateTime endTime);
 
-    // Overlap khi update (loại trừ chính nó)
     @Query("""
            SELECT COUNT(s) FROM Showtime s
            WHERE s.auditorium.auditoriumID = :auditoriumId
@@ -48,7 +46,6 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Integer>, Jp
                                 @Param("endTime") LocalDateTime endTime,
                                 @Param("excludeId") Integer excludeId);
 
-    // [start, end) cho tất cả chi nhánh
     List<Showtime> findAllByStartTimeGreaterThanEqualAndStartTimeLessThan(LocalDateTime start,
                                                                           LocalDateTime end);
 
@@ -118,4 +115,34 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Integer>, Jp
                                             @Param("start") LocalDateTime start,
                                             @Param("end") LocalDateTime end,
                                             @Param("excludeId") Integer excludeId);
+
+    // QUẢN LÝ THEO CHI NHÁNH
+    @Query("""
+        SELECT s FROM Showtime s
+          JOIN s.auditorium a
+          JOIN a.branch b
+        WHERE b.id = :branchId
+        ORDER BY s.startTime ASC
+    """)
+    List<Showtime> findAllByBranchId(@Param("branchId") Integer branchId);
+
+    @Query("""
+        SELECT COUNT(s) > 0 FROM Showtime s
+          JOIN s.auditorium a
+          JOIN a.branch b
+        WHERE s.showtimeID = :showtimeId
+          AND b.id = :branchId
+    """)
+    boolean existsByIdAndBranch(@Param("showtimeId") Integer showtimeId,
+                                @Param("branchId") Integer branchId);
+
+    @Query("""
+        SELECT s FROM Showtime s
+          JOIN s.auditorium a
+          JOIN a.branch b
+        WHERE s.showtimeID = :showtimeId
+          AND b.id = :branchId
+    """)
+    Showtime findByIdAndBranch(@Param("showtimeId") Integer showtimeId,
+                               @Param("branchId") Integer branchId);
 }

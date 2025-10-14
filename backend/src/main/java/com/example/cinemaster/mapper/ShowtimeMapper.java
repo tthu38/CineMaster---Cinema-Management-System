@@ -1,38 +1,32 @@
-// src/main/java/com/example/cinemaster/mapper/ShowtimeMapper.java
 package com.example.cinemaster.mapper;
 
+import com.example.cinemaster.dto.request.ShowtimeCreateRequest;
+import com.example.cinemaster.dto.request.ShowtimeUpdateRequest;
 import com.example.cinemaster.dto.response.ShowtimeResponse;
+import com.example.cinemaster.entity.Auditorium;
+import com.example.cinemaster.entity.ScreeningPeriod;
 import com.example.cinemaster.entity.Showtime;
-import org.springframework.stereotype.Component;
+import org.mapstruct.*;
+import java.util.List;
 
-@Component
-public class ShowtimeMapper {
-    public ShowtimeResponse toResponse(Showtime s) {
-        String movieTitle = null;
-        String auditoriumName = null;
-        Integer branchId = null;
+@Mapper(componentModel = "spring")
+public interface ShowtimeMapper {
 
-        if (s.getPeriod() != null && s.getPeriod().getMovie() != null) {
-            movieTitle = s.getPeriod().getMovie().getTitle();
-        }
-        if (s.getAuditorium() != null) {
-            auditoriumName = s.getAuditorium().getName();
-            if (s.getAuditorium().getBranch() != null) {
-                branchId = s.getAuditorium().getBranch().getId();
-            }
-        }
+    @Mapping(target = "periodId", source = "period.id")
+    @Mapping(target = "auditoriumId", source = "auditorium.auditoriumID")
+    @Mapping(target = "movieTitle", source = "period.movie.title")
+    @Mapping(target = "auditoriumName", source = "auditorium.name")
+    @Mapping(target = "branchId", source = "auditorium.branch.id")
+    ShowtimeResponse toResponse(Showtime entity);
 
-        return new ShowtimeResponse(
-                s.getShowtimeID(),
-                s.getPeriod() != null ? s.getPeriod().getId() : null,
-                s.getAuditorium() != null ? s.getAuditorium().getAuditoriumID() : null,
-                s.getStartTime(),
-                s.getEndTime(),
-                s.getLanguage(),
-                s.getPrice(),
-                movieTitle,
-                auditoriumName,
-                branchId
-        );
-    }
+    List<ShowtimeResponse> toResponseList(List<Showtime> entities);
+
+    @Mapping(target = "showtimeID", ignore = true)
+    Showtime toEntity(ShowtimeCreateRequest dto, ScreeningPeriod period, Auditorium auditorium);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void updateEntityFromRequest(ShowtimeUpdateRequest dto,
+                                 @MappingTarget Showtime entity,
+                                 @Context ScreeningPeriod period,
+                                 @Context Auditorium auditorium);
 }
