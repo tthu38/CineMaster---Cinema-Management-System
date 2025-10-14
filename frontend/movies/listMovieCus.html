@@ -434,7 +434,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="module" src="../js/listMovieCus.js"></script>
 <script>
-    fetch("../home/header.html").then(r=>r.text()).then(h=>document.getElementById("header").innerHTML=h);
+    fetch("../home/customer-header.html").then(r=>r.text()).then(h=>document.getElementById("header").innerHTML=h);
     fetch("../home/footer.html").then(r=>r.text()).then(h=>document.getElementById("footer").innerHTML=h);
 
     document.querySelectorAll('.filter-tabs button').forEach(button => {
