@@ -1,131 +1,199 @@
 <!-- customer-header.html -->
 <header class="header cm-header">
     <div class="header-container">
-        <!-- Logo → về trang chủ -->
+        <!-- Logo -->
         <a href="../home/home.html" class="logo-text">CineMaster</a>
 
-        <!-- Nav -->
+        <!-- Navigation -->
         <nav class="cm-nav">
             <a href="../home/home.html" class="nav-link">Home</a>
-            <a href="#" class="nav-link">Movies</a>
+            <a href="../movies/listMovieCus.html" class="nav-link">Movies</a>
             <a href="../user/showtimes-calendar.html" class="nav-link">Showtimes</a>
-            <a href="#" class="nav-link">Theaters</a>
-            <a href="#" class="nav-link">Promotions</a>
+<!--            <a href="../branch/theaterCus.html" class="nav-link">Theaters</a>-->
+            <a href="../discount/listDiscount.html" class="nav-link">Promotions</a>
         </nav>
 
-        <!-- Welcome + Logout -->
-        <div class="auth-wrap">
-            <a href="../user/profile.html" class="welcome" id="cmWelcome">
-                Welcome, <span id="cmFullName">User</span>
-            </a>
-            <button class="btn-auth" title="Log out"
-                    onclick="localStorage.removeItem('accessToken');localStorage.removeItem('googleEmail');location.href='../user/login.html'">
-                Log out
-            </button>
-        </div>
+        <!-- Auth area -->
+        <div class="auth-wrap" id="authArea"></div>
     </div>
 </header>
 
 <style>
-    /* FONT giống Home */
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Bebas+Neue&display=swap');
-
-    :root{
+    :root {
         --primary:#e50914;
         --text:#ffffff;
         --muted:#cfd8e3;
     }
 
-    /* chừa khoảng cho header cố định (cao hơn trước) */
-    body{ padding-top:96px; }
+    body { padding-top:96px; }
 
-    /* HEADER đen trong suốt + nổi bật hơn */
-    .cm-header{
+    /* HEADER BASE */
+    .cm-header {
         position:fixed; inset:0 0 auto 0; z-index:100;
-        background: rgba(10,19,38,.94);           /* đậm hơn một chút */
-        backdrop-filter: saturate(120%) blur(8px); /* blur nhiều hơn tí cho “frosted” */
+        background:rgba(10,19,38,.94);
+        backdrop-filter:saturate(120%) blur(8px);
         color:var(--text);
         border-bottom:1px solid rgba(255,255,255,.06);
-        box-shadow: 0 10px 28px rgba(0,0,0,.45);   /* đổ bóng dưới để nổi */
+        box-shadow:0 10px 28px rgba(0,0,0,.45);
     }
-    /* viền phát sáng mảnh dưới header */
     .cm-header::after{
         content:""; position:absolute; left:0; right:0; bottom:0; height:2px;
-        background: linear-gradient(90deg, transparent, rgba(229,9,20,.65), rgba(34,193,255,.35), transparent);
-        pointer-events:none;
+        background:linear-gradient(90deg,transparent,rgba(229,9,20,.65),rgba(34,193,255,.35),transparent);
     }
 
-    .cm-header .header-container{
+    .header-container{
         max-width:1300px; margin:0 auto;
-        padding:18px 48px;                         /* padding lớn hơn */
+        padding:18px 48px;
         display:flex; align-items:center; justify-content:space-between; gap:24px;
     }
 
-    /* Logo lớn & nổi bật */
-    .cm-header .logo-text{
+    /* LOGO */
+    .logo-text{
         font-family:'Bebas Neue', sans-serif;
-        letter-spacing:2.5px;
-        font-size:2.4rem;                          /* ↑ size */
-        color:var(--primary);
-        text-decoration:none; cursor:pointer;
-        line-height:1;
-        text-shadow: 0 0 10px rgba(229,9,20,.25);  /* glow nhẹ */
+        letter-spacing:2.5px; font-size:2.4rem;
+        color:var(--primary); text-decoration:none;
+        text-shadow:0 0 10px rgba(229,9,20,.25);
     }
 
-    .cm-header .cm-nav{ display:flex; gap:28px; align-items:center; }
-
-    .cm-header .nav-link{
-        position:relative;
-        color:var(--muted);
-        text-decoration:none;
-        font-family:'Roboto', sans-serif;
-        font-weight:600;                           /* đậm hơn */
-        font-size:1.05rem;                         /* to hơn chút */
-        letter-spacing:.2px;
-        transition:color .2s ease;
+    /* NAVIGATION */
+    .cm-nav{ display:flex; gap:28px; align-items:center; }
+    .nav-link{
+        position:relative; color:var(--muted);
+        text-decoration:none; font-weight:600;
+        font-size:1.05rem; transition:color .2s ease;
         padding:8px 2px;
     }
-    /* underline hiệu ứng */
-    .cm-header .nav-link::after{
+    .nav-link::after{
         content:""; position:absolute; left:0; right:0; bottom:-6px; height:2px;
-        background: linear-gradient(90deg, rgba(229,9,20,.9), rgba(34,193,255,.6));
-        transform: scaleX(0); transform-origin:left; transition: transform .2s ease;
+        background:linear-gradient(90deg,rgba(229,9,20,.9),rgba(34,193,255,.6));
+        transform:scaleX(0); transform-origin:left; transition:transform .2s ease;
     }
-    .cm-header .nav-link:hover,
-    .cm-header .nav-link.active{ color:#fff; }
-    .cm-header .nav-link:hover::after,
-    .cm-header .nav-link.active::after{ transform: scaleX(1); }
+    .nav-link:hover,.nav-link.active{ color:#fff; }
+    .nav-link:hover::after,.nav-link.active::after{ transform:scaleX(1); }
 
-    .cm-header .auth-wrap{ display:flex; align-items:center; gap:14px; }
-
-    .cm-header .welcome{
-        color:#eef3ff; text-decoration:none; font-weight:700;
-        padding:8px 14px; border-radius:999px;
-        border:1px solid rgba(255,255,255,.10);
-        background: rgba(255,255,255,.06);
+    /* AUTH AREA */
+    .auth-wrap{ display:flex; align-items:center; gap:14px; }
+    .btn-auth,.btn-auth-outline{
+        padding:8px 16px; border-radius:22px; cursor:pointer;
+        font-weight:800; transition:all .25s ease;
     }
-    .cm-header .welcome:hover{ background: rgba(255,255,255,.12); }
-
-    .cm-header .btn-auth{
-        padding:8px 16px; border-radius:22px; cursor:pointer; white-space:nowrap;
-        border:1.8px solid var(--primary); background:transparent; color:var(--primary); font-weight:800;
-        transition:transform .12s ease, box-shadow .25s ease, background .25s ease, color .25s ease;
+    .btn-auth{
+        border:1.8px solid var(--primary); color:var(--primary); background:transparent;
     }
-    .cm-header .btn-auth:hover{
+    .btn-auth:hover{
         background:var(--primary); color:#fff;
         box-shadow:0 0 14px rgba(229,9,20,.55);
-        transform: translateY(-1px);
+        transform:translateY(-1px);
+    }
+    .btn-auth-outline{
+        border:1.8px solid #fff; color:#fff; background:transparent;
+    }
+    .btn-auth-outline:hover{
+        background:rgba(255,255,255,.12);
+        box-shadow:0 0 12px rgba(255,255,255,.3);
     }
 
-    /* Responsive */
-    @media (max-width: 1080px){
-        .cm-header .header-container{ padding:16px 28px; }
-        .cm-header .logo-text{ font-size:2.1rem; }
-        .cm-header .cm-nav{ gap:20px; }
+    /* USER INFO */
+    .user-info{ display:flex; align-items:center; gap:12px; position:relative; }
+    .user-avatar{
+        width:40px; height:40px; border-radius:50%;
+        object-fit:cover; border:2px solid rgba(255,255,255,.15);
+        background:#fff; cursor:pointer;
     }
-    @media (max-width: 960px){
-        .cm-header .cm-nav{ display:none; }  /* ẩn menu khi hẹp */
-        .cm-header .header-container{ padding:14px 20px; }
-        body{ padding-top:78px; }            /* chừa lại theo chiều cao mới trên mobile */
+    .user-name{ color:#eef3ff; font-weight:700; }
+
+    /* DROPDOWN */
+    .dropdown-menu{
+        display:none; position:absolute; right:0; top:50px;
+        background:rgba(15,22,40,.95); border:1px solid rgba(255,255,255,.1);
+        border-radius:12px; min-width:180px;
+        box-shadow:0 6px 20px rgba(0,0,0,.6);
+        padding:10px 0; z-index:200;
+    }
+    .dropdown-menu.show{ display:block; animation:fadeIn .2s ease; }
+    .dropdown-menu a{
+        display:block; padding:10px 18px; color:#cfd8e3; text-decoration:none;
+        font-weight:500; transition:background .25s ease,color .25s ease;
+    }
+    .dropdown-menu a:hover{
+        background:rgba(255,255,255,.08); color:#fff;
+    }
+    .dropdown-menu hr{
+        border:none; border-top:1px solid rgba(255,255,255,.1); margin:6px 0;
+    }
+    @keyframes fadeIn{
+        from{opacity:0; transform:translateY(-5px);}
+        to{opacity:1; transform:translateY(0);}
+    }
+
+    /* RESPONSIVE */
+    @media (max-width:960px){
+        .cm-nav{ display:none; }
+        .header-container{ padding:14px 20px; }
+        body{ padding-top:78px; }
     }
 </style>
+
+<script>
+    (function initCustomerHeader() {
+        const authArea = document.getElementById("authArea");
+        if (!authArea) return;
+
+        const token = localStorage.getItem("accessToken");
+        const name = localStorage.getItem("fullName") || "User";
+        const avatar = localStorage.getItem("avatarUrl") || "../assets/default-avatar.png";
+        const accountId = localStorage.getItem("accountId"); // ✅ thêm để biết ai đang đăng nhập
+
+        // ❌ Nếu chưa đăng nhập
+        if (!token) {
+            authArea.innerHTML = `
+            <button class="btn-auth" onclick="location.href='../user/login.html'">Login</button>
+            <button class="btn-auth-outline" onclick="location.href='../user/register.html'">Register</button>
+        `;
+            return;
+        }
+
+        // ✅ Nếu đã đăng nhập
+
+        authArea.innerHTML = `
+<div class="user-info">
+    <div class="user-dropdown">
+        <img src="${avatar}" alt="avatar" class="user-avatar" id="userAvatar">
+        <div class="dropdown-menu" id="dropdownMenu">
+            <a href="../user/profile.html?id=${accountId || ''}">👤 Profile</a>
+            <a href="../tickets/my-tickets.html">🎟 My Tickets</a>
+            <a href="../user/membership.html">⭐ Membership</a>
+            <hr>
+            <a href="#" onclick="logoutUser()">🚪 Log out</a>
+        </div>
+    </div>
+    <span class="user-name">${name}</span>
+</div>
+`;
+
+
+        // Dropdown toggle
+        const avatarEl = document.getElementById("userAvatar");
+        const dropdown = document.getElementById("dropdownMenu");
+        if (avatarEl && dropdown) {
+            avatarEl.addEventListener("click", (e) => {
+                e.stopPropagation();
+                dropdown.classList.toggle("show");
+            });
+            document.addEventListener("click", () => dropdown.classList.remove("show"));
+        }
+
+        // Active highlight menu
+        const current = window.location.pathname.split("/").pop();
+        document.querySelectorAll(".cm-nav .nav-link").forEach(link => {
+            if (link.getAttribute("href").includes(current)) link.classList.add("active");
+        });
+    })();
+
+    // ===================== LOGOUT =====================
+    function logoutUser() {
+        localStorage.clear();
+        location.href = "../user/login.html";
+    }
+</script>

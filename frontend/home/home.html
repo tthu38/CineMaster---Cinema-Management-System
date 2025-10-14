@@ -151,8 +151,11 @@
         .times span:hover { background: var(--primary-color); }
     </style>
 </head>
+
 <body>
+<!-- HEADER -->
 <div id="header"></div>
+
 <!-- HERO CAROUSEL -->
 <section class="hero">
     <div class="carousel" id="hero-carousel"></div>
@@ -171,54 +174,8 @@
 <!-- TODAY SHOWTIMES -->
 <section class="movie-section">
     <h2>Suất chiếu hôm nay</h2>
-    <div class="showtimes">
-        <div class="showtime-card">
-            <h3>Onward</h3>
-            <p>CGV Vincom</p>
-            <div class="times">
-                <span>10:00</span>
-                <span>13:30</span>
-                <span>16:00</span>
-                <span>19:15</span>
-            </div>
-        </div>
-        <div class="showtime-card">
-            <h3>Free Guy</h3>
-            <p>BHD Star Bitexco</p>
-            <div class="times">
-                <span>11:00</span>
-                <span>14:15</span>
-                <span>18:45</span>
-                <span>21:00</span>
-            </div>
-        </div>
-        <div class="showtime-card">
-            <h3>World War Z</h3>
-            <p>Lotte Cinema Gò Vấp</p>
-            <div class="times">
-                <span>09:45</span>
-                <span>12:30</span>
-                <span>15:15</span>
-                <span>20:00</span>
-            </div>
-        </div>
-    </div>
+    <div class="showtimes" id="today-showtimes"></div>
 </section>
-
-<div class="movie-info">
-    <h2 class="movie-title">Onward</h2>
-    <div class="movie-meta">⭐ 8.5 | 2020 | Action, Adventure, Fantasy</div>
-    <div class="hero-buttons">
-        <button class="btn btn-watch"><i class="fas fa-ticket-alt"></i> Đặt vé</button>
-        <button class="btn btn-list"><i class="fas fa-plus"></i> Add List</button>
-    </div>
-</div>
-
-<!-- SEARCH BAR -->
-<div class="search-bar">
-    <input type="text" placeholder="Tìm phim, rạp hoặc suất chiếu...">
-    <button>Tìm kiếm</button>
-</div>
 
 <!-- COMING SOON -->
 <section class="movie-section">
@@ -226,106 +183,120 @@
     <div class="movie-row" id="coming-soon"></div>
 </section>
 
-<!-- NEWS & EVENTS -->
-<section class="movie-section">
-    <h2>Tin tức & Sự kiện</h2>
-    <div class="movie-row">
-        <div class="movie-card">
-            <img src="https://image.tmdb.org/t/p/w500/ekZobS8isE6mA53RAiGDGzYYge8.jpg" alt="News 1">
-            <h3>Khai trương rạp CineMaster Quận 9</h3>
-            <p>01/10/2025</p>
-        </div>
-        <div class="movie-card">
-            <img src="https://image.tmdb.org/t/p/w500/sKCr7SqMIHqFz1E0i0yffofrWAP.jpg" alt="News 2">
-            <h3>Suất chiếu đặc biệt “Avengers: Endgame”</h3>
-            <p>05/10/2025</p>
-        </div>
-        <div class="movie-card">
-            <img src="https://image.tmdb.org/t/p/w500/reEMJA1uzscCbkpeRJeTT2bjqUp.jpg" alt="News 3">
-            <h3>Sự kiện cosplay Halloween</h3>
-            <p>31/10/2025</p>
-        </div>
-    </div>
-</section>
-
-<!-- CUSTOMER FEEDBACK -->
-<section class="movie-section">
-    <h2>Khách hàng nói gì?</h2>
-    <div class="showtimes">
-        <div class="showtime-card">
-            <h3>Nguyễn Minh</h3>
-            <p>⭐⭐⭐⭐⭐</p>
-            <p>“Phòng chiếu hiện đại, âm thanh cực đỉnh. Rất hài lòng!”</p>
-        </div>
-        <div class="showtime-card">
-            <h3>Thu Thảo</h3>
-            <p>⭐⭐⭐⭐</p>
-            <p>“Dịch vụ tốt, nhân viên thân thiện, combo bắp nước ngon.”</p>
-        </div>
-        <div class="showtime-card">
-            <h3>Trung Kiên</h3>
-            <p>⭐⭐⭐⭐⭐</p>
-            <p>“Giá vé hợp lý, nhiều ưu đãi cho sinh viên. Rạp xịn!”</p>
-        </div>
-    </div>
-</section>
-
-<!-- SPECIAL OFFERS -->
-<section class="movie-section">
-    <h2>Ưu đãi đặc biệt</h2>
-    <div class="showtimes">
-        <div class="showtime-card">
-            <h3>Combo Siêu Tiết Kiệm</h3>
-            <p>01/10 - 31/10</p>
-            <p>Mua 2 vé tặng 1 bắp rang + 2 nước ngọt.</p>
-        </div>
-        <div class="showtime-card">
-            <h3>Thành viên VIP</h3>
-            <p>Giảm 20% vé 2D/3D</p>
-            <p>Tích điểm đổi quà hấp dẫn.</p>
-        </div>
-        <div class="showtime-card">
-            <h3>Ưu đãi ngày Lễ</h3>
-            <p>Giảm 15% giá vé</p>
-            <p>Áp dụng cho toàn bộ suất chiếu.</p>
-        </div>
-    </div>
-</section>
+<!-- FOOTER -->
+<div id="footer"></div>
 
 <script>
-    // Carousel script
+    /* ================= HEADER ================= */
+    fetch("../home/customer-header.html")
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById("header").innerHTML = html;
+            // ✅ ép trình duyệt chạy script trong file header
+            const scripts = document.getElementById("header").querySelectorAll("script");
+            scripts.forEach(oldScript => {
+                const newScript = document.createElement("script");
+                if (oldScript.src) newScript.src = oldScript.src;
+                else newScript.textContent = oldScript.textContent;
+                document.body.appendChild(newScript);
+            });
+        })
+        .catch(err => console.error("Lỗi load header:", err));
+
+    /* ================= FOOTER ================= */
+    fetch("../home/footer.html")
+        .then(res => res.text())
+        .then(html => document.getElementById("footer").innerHTML = html)
+        .catch(err => console.error("Lỗi load footer:", err));
+
+    /* ================= HERO CAROUSEL ================= */
     let current = 0;
     let items = [];
-
     function updateSlides() {
         items.forEach((item, index) => {
             item.classList.remove('left', 'active', 'right');
             if (index === current) item.classList.add('active');
             else if (index === (current - 1 + items.length) % items.length) item.classList.add('left');
             else if (index === (current + 1) % items.length) item.classList.add('right');
-            else { item.style.display = "none"; return; }
+            else item.style.display = "none";
             item.style.display = "block";
         });
     }
     function prevSlide() { current = (current - 1 + items.length) % items.length; updateSlides(); }
     function nextSlide() { current = (current + 1) % items.length; updateSlides(); }
-</script>
-<script>
-    // Nếu muốn load guest header
-    fetch("../home/header.html")
-        .then(res => res.text())
-        .then(html => document.getElementById("header").innerHTML = html)
-        .catch(err => console.error("Lỗi load header:", err));
-</script>
-<script src="../js/home.js"></script>
-<script>
-    fetch("../home/footer.html")
-        .then(res => res.text())
-        .then(html => document.getElementById("footer").innerHTML = html)
-        .catch(err => console.error("Lỗi load footer:", err));
-</script>
 
-<div id="footer"></div>
+    /* ================= API CALLS ================= */
+    async function loadMovies() {
+        try {
+            const token = localStorage.getItem("accessToken");
+            const headers = token ? { "Authorization": "Bearer " + token } : {};
 
+            const now = await fetch("http://localhost:8080/api/v1/auth/movies/now-showing", { headers });
+            const coming = await fetch("http://localhost:8080/api/v1/auth/movies/coming-soon", { headers });
+            const nowData = await now.json();
+            const comingData = await coming.json();
+
+            renderMovies("now-showing", nowData);
+            renderMovies("coming-soon", comingData);
+        } catch (err) {
+            console.error("❌ Lỗi load phim:", err);
+        }
+    }
+
+    function renderMovies(containerId, list) {
+        const wrap = document.getElementById(containerId);
+        if (!Array.isArray(list)) {
+            wrap.innerHTML = `<div style="color:#aaa">Không có dữ liệu phim.</div>`;
+            console.error("⚠️ API không trả về mảng:", list);
+            return;
+        }
+        wrap.innerHTML = "";
+        list.forEach(m => {
+            wrap.innerHTML += `
+                    <div class="movie-card">
+                        <img src="${m.posterUrl || '../assets/default-movie.jpg'}" alt="${m.title}">
+                        <h3>${m.title}</h3>
+                        <p>${m.genre || ''}</p>
+                    </div>`;
+        });
+    }
+
+    async function loadTodayShowtimes() {
+        try {
+            const token = localStorage.getItem("accessToken");
+            const headers = token ? { "Authorization": "Bearer " + token } : {};
+
+            const res = await fetch("http://localhost:8080/api/v1/auth/showtimes/today", { headers });
+            const showtimes = await res.json();
+
+            const container = document.getElementById("today-showtimes");
+            if (!Array.isArray(showtimes)) {
+                container.innerHTML = `<div style="color:#aaa">Không có suất chiếu hôm nay.</div>`;
+                console.error("⚠️ API /showtimes/today không trả về mảng:", showtimes);
+                return;
+            }
+
+            container.innerHTML = "";
+            showtimes.forEach(st => {
+                container.innerHTML += `
+                        <div class="showtime-card">
+                            <h3>${st.movieTitle || 'Phim'}</h3>
+                            <p>${st.branchName || ''}</p>
+                            <div class="times">
+                                ${(st.times || []).map(t => `<span>${t}</span>`).join('')}
+                            </div>
+                        </div>`;
+            });
+        } catch (err) {
+            console.error("❌ Lỗi load showtimes:", err);
+        }
+    }
+
+    // ================= INIT =================
+    document.addEventListener("DOMContentLoaded", () => {
+        loadMovies();
+        loadTodayShowtimes();
+    });
+</script>
 </body>
 </html>

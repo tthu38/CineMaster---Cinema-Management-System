@@ -63,16 +63,24 @@ export const showtimeApi = {
     },
 
     async getWeek({ anchor = null, branchId = null } = {}) {
-        const query = new URLSearchParams();
-        if (anchor) query.set('anchor', anchor);
-        if (branchId) query.set('branchId', branchId);
+        let url = `${API_BASE_URL}/showtimes/week`;
+        const params = [];
 
-        const res = await fetch(`${API_BASE_URL}/showtimes/week?${query.toString()}`, {
+        if (anchor) params.push(`anchor=${encodeURIComponent(anchor)}`);
+        // ✅ chỉ thêm khi có giá trị thực
+        if (branchId && branchId !== 'undefined' && branchId !== '') {
+            params.push(`branchId=${encodeURIComponent(branchId)}`);
+        }
+
+        if (params.length > 0) url += `?${params.join('&')}`;
+
+        const res = await fetch(url, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
         });
         return handleResponse(res);
     },
+
 
     async getNextWeek(branchId = null) {
         const url = `${API_BASE_URL}/showtimes/next-week${branchId ? `?branchId=${branchId}` : ''}`;

@@ -37,7 +37,6 @@ public class BranchController {
         return ResponseEntity.ok(branches);
     }
 
-    // --- READ ALL ACTIVE (CLIENT/STAFF) ---
     @GetMapping("/active")
     public ResponseEntity<List<BranchResponse>> getAllActiveBranches() {
         List<BranchResponse> branches = branchService.getAllActiveBranches();

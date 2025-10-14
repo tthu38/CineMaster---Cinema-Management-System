@@ -4,6 +4,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.time.LocalDate;
 import java.util.Collection;
 
 @Getter
@@ -17,13 +19,22 @@ public class AccountPrincipal implements UserDetails {
     Integer id;
     String email;
     String fullName;
+    String phoneNumber;   // ✅ Thêm mới
+    String address;       // ✅ Thêm mới
+
     String role;
     Integer branchId;
     String branchName;
+
+    String avatarUrl;
+    Integer loyaltyPoints;
+    LocalDate createdAt;
+
     Collection<? extends GrantedAuthority> authorities;
 
     public boolean hasRole(String r) {
-        return ("ROLE_" + r).equalsIgnoreCase(authorities.iterator().next().getAuthority());
+        return authorities != null && authorities.stream()
+                .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_" + r));
     }
 
     @Override public Collection<? extends GrantedAuthority> getAuthorities() { return authorities; }

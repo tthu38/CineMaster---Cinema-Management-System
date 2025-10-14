@@ -67,10 +67,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (account != null && Boolean.TRUE.equals(account.getIsActive())) {
                 var authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + roleName));
 
+                // ✅ Build AccountPrincipal đầy đủ thông tin
                 AccountPrincipal principal = AccountPrincipal.builder()
                         .id(account.getAccountID())
                         .email(account.getEmail())
                         .fullName(account.getFullName())
+                        .phoneNumber(account.getPhoneNumber())        // ✅ thêm
+                        .address(account.getAddress())                // ✅ thêm
+                        .avatarUrl(account.getAvatarUrl())            // ✅ thêm
+                        .loyaltyPoints(account.getLoyaltyPoints())    // ✅ thêm
+                        .createdAt(account.getCreatedAt())            // ✅ thêm
                         .role(roleName)
                         .branchId(account.getBranch() != null ? account.getBranch().getId() : null)
                         .branchName(account.getBranch() != null ? account.getBranch().getBranchName() : null)

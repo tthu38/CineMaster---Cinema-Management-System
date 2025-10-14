@@ -105,9 +105,16 @@ function renderDay(i){
         return `
                 <div class="slot-wrap">
                   ${main}
-                  <button type="button" class="slot-edit" data-id="${id ?? ''}" title="Sửa" ${!id ? 'disabled' : ''}>
-                    <i class="fa-solid fa-pen-to-square"></i>
-                  </button>
+                  ${(() => {
+            const role = localStorage.getItem("role");
+            if (role === "Staff" || role === "Customer") return '';
+            return `
+        <button type="button" class="slot-edit" data-id="${id ?? ''}" title="Sửa" ${!id ? 'disabled' : ''}>
+            <i class="fa-solid fa-pen-to-square"></i>
+        </button>
+    `;
+        })()}
+
                 </div>`;
     }).join('')}
         </div>
@@ -165,7 +172,7 @@ async function load(){
     const now = new Date();
     const monday = getMonday(now);
     const anchor = ymd(now);
-    const branchId = branchSelect.value || undefined;
+    const branchId = branchSelect.value && branchSelect.value !== "undefined" ? branchSelect.value : null;
 
     contentArea.innerHTML = `<div class="text-center py-5 text-info">Đang tải lịch chiếu...</div>`;
 

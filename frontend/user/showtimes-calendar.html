@@ -185,30 +185,41 @@
 </script>
 
 <!-- 3) Khởi tạo modal tạo lịch chiếu (MODULE) -->
+<!-- 3) Khởi tạo modal tạo lịch chiếu (MODULE) -->
 <script type="module">
     import { initShowtimeCreate, openShowtimeCreate } from "../js/showtime-create.js";
     import { initShowtimeEdit,   openShowtimeEdit   } from "../js/showtime-edit.js";
 
-    await initShowtimeCreate({ htmlPath: './showtime-create.html' }); // HTML modal ở cùng folder 'user/'
-    await initShowtimeEdit({   htmlPath: './showtime-edit.html'   }); // HTML modal ở cùng folder 'user/'
+    // 🔹 Lấy role người dùng hiện tại
+    const role = localStorage.getItem("role");
+    const btnCreate = document.getElementById("btnOpenCreate");
 
-    // mở form tạo
-    const btn = document.getElementById('btnOpenCreate');
-    btn?.addEventListener('click', () => {
-        const selectedDay   = window.__calendarSelectedYMD || null;
-        const currentBranch = document.getElementById('branchSelect')?.value || '';
-        openShowtimeCreate({ defaultDate: selectedDay, branchId: currentBranch || null });
-    });
+    // 🔹 Nếu là Staff hoặc Customer → ẩn hoàn toàn nút
+    if (role === "Staff" || role === "Customer") {
+        if (btnCreate) btnCreate.style.display = "none";
+    } else {
+        // ✅ Chỉ khi Admin/Manager mới gán sự kiện mở modal tạo
+        btnCreate?.addEventListener("click", () => {
+            const selectedDay   = window.__calendarSelectedYMD || null;
+            const currentBranch = document.getElementById("branchSelect")?.value || "";
+            openShowtimeCreate({ defaultDate: selectedDay, branchId: currentBranch || null });
+        });
+    }
 
-    // cho calendar gọi khi cần sửa/xóa
+    // ✅ Khởi tạo modal tạo / sửa
+    await initShowtimeCreate({ htmlPath: './showtime-create.html' });
+    await initShowtimeEdit({   htmlPath: './showtime-edit.html'   });
+
+    // Cho calendar gọi khi cần sửa/xóa
     window.openShowtimeEdit = openShowtimeEdit;
 
-    // reload lịch khi tạo/sửa/xóa
+    // ✅ Reload lịch chiếu khi tạo/sửa/xóa
     const reload = () => window.reloadCalendar?.();
     window.addEventListener('showtime:created', reload);
     window.addEventListener('showtime:updated', reload);
     window.addEventListener('showtime:deleted', reload);
 </script>
+
 
 <!-- 4) App lịch chiếu (MODULE) -->
 <script type="module" src="../js/showtimes-calendar.js"></script>
