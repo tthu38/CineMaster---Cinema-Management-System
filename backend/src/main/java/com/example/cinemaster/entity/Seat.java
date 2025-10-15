@@ -6,14 +6,16 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.Nationalized;
 
+import java.time.LocalDateTime;
+
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Entity(name = "Seat")
-@Table(schema = "dbo")
+@Entity
+@Table(name = "Seat", schema = "dbo")
 public class Seat {
 
     @Id
@@ -21,19 +23,19 @@ public class Seat {
     @Column(name = "SeatID", nullable = false)
     Integer seatID;
 
-    // Quan hệ với Auditorium
+    // ==================== QUAN HỆ ====================
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "AuditoriumID", referencedColumnName = "AuditoriumID")
+    @JoinColumn(name = "AuditoriumID", referencedColumnName = "AuditoriumID", nullable = false)
     Auditorium auditorium;
 
-    // Quan hệ với SeatType
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TypeID", referencedColumnName = "TypeID")
+    @JoinColumn(name = "TypeID", referencedColumnName = "TypeID", nullable = false)
     SeatType seatType;
 
+    // ==================== THÔNG TIN GHẾ ====================
     @Size(max = 10)
     @Nationalized
-    @Column(name = "SeatNumber", length = 10)
+    @Column(name = "SeatNumber", length = 10, nullable = false)
     String seatNumber;
 
     @Size(max = 10)
@@ -44,13 +46,19 @@ public class Seat {
     @Column(name = "ColumnNumber")
     Integer columnNumber;
 
-    // 👇 CẬP NHẬT 1: Thay đổi kiểu dữ liệu từ String sang Enum
+    // ==================== TRẠNG THÁI GHẾ ====================
     @Enumerated(EnumType.STRING)
-    @Column(name = "Status", length = 20)
-    SeatStatus status; // <-- Sử dụng Enum SeatStatus
+    @Column(name = "Status", length = 20, nullable = false)
+    SeatStatus status;
+
+    @Column(name = "LockedUntil")
+    LocalDateTime lockedUntil;
+
+    // ==================== ENUM ====================
     public enum SeatStatus {
-        AVAILABLE,
-        BROKEN,   // <-- Đây là giá trị bạn cần
-        RESERVED,
+        AVAILABLE,  // Ghế trống
+        BROKEN,     // Ghế bị hỏng
+        RESERVED,   // Ghế đang được giữ
+        BOOKED      // Ghế đã được đặt vé (thanh toán xong)
     }
 }

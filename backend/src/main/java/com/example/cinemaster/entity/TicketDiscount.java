@@ -3,7 +3,6 @@ package com.example.cinemaster.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
 import java.math.BigDecimal;
 
 @Builder
@@ -12,23 +11,23 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Entity(name = "TicketDiscount")
-@Table(schema = "dbo")
+@Entity
+@Table(name = "TicketDiscount", schema = "dbo")
 public class TicketDiscount {
+
     @EmbeddedId
     TicketDiscountId id;
 
     @MapsId("ticketID")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "TicketID", nullable = false, referencedColumnName = "TicketID")
+    @JoinColumn(name = "TicketID", nullable = false)
     Ticket ticketID;
 
     @MapsId("discountID")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "DiscountID", nullable = false, referencedColumnName = "DiscountID")
+    @JoinColumn(name = "DiscountID", nullable = false)
     Discount discountID;
 
     @Column(name = "Amount", precision = 10, scale = 2)
     BigDecimal amount;
-
 }

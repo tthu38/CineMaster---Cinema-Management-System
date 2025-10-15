@@ -19,6 +19,7 @@ import java.util.Objects;
 @Embeddable
 public class TicketDiscountId implements Serializable {
     private static final long serialVersionUID = -2946662498182783055L;
+
     @NotNull
     @Column(name = "TicketID", nullable = false)
     Integer ticketID;
@@ -32,13 +33,12 @@ public class TicketDiscountId implements Serializable {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         TicketDiscountId entity = (TicketDiscountId) o;
-        return Objects.equals(this.discountID, entity.discountID) &&
-                Objects.equals(this.ticketID, entity.ticketID);
+        return Objects.equals(this.discountID, entity.discountID)
+                && Objects.equals(this.ticketID, entity.ticketID);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(discountID, ticketID);
     }
-
 }

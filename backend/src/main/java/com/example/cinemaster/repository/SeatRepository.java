@@ -10,4 +10,6 @@ import java.util.List;
 public interface SeatRepository extends JpaRepository<Seat, Integer> {
     // Tự động kế thừa các phương thức CRUD cơ bản (save, findById, findAll, deleteById, existsById)
     List<Seat> findAllByAuditoriumAuditoriumIDAndSeatRow(Integer auditoriumID, String seatRow);
+
+    List<Seat> findAllByAuditorium_AuditoriumID(Integer auditoriumId);
 }

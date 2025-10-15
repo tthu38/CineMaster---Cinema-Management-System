@@ -1,13 +1,13 @@
 package com.example.cinemaster.dto.response;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@JsonInclude(JsonInclude.Include.NON_NULL)  // 👈 Thêm dòng này
 public class SeatResponse {
     Integer seatID;
     String seatNumber;
@@ -15,14 +15,15 @@ public class SeatResponse {
     Integer columnNumber;
     String status;
 
-    // Thông tin từ Auditorium Entity
+    // Auditorium
     Integer auditoriumID;
     String auditoriumName;
 
-    // Thông tin từ SeatType Entity
+    // SeatType
     Integer typeID;
     String typeName;
 
+    // Branch
     Integer branchID;
     String branchName;
 }

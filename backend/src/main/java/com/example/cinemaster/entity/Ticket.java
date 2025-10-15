@@ -8,6 +8,7 @@ import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Builder
 @AllArgsConstructor
@@ -25,19 +26,15 @@ public class Ticket {
     Integer ticketID;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "AccountID", referencedColumnName = "AccountID")
+    @JoinColumn(name = "AccountID", nullable = false)
     Account account;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ShowtimeID", referencedColumnName = "ShowtimeID")
+    @JoinColumn(name = "ShowtimeID", nullable = false)
     Showtime showtime;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "SeatID", referencedColumnName = "SeatID")
-    Seat seat;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ComboID", referencedColumnName = "ComboID")
+    @JoinColumn(name = "ComboID")
     Combo combo;
 
     @Column(name = "TotalPrice", precision = 10, scale = 2)
@@ -55,4 +52,11 @@ public class Ticket {
     @Nationalized
     @Column(name = "PaymentMethod", length = 20)
     String paymentMethod;
+
+    // ========== Quan hệ N:N qua bảng trung gian ==========
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<TicketSeat> ticketSeats;
+
+    @OneToMany(mappedBy = "ticketID", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<TicketDiscount> ticketDiscounts;
 }
