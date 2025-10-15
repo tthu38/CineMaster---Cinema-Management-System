@@ -172,16 +172,34 @@
 
 <!-- 2) Load shared header/footer (script THƯỜNG, KHÔNG import) -->
 <script>
-    (async ()=> {
-        try{
-            const [h,f] = await Promise.all([
-                fetch('../home/customer-header.html').then(r=>r.text()),
-                fetch('../home/footer.html').then(r=>r.text())
-            ]);
-            document.getElementById('site-header').innerHTML = h;
-            document.getElementById('site-footer').innerHTML = f;
-        }catch(e){ console.error('Load header/footer error', e); }
+    (async function loadHeaderFooter() {
+        try {
+            const headerEl = document.getElementById("site-header");
+            const footerEl = document.getElementById("site-footer");
+
+            // fetch header
+            const resH = await fetch("../home/customer-header.html");
+            const htmlH = await resH.text();
+            headerEl.innerHTML = htmlH;
+
+            // ép chạy script bên trong header
+            const scripts = headerEl.querySelectorAll("script");
+            scripts.forEach(s => {
+                const ns = document.createElement("script");
+                if (s.src) ns.src = s.src;
+                else ns.textContent = s.textContent;
+                document.body.appendChild(ns);
+            });
+
+            // fetch footer
+            const resF = await fetch("../home/footer.html");
+            const htmlF = await resF.text();
+            footerEl.innerHTML = htmlF;
+        } catch (err) {
+            console.error("Lỗi load header/footer:", err);
+        }
     })();
+
 </script>
 
 <!-- 3) Khởi tạo modal tạo lịch chiếu (MODULE) -->
@@ -190,20 +208,20 @@
     import { initShowtimeCreate, openShowtimeCreate } from "../js/showtime-create.js";
     import { initShowtimeEdit,   openShowtimeEdit   } from "../js/showtime-edit.js";
 
-    // 🔹 Lấy role người dùng hiện tại
+    //  Lấy role người dùng hiện tại
     const role = localStorage.getItem("role");
     const btnCreate = document.getElementById("btnOpenCreate");
 
-    // 🔹 Nếu là Staff hoặc Customer → ẩn hoàn toàn nút
-    if (role === "Staff" || role === "Customer") {
-        if (btnCreate) btnCreate.style.display = "none";
-    } else {
-        // ✅ Chỉ khi Admin/Manager mới gán sự kiện mở modal tạo
+    //  Nếu là Staff hoặc Customer → ẩn hoàn toàn nút
+    if (role === "Admin" || role === "Manager") {
         btnCreate?.addEventListener("click", () => {
             const selectedDay   = window.__calendarSelectedYMD || null;
             const currentBranch = document.getElementById("branchSelect")?.value || "";
             openShowtimeCreate({ defaultDate: selectedDay, branchId: currentBranch || null });
         });
+    } else {
+        // Ẩn nút với các vai trò còn lại hoặc chưa đăng nhập
+        if (btnCreate) btnCreate.style.display = "none";
     }
 
     // ✅ Khởi tạo modal tạo / sửa

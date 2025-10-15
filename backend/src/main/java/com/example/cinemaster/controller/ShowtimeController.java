@@ -7,6 +7,7 @@ import com.example.cinemaster.dto.response.ShowtimeResponse;
 import com.example.cinemaster.security.AccountPrincipal;
 import com.example.cinemaster.service.ShowtimeService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.*;
@@ -20,14 +21,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/showtimes")
+@RequiredArgsConstructor
 public class ShowtimeController {
 
     private final ShowtimeService service;
 
-    public ShowtimeController(ShowtimeService service) {
-        this.service = service;
-    }
-
+    // ========= CREATE =========
     @PreAuthorize("hasAnyRole('Admin','Manager')")
     @PostMapping
     public ResponseEntity<ShowtimeResponse> create(
@@ -35,33 +34,38 @@ public class ShowtimeController {
             Authentication auth) {
 
         AccountPrincipal user = (AccountPrincipal) auth.getPrincipal();
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(service.create(request, user));
+        ShowtimeResponse response = service.create(request, user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    // ========= GET BY ID =========
     @GetMapping("/{id}")
     public ResponseEntity<ShowtimeResponse> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(service.getById(id));
     }
 
+    // ========= SEARCH =========
     @GetMapping
     public ResponseEntity<Page<ShowtimeResponse>> search(
             @RequestParam(required = false) Integer periodId,
             @RequestParam(required = false) Integer auditoriumId,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(defaultValue = "startTime,asc") String sort
     ) {
-        Sort sortSpec = Sort.by(sort.split(",")[0]).ascending();
-        if (sort.toLowerCase().endsWith(",desc")) sortSpec = sortSpec.descending();
+        Sort sortSpec = sort.toLowerCase().endsWith(",desc")
+                ? Sort.by(sort.split(",")[0]).descending()
+                : Sort.by(sort.split(",")[0]).ascending();
 
         Pageable pageable = PageRequest.of(page, size, sortSpec);
         return ResponseEntity.ok(service.search(periodId, auditoriumId, from, to, pageable));
     }
 
+    // ========= UPDATE =========
     @PreAuthorize("hasAnyRole('Admin','Manager')")
     @PutMapping("/{id}")
     public ResponseEntity<ShowtimeResponse> update(
@@ -70,13 +74,11 @@ public class ShowtimeController {
             Authentication auth) {
 
         AccountPrincipal user = (AccountPrincipal) auth.getPrincipal();
-        if (user.hasRole("Manager")) {
-            return ResponseEntity.ok(service.update(id, request, user));
-        }
-        return ResponseEntity.ok(service.update(id, request, null));
+        ShowtimeResponse response = service.update(id, request, user);
+        return ResponseEntity.ok(response);
     }
 
-
+    // ========= DELETE =========
     @PreAuthorize("hasAnyRole('Admin','Manager')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id, Authentication auth) {
@@ -85,20 +87,20 @@ public class ShowtimeController {
         return ResponseEntity.noContent().build();
     }
 
+    // ========= WEEKLY SCHEDULE =========
     @GetMapping("/next-week")
     public ResponseEntity<List<DayScheduleResponse>> nextWeek(
             @RequestParam(required = false) Integer branchId
-    ){
+    ) {
         return ResponseEntity.ok(service.getNextWeekSchedule(branchId));
     }
+
     @GetMapping("/week")
     public ResponseEntity<List<DayScheduleResponse>> week(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate anchor,
             @RequestParam(required = false) Integer branchId
-    ){
-
+    ) {
         return ResponseEntity.ok(service.getWeekSchedule(anchor, branchId));
     }
-
 }

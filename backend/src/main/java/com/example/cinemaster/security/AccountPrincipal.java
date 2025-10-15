@@ -36,6 +36,13 @@ public class AccountPrincipal implements UserDetails {
         return authorities != null && authorities.stream()
                 .anyMatch(a -> a.getAuthority().equalsIgnoreCase("ROLE_" + r));
     }
+    public boolean isAdmin() {
+        return hasRole("Admin");
+    }
+
+    public boolean isManager() {
+        return hasRole("Manager");
+    }
 
     @Override public Collection<? extends GrantedAuthority> getAuthorities() { return authorities; }
     @Override public String getPassword() { return null; }

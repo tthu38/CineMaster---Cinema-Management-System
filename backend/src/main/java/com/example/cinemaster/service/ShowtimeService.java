@@ -71,9 +71,10 @@ public class ShowtimeService {
         var auditorium = auditoriumRepo.findById(req.auditoriumId())
                 .orElseThrow(() -> new EntityNotFoundException("Auditorium not found"));
 
-        if (user.hasRole("Manager")) {
+        // 🔒 Chỉ Manager bị giới hạn chi nhánh
+        if (user != null && user.isManager()) {
             if (!Objects.equals(auditorium.getBranch().getId(), user.getBranchId())) {
-                throw new SecurityException("Không thể tạo showtime cho chi nhánh khác");
+                throw new SecurityException("Manager không thể tạo showtime cho chi nhánh khác");
             }
         }
 
@@ -83,6 +84,7 @@ public class ShowtimeService {
         showtimeRepo.saveAndFlush(entity);
         return mapper.toResponse(entity);
     }
+
 
 
     @Transactional
@@ -95,17 +97,20 @@ public class ShowtimeService {
         var auditorium = auditoriumRepo.findById(req.auditoriumId())
                 .orElseThrow(() -> new EntityNotFoundException("Auditorium not found"));
 
-        if (user != null && user.hasRole("Manager")) {
+        // 🔒 Manager chỉ được sửa trong chi nhánh của mình
+        if (user != null && user.isManager()) {
             if (!Objects.equals(auditorium.getBranch().getId(), user.getBranchId())) {
-                throw new SecurityException("Không thể cập nhật showtime ngoài chi nhánh của bạn");
+                throw new SecurityException("Manager không thể cập nhật showtime ngoài chi nhánh của mình");
             }
         }
 
         validateShowtime(req.startTime(), req.endTime(), period, auditorium, id);
+
         mapper.updateEntityFromRequest(req, entity, period, auditorium);
         showtimeRepo.save(entity);
         return mapper.toResponse(entity);
     }
+
 
 
     @Transactional
@@ -113,16 +118,17 @@ public class ShowtimeService {
         var entity = showtimeRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Showtime not found"));
 
-        // 🔒 Nếu là Manager → chỉ được xóa trong chi nhánh của mình
-        if (user != null && user.hasRole("Manager")) {
+        // 🔒 Manager chỉ được xóa trong chi nhánh của mình
+        if (user != null && user.isManager()) {
             Integer branchOfShowtime = entity.getAuditorium().getBranch().getId();
             if (!Objects.equals(branchOfShowtime, user.getBranchId())) {
-                throw new SecurityException("❌ Bạn không có quyền xóa suất chiếu của chi nhánh khác.");
+                throw new SecurityException("Manager không thể xóa showtime của chi nhánh khác");
             }
         }
 
         showtimeRepo.delete(entity);
     }
+
 
 
     // ========= VALIDATION LOGIC =========

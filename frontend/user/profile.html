@@ -389,16 +389,34 @@
 
 <!-- Load header/footer -->
 <script>
-    (async ()=>{
-        try{
-            const [h,f] = await Promise.all([
-                fetch('../home/customer-header.html').then(r=>r.text()),
-                fetch('../home/footer.html').then(r=>r.text())
-            ]);
-            document.getElementById('site-header').innerHTML = h;
-            document.getElementById('site-footer').innerHTML = f;
-        }catch(e){ console.error('Load header/footer error', e); }
+    (async function loadHeaderFooter() {
+        try {
+            const headerEl = document.getElementById("site-header");
+            const footerEl = document.getElementById("site-footer");
+
+            // fetch header
+            const resH = await fetch("../home/customer-header.html");
+            const htmlH = await resH.text();
+            headerEl.innerHTML = htmlH;
+
+            // ép chạy script bên trong header
+            const scripts = headerEl.querySelectorAll("script");
+            scripts.forEach(s => {
+                const ns = document.createElement("script");
+                if (s.src) ns.src = s.src;
+                else ns.textContent = s.textContent;
+                document.body.appendChild(ns);
+            });
+
+            // fetch footer
+            const resF = await fetch("../home/footer.html");
+            const htmlF = await resF.text();
+            footerEl.innerHTML = htmlF;
+        } catch (err) {
+            console.error("Lỗi load header/footer:", err);
+        }
     })();
+
 </script>
 
 <!-- Script gốc của bạn -->

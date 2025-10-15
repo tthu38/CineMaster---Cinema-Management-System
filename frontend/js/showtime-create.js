@@ -25,7 +25,6 @@ export async function initShowtimeCreate({ htmlPath } = {}) {
 
     modal = new bootstrap.Modal(document.getElementById('showtimeCreateModal'));
 
-    // cache elements
     el = {
         alert:        document.getElementById('stcAlert'),
         branch:       document.getElementById('stcBranch'),
@@ -44,28 +43,15 @@ export async function initShowtimeCreate({ htmlPath } = {}) {
 
     await loadBranches();
 
-    // ===== Event bindings =====
-    el.branch.addEventListener('change', async () => {
-        await onBranchChange();
-        await loadDaySlotsForAuditoriumDay();
-        recalcEnd();
-    });
-    el.date.addEventListener('change', async () => {
-        await onBranchChange();
-        await loadDaySlotsForAuditoriumDay();
-        recalcEnd();
-    });
+    el.branch.addEventListener('change', async () => { await refreshBranchData(); });
+    el.date.addEventListener('change', async () => { await refreshBranchData(); });
     el.period.addEventListener('change', () => { onPeriodChange(); recalcEnd(); });
     el.auditorium.addEventListener('change', async () => {
         await loadDaySlotsForAuditoriumDay();
         recalcEnd();
     });
     el.start.addEventListener('input', recalcEnd);
-
-    el.submit.addEventListener('click', e => {
-        e.preventDefault();
-        onSubmit();
-    });
+    el.submit.addEventListener('click', e => { e.preventDefault(); onSubmit(); });
 }
 
 /* ================= OPEN MODAL ================= */
@@ -87,7 +73,6 @@ export function openShowtimeCreate({ defaultDate = null, branchId = null } = {})
     state.movieDurationMin = null;
     state.daySlots = [];
 
-    // 🔒 Manager: gán chi nhánh cố định
     const role = localStorage.getItem("role");
     const managerBranch = localStorage.getItem("branchId");
     if (role === "Manager" && managerBranch) {
@@ -97,47 +82,36 @@ export function openShowtimeCreate({ defaultDate = null, branchId = null } = {})
         el.branch.value = String(branchId);
     }
 
-    onBranchChange()
-        .then(loadDaySlotsForAuditoriumDay)
-        .then(recalcEnd)
-        .finally(() => modal.show());
+    refreshBranchData().finally(() => modal.show());
 }
-
 
 /* ================= HELPERS ================= */
-function addDaysYMD(ymd, days) {
-    const [y, m, d] = ymd.split('-').map(Number);
-    const dt = new Date(y, m - 1, d);
-    dt.setDate(dt.getDate() + days);
-    return dt.toISOString().slice(0, 10);
-}
 function showError(msg) {
     if (!msg) { el.alert.classList.add('d-none'); el.alert.textContent = ''; return; }
     el.alert.textContent = msg;
     el.alert.classList.remove('d-none');
 }
-function todayYMD() {
-    const d = new Date();
-    return d.toISOString().slice(0, 10);
+function todayYMD() { return new Date().toISOString().slice(0, 10); }
+function addDaysYMD(ymd, days) {
+    const [y, m, d] = ymd.split('-').map(Number);
+    const dt = new Date(y, m - 1, d); dt.setDate(dt.getDate() + days);
+    return dt.toISOString().slice(0, 10);
 }
-function toISO(dateStr, timeStr) {
-    return `${dateStr}T${timeStr}:00`;
-}
+function toISO(dateStr, timeStr) { return `${dateStr}T${timeStr}:00`; }
 
-/* ================= LOAD BRANCHES (phân quyền) ================= */
+/* ================= LOAD BRANCHES ================= */
 async function loadBranches() {
     try {
         const role = localStorage.getItem("role");
         const branchId = localStorage.getItem("branchId");
 
-        // Nếu là Manager → chỉ cho phép đúng chi nhánh của mình
         if (role === "Manager" && branchId) {
             const branch = await branchApi.getById(branchId);
             if (branch) {
                 el.branch.innerHTML = `<option value="${branch.id ?? branch.branchId}" selected>
                     ${branch.name ?? branch.branchName ?? "Chi nhánh của tôi"}
                 </option>`;
-                el.branch.disabled = true; // 🔒 khóa dropdown
+                el.branch.disabled = true;
             } else {
                 el.branch.innerHTML = `<option value="">(Không tải được chi nhánh của bạn)</option>`;
                 el.branch.disabled = true;
@@ -145,47 +119,21 @@ async function loadBranches() {
             return;
         }
 
-        // Nếu là Admin → xem được tất cả
         const branches = await branchApi.getAllActive() ?? [];
         el.branch.innerHTML = branches
             .map(b => `<option value="${b.id ?? b.branchId}">${b.name ?? b.branchName}</option>`)
             .join('');
         el.branch.disabled = false;
-
     } catch (err) {
         console.error('Không tải được chi nhánh:', err);
         el.branch.innerHTML = `<option value="">(Không tải được rạp)</option>`;
     }
 }
 
-
-/* ================= NORMALIZE FIELDS ================= */
-const getPeriodId = p => p?.periodId ?? p?.id ?? null;
-const getMovieTitle = p => p?.movieTitle ?? p?.movie?.title ?? p?.title ?? 'Unknown';
-const getStartDate = p => p?.startDate ?? p?.from ?? '';
-const getEndDate = p => p?.endDate ?? p?.to ?? '';
-const getDuration = p => p?.duration ?? p?.movie?.duration ?? null;
-const getAuditoriumId = a => a?.auditoriumID ?? a?.auditoriumId ?? a?.id ?? null;
-
-
-
-function hhmmToMinutes(str) {
-    if (!str) return null;
-    const [h, m] = str.split(':').map(Number);
-    return h * 60 + m;
-}
-function minutesToHHmm(mins) {
-    if (mins == null) return '';
-    mins = ((mins % 1440) + 1440) % 1440;
-    const h = Math.floor(mins / 60), m = mins % 60;
-    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-}
-
-/* ================= LOAD DATA (PERIOD + AUDITORIUM) ================= */
-async function onBranchChange() {
+/* ================= LOAD PERIODS & AUDITORIUMS ================= */
+async function refreshBranchData() {
     const branchId = Number(el.branch.value || 0) || null;
     const onDate = el.date.value || todayYMD();
-
     try {
         el.period.innerHTML = `<option value="">— Chọn period —</option>`;
         el.auditorium.innerHTML = `<option value="">— Chọn phòng —</option>`;
@@ -193,17 +141,20 @@ async function onBranchChange() {
         if (el.cleanupHint) el.cleanupHint.textContent = '';
         state.movieDurationMin = null;
 
-        // ✅ lấy danh sách kỳ chiếu và phòng chiếu theo chi nhánh
         const [periods, auds] = await Promise.all([
             screeningPeriodApi.getByBranch(branchId),
             auditoriumApi.getByBranch(branchId)
         ]);
 
-        console.log("🎬 Periods:", periods);
-        console.log("🏛️ Auditoriums:", auds);
+        // 🎬 Lọc chỉ period còn hiệu lực (chưa kết thúc)
+        const today = todayYMD();
+        const validPeriods = (periods || []).filter(p => {
+            const from = getStartDate(p);
+            const to = getEndDate(p);
+            return to >= today; // còn hiệu lực
+        });
 
-        // build dropdown kỳ chiếu
-        const periodOptions = (periods || []).map(p => {
+        const periodOptions = validPeriods.map(p => {
             const pid = getPeriodId(p);
             const from = getStartDate(p);
             const to = getEndDate(p);
@@ -215,17 +166,14 @@ async function onBranchChange() {
         }).join('');
         el.period.innerHTML = `<option value="">— Chọn period —</option>${periodOptions}`;
 
-        // build dropdown phòng chiếu
         const audOptions = (auds || []).map(a => {
             const aid = getAuditoriumId(a);
             return `<option value="${aid}">${a.name} • ${a.type} • ${a.capacity} ghế</option>`;
         }).join('');
         el.auditorium.innerHTML = `<option value="">— Chọn phòng —</option>${audOptions}`;
 
-        // auto chọn nếu chỉ có 1 option
-        if ((periods?.length || 0) === 1) {
-            const pid = getPeriodId(periods[0]);
-            el.period.value = String(pid);
+        if (validPeriods.length === 1) {
+            el.period.value = String(getPeriodId(validPeriods[0]));
             onPeriodChange();
         }
 
@@ -236,11 +184,23 @@ async function onBranchChange() {
         if (state.prevAuditoriumId && [...el.auditorium.options].some(o => o.value === String(state.prevAuditoriumId))) {
             el.auditorium.value = String(state.prevAuditoriumId);
         }
+
+        await loadDaySlotsForAuditoriumDay();
+        recalcEnd();
+
     } catch (e) {
         console.error(e);
         showError(e?.message || 'Không tải được dữ liệu period/phòng chiếu.');
     }
 }
+
+/* ================= NORMALIZE ================= */
+const getPeriodId = p => p?.periodId ?? p?.id ?? null;
+const getMovieTitle = p => p?.movieTitle ?? p?.movie?.title ?? p?.title ?? 'Unknown';
+const getStartDate = p => p?.startDate ?? p?.from ?? '';
+const getEndDate = p => p?.endDate ?? p?.to ?? '';
+const getDuration = p => p?.duration ?? p?.movie?.duration ?? null;
+const getAuditoriumId = a => a?.auditoriumID ?? a?.auditoriumId ?? a?.id ?? null;
 
 /* ================= PERIOD CHANGE ================= */
 function onPeriodChange() {
@@ -276,8 +236,7 @@ async function loadDaySlotsForAuditoriumDay() {
     if (!auditoriumRaw || !date) { state.daySlots = []; return; }
 
     const from = `${date}T00:00:00`;
-    const nextDay = addDaysYMD(date, 1);
-    const to = `${nextDay}T00:00:00`;
+    const to = `${addDaysYMD(date, 1)}T00:00:00`;
 
     const resp = await showtimeApi.search({
         auditoriumId: Number(auditoriumRaw),
@@ -306,6 +265,18 @@ function violatesBuffer(startStr, endStr) {
 }
 
 /* ================= AUTO END ================= */
+function hhmmToMinutes(str) {
+    if (!str) return null;
+    const [h, m] = str.split(':').map(Number);
+    return h * 60 + m;
+}
+function minutesToHHmm(mins) {
+    if (mins == null) return '';
+    mins = ((mins % 1440) + 1440) % 1440;
+    const h = Math.floor(mins / 60), m = mins % 60;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
 function recalcEnd() {
     const startStr = el.start.value;
     const startMin = hhmmToMinutes(startStr);
@@ -335,6 +306,7 @@ async function onSubmit() {
         const price = Number(el.price.value || 0);
         const date = el.date.value;
         const start = el.start.value;
+
         if (!el.end.value) recalcEnd();
         const end = el.end.value;
 
@@ -343,11 +315,13 @@ async function onSubmit() {
         if (!date) throw new Error('Vui lòng chọn Ngày');
         if (!start) throw new Error('Vui lòng chọn giờ bắt đầu');
         if (!end) throw new Error('Thiếu giờ kết thúc (chưa chọn Period hợp lệ).');
-        if (!['Vietnamese', 'English'].includes(language))
-            throw new Error('Ngôn ngữ chỉ được chọn Tiếng Việt hoặc English');
 
         const opt = el.period.selectedOptions?.[0];
         const [pFrom, pTo] = (opt?.getAttribute('data-range') || '').split('..');
+        const today = todayYMD();
+        if (pTo && pTo < today) {
+            throw new Error(`Không thể tạo lịch chiếu cho kỳ chiếu đã kết thúc (${pTo}).`);
+        }
         if (pFrom && pTo && (date < pFrom || date > pTo)) {
             throw new Error(`Ngày chiếu phải nằm trong khoảng ${pFrom} → ${pTo}`);
         }
