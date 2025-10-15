@@ -21,6 +21,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     const rememberMe = document.getElementById("rememberMe").checked;
     const errorDiv = document.getElementById("error-message");
 
+
     try {
         const data = await authApi.login({ phoneNumber, password });
         console.log("✅ Login response:", data);
@@ -28,10 +29,14 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
         const token = data.accessToken || data.result?.accessToken;
         if (!token) throw new Error("Không nhận được access token từ server");
 
-        // Lưu token trước để dùng cho API profile
+        // 🟢 Lưu branch ngay tại đây
+        if (data.branchId) localStorage.setItem("branchId", data.branchId);
+        if (data.branchName) localStorage.setItem("branchName", data.branchName);
+
+        // ✅ Lưu token
         localStorage.setItem("accessToken", token);
 
-        // ✅ Gọi API profile để lấy đủ thông tin user
+        // ✅ Gọi API profile
         const res = await fetch("http://localhost:8080/api/v1/users/profile", {
             headers: { "Authorization": "Bearer " + token }
         });
@@ -40,17 +45,19 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
         const profileData = await res.json();
         const profile = profileData.result;
 
-        // ✅ Lưu toàn bộ thông tin user vào localStorage
+        // ✅ Lưu thông tin user
         localStorage.setItem("accountId", profile.id);
         localStorage.setItem("fullName", profile.fullName || "");
         localStorage.setItem("email", profile.email || "");
         localStorage.setItem("avatarUrl", profile.avatarUrl || "../assets/default-avatar.png");
         localStorage.setItem("role", profile.roleName || "Customer");
-        localStorage.setItem("branchId", profile.branchId || "");
-        localStorage.setItem("branchName", profile.branchName || "");
         localStorage.setItem("loyaltyPoints", profile.loyaltyPoints || 0);
 
-        // ✅ Ghi nhớ tài khoản nếu chọn “Remember me”
+        // 🟢 Chỉ ghi đè branch nếu profile có trả về
+        if (profile.branchId) localStorage.setItem("branchId", profile.branchId);
+        if (profile.branchName) localStorage.setItem("branchName", profile.branchName);
+
+        // ✅ Remember me
         if (rememberMe) localStorage.setItem("rememberedUsername", phoneNumber);
         else localStorage.removeItem("rememberedUsername");
 
@@ -62,6 +69,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
         errorDiv.textContent = err.message || "Sai số điện thoại hoặc mật khẩu";
         errorDiv.classList.remove("d-none");
     }
+
 });
 
 // ========== Google Login ==========
