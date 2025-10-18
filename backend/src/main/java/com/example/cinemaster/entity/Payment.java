@@ -37,13 +37,13 @@ public class Payment {
 
     @Nationalized
     @Lob
-    @Column(name = "Description")
+    @Column(name = "PaymentDescription")
     String description;
 
     @Size(max = 20)
     @NotNull
     @Nationalized
-    @Column(name = "Status", nullable = false, length = 20)
+    @Column(name = "PaymentStatus", nullable = false, length = 20)
     String status;
 
     @Size(max = 255)

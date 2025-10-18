@@ -1,7 +1,6 @@
 package com.example.cinemaster.repository;
 
 import com.example.cinemaster.entity.Showtime;
-import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
@@ -9,6 +8,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ShowtimeRepository extends JpaRepository<Showtime, Integer>, JpaSpecificationExecutor<Showtime> {
+
+    /* ============================================================
+       🕓 LỊCH CHIẾU THEO NGÀY / TUẦN
+    ============================================================ */
 
     @Query("""
            SELECT s FROM Showtime s
@@ -21,128 +24,82 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Integer>, Jp
            ORDER BY m.title, s.startTime
            """)
     List<Showtime> findTodayShowtimes(@Param("start") LocalDateTime start,
-                                      @Param("end")   LocalDateTime end);
+                                      @Param("end") LocalDateTime end);
 
-    // Overlap khi create
-    @Query("""
-           SELECT COUNT(s) FROM Showtime s
-           WHERE s.auditorium.auditoriumID = :auditoriumId
-             AND s.startTime < :endTime
-             AND s.endTime   > :startTime
-           """)
-    long countOverlaps(@Param("auditoriumId") Integer auditoriumId,
-                       @Param("startTime") LocalDateTime startTime,
-                       @Param("endTime") LocalDateTime endTime);
+    List<Showtime> findAllByStartTimeGreaterThanEqualAndStartTimeLessThan(
+            LocalDateTime start, LocalDateTime end);
 
     @Query("""
-           SELECT COUNT(s) FROM Showtime s
-           WHERE s.auditorium.auditoriumID = :auditoriumId
-             AND s.startTime < :endTime
-             AND s.endTime   > :startTime
-             AND s.showtimeID <> :excludeId
-           """)
-    long countOverlapsExcluding(@Param("auditoriumId") Integer auditoriumId,
-                                @Param("startTime") LocalDateTime startTime,
-                                @Param("endTime") LocalDateTime endTime,
-                                @Param("excludeId") Integer excludeId);
+        SELECT s FROM Showtime s
+        WHERE s.startTime >= :start
+          AND s.startTime < :end
+          AND s.auditorium.branch.id = :branchId
+        ORDER BY s.startTime
+    """)
+    List<Showtime> findWeekByBranch(@Param("start") LocalDateTime start,
+                                    @Param("end") LocalDateTime end,
+                                    @Param("branchId") Integer branchId);
 
-    List<Showtime> findAllByStartTimeGreaterThanEqualAndStartTimeLessThan(LocalDateTime start,
-                                                                          LocalDateTime end);
-
-    List<Showtime> findAllByStartTimeGreaterThanEqualAndStartTimeLessThanAndAuditorium_Branch_Id(
-            LocalDateTime start,
-            LocalDateTime end,
-            Integer branchId
-    );
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("""
-   SELECT s FROM Showtime s
-   WHERE s.auditorium.auditoriumID = :auditoriumId
-     AND s.startTime < :endTime
-     AND s.endTime   > :startTime
-""")
-    List<Showtime> findOverlapsForUpdate(@Param("auditoriumId") Integer auditoriumId,
-                                         @Param("startTime") LocalDateTime startTime,
-                                         @Param("endTime") LocalDateTime endTime);
+    /* ============================================================
+       ⚙️ KIỂM TRA TRÙNG LỊCH / OVERLAP THEO PHÒNG
+    ============================================================ */
 
     @Query("""
-       select s from Showtime s
-       where s.auditorium.auditoriumID = :audId
-         and s.startTime < :endWithBuffer
-         and s.endTime   > :startWithBuffer
-       """)
-    List<Showtime> findOverlapsWithBufferForUpdate(
-            @Param("audId") Integer auditoriumId,
+       SELECT COUNT(s) FROM Showtime s
+       WHERE s.auditorium.auditoriumID = :auditoriumId
+         AND NOT ( s.endTime <= :startWithBuffer OR s.startTime >= :endWithBuffer )
+    """)
+    long countOverlaps(
+            @Param("auditoriumId") Integer auditoriumId,
             @Param("startWithBuffer") LocalDateTime startWithBuffer,
-            @Param("endWithBuffer") LocalDateTime endWithBuffer);
+            @Param("endWithBuffer") LocalDateTime endWithBuffer
+    );
 
-    // Bản cho update (loại trừ chính nó)
     @Query("""
-       select count(s) from Showtime s
-       where s.auditorium.auditoriumID = :audId
-         and s.startTime < :endWithBuffer
-         and s.endTime   > :startWithBuffer
-         and s.showtimeID <> :excludeId
-       """)
-    long countOverlapsWithBufferExcluding(
-            @Param("audId") Integer auditoriumId,
+       SELECT COUNT(s) FROM Showtime s
+       WHERE s.auditorium.auditoriumID = :auditoriumId
+         AND NOT ( s.endTime <= :startWithBuffer OR s.startTime >= :endWithBuffer )
+         AND s.showtimeID <> :excludeId
+    """)
+    long countOverlapsExcluding(
+            @Param("auditoriumId") Integer auditoriumId,
             @Param("startWithBuffer") LocalDateTime startWithBuffer,
             @Param("endWithBuffer") LocalDateTime endWithBuffer,
-            @Param("excludeId") Integer excludeId);
+            @Param("excludeId") Integer excludeId
+    );
+
+    /* ============================================================
+       🎬 KIỂM TRA PHIM TRÙNG TRONG CÙNG PHÒNG (THEO CHI NHÁNH)
+    ============================================================ */
 
     @Query("""
-        select count(s) from Showtime s
-        where s.period.movie.movieID = :movieId
-          and s.auditorium.branch.id = :branchId
-          and s.startTime < :end
-          and s.endTime   > :start
-    """)
+    SELECT COUNT(s) FROM Showtime s
+    WHERE s.period.movie.movieID = :movieId
+      AND s.auditorium.branch.id = :branchId
+      AND s.auditorium.auditoriumID = :auditoriumId
+      AND s.startTime < :end
+      AND s.endTime   > :start
+""")
     long countMovieOverlapInBranch(@Param("movieId") Integer movieId,
                                    @Param("branchId") Integer branchId,
+                                   @Param("auditoriumId") Integer auditoriumId,
                                    @Param("start") LocalDateTime start,
                                    @Param("end") LocalDateTime end);
 
     @Query("""
-        select count(s) from Showtime s
-        where s.period.movie.movieID = :movieId
-          and s.auditorium.branch.id = :branchId
-          and s.startTime < :end
-          and s.endTime   > :start
-          and s.showtimeID <> :excludeId
-    """)
+    SELECT COUNT(s) FROM Showtime s
+    WHERE s.period.movie.movieID = :movieId
+      AND s.auditorium.branch.id = :branchId
+      AND s.auditorium.auditoriumID = :auditoriumId
+      AND s.startTime < :end
+      AND s.endTime   > :start
+      AND s.showtimeID <> :excludeId
+""")
     long countMovieOverlapInBranchExcluding(@Param("movieId") Integer movieId,
                                             @Param("branchId") Integer branchId,
+                                            @Param("auditoriumId") Integer auditoriumId,
                                             @Param("start") LocalDateTime start,
                                             @Param("end") LocalDateTime end,
                                             @Param("excludeId") Integer excludeId);
 
-    // QUẢN LÝ THEO CHI NHÁNH
-    @Query("""
-        SELECT s FROM Showtime s
-          JOIN s.auditorium a
-          JOIN a.branch b
-        WHERE b.id = :branchId
-        ORDER BY s.startTime ASC
-    """)
-    List<Showtime> findAllByBranchId(@Param("branchId") Integer branchId);
-
-    @Query("""
-        SELECT COUNT(s) > 0 FROM Showtime s
-          JOIN s.auditorium a
-          JOIN a.branch b
-        WHERE s.showtimeID = :showtimeId
-          AND b.id = :branchId
-    """)
-    boolean existsByIdAndBranch(@Param("showtimeId") Integer showtimeId,
-                                @Param("branchId") Integer branchId);
-
-    @Query("""
-        SELECT s FROM Showtime s
-          JOIN s.auditorium a
-          JOIN a.branch b
-        WHERE s.showtimeID = :showtimeId
-          AND b.id = :branchId
-    """)
-    Showtime findByIdAndBranch(@Param("showtimeId") Integer showtimeId,
-                               @Param("branchId") Integer branchId);
 }

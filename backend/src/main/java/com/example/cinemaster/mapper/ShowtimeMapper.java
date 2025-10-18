@@ -17,6 +17,7 @@ public interface ShowtimeMapper {
     @Mapping(target = "movieTitle", source = "period.movie.title")
     @Mapping(target = "auditoriumName", source = "auditorium.name")
     @Mapping(target = "branchId", source = "auditorium.branch.id")
+
     ShowtimeResponse toResponse(Showtime entity);
 
     List<ShowtimeResponse> toResponseList(List<Showtime> entities);

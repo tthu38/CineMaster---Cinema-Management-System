@@ -4,47 +4,41 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-
 @Entity
-@Table(name = "TicketDiscount")
+@Table(name = "TicketSeat")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@IdClass(TicketDiscount.TicketDiscountKey.class)
-public class TicketDiscount {
+@IdClass(TicketSeat.TicketSeatKey.class)
+public class TicketSeat {
 
     @Id
     @Column(name = "TicketID")
     Integer ticketId;
 
     @Id
-    @Column(name = "DiscountID")
-    Integer discountId;
+    @Column(name = "SeatID")
+    Integer seatId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TicketID", insertable = false, updatable = false)
     Ticket ticket;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "DiscountID", insertable = false, updatable = false)
-    Discount discount;
+    @JoinColumn(name = "SeatID", insertable = false, updatable = false)
+    Seat seat;
 
-    @Column(name = "Amount", precision = 10, scale = 2)
-    BigDecimal amount;
-
-    // Inner ID class
+    // ----- Inner class làm khóa kép -----
     @Getter
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     @EqualsAndHashCode
-    public static class TicketDiscountKey implements Serializable {
+    public static class TicketSeatKey implements java.io.Serializable {
         Integer ticketId;
-        Integer discountId;
+        Integer seatId;
     }
 }

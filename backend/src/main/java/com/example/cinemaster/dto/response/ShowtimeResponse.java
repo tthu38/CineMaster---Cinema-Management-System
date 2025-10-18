@@ -16,4 +16,5 @@ public record ShowtimeResponse(
         String movieTitle,
         String auditoriumName,
         Integer branchId
+
 ) {}

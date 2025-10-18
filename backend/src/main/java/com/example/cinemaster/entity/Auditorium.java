@@ -7,6 +7,9 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.Nationalized;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -43,4 +46,9 @@ public class Auditorium {
     @Column(name = "IsActive")
     @Builder.Default
     Boolean isActive = true;
+
+    @OneToMany(mappedBy = "auditorium", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    List<Seat> seats = new ArrayList<>();
+
+
 }

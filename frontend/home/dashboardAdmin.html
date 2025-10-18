@@ -154,8 +154,12 @@
         <div class="sidebar-content">
             <div class="list-group list-group-flush my-3">
                 <a href="#" class="list-group-item list-group-item-action active"
-                   onclick="loadIframe('dashboard_home.html', this); return false;">
+                   onclick="loadIframe('./dashboard_home.html', this); return false;">
                     <i class="fas fa-chart-line"></i> Tổng quan
+                </a>
+                <a href="#" class="list-group-item list-group-item-action"
+                   onclick="loadIframe('../statistic/revenue.html', this); return false;">
+                    <i class="fas fa-chart-line"></i> Thống kê doanh thu
                 </a>
 
                 <a href="#" class="list-group-item list-group-item-action"
@@ -235,7 +239,7 @@
         <iframe
                 id="main-frame"
                 src="dashboard_home.html"
-                sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals">
+<!--                sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals">-->
         </iframe>
     </div>
 </div>

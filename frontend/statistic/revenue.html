@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Báo cáo doanh thu | CineMaster</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <script type="module" src="../js/revenue.js"></script>
+</head>
+<body class="bg-light">
+<div class="container py-4">
+    <h2 class="text-center text-primary mb-4"><i class="fa-solid fa-chart-line me-2"></i>Báo cáo doanh thu</h2>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <label class="form-label">Phạm vi</label>
+            <select id="scope" class="form-select"></select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Ngày / Tháng</label>
+            <div id="dateGroup">
+                <input id="date" type="date" class="form-control">
+            </div>
+            <div id="yearGroup" class="d-none">
+                <input id="year" type="number" min="2000" max="2100" class="form-control">
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">Chi nhánh</label>
+            <select id="branch" class="form-select"></select>
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+            <button id="btnLoad" class="btn btn-primary w-100">
+                <i class="fa-solid fa-magnifying-glass me-1"></i>Tải báo cáo
+            </button>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle text-center">
+            <thead class="table-primary">
+            <tr>
+                <th>#</th>
+                <th>Khoảng thời gian</th>
+                <th>Ghế đã bán</th>
+                <th>Tiền vé</th>
+                <th>Combo đã bán</th>
+                <th>Tiền combo</th>
+                <th>Giảm giá</th>
+                <th>Chuyển khoản</th>
+                <th>Tiền mặt</th>
+                <th>Tổng doanh thu</th>
+            </tr>
+            </thead>
+            <tbody id="revenueBody"></tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

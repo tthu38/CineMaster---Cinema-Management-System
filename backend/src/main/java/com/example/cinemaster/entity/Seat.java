@@ -53,4 +53,5 @@ public class Seat {
         BROKEN,   // <-- Đây là giá trị bạn cần
         RESERVED,
     }
+
 }
