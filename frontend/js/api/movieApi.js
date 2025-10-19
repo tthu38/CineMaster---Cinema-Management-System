@@ -67,4 +67,23 @@ export const movieApi = {
         });
         return handleResponse(res);
     },
+    // filter
+    async searchMovies(filterRequest) {
+        // Endpoint: /api/v1/movies/search (từ MovieController của bạn)
+        const params = new URLSearchParams();
+
+        // Thêm các tham số lọc: title, genre, director, cast, language
+        Object.keys(filterRequest).forEach(key => {
+            const value = filterRequest[key];
+            if (value) {
+                // Đảm bảo mã hóa URL cho các giá trị
+                params.append(key, value.trim());
+            }
+        });
+
+        const url = `${API_BASE_URL}/movies/search?${params.toString()}`;
+
+        const res = await fetch(url, { method: "GET" });
+        return handleResponse(res);
+    },
 };

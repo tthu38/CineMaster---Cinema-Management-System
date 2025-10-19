@@ -1,6 +1,8 @@
 import { requireAuth } from "./api/config.js";
 import { screeningPeriodApi } from './api/screeningPeriodApi.js';
 import { branchApi } from "./api/branchApi.js";
+import { movieApi } from "./api/movieApi.js"; // ⬅️ THÊM: Import movieApi
+import Swal from "https://cdn.jsdelivr.net/npm/sweetalert2@11/+esm"; // THÊM: Import Swal để xử lý lỗi
 
 requireAuth();
 
@@ -10,7 +12,7 @@ const loadPeriodsBtn = document.getElementById("load-periods");
 const paginationFooter = document.getElementById("pagination-footer");
 
 let allBranches = [];
-let allMovies = [];
+let allMovies = []; // ⬅️ Dữ liệu phim sẽ được lưu ở đây
 let allPeriodsData = [];
 
 const PAGE_SIZE = 10;
@@ -21,7 +23,8 @@ const TABLE_COLSPAN = 6;
 async function loadForeignKeys() {
     try {
         // --- 1️⃣ Lấy danh sách Chi nhánh ---
-        const branches = await branchApi.getAllBranches();
+        // SỬA: Dùng getAll() hoặc getAllActive() thay vì getAllBranches()
+        const branches = await branchApi.getAllActive();
         allBranches = Array.isArray(branches)
             ? branches.filter((b) => b.isActive)
             : [];
@@ -34,11 +37,9 @@ async function loadForeignKeys() {
             filterBranchSelect.appendChild(option);
         });
 
-        // --- 2️⃣ Lấy danh sách phim (nếu cần hiển thị poster) ---
-        // Nếu bạn có movieApi thì import nó ở api.js, ví dụ:
-        // import { movieApi } from '../js/api.js';
-        // Ở đây tạm thời để trống do bạn chưa kết nối MovieController
-        allMovies = []; // placeholder
+        // --- 2️⃣ Lấy danh sách phim ---
+        const movies = await movieApi.getAll(); // ⬅️ THÊM: Tải dữ liệu phim
+        allMovies = Array.isArray(movies) ? movies : movies.result || [];
 
     } catch (error) {
         console.error("❌ Lỗi khi tải khóa ngoại:", error);
@@ -104,10 +105,11 @@ async function loadPeriods(loadFromApi = false, page = 0) {
                         String(period.branchId)
                 ) || {};
 
-            const movieTitle = period.movieTitle || `Phim ID: ${period.movieId}`;
-            const posterUrl =
-                period.posterUrl ||
-                "../images/default-poster.png";
+            // ⬅️ SỬA: Lấy thông tin phim từ allMovies
+            const movie = allMovies.find(m => String(m.movieID || m.id) === String(period.movieId));
+
+            const movieTitle = movie ? movie.title : period.movieTitle || `Phim ID: ${period.movieId}`;
+            const posterUrl = movie?.posterUrl || "../images/default-poster.png";
 
             const row = document.createElement("tr");
             row.innerHTML = `
@@ -136,7 +138,7 @@ async function loadPeriods(loadFromApi = false, page = 0) {
     }
 }
 
-// HÀM PHÂN TRANG
+// HÀM PHÂN TRANG (Giữ nguyên)
 function renderPagination(totalPages, currentPage) {
     paginationFooter.innerHTML = "";
 
@@ -171,7 +173,7 @@ function renderPagination(totalPages, currentPage) {
     `;
 }
 
-// GẮN SỰ KIỆN & KHỞI TẠO
+// GẮN SỰ KIỆN & KHỞI TẠO (Giữ nguyên)
 if (filterBranchSelect) {
     filterBranchSelect.addEventListener("change", () => loadPeriods(true));
 }

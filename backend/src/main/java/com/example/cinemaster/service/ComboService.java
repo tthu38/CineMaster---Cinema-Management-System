@@ -130,4 +130,10 @@ public class ComboService {
         log.info("🟢 Restored combo ID {}", id);
         return comboMapper.toResponse(combo);
     }
+    // Hong hanh
+    public List<ComboResponse> getAvailableCombosByBranchId(Integer branchId) {
+        var combos = comboRepository.findAvailableByBranchIncludingGlobal(branchId);
+        log.info("📦 Found {} combos for branchId={}", combos.size(), branchId);
+        return comboMapper.toResponseList(combos);
+    }
 }

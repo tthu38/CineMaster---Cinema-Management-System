@@ -1,5 +1,6 @@
 package com.example.cinemaster.service;
 
+import com.example.cinemaster.dto.request.MovieFilterRequest;
 import com.example.cinemaster.dto.request.MovieRequest;
 import com.example.cinemaster.dto.response.MovieResponse;
 import com.example.cinemaster.entity.Movie;
@@ -29,7 +30,7 @@ public class MovieService {
             movie.setPosterUrl(DEFAULT_POSTER);
         }
 
-        return movieMapper.toResponse(movieRepository.save(movie));
+        return movieMapper.toMovieResponse(movieRepository.save(movie));
     }
 
     public MovieResponse update(Integer id, MovieRequest request) {
@@ -52,7 +53,7 @@ public class MovieService {
             movie.setPosterUrl(DEFAULT_POSTER);
         }
 
-        return movieMapper.toResponse(movieRepository.save(movie));
+        return movieMapper.toMovieResponse(movieRepository.save(movie));
     }
 
     public void delete(Integer id) {
@@ -76,7 +77,7 @@ public class MovieService {
                     if (m.getPosterUrl() == null || m.getPosterUrl().isEmpty()) {
                         m.setPosterUrl(DEFAULT_POSTER);
                     }
-                    return movieMapper.toResponse(m);
+                    return movieMapper.toMovieResponse(m);
                 })
                 .orElseThrow(() -> new EntityNotFoundException("Movie not found with ID: " + id));
     }
@@ -94,7 +95,39 @@ public class MovieService {
         });
 
         return movies.stream()
-                .map(movieMapper::toResponse)
+                .map(movieMapper::toMovieResponse)
                 .toList();
+    }
+
+    public List<MovieResponse> filterMovies(MovieFilterRequest request) {
+
+        // 1. Chuẩn hóa tham số: Lấy giá trị, trim (cắt khoảng trắng), và đặt thành NULL nếu rỗng.
+        String title = normalizeFilterParam(request.getTitle()); // Thêm dòng này
+        String genre = normalizeFilterParam(request.getGenre());
+        String director = normalizeFilterParam(request.getDirector());
+        String cast = normalizeFilterParam(request.getCast());
+        String language = normalizeFilterParam(request.getLanguage());
+
+        // 2. Gọi Repository với các tham số đã được chuẩn hóa.
+        // Cần đảm bảo thứ tự khớp với Repository: (title, genre, director, cast, language)
+        List<Movie> filteredMovies = movieRepository.findMoviesByCriteria(
+                title, // Thêm title vào đầu tiên
+                genre,
+                director,
+                cast,
+                language
+        );
+
+        // 3. Chuyển đổi và trả về DTO
+        return movieMapper.toMovieResponseList(filteredMovies);
+    }
+
+    /**
+     * Hàm tiện ích để chuẩn hóa tham số lọc (trả về null nếu tham số rỗng hoặc null).
+     */
+    private String normalizeFilterParam(String param) {
+        if (param == null) return null;
+        String trimmed = param.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 }

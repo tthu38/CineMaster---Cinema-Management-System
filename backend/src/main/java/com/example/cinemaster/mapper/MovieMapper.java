@@ -7,6 +7,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface MovieMapper {
 
@@ -16,20 +18,12 @@ public interface MovieMapper {
     // Cập nhật Entity từ Request (dùng cho update)
     void updateEntity(@MappingTarget Movie movie, MovieRequest request);
 
-    // Entity -> Response (map rõ ràng tất cả field)
+    // Entity -> Response (Chỉ giữ lại toMovieResponse và map các trường khác tên)
+    // MapStruct tự động map các trường trùng tên (title, genre, cast, description, v.v.)
     @Mapping(source = "movieID", target = "movieId")
-    @Mapping(source = "title", target = "title")
-    @Mapping(source = "genre", target = "genre")
-    @Mapping(source = "duration", target = "duration")
-    @Mapping(source = "releaseDate", target = "releaseDate")
-    @Mapping(source = "director", target = "director")
-    @Mapping(source = "cast", target = "cast")   // chú ý: entity phải là "cast" chứ không phải "casts"
-    @Mapping(source = "description", target = "description")
-    @Mapping(source = "language", target = "language")
-    @Mapping(source = "ageRestriction", target = "ageRestriction")
-    @Mapping(source = "country", target = "country")
-    @Mapping(source = "trailerUrl", target = "trailerUrl")
-    @Mapping(source = "posterUrl", target = "posterUrl")
-    @Mapping(source = "status", target = "status")
-    MovieResponse toResponse(Movie movie);
+    MovieResponse toMovieResponse(Movie movie);
+
+    // List Entity -> List Response
+    // MapStruct tự động sử dụng toMovieResponse() để triển khai
+    List<MovieResponse> toMovieResponseList(List<Movie> movies);
 }

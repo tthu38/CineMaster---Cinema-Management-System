@@ -338,3 +338,35 @@ loadButton.addEventListener("click", () => loadSeats());
 await loadBranches();
 await loadSeatTypes();
 await loadSeats();
+
+// ======================= ⛳️ BỔ SUNG NÂNG CẤP (KHÔNG SỬA CODE GỐC) =======================
+
+// ✅ Hàm load ghế theo phòng chiếu (được kế thừa từ bản dưới)
+async function loadSeatsByAuditorium(auditoriumId, page = 0, size = 10) {
+    try {
+        const allSeats = await seatApi.getAll();
+        const data = allSeats.filter(s => s.auditoriumID === parseInt(auditoriumId));
+        renderSeatTable(data.slice(page * size, (page + 1) * size));
+        renderPagination(data.length, page, size);
+    } catch (err) {
+        console.error("❌ Lỗi tải danh sách ghế theo phòng chiếu:", err);
+    }
+}
+
+// ✅ Gắn sự kiện change để render theo phòng chiếu
+diagramAuditoriumSelect.addEventListener("change", e => {
+    const auditoriumId = e.target.value;
+    renderSeatDiagram(auditoriumId);
+    loadSeatsByAuditorium(auditoriumId); // chỉ load ghế của phòng này
+});
+
+// ✅ Nâng cấp nút “Tải ghế” để chỉ load trong phòng đang chọn
+loadButton.addEventListener("click", () => {
+    const auditoriumId = diagramAuditoriumSelect.value;
+    if (!auditoriumId) {
+        Swal.fire("Vui lòng chọn Phòng chiếu trước!", "", "info");
+        return;
+    }
+    loadSeatsByAuditorium(auditoriumId);
+});
+

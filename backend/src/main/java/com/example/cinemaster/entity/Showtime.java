@@ -45,5 +45,11 @@ public class Showtime {
 
     @Column(name = "Price", precision = 10, scale = 2)
     BigDecimal price;
+
+    // honghanh
+    @Transient
+    public Movie getMovie() {
+        return period != null ? period.getMovie() : null;
+    }
 }
 

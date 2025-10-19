@@ -1,6 +1,8 @@
 package com.example.cinemaster.repository;
 
+import com.example.cinemaster.entity.Movie;
 import com.example.cinemaster.entity.ScreeningPeriod;
+import com.example.cinemaster.entity.Showtime;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -38,4 +40,25 @@ public interface ScreeningPeriodRepository extends JpaRepository<ScreeningPeriod
             @Param("branchId") Integer branchId,
             @Param("onDate") LocalDate onDate
     );
+
+    @Query("""
+    SELECT DISTINCT sp.movie 
+    FROM ScreeningPeriod sp
+    WHERE sp.branch.id = :branchId
+      AND sp.branch.isActive = true
+      AND sp.startDate <= CURRENT_DATE
+      AND sp.endDate >= CURRENT_DATE
+      AND sp.isActive = true
+""")
+    List<Movie> findNowShowingMoviesByBranchId(@Param("branchId") Integer branchId);
+
+    @Query("""
+           SELECT sp FROM ScreeningPeriod sp
+           WHERE sp.startDate > CURRENT_DATE
+           AND sp.isActive = true
+           """)
+    List<ScreeningPeriod> findComingSoon();
+
+    // 🔹 Tìm tất cả kỳ chiếu của 1 phim
+    List<ScreeningPeriod> findByMovie_MovieID(Integer movieId);
 }

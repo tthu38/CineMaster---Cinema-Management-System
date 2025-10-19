@@ -1,5 +1,6 @@
 package com.example.cinemaster.controller;
 
+import com.example.cinemaster.dto.request.MovieFilterRequest;
 import com.example.cinemaster.dto.request.MovieRequest;
 import com.example.cinemaster.dto.response.ApiResponse;
 import com.example.cinemaster.dto.response.MovieResponse;
@@ -90,5 +91,29 @@ public class MovieController {
     public ResponseEntity<ApiResponse<Void>> deleteMovie(@PathVariable Integer id) {
         movieService.delete(id);
         return ResponseEntity.ok(new ApiResponse<>(1000, "Deleted", null));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<List<MovieResponse>>> searchMovies(
+            @RequestParam(required = false) String title, // Thêm title
+            @RequestParam(required = false) String genre,
+            @RequestParam(required = false) String director,
+            @RequestParam(required = false) String cast,
+            @RequestParam(required = false) String language) {
+
+        // 1. Tạo Request DTO từ các tham số
+        MovieFilterRequest request = MovieFilterRequest.builder()
+                .title(title) // Thêm title vào builder
+                .genre(genre).director(director).cast(cast).language(language).build();
+
+        // 2. Gọi Service để thực hiện logic lọc
+        List<MovieResponse> filteredMovies = movieService.filterMovies(request);
+
+        // 3. Trả về Response
+        ApiResponse<List<MovieResponse>> res = new ApiResponse<>();
+        res.setCode(1000);
+        res.setMessage("Success");
+        res.setResult(filteredMovies);
+        return ResponseEntity.ok(res);
     }
 }

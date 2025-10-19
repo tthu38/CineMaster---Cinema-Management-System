@@ -1,5 +1,6 @@
 package com.example.cinemaster.repository;
 
+import com.example.cinemaster.entity.Account;
 import com.example.cinemaster.entity.Ticket;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -61,5 +62,5 @@ WHERE t.ticketId = :id
 """)
     Optional<Ticket> findWithAccountByTicketId(@Param("id") Integer id);
 
-
+    Optional<Ticket> findTopByAccountOrderByBookingTimeDesc(Account account);
 }

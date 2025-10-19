@@ -31,6 +31,7 @@ public class SeatController {
         return seatService.getAllSeats();
     }
 
+    @PreAuthorize("hasAnyRole('Admin','Manager','Staff')")
     @GetMapping("/{id}")
     public ResponseEntity<SeatResponse> getSeatById(@PathVariable Integer id) {
         try {
@@ -60,7 +61,7 @@ public class SeatController {
         }
     }
 
-    @PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasAnyRole('Admin','Manager', 'Staff')")
     @PutMapping("/{id}")
     public ResponseEntity<SeatResponse> updateSeat(@PathVariable Integer id, @Valid @RequestBody SeatRequest request) {
         try {
@@ -71,7 +72,7 @@ public class SeatController {
         }
     }
 
-    @PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasAnyRole('Admin','Manager','Staff')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteSeat(@PathVariable Integer id) {
         try {
@@ -89,7 +90,7 @@ public class SeatController {
         return new ResponseEntity<>(seats, HttpStatus.CREATED);
     }
 
-    @PreAuthorize("hasRole('Admin')")
+    @PreAuthorize("hasAnyRole('Admin','Manager','Staff')")
     @PutMapping("/bulk-update-row")
     public ResponseEntity<List<SeatResponse>> bulkUpdateSeatRow(@Valid @RequestBody BulkSeatUpdateRequest request) {
         List<SeatResponse> seats = seatService.bulkUpdateSeatRow(request);
