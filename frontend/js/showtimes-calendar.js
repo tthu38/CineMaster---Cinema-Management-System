@@ -88,11 +88,6 @@ function renderDay(i){
         return `
           <div class="slot-wrap">
             ${main}
-        
-            ${s.availableSeats !== undefined && s.totalSeats !== undefined
-                    ? `<span class="seat-badge">${s.availableSeats}/${s.totalSeats}</span>`
-                    : ""}
-        
             ${canEdit
                     ? `<button type="button" class="slot-edit" data-id="${id}" title="Chỉnh sửa">
                      <i class="fa-solid fa-pen-to-square"></i>

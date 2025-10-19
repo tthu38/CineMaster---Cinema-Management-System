@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <title>CineMaster • Quản lý ca làm (Staff)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+    <style>
+        :root{
+            --red:#e50914; --cyan:#22c1ff; --blue:#0aa3ff; --ink:#06101f; --bg:#0b162c;
+            --card:#0c1324; --border:#1b2b4a; --muted:#9aa7b3; --muted2:#cfe3ff;
+            --glow:0 0 20px rgba(34,193,255,.35), 0 0 60px rgba(34,193,255,.15);
+        }
+
+        html,body{
+            margin:0; color:#e6eefc; font-family:'Roboto',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+            min-height:100vh; background-color:var(--ink);
+            background-image:
+                    radial-gradient(1200px 600px at -10% -35%, rgba(229,9,20,.18), transparent 60%),
+                    radial-gradient(900px 400px at 120% -20%, rgba(34,193,255,.12), transparent 60%),
+                    linear-gradient(180deg, var(--ink), var(--bg));
+            background-attachment:fixed; overflow-x:hidden;
+        }
+
+        .grain{
+            pointer-events:none; position:fixed; inset:0; opacity:.14; mix-blend-mode:screen;
+            background-image:radial-gradient(circle at 20% 30%, rgba(255,255,255,.06) 0 2px, transparent 2px),
+            radial-gradient(circle at 70% 60%, rgba(255,255,255,.05) 0 2px, transparent 2px);
+            background-size:200px 200px,260px 260px; animation:drift 18s linear infinite alternate;
+        }
+        @keyframes drift{from{transform:translate3d(0,0,0)}to{transform:translate3d(30px,-25px,0)}}
+
+        main.shell{max-width:1300px;margin:110px auto 48px;padding:0 24px;}
+        .film{
+            position:relative; background:linear-gradient(180deg,#0b152a,#0c162c);
+            border:1px solid var(--border); border-radius:18px;
+            box-shadow:0 14px 32px rgba(0,0,0,.5); overflow:hidden;
+        }
+
+        .panel-head{display:flex;align-items:center;gap:12px;margin-bottom:20px;}
+        .panel-head h2{margin:0;font-weight:900;font-size:1.8rem;}
+        .btn-primary{
+            background:linear-gradient(90deg,var(--cyan),var(--blue));
+            border:none;border-radius:10px;font-weight:700;color:#06101f;
+        }
+        .btn-primary:hover{filter:brightness(1.15);box-shadow:0 0 20px rgba(34,193,255,.5);}
+        .btn-danger{background:var(--red);border:none;border-radius:10px;font-weight:700;}
+        .btn-danger:hover{filter:brightness(1.1);box-shadow:0 0 20px rgba(229,9,20,.5);}
+
+        .form-control{background:#0e1c37;border:1px solid #17345f;color:#fff;border-radius:10px;}
+        .form-control::placeholder{color:#7a8eb0;}
+
+        .table{
+            background-color:transparent!important;
+            color:#ffffff!important;border-collapse:separate!important;
+            border-spacing:0!important;border:1px solid #1b2b4a!important;
+            border-radius:12px!important;overflow:hidden!important;
+            font-size:0.96rem;
+        }
+        .table thead th{
+            background:linear-gradient(180deg,#102444 0%,#133155 100%)!important;
+            color:#eaf4ff!important;border-bottom:2px solid #1b2b4a!important;
+            text-transform:uppercase;font-weight:700;
+        }
+        .table tbody tr{
+            background:linear-gradient(180deg,#0d1c35 0%,#112847 100%)!important;
+            border-color:#1b2b4a!important;
+        }
+        .table tbody tr:nth-child(even){
+            background:linear-gradient(180deg,#112a4b 0%,#15335f 100%)!important;
+        }
+        .table-hover tbody tr:hover{
+            background:linear-gradient(180deg,rgba(20,60,100,.85),rgba(30,110,160,.9))!important;
+            box-shadow:0 0 14px rgba(34,193,255,.15);transition:all .25s ease;
+        }
+        .table td,.table th{border:1px solid #1c2c4d!important;}
+        .text-success{color:#22c1ff!important;font-weight:600;}
+        .table-responsive{
+            border-radius:14px;overflow:hidden;
+            box-shadow:0 0 25px rgba(0,0,0,.5),0 0 18px rgba(34,193,255,.12) inset;
+        }
+    </style>
+</head>
+
+<body>
+<div class="grain"></div>
+
+<main class="shell">
+    <section class="film p-4">
+        <div class="panel-head">
+            <i class="fa-solid fa-clock-rotate-left fa-lg text-cyan"></i>
+            <h2>Quản lý ca làm</h2>
+        </div>
+
+        <!-- 🟢 MỞ CA -->
+        <div id="open-shift" class="mb-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-6">
+                    <label class="form-label">Số tiền đầu ca (VNĐ)</label>
+                    <input type="number" id="openingCash" class="form-control" placeholder="VD: 1000000">
+                </div>
+                <div class="col-md-6 d-flex gap-2">
+                    <button class="btn btn-primary px-4 w-100" onclick="openShift()">
+                        <i class="fa-solid fa-play me-2"></i> Mở ca
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 📈 BÁO CÁO CA LÀM -->
+        <div id="report-shift" class="d-none">
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle text-center">
+                    <tbody id="report-body"></tbody>
+                </table>
+            </div>
+            <div class="d-flex justify-content-end mt-3">
+                <button class="btn btn-danger px-4" onclick="showCloseForm()">
+                    <i class="fa-solid fa-flag-checkered me-2"></i> Kết ca
+                </button>
+            </div>
+        </div>
+
+        <!-- 🔴 KẾT CA -->
+        <div id="close-shift" class="d-none mt-4">
+            <div class="row gy-3">
+                <div class="col-md-4">
+                    <div class="p-3 bg-dark rounded-3 border" style="border-color:var(--border)!important;">
+                        <div class="muted">Tiền đầu ca</div>
+                        <div class="fw-bold fs-5 money" id="openAmountLabel">—</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 bg-dark rounded-3 border" style="border-color:var(--border)!important;">
+                        <div class="muted">Tiền mặt dự kiến</div>
+                        <div class="fw-bold fs-5 money" id="expectedLabel">—</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Tiền mặt thực tế (VNĐ)</label>
+                    <input type="number" id="closingCash" class="form-control" placeholder="VD: 2500000">
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-3">
+                <button class="btn btn-primary px-4" onclick="closeShift()">
+                    <i class="fa-solid fa-check me-2"></i> Xác nhận kết ca
+                </button>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script type="module">
+    import * as Shift from '../js/staff-shift.js';
+    window.openShift     = Shift.openShift;
+    window.showCloseForm = Shift.showCloseForm;
+    window.closeShift    = Shift.closeShift;
+    console.log("✅ staff-shift.js loaded thành công!");
+</script>
+</body>
+</html>

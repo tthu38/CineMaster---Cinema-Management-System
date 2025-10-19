@@ -21,8 +21,6 @@ public record DayScheduleResponse(
             Integer auditoriumId,
             String auditoriumName,
             LocalDateTime startTime,
-            LocalDateTime endTime,
-            Integer availableSeats,
-            Integer totalSeats
+            LocalDateTime endTime
     ){}
 }

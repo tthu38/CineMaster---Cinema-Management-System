@@ -292,22 +292,12 @@ public class ShowtimeService {
                     var auditorium = s.getAuditorium();
                     int auditoriumId = auditorium.getAuditoriumID();
 
-                    // ✅ Lấy danh sách ghế an toàn
-                    List<Seat> seats = seatRepository.findByAuditorium_AuditoriumID(auditoriumId);
-
-                    int totalSeats = seats.size();
-                    long availableSeats = seats.stream()
-                            .filter(seat -> seat.getStatus() != null && seat.getStatus().equals(Seat.SeatStatus.AVAILABLE))
-                            .count();
-
                     return new DayScheduleResponse.SlotItem(
                             s.getShowtimeID(),
                             auditoriumId,
                             auditorium.getName(),
                             s.getStartTime(),
-                            s.getEndTime(),
-                            (int) availableSeats,
-                            totalSeats
+                            s.getEndTime()
                     );
                 }).toList();
 
