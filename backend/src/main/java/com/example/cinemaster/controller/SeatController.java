@@ -85,4 +85,6 @@ public class SeatController {
         List<SeatResponse> seats = seatService.bulkUpdateSeatRow(request);
         return new ResponseEntity<>(seats, HttpStatus.OK);
     }
+
+
 }

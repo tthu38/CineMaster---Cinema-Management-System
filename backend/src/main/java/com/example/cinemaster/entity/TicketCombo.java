@@ -4,47 +4,44 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.io.Serializable;
-import java.math.BigDecimal;
-
 @Entity
-@Table(name = "TicketDiscount")
+@Table(name = "TicketCombo")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@IdClass(TicketDiscount.TicketDiscountKey.class)
-public class TicketDiscount {
+@IdClass(TicketCombo.TicketComboKey.class)
+public class TicketCombo {
 
     @Id
     @Column(name = "TicketID")
     Integer ticketId;
 
     @Id
-    @Column(name = "DiscountID")
-    Integer discountId;
+    @Column(name = "ComboID")
+    Integer comboId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TicketID", insertable = false, updatable = false)
     Ticket ticket;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "DiscountID", insertable = false, updatable = false)
-    Discount discount;
+    @JoinColumn(name = "ComboID", insertable = false, updatable = false)
+    Combo combo;
 
-    @Column(name = "Amount", precision = 10, scale = 2)
-    BigDecimal amount;
+    @Column(name = "Quantity")
+    Integer quantity = 1;
 
-    // Inner ID class
+    // Inner composite key
     @Getter
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     @EqualsAndHashCode
-    public static class TicketDiscountKey implements Serializable {
+    public static class TicketComboKey implements java.io.Serializable {
         Integer ticketId;
-        Integer discountId;
+        Integer comboId;
     }
 }

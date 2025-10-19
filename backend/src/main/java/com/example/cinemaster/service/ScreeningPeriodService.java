@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -119,4 +120,43 @@ public class ScreeningPeriodService {
         System.out.println("LOG: Deactivated " + periodsToDeactivate.size()
                 + " screening periods for Branch ID: " + branchId);
     }
+    @Transactional(readOnly = true)
+    public List<Movie> getMoviesNowShowingByBranchId(Integer branchId) {
+        // 1️⃣ Gọi trực tiếp repository
+        List<Movie> movies = screeningPeriodRepository.findNowShowingMoviesByBranchId(branchId);
+
+        // 2️⃣ Ghi log để debug
+        System.out.println("🎬 [DEBUG] Số lượng phim đang chiếu tìm thấy tại BranchID = "
+                + branchId + " → " + movies.size());
+
+        // 3️⃣ Trả về kết quả
+        return movies;
+    }
+
+    public List<Movie> getComingSoonMovies() {
+        return screeningPeriodRepository.findComingSoon()
+                .stream()
+                .map(ScreeningPeriod::getMovie)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    // 🔹 Lấy tất cả phim có kỳ chiếu
+    public List<Movie> getAllMoviesWithPeriods() {
+        return screeningPeriodRepository.findAll()
+                .stream()
+                .map(ScreeningPeriod::getMovie)
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
+    // 🔹 Lấy kỳ chiếu hiện tại của một phim
+    public ScreeningPeriod getCurrentPeriodByMovie(Integer movieId) {
+        return screeningPeriodRepository.findByMovie_MovieID(movieId)
+                .stream()
+                .filter(p -> Boolean.TRUE.equals(p.getIsActive()))
+                .findFirst()
+                .orElse(null);
+    }
+
 }

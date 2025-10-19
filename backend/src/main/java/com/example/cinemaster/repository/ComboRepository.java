@@ -35,5 +35,11 @@ public interface ComboRepository extends JpaRepository<Combo, Integer> {
             ORDER BY c.branchID.branchName ASC, c.id DESC
             """)
     List<Combo> findAvailableCombos();
-
+    @Query("""
+       SELECT c FROM Combo c
+       WHERE (c.branchID.id = :branchId OR c.branchID IS NULL)
+       AND c.available = true
+       ORDER BY CASE WHEN c.branchID IS NULL THEN 0 ELSE 1 END, c.id DESC
+       """)
+    List<Combo> findAvailableByBranchIncludingGlobal(Integer branchId);
 }

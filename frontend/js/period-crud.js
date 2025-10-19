@@ -281,7 +281,8 @@ window.togglePeriodStatus = async function (id, isActive) {
         Swal.fire("Lỗi", err.message || "Không thể thay đổi trạng thái.", "error");
     }
 };
-
+filterBranchSelect.addEventListener("change", () => loadPeriods(0, true)); // ✅ gọi lại khi chọn chi nhánh
+window.loadPeriods = loadPeriods;
 // =============================================================
 // 🚀 Khởi tạo
 // =============================================================

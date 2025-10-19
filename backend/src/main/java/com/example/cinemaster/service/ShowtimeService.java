@@ -223,4 +223,9 @@ public class ShowtimeService {
         }
         return days;
     }
+  // hong hanh
+    public List<Showtime> getShowtimesByBranchAndDate(Integer branchId, LocalDate date) {
+        if (date == null) date = LocalDate.now();
+        return showtimeRepo.findByBranchIdAndDate(branchId, date);
+    }
 }

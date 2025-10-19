@@ -139,19 +139,22 @@ async function renderSeatDiagram(auditoriumId) {
     }
 }
 
-// ======================= 4️⃣ DANH SÁCH GHẾ =======================
-async function loadSeats(page = 0, size = 10) {
+// ======================= 4️⃣ DANH SÁCH GHẾ THEO PHÒNG =======================
+async function loadSeatsByAuditorium(auditoriumId, page = 0, size = 10) {
     try {
-        const data = await seatApi.getAll();
+        const allSeats = await seatApi.getAll();
+        const data = allSeats.filter(s => s.auditoriumID === parseInt(auditoriumId));
         renderSeatTable(data.slice(page * size, (page + 1) * size));
         renderPagination(data.length, page, size);
-    } catch (err) { console.error("❌ Lỗi tải danh sách ghế:", err); }
+    } catch (err) {
+        console.error("❌ Lỗi tải danh sách ghế:", err);
+    }
 }
 
 function renderSeatTable(seats) {
     seatsBody.innerHTML = "";
     if (!seats?.length) {
-        seatsBody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">Chưa có dữ liệu ghế</td></tr>`;
+        seatsBody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">Không có ghế trong phòng chiếu này</td></tr>`;
         return;
     }
     seats.forEach(s => {
@@ -201,9 +204,9 @@ function renderSeatTable(seats) {
                 if (res.isConfirmed) {
                     await seatApi.delete(id);
                     Swal.fire("Đã xóa!", "", "success");
-                    loadSeats();
-                    if (diagramAuditoriumSelect.value)
-                        renderSeatDiagram(diagramAuditoriumSelect.value);
+                    const currentAud = diagramAuditoriumSelect.value;
+                    if (currentAud) loadSeatsByAuditorium(currentAud);
+                    renderSeatDiagram(currentAud);
                 }
             });
         });
@@ -217,43 +220,28 @@ function renderPagination(total, currentPage, size) {
         const btn = document.createElement("button");
         btn.className = `btn btn-sm ${i === currentPage ? "btn-primary" : "btn-outline-primary"} mx-1`;
         btn.textContent = i + 1;
-        btn.addEventListener("click", () => loadSeats(i, size));
+        btn.addEventListener("click", () => {
+            const currentAud = diagramAuditoriumSelect.value;
+            loadSeatsByAuditorium(currentAud, i, size);
+        });
         paginationControls.appendChild(btn);
     }
 }
 
-// ======================= 5️⃣ LOAD FORM (CẬP NHẬT CHI NHÁNH / PHÒNG CHIẾU) =======================
+// ======================= 5️⃣ LOAD FORM GHẾ =======================
 async function loadSeatToForm(s) {
-    // Gán giá trị cơ bản
     document.getElementById("seatID").value = s.seatID;
     document.getElementById("seatRow").value = s.seatRow;
     document.getElementById("columnNumber").value = s.columnNumber;
     document.getElementById("seatNumber").value = s.seatNumber;
     document.getElementById("status").value = s.status;
 
-    // ✅ Load chi nhánh tương ứng
     if (s.branchID) {
         singleBranchSelect.value = s.branchID;
-        // Khi chọn chi nhánh => load danh sách phòng chiếu của chi nhánh đó
         await updateAuditoriumOptions(singleBranchSelect, s.branchID);
     }
-
-    // ✅ Gán phòng chiếu
-    if (s.auditoriumID) {
-        auditoriumSelect.value = s.auditoriumID;
-    }
-
-    // ✅ Gán loại ghế
-    if (s.typeID) {
-        seatTypeSelect.value = s.typeID;
-    }
-
-    // ✅ Đảm bảo trạng thái (Available/Broken/Reserved)
-    const statusSelect = document.getElementById("status");
-    if (statusSelect && s.status) {
-        const val = s.status.charAt(0).toUpperCase() + s.status.slice(1).toLowerCase();
-        statusSelect.value = val;
-    }
+    if (s.auditoriumID) auditoriumSelect.value = s.auditoriumID;
+    if (s.typeID) seatTypeSelect.value = s.typeID;
 }
 
 // ======================= 6️⃣ HỦY SỬA =======================
@@ -267,7 +255,7 @@ cancelBtn.addEventListener("click", () => {
     document.querySelectorAll(".seat-box").forEach(el => el.classList.remove("seat-selected"));
 });
 
-// ======================= 7️⃣ SUBMIT FORM GHẾ ĐƠN =======================
+// ======================= 7️⃣ SUBMIT GHẾ ĐƠN =======================
 seatForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const data = {
@@ -288,14 +276,18 @@ seatForm.addEventListener("submit", async (e) => {
             await seatApi.create(data);
             Swal.fire("Thêm ghế thành công!", "", "success");
         }
+
         seatForm.reset();
-        document.getElementById("seatID").value = "";
         selectedSeatId = null;
         formTitle.innerHTML = `<i class="fa-solid fa-plus me-2"></i> Thêm Ghế Ngồi Mới (Đơn Lẻ)`;
         submitBtn.innerHTML = `<i class="fa-solid fa-plus me-2"></i> Tạo Ghế Ngồi`;
         cancelBtn.style.display = "none";
-        loadSeats();
-        if (diagramAuditoriumSelect.value) renderSeatDiagram(diagramAuditoriumSelect.value);
+
+        const currentAud = diagramAuditoriumSelect.value;
+        if (currentAud) {
+            renderSeatDiagram(currentAud);
+            loadSeatsByAuditorium(currentAud);
+        }
     } catch (err) {
         Swal.fire("Lỗi khi lưu ghế!", err.message, "error");
     }
@@ -313,8 +305,11 @@ bulkSeatForm.addEventListener("submit", async (e) => {
     };
     await seatApi.createBulk(data);
     Swal.fire("Tạo hàng loạt thành công!", "", "success");
-    loadSeats();
-    if (diagramAuditoriumSelect.value) renderSeatDiagram(diagramAuditoriumSelect.value);
+    const currentAud = diagramAuditoriumSelect.value;
+    if (currentAud) {
+        renderSeatDiagram(currentAud);
+        loadSeatsByAuditorium(currentAud);
+    }
 });
 
 // ======================= 9️⃣ CẬP NHẬT HÀNG LOẠT =======================
@@ -330,17 +325,33 @@ bulkUpdateForm.addEventListener("submit", async (e) => {
     };
     await seatApi.bulkUpdateRow(data);
     Swal.fire("Cập nhật hàng loạt thành công!", "", "success");
-    loadSeats();
-    if (diagramAuditoriumSelect.value) renderSeatDiagram(diagramAuditoriumSelect.value);
+    const currentAud = diagramAuditoriumSelect.value;
+    if (currentAud) {
+        renderSeatDiagram(currentAud);
+        loadSeatsByAuditorium(currentAud);
+    }
 });
 
 // ======================= 🔟 KHỞI TẠO =======================
 [diagramBranchSelect, singleBranchSelect, bulkBranchSelect, updateBranchSelect].forEach(sel => {
     sel.addEventListener("change", e => updateAuditoriumOptions(e.target, e.target.value));
 });
-diagramAuditoriumSelect.addEventListener("change", e => renderSeatDiagram(e.target.value));
-loadButton.addEventListener("click", () => loadSeats());
 
+diagramAuditoriumSelect.addEventListener("change", e => {
+    const auditoriumId = e.target.value;
+    renderSeatDiagram(auditoriumId);
+    loadSeatsByAuditorium(auditoriumId); // ✅ chỉ load ghế của phòng này
+});
+
+loadButton.addEventListener("click", () => {
+    const auditoriumId = diagramAuditoriumSelect.value;
+    if (!auditoriumId) {
+        Swal.fire("Vui lòng chọn Phòng chiếu trước!", "", "info");
+        return;
+    }
+    loadSeatsByAuditorium(auditoriumId);
+});
+
+// ✅ KHÔNG load toàn bộ ghế khi khởi tạo
 await loadBranches();
 await loadSeatTypes();
-await loadSeats();

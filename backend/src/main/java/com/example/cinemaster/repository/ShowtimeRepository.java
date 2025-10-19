@@ -5,6 +5,7 @@ import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -145,4 +146,15 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Integer>, Jp
     """)
     Showtime findByIdAndBranch(@Param("showtimeId") Integer showtimeId,
                                @Param("branchId") Integer branchId);
+
+  // Honghanh
+    @Query("""
+           SELECT s FROM Showtime s
+           JOIN s.period p
+           JOIN p.branch b
+           WHERE b.id = :branchId
+           AND CAST(s.startTime AS date) = :date
+           ORDER BY s.startTime ASC
+           """)
+    List<Showtime> findByBranchIdAndDate(Integer branchId, LocalDate date);
 }

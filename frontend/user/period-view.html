@@ -10,115 +10,293 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 
     <style>
-        /* CSS CHỦ ĐẠO (GIỮ NGUYÊN) */
+        /* ========================================= */
+        /* CSS CHỦ ĐẠO & THIẾT KẾ CƠ BẢN (ĐỒNG BỘ) */
+        /* ========================================= */
         :root{
-            --red:#e50914; --cyan:#22c1ff; --blue:#0aa3ff; --ink:#06101f;
-            --bg:#0b162c; --card:#0c1324; --border:#1b2b4a; --muted:#9aa7b3;
-            --muted2:#cfe3ff; --glow:0 0 20px rgba(34,193,255,.35), 0 0 60px rgba(34,193,255,.15);
+            /* Biến Màu Đồng bộ */
+            --red:#e50914;
+            --cyan:#22c1ff;
+            --blue:#0aa3ff;
+            --ink:#06101f;
+            --bg:#0b162c;
+            --card:#0c1324;
+            --border:#1b2b4a;
+            --muted:#9aa7b3;
+            --muted2:#cfe3ff;
+            --light-text: #e6f1ff;
+
+            /* --- GIẢM NEON ĐỂ BỚT CHÓE (ĐÃ CẬP NHẬT) --- */
+            --neon-blue: 0 0 15px rgba(34,193,255,0.3), 0 0 30px rgba(34,193,255,0.15);
+            --neon-red: 0 0 15px rgba(229,9,20,0.3), 0 0 30px rgba(229,9,20,0.15);
+            --neon-cyan-medium: 0 0 8px rgba(34,193,255,0.5), 0 0 15px rgba(34,193,255,0.2);
         }
-        html,body{ margin:0; color:#fff; font-family:'Roboto',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; min-height:100vh; background-color: var(--ink); background-image: radial-gradient(1200px 600px at -10% -35%, rgba(229,9,20,.18), transparent 60%), radial-gradient(900px 400px at 120% -20%, rgba(34,193,255,.12), transparent 60%), linear-gradient(180deg, var(--ink), var(--bg)), url("data:image/svg+xml;utf8,\<svg xmlns='http://www.w3.org/2000/svg' width='160' height='80' viewBox='0 0 160 80'>\ <rect width='160' height='80' fill='none'/>\ <g opacity='0.08' stroke='%23cfe3ff' stroke-width='1.2' fill='none'>\ <path d='M8 20 h110 a10 10 0 0 0 10 -10 a10 10 0 0 1 10 10 v20 a10 10 0 0 1 -10 10 a10 10 0 0 0 -10 10 H8 z'/>\ <path d='M30 18 v44' stroke-dasharray='6 6'/>\ <circle cx='120' cy='20' r='3'/><circle cx='120' cy='60' r='3'/></g></svg>"); background-repeat:no-repeat,no-repeat,no-repeat,repeat; background-size:1200px 600px,900px 400px,100% 100%,320px 160px; background-position:-10% -35%,120% -20%,0 0,0 0; background-attachment:fixed, fixed, fixed, fixed; overflow-x:hidden; }
+
+        /* ===== NỀN: VÉ PHIM VÀ HẠT (KHÔI PHỤC SVG & GIẢM CHÓE) ===== */
+        .tickets-wall{ position:fixed; inset:0; pointer-events:none; z-index:0; }
+        .tickets-wall .tickets-layer{
+            position:absolute; inset:-10%;
+            background-repeat:repeat; background-size:320px 160px;
+            opacity:.14; /* GIẢM OPACITY */
+            filter:drop-shadow(0 0 10px rgba(22,40,76,.1));
+            transform-origin:center center;
+            background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='160' viewBox='0 0 320 160'%3E%3Crect fill='none' width='320' height='160'/%3E%3Cg opacity='0.95'%3E%3Cg transform='translate(8,8)'%3E%3Cpath d='M0 24 a12 12 0 0 1 12 -12 h200 a10 10 0 0 0 10 -10 a12 12 0 0 1 12 12 v60 a12 12 0 0 1 -12 12 a10 10 0 0 0 -10 10 H12 a12 12 0 0 1 -12 -12z' fill='%23192A43' stroke='%232c3e66' stroke-width='2'/%3E%3Cline x1='140' y1='12' x2='140' y2='96' stroke='%238fb4ff' stroke-opacity='0.18' stroke-dasharray='6 6' /%3E%3Ccircle cx='60' cy='54' r='22' fill='none' stroke='%238fb4ff' stroke-opacity='0.35' stroke-width='3'/%3E%3Ccircle cx='60' cy='54' r='5' fill='%238fb4ff' opacity='0.3'/%3E%3Cg fill='%238fb4ff' opacity='0.35'%3E%3Ccircle cx='49' cy='44' r='5'/%3E%3Ccircle cx='71' cy='44' r='5'/%3E%3Ccircle cx='49' cy='64' r='5'/%3E%3Ccircle cx='71' cy='64' r='5'/%3E%3C/g%3E%3Cg transform='translate(164,32)' stroke='%23cfe3ff' stroke-opacity='0.38'%3E%3Crect x='0' y='0' width='60' height='24' fill='none'/%3E%3Cpath d='M3 0 v24 M8 0 v24 M11 0 v24 M16 0 v24 M22 0 v24 M27 0 v24 M33 0 v24 M38 0 v24 M45 0 v24 M51 0 v24 M56 0 v24' stroke-width='2'/%3E%3C/g%3E%3Cg transform='translate(164,66)' stroke='%23cfe3ff' stroke-opacity='0.45'%3E%3Cline x1='0' y1='0' x2='76' y2='0' stroke-width='2'/%3E%3Cline x1='0' y1='10' x2='62' y2='10' stroke-width='2'/%3E%3Cline x1='0' y1='20' x2='70' y2='20' stroke-width='2'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(8,88)'%3E%3Cpath d='M0 24 a12 12 0 0 1 12 -12 h200 a10 10 0 0 0 10 -10 a12 12 0 0 1 12 12 v60 a12 12 0 0 1 -12 12 a10 10 0 0 0 -10 10 H12 a12 12 0 0 1 -12 -12z' fill='%231b2f50' stroke='%23314774' stroke-width='2'/%3E%3Cline x1='140' y1='12' x2='140' y2='96' stroke='%238fb4ff' stroke-opacity='0.18' stroke-dasharray='6 6'/%3E%3Ccircle cx='60' cy='54' r='22' fill='none' stroke='%23a8c8ff' stroke-opacity='0.32' stroke-width='3'/%3E%3Ccircle cx='60' cy='54' r='5' fill='%23a8c8ff' opacity='0.28'/%3E%3Cg fill='%23a8c8ff' opacity='0.32'%3E%3Ccircle cx='49' cy='44' r='5'/%3E%3Ccircle cx='71' cy='44' r='5'/%3E%3Ccircle cx='49' cy='64' r='5'/%3E%3Ccircle cx='71' cy='64' r='5'/%3E%3C/g%3E%3Cg transform='translate(164,32)' stroke='%23d8e6ff' stroke-opacity='0.38'%3E%3Cpath d='M3 0 v24 M8 0 v24 M11 0 v24 M16 0 v24 M22 0 v24 M27 0 v24 M33 0 v24 M38 0 v24 M45 0 v24 M51 0 v24 M56 0 v24' stroke-width='2'/%3E%3C/g%3E%3Cg transform='translate(164,66)' stroke='%23d8e6ff' stroke-opacity='0.45'%3E%3Cline x1='0' y1='0' x2='76' y2='0' stroke-width='2'/%3E%3Cline x1='0' y1='10' x2='62' y2='10' stroke-width='2'/%3E%3Cline x1='0' y1='20' x2='70' y2='20' stroke-width='2'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .tickets-wall .l2{
+            transform:rotate(3deg) scale(1.06);
+            background-position:160px 80px;
+            opacity:.10;
+            background-image:inherit;
+        }
+        .grain{
+            pointer-events:none; position:fixed; inset:0; opacity:.14;
+            mix-blend-mode:screen;
+            background-image:radial-gradient(circle at 20% 30%, rgba(255,255,255,.06) 0 2px, transparent 2px),
+            radial-gradient(circle at 70% 60%, rgba(255,255,255,.05) 0 2px, transparent 2px);
+            background-size:200px 200px, 260px 260px;
+            animation: drift 18s linear infinite alternate;
+        }
+        @keyframes drift{ from{ transform: translate3d(0,0,0) } to{ transform: translate3d(30px,-25px,0) } }
+
+        /* ===== NỀN TỔNG THỂ (ĐÃ GIẢM CHÓE) ===== */
+        html,body{
+            margin:0 !important; color:var(--light-text) !important; font-family:'Roboto',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif !important;
+            min-height:100vh !important;
+            background-color: var(--ink) !important;
+            background-image:
+                /* GIẢM OPACITY CỦA GRADIENT ĐỎ */
+                    radial-gradient(1200px 600px at -10% -35%, rgba(229,9,20,.18), transparent 60%),
+                        /* GIẢM OPACITY CỦA GRADIENT XANH */
+                    radial-gradient(900px 400px at 120% -20%, rgba(34,193,255,.12), transparent 60%),
+                    linear-gradient(180deg, var(--ink), var(--bg)),
+                        /* KHÔI PHỤC TOÀN BỘ MÃ SVG CỦA PATTERN */
+                    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='80' viewBox='0 0 160 80'><rect width='160' height='80' fill='none'/><g opacity='0.08' stroke='%23cfe3ff' stroke-width='1.2' fill='none'><path d='M8 20 h110 a10 10 0 0 0 10 -10 a10 10 0 0 1 10 10 v20 a10 10 0 0 1 -10 10 a10 10 0 0 0 -10 10 H12 a12 12 0 0 1 -12 -12z'/><path d='M30 18 v44' stroke-dasharray='6 6'/><circle cx='120' cy='20' r='3'/><circle cx='120' cy='60' r='3'/></g></svg>");
+            background-repeat:no-repeat,no-repeat,no-repeat,repeat !important;
+            background-size:1200px 600px,900px 400px,100% 100%,320px 160px !important;
+            background-position:-10% -35%,120% -20%,0 0,0 0 !important;
+            background-attachment:fixed, fixed, fixed, fixed !important;
+            overflow-x:hidden !important;
+        }
+
+        /* layout chính */
         .shell{max-width:1300px;margin:110px auto 48px;padding:0 24px}
         .layout{ display:block; }
-        .film{ position:relative; background:linear-gradient(180deg,#0b152a,#0c162c); border:1px solid var(--border); border-radius:18px; box-shadow:0 14px 32px rgba(0,0,0,.5); overflow:hidden; margin-bottom: 28px; }
-        .film:before,.film:after{ content:""; position:absolute; left:18px; right:18px; height:10px; opacity:.5; background:repeating-linear-gradient(90deg, #142443 0 16px, transparent 16px 32px); filter:drop-shadow(0 0 6px rgba(34,193,255,.2)); }
+
+        /* --- KHỐI CHÍNH (FILM/CARD) - GIẢM NEON CỦA CONTAINER VÀ BOX-SHADOW --- */
+        .film{
+            position:relative;
+            background:linear-gradient(180deg,#0b152a,#0c162c);
+            border:1px solid var(--border);
+            border-radius:18px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.4), 0 0 40px rgba(10, 163, 255, 0.08);
+            overflow:hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 28px;
+        }
+        .film:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(0,0,0,.6), 0 0 15px rgba(34,193,255,0.3);
+        }
+        .film:before,.film:after{
+            content:""; position:absolute; left:18px; right:18px; height:10px; opacity:.4;
+            background:repeating-linear-gradient(90deg, #142443 0 16px, transparent 16px 32px);
+            filter:drop-shadow(0 0 4px rgba(34,193,255,.2));
+        }
         .film:before{ top:12px } .film:after{ bottom:12px }
         .branch-panel{ padding:26px 22px }
-        /* Style cho input/select thông thường */
-        .form-control{
-            background:#0e1c37;
-            border:1px solid #17345f;
-            color:#fff;
-            border-radius:10px;
+
+        /* --- KHỐI CARD/TAB (tab-card) - GIẢM NEON --- */
+        .tab-card {
+            background:linear-gradient(180deg,#0b152a 0%, #0c162c 100%);
+            border:1px solid var(--cyan);
+            border-radius:16px;
+            padding:30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4), 0 0 15px rgba(34,193,255,0.3);
             transition: all 0.3s ease;
+        }
+
+        /* --- TIÊU ĐỀ KHỐI (H2) - GIẢM NEON --- */
+        .header-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            margin-bottom: 25px !important;
+            border-bottom: 1px solid var(--cyan);
+        }
+        .tab-card h2 {
+            font-size: 2.5rem;
+            color: var(--cyan);
+            text-shadow: 0 0 5px rgba(34,193,255,0.4);
+            letter-spacing: 3px;
+            font-weight: 900;
+            margin-bottom: 0;
+            text-transform: uppercase;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--cyan);
+        }
+
+
+        /* --- THANH LỌC (FILTER BAR) --- */
+        .d-flex.justify-content-between.align-items-center.mb-3 {
+            padding-bottom: 15px;
+            margin-bottom: 25px !important;
+            padding-top: 10px;
+        }
+
+        /* --- FORM CONTROLS (INPUT/SELECT) - GIẢM NEON FOCUS --- */
+        .form-control{
+            background:#112040;
+            border:1px solid #17345f;
+            color: #ffffff !important;
+            border-radius:10px;
+            transition: all 0.2s ease;
+            font-weight: 600;
+            text-shadow: none;
         }
         .form-control:focus{
             outline:none;
             border-color:var(--cyan);
-            box-shadow:0 0 0 .2rem rgba(34,193,255,.3);
+            box-shadow:0 0 0 .2rem rgba(34,193,255,.3), 0 0 8px rgba(34,193,255,0.5);
+            background:#142647;
+            color: #ffffff;
         }
+
+        /* --- NÚT TẢI LẠI (ĐỒNG BỘ) - GIẢM NEON HOVER --- */
         .btn-secondary{
-            background:transparent;
-            border:1px solid var(--cyan);
-            color:var(--cyan);
+            background: var(--card);
+            border: 1px solid var(--cyan);
+            color: var(--cyan);
+            font-weight: 700;
+            padding: 8px 15px;
+            border-radius: 8px;
             transition: all 0.3s ease;
-            font-weight: 500;
+            text-transform: uppercase;
         }
         .btn-secondary:hover{
             background:var(--cyan);
             color:var(--ink);
-            box-shadow: 0 0 10px rgba(34,193,255,.5);
-        }
-        .tab-card {
-            background:linear-gradient(180deg,#0b152a 0%, #0c162c 100%);
-            border:1px solid var(--border);
-            border-radius:16px;
-            padding:24px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-        }
-        /* Cải thiện Tiêu đề trong tab-card */
-        .tab-card h2 {
-            font-size: 1.8rem;
-            font-weight: 900;
-            color: var(--muted2);
-            text-shadow: 0 0 5px rgba(34,193,255,.15);
-        }
-        /* Cải thiện Thanh lọc (Filter Bar) */
-        .d-flex.justify-content-between.align-items-center.mb-3 {
-            padding-bottom: 15px;
-            border-bottom: 1px dashed var(--border);
-            margin-bottom: 25px !important;
+            border-color: #55d6ff;
+            box-shadow: 0 0 8px rgba(34, 193, 255, 0.5);
+            transform: translateY(-1px);
         }
 
-        /* Cải thiện Bảng */
+        /* ========================================= */
+        /* CẬP NHẬT STYLE CHO BẢNG & DANH SÁCH */
+        /* ========================================= */
+        .table-responsive { box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4); border-radius: 12px; overflow: hidden; }
+
         .table-branch {
             width: 100%;
-            border-collapse: separate;
-            border-spacing: 0 8px;
+            border-collapse: collapse;
             color: #e6f1ff;
+            border: none !important;
+            table-layout: fixed;
+            margin-top: 10px;
         }
         .table-branch th, .table-branch td {
-            border: none;
-            padding: 12px 15px;
+            border: 1px solid var(--border);
+            padding: 10px;
             vertical-align: middle;
-            background: var(--card);
+            font-size: 0.95rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .table-branch thead th {
-            background: transparent;
+            background: #152d4e;
             color: var(--cyan);
             font-weight: 700;
-            font-size: 0.95rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            text-shadow: none;
+            border-bottom: 1px solid var(--cyan) !important;
         }
-        /* Thiết lập border-radius cho các cells ở đầu và cuối hàng */
-        .table-branch tr td:first-child {
-            border-top-left-radius: 8px;
-            border-bottom-left-radius: 8px;
+        .table-branch tbody tr:nth-child(even) { background-color: #0d172e; }
+        .table-branch tbody tr:hover {
+            background: #1c3d64;
+            box-shadow: 0 0 8px rgba(34, 193, 255, 0.3);
+            transform: none;
         }
-        .table-branch tr td:last-child {
-            border-top-right-radius: 8px;
-            border-bottom-right-radius: 8px;
+        /* Cột ID */
+        .table-branch tbody tr td:first-child {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--red);
+            background-color: #14213d;
+            border-right: 1px solid var(--red) !important;
         }
-        /* Hiệu ứng di chuột */
-        .table-branch tr:hover td {
-            background: #112040;
-            box-shadow: 0 0 10px rgba(34,193,255,.1);
-            cursor: default;
-        }
-        /* Cải thiện cell ID */
-        .table-branch td:first-child {
-            font-weight: bold;
-            color: var(--cyan);
-            opacity: 0.8;
-        }
-        /* CSS cho Poster */
+
+        /* --- CẬP NHẬT CSS cho Poster trong Bảng (ĐÃ TĂNG KÍCH THƯỚC) --- */
         .movie-poster-img {
-            width: 50px; /* Kích thước nhỏ hơn để vừa trong bảng */
-            height: 75px;
+            width: 70px; /* TĂNG CHIỀU RỘNG */
+            height: 105px; /* TĂNG CHIỀU CAO (tỷ lệ 2:3) */
             object-fit: cover;
             border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-            vertical-align: middle;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6), 0 0 5px rgba(34,193,255,0.5);
+            border: 1px solid var(--cyan);
+        }
+        .movie-poster-img:hover {
+            transform: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8), 0 0 8px var(--cyan);
+        }
+
+        /* --- CẬP NHẬT CSS cho CÁC CỘT THÔNG TIN --- */
+        /* Cột Phim (Tên) */
+        .table-branch tbody tr td:nth-child(3) {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--red);
+            text-shadow: none;
+        }
+
+        /* Cột Chi Nhánh */
+        .table-branch tbody tr td:nth-child(4) {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--cyan);
+            text-shadow: none;
+        }
+
+        /* Cột Ngày Bắt Đầu & Ngày Kết Thúc */
+        .table-branch tbody tr td:nth-child(5),
+        .table-branch tbody tr td:nth-child(6) {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--light-text);
+            background-color: #112040;
+            text-align: center;
+            border-left: 1px solid var(--cyan);
+        }
+
+        /* Cập nhật lại độ rộng các cột trong TH (ĐỂ CỘT POSTER TO HƠN) */
+        .table-branch thead th:nth-child(1) { width: 5%; }    /* ID */
+        .table-branch thead th:nth-child(2) { width: 12%; }   /* Poster (Tăng từ 10% lên 12%) */
+        .table-branch thead th:nth-child(3) { width: 21%; }   /* Phim (Giảm từ 22% xuống 21%) */
+        .table-branch thead th:nth-child(4) { width: 21%; }   /* Chi Nhánh (Giảm từ 22% xuống 21%) */
+        .table-branch thead th:nth-child(5) { width: 20%; }   /* Ngày Bắt Đầu (Giữ nguyên) */
+        .table-branch thead th:nth-child(6) { width: 21%; }   /* Ngày Kết Thúc (Giữ nguyên) */
+        /* Tổng: 5 + 12 + 21 + 21 + 20 + 21 = 100% */
+
+        /* CSS cho Phân trang (GIẢM NEON) */
+        .pagination .page-item .page-link {
+            background-color: var(--ink) !important;
+            border: 1px solid var(--border) !important;
+            color: var(--muted2) !important;
+            transition: all 0.3s ease;
+        }
+        .pagination .page-item.active .page-link {
+            background: linear-gradient(90deg, var(--blue), var(--cyan)) !important;
+            border-color: var(--cyan) !important;
+            color: var(--ink) !important;
+            font-weight: 700 !important;
+            box-shadow: 0 0 6px rgba(34,193,255,0.3);
+        }
+        .pagination .page-item .page-link:hover {
+            background-color: #1a3052 !important;
+            border-color: var(--cyan) !important;
+            color: var(--cyan) !important;
         }
     </style>
 
@@ -129,7 +307,6 @@
     <div class="tickets-layer l1"></div>
     <div class="tickets-layer l2"></div>
 </div>
-
 <div id="site-header"></div>
 
 <main class="shell">
@@ -137,9 +314,9 @@
         <section class="film branch-panel">
 
             <div id="period-list-container" class="tab-card">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h2 class="m-0"><i class="fa-solid fa-layer-group me-2"></i> Danh Sách Khoảng Thời Gian Chiếu</h2>
+                <h2 class="m-0 mb-4"><i class="fa-solid fa-calendar-days me-2"></i> Xem Khoảng Thời Gian Chiếu</h2>
 
+                <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex align-items-center">
                         <select id="filterBranchID" class="form-control w-auto me-3">
                             <option value="all">Lọc theo Chi nhánh...</option>
@@ -153,10 +330,7 @@
                         <thead>
                         <tr>
                             <th style="width: 5%;">ID</th>
-                            <th style="width: 8%;">Poster</th>
-                            <th style="width: 20%;">Phim</th>
-                            <th style="width: 25%;">Chi Nhánh</th>
-                            <th style="width: 21%;">Ngày Bắt Đầu</th>
+                            <th style="width: 12%;">Poster</th> <th style="width: 21%;">Phim</th> <th style="width: 21%;">Chi Nhánh</th> <th style="width: 20%;">Ngày Bắt Đầu</th>
                             <th style="width: 21%;">Ngày Kết Thúc</th>
                         </tr>
                         </thead>
@@ -182,7 +356,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // Giả định tải header/footer
+    // Giữ nguyên chức năng tải header/footer
     (async ()=>{
         try{
             const [h,f] = await Promise.all([
@@ -195,6 +369,6 @@
     })();
 </script>
 
-<script type="module" src="../js/period-view.js"></script>
+<script src="../js/period-view.js" type="module"></script>
 </body>
 </html>
