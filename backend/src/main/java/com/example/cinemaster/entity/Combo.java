@@ -23,7 +23,7 @@ public class Combo {
     @Column(name = "ComboID", nullable = false)
     Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "BranchID", referencedColumnName = "BranchID")
     Branch branchID;
 

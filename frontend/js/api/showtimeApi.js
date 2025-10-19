@@ -55,6 +55,20 @@ export const showtimeApi = {
     },
 
     async getById(id) {
+        const token = getValidToken();
+        if (!token) throw new Error("Vui lòng đăng nhập để xem chi tiết.");
+        const res = await fetch(`${API_BASE_URL}/showtimes/${id}`, {
+            method: 'GET',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        return handleResponse(res);
+    },
+
+    // 🟢 Dành riêng cho frontend chọn ghế (không cần token)
+    async getPublicById(id) {
         const res = await fetch(`${API_BASE_URL}/showtimes/${id}`, {
             method: 'GET',
             headers: { 'Content-Type': 'application/json' },
@@ -67,7 +81,6 @@ export const showtimeApi = {
         const params = [];
 
         if (anchor) params.push(`anchor=${encodeURIComponent(anchor)}`);
-        // ✅ chỉ thêm khi có giá trị thực
         if (branchId && branchId !== 'undefined' && branchId !== '') {
             params.push(`branchId=${encodeURIComponent(branchId)}`);
         }
@@ -80,7 +93,6 @@ export const showtimeApi = {
         });
         return handleResponse(res);
     },
-
 
     async getNextWeek(branchId = null) {
         const url = `${API_BASE_URL}/showtimes/next-week${branchId ? `?branchId=${branchId}` : ''}`;

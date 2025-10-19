@@ -49,7 +49,7 @@ public class ComboController {
     }
 
 
-    @PreAuthorize("hasAnyRole('Admin','Manager','Staff')")
+//    @PreAuthorize("hasAnyRole('Admin','Manager','Staff', 'Customer')")
     @GetMapping("/branch/{branchId}")
     public ResponseEntity<List<ComboResponse>> getByBranch(@PathVariable Integer branchId, Authentication auth) {
         AccountPrincipal user = (AccountPrincipal) auth.getPrincipal();

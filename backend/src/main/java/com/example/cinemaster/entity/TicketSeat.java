@@ -5,7 +5,12 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Entity
-@Table(name = "TicketSeat", schema = "dbo")
+@Table(
+        name = "TicketSeat",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"SeatID"}) // 🧩 mỗi Seat chỉ thuộc 1 Ticket
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -15,15 +20,24 @@ import lombok.experimental.FieldDefaults;
 public class TicketSeat {
 
     @EmbeddedId
-    TicketSeatId id;
+    private TicketSeatKey id;
 
-    @MapsId("ticketID")
     @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("ticketId")
     @JoinColumn(name = "TicketID", nullable = false)
-    Ticket ticket;
+    private Ticket ticket;
 
-    @MapsId("seatID")
     @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("seatId")
     @JoinColumn(name = "SeatID", nullable = false)
-    Seat seat;
+    private Seat seat;
+
+    public TicketSeat(Ticket ticket, Seat seat) {
+        this.ticket = ticket;
+        this.seat = seat;
+        this.id = new TicketSeatKey(
+                ticket != null ? ticket.getTicketId() : null,
+                seat != null ? seat.getSeatID() : null
+        );
+    }
 }

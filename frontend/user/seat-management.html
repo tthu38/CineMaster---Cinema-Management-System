@@ -292,7 +292,11 @@
                     <div class="row">
                         <div class="col-md-3 mb-3"><label for="seatRow">Dãy Ghế (Row)</label><input type="text" id="seatRow" class="form-control" placeholder="Ví dụ: A" required></div>
                         <div class="col-md-3 mb-3"><label for="columnNumber">Cột Ghế (Column)</label><input type="number" id="columnNumber" min="1" class="form-control" placeholder="Ví dụ: 5" required></div>
-                        <div class="col-md-3 mb-3"><label for="seatNumber">Số Ghế (Full Number)</label><input type="text" id="seatNumber" class="form-control" placeholder="Ví dụ: A5" required></div>
+                        <div class="col-md-3 mb-3">
+                            <label for="seatNumber">Số Thứ Tự (Chỉ số)</label>
+                            <input type="number" id="seatNumber" min="1" class="form-control" placeholder="Ví dụ: 5" required>
+                        </div>
+
                         <div class="col-md-3 mb-3">
                             <label for="status">Trạng Thái</label>
                             <select id="status" class="form-control" required>

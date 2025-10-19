@@ -46,3 +46,4 @@ public class Showtime {
     @Column(name = "Price", precision = 10, scale = 2)
     BigDecimal price;
 }
+

@@ -19,8 +19,8 @@
             --border:#1b2b4a;    /* Màu viền */
             --text-light:#e6f1ff;/* Màu chữ sáng */
             --text-muted:#9aa7b3;/* Màu chữ mờ */
-            --vip-color: #8c00ff; /* Ghế VIP */
-            --couple-color: #0aa3ff; /* Ghế Đôi */
+            --vip-color: #e8bd0e; /* Ghế VIP */
+            --couple-color: rgba(246, 112, 234, 0.89); /* Ghế Đôi */
             --hold-color: #ffc107; /* Ghế Tạm giữ (Vàng) */
         }
 
@@ -188,51 +188,77 @@
 
 <div class="booking-container">
 
+    <!-- ====== PANEL TRÁI: Thông tin phim & vé ====== -->
     <div class="info-panel">
-        <p class="text-muted mb-1 small">Chi nhánh Hà Nội | Phòng 1</p>
-        <div class="movie-title-large">The Future Begins</div>
-        <div class="showtime-details">
-            <i class="far fa-clock"></i> 10:00 - 12:00 |
-            <i class="fas fa-calendar-alt"></i> Thứ Sáu, 26/09
+        <p class="text-muted mb-1 small branch-info">Đang tải chi nhánh...</p>
+        <div class="movie-title-large">Đang tải phim...</div>
+        <div class="showtime-details text-muted small">
+            <i class="far fa-clock"></i> --:-- - --:-- |
+            <i class="fas fa-calendar-alt"></i> --
         </div>
 
+        <!-- Danh sách ghế đã chọn -->
         <div class="section-title">Ghế Đã Chọn</div>
         <div id="selected-seats-list" class="my-3" style="min-height: 150px;">
             <p class="text-muted" id="no-seat-selected">Chưa có ghế nào được chọn.</p>
         </div>
 
+        <!-- Tổng tiền & nút hành động -->
         <div class="total-summary">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <span class="h4 fw-bold">Tổng tiền vé:</span>
                 <span id="total-price-display" class="h4 fw-bold">0 VNĐ</span>
             </div>
 
-            <button class="btn btn-continue w-100 mt-2 fw-bold btn-lg">TIẾP TỤC <i class="fas fa-chevron-right"></i></button>
-            <button class="btn btn-outline-secondary w-100 mt-2">HỦY BỎ</button>
+            <button class="btn btn-continue w-100 mt-2 fw-bold btn-lg">
+                TIẾP TỤC <i class="fas fa-chevron-right"></i>
+            </button>
+            <button class="btn btn-outline-secondary w-100 mt-2" onclick="window.history.back()">HỦY BỎ</button>
         </div>
     </div>
 
+    <!-- ====== PANEL PHẢI: Sơ đồ ghế ====== -->
     <div class="seat-panel">
         <h2>CHỌN VỊ TRÍ CỦA BẠN</h2>
 
-        <div class="screen-container">
+        <!-- Loading Animation -->
+        <div id="loading" class="text-center my-5 text-muted">
+            <i class="fas fa-spinner fa-spin me-2"></i>Đang tải sơ đồ ghế...
+        </div>
+
+        <!-- Màn hình chiếu -->
+        <div class="screen-container" style="display:none;">
             <div class="screen"></div>
             <div class="screen-text">MÀN HÌNH</div>
         </div>
 
-        <div class="seating-chart">
-        </div>
+        <!-- Sơ đồ ghế (render bằng JS) -->
+        <div class="seating-chart" style="display:none;"></div>
 
-        <div class="legend">
-            <div class="legend-item d-flex align-items-center"><div class="legend-color" style="background-color: var(--bg);"></div>Ghế Thường (150K)</div>
-            <div class="legend-item d-flex align-items-center"><div class="legend-color" style="background-color: var(--vip-color);"></div>Ghế VIP (225K)</div>
-            <div class="legend-item d-flex align-items-center"><div class="legend-color" style="background-color: var(--couple-color);"></div>Ghế Đôi (300K)</div>
-            <div class="legend-item d-flex align-items-center"><div class="legend-color" style="background-color: #333; opacity: 0.6;"></div>Đã Đặt</div>
-            <div class="legend-item d-flex align-items-center"><div class="legend-color" style="background-color: var(--hold-color);"></div>Tạm Giữ</div>
+        <!-- Chú thích -->
+        <div class="legend mt-3" style="display:none;">
+            <div class="legend-item d-flex align-items-center">
+                <div class="legend-color" style="background-color: var(--bg);"></div>Ghế Thường
+            </div>
+            <div class="legend-item d-flex align-items-center">
+                <div class="legend-color" style="background-color: var(--vip-color);"></div>Ghế VIP
+            </div>
+            <div class="legend-item d-flex align-items-center">
+                <div class="legend-color" style="background-color: var(--couple-color);"></div>Ghế Đôi
+            </div>
+            <div class="legend-item d-flex align-items-center">
+                <div class="legend-color" style="background-color: #333; opacity: 0.6;"></div>Đã Đặt
+            </div>
+            <div class="legend-item d-flex align-items-center">
+                <div class="legend-color" style="background-color: var(--hold-color);"></div>Tạm Giữ
+            </div>
         </div>
     </div>
 </div>
 
-<script src="../js/seat-selection.js"></script>
+<!-- JS Module (có import API) -->
+<script type="module" src="../js/seat-selection.js"></script>
+
 </body>
+
 </html>

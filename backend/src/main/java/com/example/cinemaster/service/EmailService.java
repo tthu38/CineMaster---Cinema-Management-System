@@ -9,6 +9,10 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Slf4j
 @Service
 public class EmailService {
@@ -117,5 +121,111 @@ public class EmailService {
         mailSender.send(message);
     }
 
+    public void sendBookingConfirmationEmail(
+            String to,
+            String reservationCode,
+            String movieTitle,
+            String auditoriumName,
+            String seatNames,
+            LocalDateTime showtime,
+            BigDecimal comboTotal,
+            BigDecimal originalPrice,
+            BigDecimal discountTotal,
+            BigDecimal totalPrice,
+            String branchAddress,
+            String qrCodeUrl,
+            String otpCode,
+            List<String> comboDetails // 🟢 danh sách combo (tên + SL + giá)
+    ) throws MessagingException {
+
+        String subject = "🎬 Vé xem phim của bạn tại CineMaster";
+
+        // 🔹 Tạo nội dung danh sách combo chi tiết
+        String comboSection;
+        if (comboDetails != null && !comboDetails.isEmpty()) {
+            comboSection = "<h4 style='margin-top:20px;color:#0aa3ff;'>🍿 Combo đã chọn:</h4><ul style='padding-left:18px;'>";
+            for (String c : comboDetails) {
+                comboSection += "<li>" + c + "</li>";
+            }
+            comboSection += "</ul>";
+        } else {
+            comboSection = "<p style='color:#777;font-style:italic;'>Không có combo được chọn.</p>";
+        }
+
+        // 🧾 Nội dung email
+        String content = """
+    <div style="font-family: Arial, sans-serif; color:#222; line-height:1.6; max-width:600px; margin:auto;
+                border:1px solid #ddd; border-radius:10px; overflow:hidden;">
+      <div style="background:#0b162c; color:#fff; text-align:center; padding:20px;">
+        <h2 style="margin:0;">🎟️ CineMaster</h2>
+        <p>Vé xem phim của bạn đã được xác nhận!</p>
+      </div>
+
+      <div style="padding:20px;">
+        <h3 style="text-align:center; color:#0b162c;">MÃ VÉ</h3>
+        <h1 style="text-align:center; font-size:32px; color:#e50914;">%s</h1>
+
+        <p style="text-align:center; font-size:18px; color:#0aa3ff; background:#f0f9ff; border:1px solid #0aa3ff;
+                  display:inline-block; padding:8px 16px; border-radius:8px;">
+          🔑 Mã xác minh OTP: <b>%s</b>
+        </p>
+
+        <div style="text-align:center; margin:20px 0;">
+          <img src="%s" alt="QR Code" style="width:160px;height:160px;border:4px solid #0aa3ff;border-radius:12px;">
+          <p style="font-size:13px; color:#555;">Quét mã QR này để xác thực vé tại rạp</p>
+        </div>
+
+        <table style="width:100%%; border-collapse:collapse; margin-top:10px;">
+          <tr><td style="padding:8px 0; font-weight:bold;">🎬 Phim</td><td style="text-align:right;">%s</td></tr>
+          <tr><td style="padding:8px 0; font-weight:bold;">🏠 Phòng chiếu</td><td style="text-align:right;">%s</td></tr>
+          <tr><td style="padding:8px 0; font-weight:bold;">💺 Ghế</td><td style="text-align:right;">%s</td></tr>
+          <tr><td style="padding:8px 0; font-weight:bold;">🕓 Suất chiếu</td><td style="text-align:right;">%s</td></tr>
+          <tr><td style="padding:8px 0; font-weight:bold;">🥤 Tổng combo</td><td style="text-align:right;">%,.0f VND</td></tr>
+          <tr><td style="padding:8px 0; font-weight:bold;">💰 Giá gốc</td><td style="text-align:right;">%,.0f VND</td></tr>
+          <tr><td style="padding:8px 0; font-weight:bold;">🔻 Giảm giá</td><td style="text-align:right;color:#e50914;">-%,.0f VND</td></tr>
+          <tr><td style="padding:8px 0; font-weight:bold;">✅ Thành tiền</td><td style="text-align:right;color:#0aa3ff;font-weight:bold;">%,.0f VND</td></tr>
+        </table>
+
+        %s <!-- 🟢 Combo chi tiết chèn ở đây -->
+
+        <hr style="margin:20px 0; border:none; border-top:1px solid #ccc;">
+        <p style="font-size:14px; color:#444;">📍 <b>Địa điểm:</b> %s</p>
+        <p style="font-size:13px; color:#666;">Vui lòng cung cấp <b>OTP</b> hoặc <b>quét QR Code</b> để nhận vé tại quầy.</p>
+
+        <div style="text-align:center; margin-top:20px;">
+          <p style="color:#666; font-size:13px;">Cảm ơn bạn đã chọn <b>CineMaster</b>. Chúc bạn xem phim vui vẻ! 🍿</p>
+        </div>
+      </div>
+
+      <div style="background:#f3f4f6; padding:15px; text-align:center; font-size:13px; color:#555;">
+        <p>Hỗ trợ: <b>1900 1234</b> • Email: <a href="mailto:cs@cinemaster.vn">cs@cinemaster.vn</a></p>
+      </div>
+    </div>
+    """.formatted(
+                reservationCode,   // %s #1
+                otpCode,           // %s #2
+                qrCodeUrl,         // %s #3
+                movieTitle,        // %s #4
+                auditoriumName,    // %s #5
+                seatNames,         // %s #6
+                showtime.toString().replace("T", " "), // %s #7
+                comboTotal,        // %.0f #8
+                originalPrice,     // %.0f #9
+                discountTotal,     // %.0f #10
+                totalPrice,        // %.0f #11
+                comboSection,      // %s #12
+                branchAddress      // %s #13
+        );
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        helper.setTo(to);
+        helper.setSubject(subject);
+        helper.setText(content, true);
+
+        mailSender.send(message);
+
+        log.info("📩 Đã gửi email xác nhận vé cho {} (OTP={}, ComboTotal={})", to, otpCode, comboTotal);
+    }
 
 }

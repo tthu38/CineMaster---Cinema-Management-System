@@ -93,18 +93,16 @@ public class SeatService {
         for (int r = 0; r < request.getRowCount(); r++) {
             String seatRow = String.valueOf((char) (startRow + r));
             for (int c = 1; c <= request.getColumnCount(); c++) {
-                String seatNumber = seatRow + c;
                 newSeats.add(Seat.builder()
                         .auditorium(auditorium)
                         .seatType(seatType)
                         .seatRow(seatRow)
                         .columnNumber(c)
-                        .seatNumber(seatNumber)
+                        .seatNumber(String.valueOf(c)) // ❗ chỉ số, KHÔNG nối row ở đây
                         .status(Seat.SeatStatus.AVAILABLE)
                         .build());
             }
         }
-
         List<Seat> savedSeats = seatRepository.saveAll(newSeats);
         return savedSeats.stream().map(seatMapper::toResponse).collect(Collectors.toList());
     }
@@ -131,42 +129,65 @@ public class SeatService {
     // 8️⃣ BULK UPDATE ROW (GỘP / TÁCH)
     @Transactional
     public List<SeatResponse> bulkUpdateSeatRow(BulkSeatUpdateRequest request) {
+        // ===== Lấy loại ghế mới (nếu có) =====
         SeatType newSeatType = null;
-        if (request.getNewTypeID() != null)
+        if (request.getNewTypeID() != null) {
             newSeatType = seatTypeRepository.findById(request.getNewTypeID())
                     .orElseThrow(() -> new EntityNotFoundException("Loại ghế mới không tồn tại"));
+        }
 
+        // ===== Lấy trạng thái mới (nếu có) =====
         Seat.SeatStatus newSeatStatus = null;
-        if (request.getNewStatus() != null && !request.getNewStatus().isEmpty())
-            newSeatStatus = Seat.SeatStatus.valueOf(request.getNewStatus().toUpperCase());
+        if (request.getNewStatus() != null && !request.getNewStatus().isEmpty()) {
+            try {
+                newSeatStatus = Seat.SeatStatus.valueOf(request.getNewStatus().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("Trạng thái ghế không hợp lệ: " + request.getNewStatus());
+            }
+        }
 
+        // ===== Lấy toàn bộ ghế trong dãy =====
         List<Seat> seatsInRow = seatRepository.findAllByAuditoriumAuditoriumIDAndSeatRow(
                 request.getAuditoriumID(), request.getSeatRowToUpdate().toUpperCase());
 
-        if (seatsInRow.isEmpty())
+        if (seatsInRow.isEmpty()) {
             throw new EntityNotFoundException("Không tìm thấy ghế nào trong dãy " + request.getSeatRowToUpdate());
+        }
 
+        // ===== 1️⃣ Xử lý GỘP GHẾ (Couple Seat) =====
         if (Boolean.TRUE.equals(request.getIsConvertCoupleSeat())) {
-            if (newSeatType == null)
-                throw new IllegalArgumentException("Phải chỉ định ID loại ghế đôi để thực hiện chuyển đổi GỘP.");
+            // ✅ Chỉ cho phép gộp nếu loại ghế mới thực sự là "Couple"
+            if (newSeatType == null || !newSeatType.getTypeName().toLowerCase().contains("couple")) {
+                throw new IllegalArgumentException("Để gộp ghế, loại ghế mới phải là 'Couple'.");
+            }
             return processCoupleSeatConversion(seatsInRow, newSeatType, newSeatStatus);
         }
 
+        // ===== 2️⃣ Xử lý TÁCH GHẾ =====
         if (Boolean.TRUE.equals(request.getIsSeparateCoupleSeat())) {
             SeatType defaultSingleSeatType = newSeatType;
-            if (defaultSingleSeatType == null)
+            if (defaultSingleSeatType == null) {
+                // fallback mặc định ghế đơn ID = 1
                 defaultSingleSeatType = seatTypeRepository.findById(1)
                         .orElseThrow(() -> new EntityNotFoundException("Loại ghế đơn mặc định (ID 1) không tồn tại."));
+            }
             return processSingleSeatSeparation(seatsInRow, defaultSingleSeatType, newSeatStatus);
         }
 
+        // ===== 3️⃣ Trường hợp chỉ đổi loại hoặc trạng thái =====
         for (Seat seat : seatsInRow) {
-            if (newSeatType != null) seat.setSeatType(newSeatType);
-            if (newSeatStatus != null) seat.setStatus(newSeatStatus);
+            if (newSeatType != null) {
+                seat.setSeatType(newSeatType);
+            }
+            if (newSeatStatus != null) {
+                seat.setStatus(newSeatStatus);
+            }
         }
 
         List<Seat> savedSeats = seatRepository.saveAll(seatsInRow);
-        return savedSeats.stream().map(seatMapper::toResponse).collect(Collectors.toList());
+        return savedSeats.stream()
+                .map(seatMapper::toResponse)
+                .collect(Collectors.toList());
     }
 
     // 🔹 GỘP GHẾ ĐÔI
@@ -228,4 +249,14 @@ public class SeatService {
         savedUpdated.addAll(savedCreated);
         return savedUpdated.stream().map(seatMapper::toResponse).collect(Collectors.toList());
     }
+
+    // ==================== 🔹 LẤY GHẾ THEO PHÒNG ====================
+    @Transactional(readOnly = true)
+    public List<SeatResponse> getSeatsByAuditorium(Integer auditoriumId) {
+        List<Seat> seats = seatRepository.findAllByAuditorium_AuditoriumID(auditoriumId);
+        if (seats.isEmpty())
+            throw new EntityNotFoundException("Không tìm thấy ghế nào trong phòng chiếu ID: " + auditoriumId);
+        return seats.stream().map(seatMapper::toResponse).collect(Collectors.toList());
+    }
+
 }

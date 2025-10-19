@@ -27,10 +27,9 @@ public class Membership {
     @JoinColumn(name = "AccountID", referencedColumnName = "AccountID")
     Account account;
 
-    @Size(max = 20)
-    @Nationalized
-    @Column(name = "MembershipLevel", length = 20)
-    String level;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "LevelID", referencedColumnName = "LevelID")
+    MembershipLevel level;
 
     @Column(name = "Points")
     Integer points;

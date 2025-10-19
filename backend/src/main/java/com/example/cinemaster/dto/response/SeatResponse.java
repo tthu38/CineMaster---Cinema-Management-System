@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@JsonInclude(JsonInclude.Include.NON_NULL)  // 👈 Thêm dòng này
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SeatResponse {
     Integer seatID;
     String seatNumber;
@@ -26,4 +28,6 @@ public class SeatResponse {
     // Branch
     Integer branchID;
     String branchName;
+
+    LocalDateTime lockedUntil;
 }

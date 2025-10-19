@@ -7,6 +7,7 @@ import com.example.cinemaster.dto.response.SeatResponse;
 import com.example.cinemaster.service.SeatService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/seats")
+@Slf4j
 public class SeatController {
 
     private final SeatService seatService;
@@ -37,6 +39,14 @@ public class SeatController {
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build(); // 404
         }
+    }
+
+    // ==================== 🔹 GET SEATS BY AUDITORIUM ====================
+    @GetMapping("/by-auditorium/{auditoriumId}")
+    public ResponseEntity<List<SeatResponse>> getSeatsByAuditorium(@PathVariable Integer auditoriumId) {
+        List<SeatResponse> seats = seatService.getSeatsByAuditorium(auditoriumId);
+        log.info("🎬 [SeatController] Lấy danh sách ghế của phòng chiếu ID {}", auditoriumId);
+        return ResponseEntity.ok(seats);
     }
 
     @PreAuthorize("hasRole('Admin')")

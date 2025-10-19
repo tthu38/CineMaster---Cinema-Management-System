@@ -1,5 +1,6 @@
 package com.example.cinemaster.dto.response;
 
+import com.example.cinemaster.entity.Ticket;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -14,28 +15,56 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TicketResponse {
-
     Integer ticketId;
+    Integer accountId;
+    Integer showtimeId;
+    Ticket.TicketStatus status;
 
-    // ================== THÔNG TIN PHIM & SUẤT CHIẾU ==================
-    String movieTitle;
-    String branchName;
-    String auditoriumName;
-    String showDate;      // yyyy-MM-dd
-    String showTime;      // HH:mm
+    // 💰 Tổng tiền các loại
+    BigDecimal seatTotal;        // 💺 Tổng tiền ghế
+    BigDecimal comboTotal;       // 🍿 Tổng tiền combo
+    BigDecimal originalPrice;    // 💸 Giá gốc (ghế + combo)
+    BigDecimal discountTotal;    // 🔻 Tổng tiền giảm
+    BigDecimal totalPrice;       // ✅ Tổng cuối sau giảm
 
-    // ================== GHẾ & COMBO ==================
-    List<String> seats;   // VD: ["A5", "A6", "A7"]
-    String comboName;
-    BigDecimal comboPrice;
-
-    // ================== THANH TOÁN ==================
-    BigDecimal totalPrice;
+    // 💳 Thông tin thanh toán / thời gian
     String paymentMethod;
-    String ticketStatus;
     LocalDateTime bookingTime;
+    LocalDateTime holdUntil;
 
-    // ================== ƯU ĐÃI ==================
-    String discountCode;
-    BigDecimal discountAmount;
+    // 🎟️ Danh sách chi tiết vé
+    List<Integer> seatIds;
+    List<ComboResponse> combos;
+    List<DiscountResponse> discounts;
+
+    // 🎬 Thông tin phim & rạp
+    String movieTitle;
+    String auditoriumName;
+    String seatNames;
+    String branchAddress;
+    LocalDateTime startTime;
+
+    // ================== 🍿 Inner Classes ==================
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class ComboResponse {
+        Integer comboId;
+        String comboName;
+        Integer quantity;
+        BigDecimal price;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class DiscountResponse {
+        Integer discountId;
+        String discountName;
+        BigDecimal amount;
+    }
 }

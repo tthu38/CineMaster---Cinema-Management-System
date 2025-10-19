@@ -84,13 +84,13 @@ async function updateAuditoriumOptions(branchSelect, branchId) {
 async function renderSeatDiagram(auditoriumId) {
     seatDiagram.innerHTML = `<p class="text-muted">Đang tải sơ đồ ghế...</p>`;
     try {
-        const allSeats = await seatApi.getAll();
-        const seats = allSeats.filter(s => s.auditoriumID === parseInt(auditoriumId));
+        const seats = await seatApi.getByAuditorium(auditoriumId);
         if (!seats.length) {
             seatDiagram.innerHTML = `<p class="text-center text-muted">Chưa có ghế trong phòng chiếu này.</p>`;
             return;
         }
 
+        // Gom theo dãy
         const grouped = {};
         seats.forEach(s => {
             if (!grouped[s.seatRow]) grouped[s.seatRow] = [];
@@ -101,6 +101,7 @@ async function renderSeatDiagram(auditoriumId) {
         Object.keys(grouped).sort().forEach(row => {
             const rowDiv = document.createElement("div");
             rowDiv.className = "seat-row";
+
             const label = document.createElement("div");
             label.className = "seat-label";
             label.textContent = row;
@@ -114,17 +115,18 @@ async function renderSeatDiagram(auditoriumId) {
                 if (status === "broken") box.classList.add("seat-broken");
                 if (s.seatID === selectedSeatId) box.classList.add("seat-selected");
 
-                box.textContent = s.seatNumber;
-                box.title = `${s.seatNumber} - ${s.typeName} (${s.status})`;
+                // ✅ Ghép row + number để hiển thị đúng
+                const seatLabel = `${s.seatRow || ""}${s.seatNumber || ""}`;
+                box.textContent = seatLabel;
+                box.title = `${seatLabel} - ${s.typeName} (${s.status})`;
 
-                // ✅ CLICK GHẾ => LOAD FORM SỬA
+                // ✅ Click chọn ghế
                 box.addEventListener("click", () => {
                     selectedSeatId = s.seatID;
                     loadSeatToForm(s);
-                    formTitle.innerHTML = `<i class="fa-solid fa-pen-to-square me-2"></i> Đang chỉnh sửa: ${s.seatNumber}`;
+                    formTitle.innerHTML = `<i class="fa-solid fa-pen-to-square me-2"></i> Đang chỉnh sửa: ${seatLabel}`;
                     submitBtn.innerHTML = `<i class="fa-solid fa-check me-2"></i> Cập Nhật Ghế`;
                     cancelBtn.style.display = "inline-block";
-
                     document.querySelectorAll(".seat-box").forEach(el => el.classList.remove("seat-selected"));
                     box.classList.add("seat-selected");
                 });
@@ -155,12 +157,13 @@ function renderSeatTable(seats) {
         return;
     }
     seats.forEach(s => {
+        const seatLabel = `${s.seatRow || ""}${s.seatNumber || ""}`;
         const tr = document.createElement("tr");
         tr.innerHTML = `
             <td>${s.seatID}</td>
             <td>${s.auditoriumName || "?"}</td>
             <td>${s.seatRow}/${s.columnNumber}</td>
-            <td>${s.seatNumber}</td>
+            <td>${seatLabel}</td>
             <td>${s.typeName}</td>
             <td>${s.status}</td>
             <td>
@@ -174,19 +177,19 @@ function renderSeatTable(seats) {
         seatsBody.appendChild(tr);
     });
 
-    // === Nút Edit ===
+    // === Nút Edit/Delete ===
     document.querySelectorAll(".btn-edit").forEach(btn => {
         btn.addEventListener("click", async (e) => {
             const id = e.currentTarget.dataset.id;
             const seat = await seatApi.getById(id);
             loadSeatToForm(seat);
-            formTitle.innerHTML = `<i class="fa-solid fa-pen-to-square me-2"></i> Đang chỉnh sửa: ${seat.seatNumber}`;
+            const label = `${seat.seatRow || ""}${seat.seatNumber || ""}`;
+            formTitle.innerHTML = `<i class="fa-solid fa-pen-to-square me-2"></i> Đang chỉnh sửa: ${label}`;
             submitBtn.innerHTML = `<i class="fa-solid fa-check me-2"></i> Cập Nhật Ghế`;
             cancelBtn.style.display = "inline-block";
         });
     });
 
-    // === Nút Delete ===
     document.querySelectorAll(".btn-delete").forEach(btn => {
         btn.addEventListener("click", async (e) => {
             const id = e.currentTarget.dataset.id;
@@ -222,33 +225,21 @@ function renderPagination(total, currentPage, size) {
     }
 }
 
-// ======================= 5️⃣ LOAD FORM (CẬP NHẬT CHI NHÁNH / PHÒNG CHIẾU) =======================
+// ======================= 5️⃣ LOAD FORM (EDIT) =======================
 async function loadSeatToForm(s) {
-    // Gán giá trị cơ bản
     document.getElementById("seatID").value = s.seatID;
     document.getElementById("seatRow").value = s.seatRow;
     document.getElementById("columnNumber").value = s.columnNumber;
     document.getElementById("seatNumber").value = s.seatNumber;
     document.getElementById("status").value = s.status;
 
-    // ✅ Load chi nhánh tương ứng
     if (s.branchID) {
         singleBranchSelect.value = s.branchID;
-        // Khi chọn chi nhánh => load danh sách phòng chiếu của chi nhánh đó
         await updateAuditoriumOptions(singleBranchSelect, s.branchID);
     }
+    if (s.auditoriumID) auditoriumSelect.value = s.auditoriumID;
+    if (s.typeID) seatTypeSelect.value = s.typeID;
 
-    // ✅ Gán phòng chiếu
-    if (s.auditoriumID) {
-        auditoriumSelect.value = s.auditoriumID;
-    }
-
-    // ✅ Gán loại ghế
-    if (s.typeID) {
-        seatTypeSelect.value = s.typeID;
-    }
-
-    // ✅ Đảm bảo trạng thái (Available/Broken/Reserved)
     const statusSelect = document.getElementById("status");
     if (statusSelect && s.status) {
         const val = s.status.charAt(0).toUpperCase() + s.status.slice(1).toLowerCase();
@@ -270,12 +261,15 @@ cancelBtn.addEventListener("click", () => {
 // ======================= 7️⃣ SUBMIT FORM GHẾ ĐƠN =======================
 seatForm.addEventListener("submit", async (e) => {
     e.preventDefault();
+    const seatRow = document.getElementById("seatRow").value.trim().toUpperCase();
+    const seatNumber = document.getElementById("seatNumber").value.trim();
+
     const data = {
         auditoriumID: parseInt(auditoriumSelect.value),
         typeID: parseInt(seatTypeSelect.value),
-        seatRow: document.getElementById("seatRow").value,
+        seatRow,
         columnNumber: parseInt(document.getElementById("columnNumber").value),
-        seatNumber: document.getElementById("seatNumber").value,
+        seatNumber, // chỉ số, không kèm row
         status: document.getElementById("status").value,
     };
 

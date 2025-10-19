@@ -22,7 +22,7 @@ public class Auditorium {
     @Column(name = "AuditoriumID", nullable = false)
     Integer auditoriumID;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "BranchID", referencedColumnName = "BranchID")
     Branch branch;
 

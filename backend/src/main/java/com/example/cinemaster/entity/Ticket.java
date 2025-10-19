@@ -1,29 +1,26 @@
 package com.example.cinemaster.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import org.hibernate.annotations.Nationalized;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
+@Entity
+@Table(name = "Ticket")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Entity
-@Table(name = "Ticket", schema = "dbo")
 public class Ticket {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "TicketID", nullable = false)
-    Integer ticketID;
+    Integer ticketId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AccountID", nullable = false)
@@ -33,30 +30,57 @@ public class Ticket {
     @JoinColumn(name = "ShowtimeID", nullable = false)
     Showtime showtime;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ComboID")
-    Combo combo;
+    // 💺 Tổng tiền ghế (chỉ dùng tạm trong logic, không lưu DB)
+    @Transient
+    BigDecimal seatPrice;
 
-    @Column(name = "TotalPrice", precision = 10, scale = 2)
+    // 🍿 Tổng tiền combo (chỉ dùng tạm trong logic, không lưu DB)
+    @Transient
+    BigDecimal comboPrice;
+
+    // 💳 Tổng tiền sau giảm giá (lưu vào DB)
+    @Column(precision = 12, scale = 2)
     BigDecimal totalPrice;
 
-    @Column(name = "BookingTime")
+    @Column(columnDefinition = "DATETIME2(0) DEFAULT SYSDATETIME()")
     LocalDateTime bookingTime;
 
-    @Size(max = 20)
-    @Nationalized
-    @Column(name = "TicketStatus", length = 20)
-    String ticketStatus;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20, nullable = false)
+    @Builder.Default
+    TicketStatus ticketStatus = TicketStatus.HOLDING;
 
-    @Size(max = 20)
-    @Nationalized
-    @Column(name = "PaymentMethod", length = 20)
-    String paymentMethod;
+    @Column(length = 20, nullable = false)
+    @Builder.Default
+    String paymentMethod = "Cash";
 
-    // ========== Quan hệ N:N qua bảng trung gian ==========
-    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<TicketSeat> ticketSeats;
+    @Column(name = "HoldUntil", columnDefinition = "DATETIME2(0)")
+    LocalDateTime holdUntil;
 
-    @OneToMany(mappedBy = "ticketID", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<TicketDiscount> ticketDiscounts;
+    @Column(name = "CustomerEmail")
+    String customerEmail;
+
+    // 🎟️ Tổng giảm giá (chỉ tạm hiển thị, không lưu DB)
+    @Transient
+    BigDecimal discountTotal;
+
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    List<TicketSeat> ticketSeats = new ArrayList<>();
+
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    List<TicketDiscount> ticketDiscounts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    List<TicketCombo> ticketCombos = new ArrayList<>();
+
+    @PrePersist
+    void onCreate() {
+        if (bookingTime == null) {
+            bookingTime = LocalDateTime.now();
+        }
+    }
+
+    public enum TicketStatus {
+        HOLDING, BOOKED, USED, CANCEL_REQUESTED, CANCELLED, REFUNDED
+    }
 }

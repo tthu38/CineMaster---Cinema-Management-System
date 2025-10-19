@@ -21,4 +21,7 @@ public class DiscountResponse {
     LocalDate expiryDate;
     Integer maxUsage;
     String discountStatus;
+
+    private BigDecimal minOrderAmount;
+    private String requiredLevelName;
 }

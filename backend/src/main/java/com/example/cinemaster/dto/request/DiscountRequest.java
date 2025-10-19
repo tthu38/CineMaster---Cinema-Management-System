@@ -34,9 +34,16 @@ public class DiscountRequest {
 
     String discountStatus;
 
+    // 🔹 Điều kiện mới: hóa đơn tối thiểu để áp mã
+    @DecimalMin(value = "0.0", inclusive = true, message = "MinOrderAmount must be ≥ 0")
+    BigDecimal minOrderAmount;
+
+    // 🔹 Hạng thành viên tối thiểu được áp dụng mã
+    Integer requiredLevelId;
+
+    // 🔸 Validation logic: chỉ cho phép 1 trong 2 giá trị giảm (phần trăm hoặc cố định)
     @AssertTrue(message = "Either percentOff or fixedAmount must be provided, not both or none.")
     public boolean isValidDiscountValue() {
         return (percentOff != null ^ fixedAmount != null);
     }
-
 }

@@ -28,7 +28,9 @@ function formatHm(iso){
     const t = new Date(iso);
     return t.toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'});
 }
-function toBookingUrl(id){ return `/booking.html?showtimeId=${encodeURIComponent(id)}`; }
+function toBookingUrl(id){
+    return `seat-diagram.html?showtimeId=${encodeURIComponent(id)}`;
+}
 
 function sameYMD(a, b){
     const ad = new Date(a); ad.setHours(0,0,0,0);

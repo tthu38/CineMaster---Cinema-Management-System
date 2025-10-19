@@ -100,4 +100,18 @@ export const discountApi = {
         if (res.status === 403) throw new Error("🚫 Bạn không có quyền xóa vĩnh viễn discount!");
         return handleResponse(res);
     },
+
+    async applyDiscount(ticketId, code) {
+        const token = getValidToken();
+        const res = await fetch(`${API_BASE_URL}/tickets/${ticketId}/apply-discount/${code}`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return handleResponse(res);
+    },
+
+
+
 };
