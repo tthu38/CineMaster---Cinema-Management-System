@@ -216,46 +216,46 @@
 
 <!-- Footer -->
 <div id="footer-placeholder"></div>
-
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<!-- ================= HEADER & FOOTER LOADER ================= -->
 <script>
-    async function handleCredentialResponse(response) {
-        if (!response || !response.credential) {
-            console.error("Không có credential từ Google");
-            alert("Google login thất bại!");
-            return;
-        }
-        const idToken = response.credential;
-        console.log("Google token:", idToken.substring(0, 20) + "...");
+    /* ================= HEADER (đồng bộ avatar + tên người dùng) ================= */
+    (async function loadHeader() {
+        const headerEl = document.getElementById("header-placeholder");
         try {
-            const res = await fetch("http://localhost:8080/api/v1/auth/google", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ token: idToken })
+            const res = await fetch("../home/customer-header.html");
+            const html = await res.text();
+            headerEl.innerHTML = html;
+
+            // ✅ ÉP CHẠY SCRIPT TRONG FILE HEADER
+            const scripts = headerEl.querySelectorAll("script");
+            scripts.forEach(s => {
+                const ns = document.createElement("script");
+                if (s.src) ns.src = s.src;
+                else ns.textContent = s.textContent;
+                document.body.appendChild(ns);
             });
-            if (!res.ok) throw new Error(await res.text());
-            const data = await res.json();
-            localStorage.setItem("accessToken", data.accessToken);
-            if (data.email) localStorage.setItem("googleEmail", data.email);
-            window.location.href = "profile.html";
-        } catch (e) {
-            console.error("Google login lỗi:", e);
-            alert("Google login thất bại!");
+        } catch (err) {
+            console.error("❌ Lỗi load header:", err);
         }
-    }
+    })();
 
-    // Load header
-    fetch("../home/header.html")
-        .then(res => res.text())
-        .then(html => document.getElementById("header-placeholder").innerHTML = html)
-        .catch(err => console.error("Không load được header:", err));
-
-    // Load footer
-    fetch("../home/footer.html")
-        .then(res => res.text())
-        .then(html => document.getElementById("footer-placeholder").innerHTML = html)
-        .catch(err => console.error("Không load được footer:", err));
+    /* ================= FOOTER ================= */
+    (async function loadFooter() {
+        const footerEl = document.getElementById("footer-placeholder");
+        try {
+            const res = await fetch("../home/footer.html");
+            const html = await res.text();
+            footerEl.innerHTML = html;
+        } catch (err) {
+            console.error("❌ Lỗi load footer:", err);
+        }
+    })();
 </script>
+
+<!-- ================= GOOGLE LOGIN & LOGIN SCRIPT ================= -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script type="module" src="../js/login.js"></script>
+
 
 <script type="module" src="../js/login.js"></script>
 </body>

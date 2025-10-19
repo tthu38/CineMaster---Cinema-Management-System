@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Liên hệ & Trung tâm hỗ trợ - CineMaster</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../css/user.css" />
+
+    <style>
+        body {
+            background-color: #0b162c;
+            color: #e0e6f5;
+            font-family: 'Roboto', sans-serif;
+        }
+        .contact-card, .info-card {
+            background-color: #0c1324;
+            border: 1px solid #1b2b4a;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.3);
+        }
+        .form-control, .form-select {
+            background-color: #121b33;
+            border: 1px solid #1b2b4a;
+            color: #e0e6f5;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #00bfff;
+            box-shadow: 0 0 0 0.2rem rgba(0,191,255,0.25);
+        }
+        .btn-submit {
+            background-color: #00bfff;
+            color: #000;
+            font-weight: 600;
+            transition: all .2s;
+        }
+        .btn-submit:hover {
+            background-color: #33ccff;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+
+<body>
+<!-- ✅ HEADER -->
+<div id="header"></div>
+
+<div class="container py-5">
+    <h2 class="text-center text-info mb-4">🎧 LIÊN HỆ & TRUNG TÂM HỖ TRỢ</h2>
+    <div class="row g-4 justify-content-center">
+        <!-- Form -->
+        <div class="col-lg-7">
+            <div class="contact-card">
+                <form id="contactForm">
+                    <div class="mb-3">
+                        <label class="form-label">Họ Tên Của Bạn</label>
+                        <input name="fullName" class="form-control" placeholder="Nguyễn Văn A" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input name="email" type="email" class="form-control" placeholder="email@example.com" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Số Điện Thoại</label>
+                        <input name="phone" class="form-control" placeholder="090xxxxxxxx" />
+                    </div>
+
+                    <!-- 🏢 Dropdown chọn chi nhánh -->
+                    <div class="mb-3">
+                        <label class="form-label">Chi Nhánh Liên Hệ</label>
+                        <select name="branchId" id="branchSelect" class="form-select" required>
+                            <option value="">-- Chọn chi nhánh --</option>
+                        </select>
+                        <div class="form-text text-muted">Vui lòng chọn chi nhánh mà bạn muốn liên hệ.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Chủ Đề</label>
+                        <select name="subject" class="form-select" required>
+                            <option value="">-- Chọn chủ đề --</option>
+                            <option value="Phản hồi dịch vụ">Phản hồi dịch vụ</option>
+                            <option value="Hợp tác kinh doanh">Hợp tác kinh doanh</option>
+                            <option value="Khiếu nại">Khiếu nại</option>
+                            <option value="Khác">Khác</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nội Dung Chi Tiết</label>
+                        <textarea name="message" class="form-control" rows="4" maxlength="500"
+                                  placeholder="Mô tả chi tiết vấn đề hoặc phản hồi của bạn..." required></textarea>
+                        <div class="form-text text-end text-muted" id="charCount">0 / 500 ký tự</div>
+                    </div>
+
+                    <button class="btn btn-submit w-100" type="submit">
+                        <i class="fa-solid fa-paper-plane me-2"></i>GỬI YÊU CẦU HỖ TRỢ
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Info -->
+        <div class="col-lg-4">
+            <div class="info-card">
+                <h5 class="text-info mb-3"><i class="fa-solid fa-circle-info me-2"></i>Thông Tin Liên Hệ Khác</h5>
+                <p><i class="fa-solid fa-phone me-2"></i><b>Đường dây nóng:</b> 1900 6000</p>
+                <p><i class="fa-solid fa-envelope me-2"></i><b>Email:</b> support@cinemaster.vn</p>
+                <p><i class="fa-regular fa-clock me-2"></i><b>Giờ làm việc:</b> 8:00 - 22:00 (T2 - CN)</p>
+                <p><i class="fa-solid fa-location-dot me-2"></i><b>Địa chỉ:</b> Toà nhà Cinema Tower, Q1, TP.HCM</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ FOOTER -->
+<div id="footer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script type="module" src="./contact.js"></script>
+<script>
+    // ✅ Đếm ký tự
+    const ta = document.querySelector('textarea[name="message"]');
+    const counter = document.getElementById("charCount");
+    ta.addEventListener("input", () => {
+        counter.textContent = `${ta.value.length} / 500 ký tự`;
+    });
+
+    // ✅ Load header (customer)
+    (async function loadHeader() {
+        const headerEl = document.getElementById("header");
+        try {
+            const res = await fetch("../home/customer-header.html");
+            const html = await res.text();
+            headerEl.innerHTML = html;
+
+            // ép chạy script bên trong customer-header.html
+            const scripts = headerEl.querySelectorAll("script");
+            scripts.forEach(s => {
+                const ns = document.createElement("script");
+                if (s.src) ns.src = s.src;
+                else ns.textContent = s.textContent;
+                document.body.appendChild(ns);
+            });
+        } catch (err) {
+            console.error("❌ Lỗi load header:", err);
+        }
+    })();
+
+    // ✅ Load footer
+    fetch("../home/footer.html")
+        .then(res => res.text())
+        .then(html => document.getElementById("footer").innerHTML = html)
+        .catch(err => console.error("❌ Lỗi load footer:", err));
+</script>
+</body>
+</html>

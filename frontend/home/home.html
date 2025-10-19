@@ -4,163 +4,1172 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CineMaster - Trang chủ</title>
-
-    <!-- FONT & ICON -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
     <style>
         :root {
-            --primary-color: #e50914;
-            --background-color: #0D1326;
-            --text-color: #ffffff;
-            --card-background: #152040;
+            --primary: #e50914;
+            --secondary: #ff5252;
+            --dark: #0f0f23;
+            --dark-blue: #16213e;
+            --text-light: #ffffff;
+            --text-muted: #a0a0a0;
+            --card-bg: rgba(22, 33, 62, 0.95);
+            --shadow-sm: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 10px 40px rgba(0, 0, 0, 0.2);
+            --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.4);
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /*body {*/
+        /*    background: linear-gradient(135deg, rgba(15, 31, 47, 0.9) 0%, rgba(26, 42, 60, 0.9) 50%, rgba(13, 24, 40, 0.9) 100%), url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;*/
+        /*    background-size: cover;*/
+        /*    background-blend-mode: overlay; !* Thay lighten bằng overlay để tối hơn *!*/
+        /*    color: var(--text-light);*/
+        /*    font-family: 'Inter', sans-serif;*/
+        /*    overflow-x: hidden;*/
+        /*}*/
 
         body {
-            background-color: var(--background-color);
-            color: var(--text-color);
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 0;
+            background: linear-gradient(135deg, rgba(10, 18, 24, 0.85) 0%, rgba(13, 21, 31, 0.85) 50%, rgba(9, 18, 26, 0.85) 100%), url('https://img.lovepik.com/bg/20231217/dark-movie-theater-showing-blue-seats_2498613_wh860.png') no-repeat center center fixed;
+            background-size: cover;
+            background-blend-mode: overlay; /* Thay darken bằng overlay để tăng độ nổi */
+            color: var(--text-light);
+            font-family: 'Inter', sans-serif;
             overflow-x: hidden;
+            filter: brightness(1.1) contrast(1.2); /* Tăng độ sáng và tương phản */
         }
 
-        /* HERO CAROUSEL */
-        .hero {
-            margin-top: 40px;
+        /* ================= HERO BOOK CAROUSEL (Cập nhật) ================= */
+        .hero-section {
+            min-height: 60vh;
+            display: flex;
+            align-items: flex-start; /* Thay đổi từ center sang flex-start */
+            justify-content: center;
+            padding: 60px 20px 40px;
+            position: relative;
+            overflow: hidden;
+            gap: 30px; /* Khoảng cách giữa các cột */
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(229, 9, 20, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Thêm container chính để chứa 3 cột (2 bên và carousel) */
+        .hero-content-wrapper {
             display: flex;
             justify-content: center;
-            align-items: center;
-            position: relative;
-            height: 75vh;
-            overflow: hidden;
+            align-items: flex-start; /* Giữ top alignment */
+            width: 100%;
+            max-width: 1400px; /* Tăng max-width để có chỗ cho 2 bên */
         }
-        .carousel {
+
+        .left-panel,
+        .right-panel {
+            flex-basis: 250px; /* Chiều rộng cố định cho 2 cột bên */
+            flex-shrink: 0;
+            padding-top: 100px; /* Căn chỉnh với header của carousel */
+        }
+
+        .book-carousel {
+            width: 100%;
+            max-width: 1000px; /* Thu nhỏ lại */
+            position: relative;
+            perspective: 1500px;
+            flex-grow: 1;
+        }
+
+        .carousel-header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 1s ease;
+        }
+
+        .carousel-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem; /* Giảm kích thước tiêu đề */
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(229, 9, 20, 0.3);
+            letter-spacing: 1px;
+        }
+
+        .carousel-subtitle {
+            font-size: 1.1rem; /* Giảm kích thước phụ đề */
+            color: var(--text-muted);
+            font-weight: 300;
+            margin-top: 8px;
+        }
+
+        .book-stack {
+            position: relative;
+            height: 400px; /* Giảm chiều cao carousel */
             display: flex;
             align-items: center;
-            gap: 20px;
-            perspective: 1000px;
-            width: 80%;
             justify-content: center;
         }
-        .carousel-item {
-            width: 250px;
-            height: 380px;
-            border-radius: 10px;
-            overflow: hidden;
-            position: relative;
-            transition: transform 0.6s ease, filter 0.6s ease;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+
+        .book-page-wrapper {
+            position: absolute;
+            width: 300px; /* Thu nhỏ kích thước card */
+            height: 400px;
+            transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+            cursor: pointer;
+            transform-style: preserve-3d;
         }
-        .carousel-item img {
+
+        .book-page-wrapper.active {
+            z-index: 100;
+            transform: translateX(0) scale(1.1) rotateY(0deg);
+        }
+
+        .book-page-wrapper.prev {
+            z-index: 50;
+            transform: translateX(-250px) scale(0.85) rotateY(20deg);
+            opacity: 0.7;
+        }
+
+        .book-page-wrapper.next {
+            z-index: 50;
+            transform: translateX(250px) scale(0.85) rotateY(-20deg);
+            opacity: 0.7;
+        }
+
+        .book-page-wrapper.hidden {
+            transform: scale(0.5) translateY(80px);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .movie-book {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
         }
-        .carousel-item.active {
-            transform: scale(1.5);
-            z-index: 5;
-            filter: brightness(1);
+
+        .book-page-wrapper:hover .movie-book {
+            transform: rotateY(-10deg);
         }
-        .carousel-item.left {
-            transform: translateX(-70%) rotateY(12deg) scale(0.85);
-            filter: brightness(0.6);
-        }
-        .carousel-item.right {
-            transform: translateX(70%) rotateY(-12deg) scale(0.85);
-            filter: brightness(0.6);
-        }
-        .carousel-controls {
+
+        .book-cover-front {
             position: absolute;
-            top: 50%;
             width: 100%;
+            height: 100%;
+            background: var(--card-bg);
+            border-radius: 15px; /* Bo góc nhỏ hơn */
+            overflow: hidden;
+            box-shadow: var(--shadow-md); /* Giảm bóng đổ */
+            backface-visibility: hidden;
+        }
+
+        .book-cover-front::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 20px; /* Thu nhỏ viền */
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            box-shadow: 3px 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .book-poster {
+            width: 100%;
+            height: 70%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+
+        .book-page-wrapper:hover .book-poster {
+            transform: scale(1.05);
+        }
+
+        .book-info {
+            padding: 15px 15px 15px 30px; /* Giảm padding */
+            background: linear-gradient(180deg, rgba(22, 33, 62, 0.95) 0%, rgba(22, 33, 62, 0.98) 100%);
+            height: 30%;
+            color: var(--text-light);
+        }
+
+        .book-movie-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem; /* Giảm kích thước tiêu đề */
+            color: var(--text-light);
+            margin-bottom: 6px;
+            font-weight: 700;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .book-movie-meta {
+            display: flex;
+            gap: 10px;
+            color: var(--text-muted);
+            font-size: 0.8rem; /* Giảm kích thước meta */
+            margin-bottom: 8px;
+        }
+
+        .book-movie-meta i {
+            color: var(--primary);
+        }
+
+        .book-genre {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px; /* Giảm padding */
+            border-radius: 15px;
+            font-size: 0.7rem; /* Giảm kích thước genre */
+            font-weight: 600;
+        }
+
+        .carousel-nav {
+            display: flex;
+            justify-content: center;
+            gap: 15px; /* Giảm khoảng cách */
+            margin-top: 30px;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            width: 50px; /* Thu nhỏ nút */
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.2rem; /* Giảm kích thước icon */
+        }
+
+        .nav-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(229, 9, 20, 0.5);
+        }
+
+        .carousel-indicators {
+            display: flex;
+            justify-content: center;
+            gap: 8px; /* Giảm khoảng cách */
+            margin-top: 20px;
+        }
+
+        .indicator {
+            width: 10px;
+            height: 10px; /* Thu nhỏ indicator */
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .indicator.active {
+            background: var(--primary);
+            width: 30px; /* Thu nhỏ active indicator */
+            border-radius: 10px;
+        }
+
+        /* ================= MOVIE SECTIONS ================= */
+        .movie-section {
+            padding: 50px 20px; /* Giảm padding */
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .section-title-wrapper {
+            text-align: center;
+            margin-bottom: 30px; /* Giảm margin */
+        }
+
+        .section-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px; /* Giảm khoảng cách */
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 10px 25px; /* Giảm padding */
+            border-radius: 30px;
+            font-size: 1.3rem; /* Giảm kích thước */
+            font-weight: 700;
+            box-shadow: 0 5px 15px rgba(229, 9, 20, 0.3); /* Giảm bóng đổ */
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); } /* Giảm hiệu ứng pulse */
+        }
+
+        /* ------------------ CÁC LỚP BAN ĐẦU (ĐÃ BỊ GHI ĐÈ BÊN DƯỚI) ------------------- */
+        .movies-grid {
+            display: flex;
+            overflow-x: auto;
+            gap: 20px;
+            padding-bottom: 20px;
+            scroll-behavior: smooth;
+        }
+
+        .movies-grid::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .movies-grid::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .movies-grid::-webkit-scrollbar-track {
+            background: var(--dark-blue);
+        }
+
+        .movie-card {
+            min-width: 200px; /* Giảm kích thước card */
+            background: var(--card-bg);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            box-shadow: var(--shadow-md);
+            flex-shrink: 0; /* Ngăn card co lại */
+        }
+        /* ---------------------------------------------------------------------------------- */
+
+
+        .movie-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(229, 9, 20, 0.7) 0%, rgba(255, 82, 82, 0.7) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 1;
+        }
+
+        .movie-card:hover::before {
+            opacity: 1;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-10px) scale(1.03); /* Giảm hiệu ứng hover */
+            box-shadow: 0 15px 40px rgba(229, 9, 20, 0.3);
+        }
+
+        .card-poster {
+            width: 100%;
+            height: 280px; /* Giảm chiều cao poster */
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+        .poster-wrapper {
+            width: 100%;
+            aspect-ratio: 2 / 3; /* 2:3 là tỉ lệ chuẩn poster phim */
+            overflow: hidden;
+            border-radius: 10px;
+            background: #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .movie-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: stretch;
+        }
+
+        .movie-card {
+            min-width: 200px;
+            max-width: 220px;
+            flex: 0 0 auto;
+        }
+
+
+
+        .movie-card:hover .card-poster {
+            transform: scale(1.05); /* Giảm zoom */
+        }
+
+        .card-content {
+            padding: 12px; /* Giảm padding */
+            background: linear-gradient(180deg, rgba(22, 33, 62, 0.95) 0%, rgba(22, 33, 62, 0.98) 100%);
+            color: var(--text-light);
+        }
+
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem; /* Giảm kích thước tiêu đề */
+            color: var(--text-light);
+            margin-bottom: 6px;
+            font-weight: 700;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .card-meta {
             display: flex;
             justify-content: space-between;
-            transform: translateY(-50%);
-            font-size: 2rem;
-            color: #fff;
-            cursor: pointer;
-            padding: 0 40px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
         }
 
-        /* MOVIE SECTIONS */
-        .movie-section { padding: 20px 60px; }
-        .movie-section h2 { margin-bottom: 15px; }
-        .movie-row {
-            display: flex; gap: 15px; overflow-x: auto;
-            padding-bottom: 10px; align-items: stretch;
+        .card-meta i {
+            color: var(--primary);
+            margin-right: 3px; /* Giảm margin */
         }
-        .movie-card {
-            flex: 0 0 200px;
-            background: var(--card-background);
-            border-radius: 6px; overflow: hidden;
+
+        .card-genre {
+            background: var(--primary);
+            color: white;
+            padding: 4px 10px; /* Giảm padding */
+            border-radius: 15px;
+            font-size: 0.7rem; /* Giảm kích thước genre */
+            display: inline-block;
+        }
+
+        .card-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 2;
+        }
+
+        .movie-card:hover .card-overlay {
+            opacity: 1;
+        }
+
+        .btn-watch-now {
+            background: white;
+            color: var(--primary);
+            padding: 8px 20px; /* Giảm padding */
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px; /* Giảm khoảng cách */
+            transition: all 0.3s ease;
+            font-size: 0.9rem; /* Giảm kích thước chữ */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* Giảm bóng đổ */
+        }
+
+        .btn-watch-now:hover {
+            transform: scale(1.05); /* Giảm hiệu ứng hover */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .carousel-title { font-size: 2rem; }
+            .book-page-wrapper { width: 220px; height: 320px; }
+            .book-page-wrapper.prev, .book-page-wrapper.next { opacity: 0; }
+            .book-stack { height: 320px; }
+            .movies-grid { gap: 15px; }
+            .movie-section { padding: 40px 10px; }
+            .section-badge { font-size: 1rem; padding: 8px 20px; }
+            .card-poster { height: 200px; }
+            /* Cần sửa lại min-width cho card để phù hợp với cuộn ngang */
+            .movie-card { min-width: 150px; }
+        }
+
+        /* ==================== HIỆU ỨNG CUỘN NGANG VÔ TẬN ==================== */
+
+        /* Ghi đè lại layout ban đầu để dùng Flexbox và ẩn scrollbar */
+        .movies-grid,
+        #promotion-news {
+            display: flex !important; /* Dùng flexbox */
+            overflow-x: hidden; /* ẨN THANH CUỘN */
+            width: 100%;
+            padding: 20px 0;
+            max-width: 1600px; /* Mở rộng tối đa */
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Container mới để chứa nội dung nhân đôi và áp dụng animation */
+        .carousel-content-wrapper {
+            display: flex;
+            gap: 24px; /* Khoảng cách giữa các card */
+            animation: scroll-x 20s linear infinite; /* ĐÃ SỬA: Tốc độ cuộn nhanh hơn (20s) */
+            white-space: nowrap;
+            padding: 0 10px;
+        }
+
+        /* Định nghĩa hoạt ảnh cuộn ngang liên tục */
+        @keyframes scroll-x {
+            0% { transform: translateX(0); }
+            /* Cuộn nửa chiều dài (do nội dung đã nhân đôi) */
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Tạm dừng cuộn khi hover */
+        .movies-grid:hover .carousel-content-wrapper,
+        #promotion-news:hover .carousel-content-wrapper {
+            animation-play-state: paused;
+        }
+
+        /* Card chung cho phim và tin tức */
+        .movie-card,
+        .news-card {
+            flex-shrink: 0; /* KHÔNG co lại */
+            min-width: 220px;
+            max-width: 240px;
+            background: var(--card-bg);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,.3);
+            transition: all 0.3s ease;
+            width: auto; /* Tự động điều chỉnh theo min/max-width */
+        }
+        /* Card trên di động */
+        @media (max-width: 768px) {
+            .movie-card, .news-card {
+                min-width: 150px;
+                max-width: 180px;
+            }
+        }
+
+        /* ==================== FIX LAYOUT CÒN LẠI ==================== */
+        .movie-card:hover,
+        .news-card:hover {
+            transform: translateY(-6px) scale(1.03);
+            box-shadow: 0 10px 25px rgba(229, 9, 20, 0.35);
+        }
+
+        /* Poster & hình ảnh */
+        .card-poster,
+        .news-card img {
+            width: 100%;
+            height: 320px;
+            object-fit: cover;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        /* Body */
+        .card-content,
+        .news-body {
+            padding: 12px 14px;
+            text-align: center;
+        }
+
+        /* Tiêu đề */
+        .card-title,
+        .news-body h5 {
+            font-family: 'Playfair Display', serif;
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 6px 0;
+        }
+
+        /* Mô tả tin tức */
+        .news-body p {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        /* Meta (thời lượng / ngày chiếu) */
+        .card-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        /* Badge thể loại */
+        .card-genre {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            margin-top: 4px;
+        }
+
+        /* Căn chỉnh biểu tượng khuyến mãi */
+        .news-card .detail-icon {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: var(--primary);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+        .news-card:hover .detail-icon {
+            background: var(--secondary);
+            transform: rotate(45deg);
+        }
+
+        /* Responsive đẹp */
+        @media (max-width: 768px) {
+            /* Loại bỏ grid layout cũ */
+            .movies-grid, #promotion-news {
+                /* grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); */
+                gap: 16px;
+            }
+            .card-poster, .news-card img {
+                height: 240px;
+            }
+        }
+
+        /* ================= FLASH SALE STYLE (TRÁI) ================= */
+        .flash-sale-box {
+            background: linear-gradient(135deg, var(--primary) 0%, #ff5252 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: var(--shadow-lg);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transform: rotate(-3deg); /* Tạo hiệu ứng nổi bật */
             transition: transform 0.3s ease;
-            display: flex; flex-direction: column;
-            height: 350px;
         }
-        .movie-card img { width: 100%; height: 70%; object-fit: cover; }
-        .movie-card h3 { font-size: 1rem; margin: 8px; flex-grow: 1; }
-        .movie-card p { font-size: 0.85rem; margin: 0 8px 8px; color: #bbb; }
 
-        /* SHOWTIMES */
-        .showtimes { display: flex; flex-wrap: wrap; gap: 20px; }
-        .showtime-card {
-            flex: 1 1 300px;
-            background: var(--card-background);
-            border-radius: 6px; padding: 15px 20px;
-            color: #fff;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        .flash-sale-box:hover {
+            transform: rotate(0deg) scale(1.05);
         }
-        .showtime-card:hover { transform: translateY(-5px); box-shadow: 0 6px 20px rgba(0,0,0,0.6); }
-        .showtime-card h3 { margin: 0 0 8px; font-size: 1.2rem; color: var(--primary-color); }
-        .showtime-card p { margin: 0 0 10px; color: #bbb; }
-        .times { display: flex; gap: 10px; flex-wrap: wrap; }
-        .times span {
-            background: #222; padding: 6px 12px; border-radius: 4px;
-            font-size: 0.9rem; cursor: pointer; transition: background 0.3s ease;
+
+        .flash-sale-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            animation: flashTitle 1s infinite alternate;
         }
-        .times span:hover { background: var(--primary-color); }
+
+        @keyframes flashTitle {
+            from { color: white; }
+            to { color: #ffe600; } /* Màu vàng rực rỡ */
+        }
+
+        .timer-display {
+            font-family: 'Inter', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 10px 0 20px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            letter-spacing: 2px;
+        }
+
+        .sale-details {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .sale-details i {
+            color: #ffe600;
+            margin-right: 5px;
+        }
+
+        .btn-cta-sale {
+            background: #16213e; /* Màu nền tối tương phản */
+            color: #ffffff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .btn-cta-sale:hover {
+            background: #0f0f23;
+            transform: scale(1.05);
+        }
+
+        /* ================= EVENT SPOTLIGHT STYLE (PHẢI - MỚI) ================= */
+        .event-box {
+            background: linear-gradient(135deg, #2c3e50 0%, #1a2533 100%); /* Nền xanh đậm */
+            border: 3px solid #f39c12; /* Viền màu lễ hội (Vàng/Cam) */
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .event-box:hover {
+            box-shadow: 0 15px 40px rgba(243, 156, 18, 0.4);
+            transform: translateY(-5px);
+        }
+
+        .event-icon {
+            font-size: 3.5rem;
+            color: #e74c3c; /* Màu đỏ nổi bật cho sự kiện */
+            margin-bottom: 10px;
+            animation: bounce 2s infinite; /* Hiệu ứng nhẹ nhàng */
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-5px); }
+            60% { transform: translateY(-3px); }
+        }
+
+        .event-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            margin-bottom: 5px;
+            color: #f39c12; /* Màu cam nổi bật */
+        }
+
+        .event-date {
+            font-size: 1rem;
+            color: var(--text-light);
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .event-date i {
+            color: #f39c12;
+            margin-right: 5px;
+        }
+
+        .event-highlight {
+            font-size: 0.95rem;
+            color: #ecf0f1;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px dashed #7f8c8d;
+            border-radius: 5px;
+        }
+
+        .btn-cta-event {
+            width: 100%;
+            background: var(--primary); /* Màu đỏ chính của thương hiệu */
+            color: #ffffff;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+            margin-top: 5px;
+        }
+
+        .btn-cta-event:hover {
+            background: var(--secondary);
+            transform: scale(1.02);
+        }
+
+        /* Responsive cho điện thoại */
+        @media (max-width: 992px) {
+            .hero-section {
+                flex-direction: column;
+                align-items: center;
+                gap: 0;
+            }
+
+            .hero-content-wrapper {
+                flex-direction: column;
+            }
+
+            .left-panel,
+            .right-panel {
+                flex-basis: auto;
+                width: 90%;
+                margin-bottom: 20px;
+                padding-top: 0;
+                transform: rotate(0deg); /* Bỏ rotate trên mobile */
+            }
+
+            .flash-sale-box {
+                transform: rotate(0deg);
+            }
+        }
     </style>
 </head>
-
 <body>
-
-<!-- ✅ HEADER (tự load, hiển thị avatar & tên ngay) -->
 <div id="header"></div>
 
-<!-- HERO CAROUSEL -->
-<section class="hero">
-    <div class="carousel" id="hero-carousel"></div>
-    <div class="carousel-controls">
-        <i class="fas fa-chevron-left" onclick="prevSlide()"></i>
-        <i class="fas fa-chevron-right" onclick="nextSlide()"></i>
+<section class="hero-section">
+    <div class="hero-content-wrapper">
+        <div class="left-panel">
+            <div class="flash-sale-box">
+                <div class="flash-sale-title">COMBO BÙNG NỔ</div>
+                <div class="sale-details">MUA 1 BẮP, TẶNG 1 NƯỚC LỚN!</div>
+                <div class="timer-display" id="sale-timer">00:00</div>
+                <div class="sale-details"><i class="fas fa-hotdog"></i> Áp dụng cho mọi suất chiếu!</div>
+                <button class="btn-cta-sale" onclick="alert('Đang chuyển đến trang combo...');">
+                    MUA COMBO TRƯỚC
+                </button>
+            </div>
+        </div>
+
+        <div class="book-carousel">
+            <div class="carousel-header">
+                <h1 class="carousel-title">CINEMASTER</h1>
+                <p class="carousel-subtitle">Khám phá thế giới điện ảnh đỉnh cao</p>
+            </div>
+            <div class="book-stack" id="bookStack"></div>
+            <div class="carousel-nav">
+                <button class="nav-btn" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
+                <button class="nav-btn" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="carousel-indicators" id="indicators"></div>
+        </div>
+
+        <div class="right-panel">
+            <div class="event-box">
+                <div class="event-icon" id="event-icon"><i class="fas fa-calendar-alt"></i></div>
+                <div class="event-title" id="event-title">SỰ KIỆN ĐẶC BIỆT</div>
+
+                <div class="event-date">
+                    <i class="fas fa-calendar-day"></i> <span id="event-date">Đang tải...</span>
+                </div>
+
+                <div class="event-highlight" id="event-highlight">
+                    Khám phá những ưu đãi và suất chiếu độc quyền theo mùa!
+                </div>
+
+                <button class="btn-cta-event" id="event-cta" onclick="alert('Đang chuyển đến trang sự kiện...');">
+                    ĐẶT VÉ SỚM NGAY
+                </button>
+            </div>
+        </div>
     </div>
 </section>
 
-<!-- NOW SHOWING -->
 <section class="movie-section">
-    <h2>Phim đang chiếu</h2>
-    <div class="movie-row" id="now-showing"></div>
+    <div class="section-title-wrapper">
+        <div class="section-badge"><i class="fas fa-film"></i> PHIM ĐANG CHIẾU</div>
+    </div>
+    <div class="movies-grid" id="now-showing"></div>
 </section>
 
-<!-- TODAY SHOWTIMES -->
 <section class="movie-section">
-    <h2>Suất chiếu hôm nay</h2>
-    <div class="showtimes" id="today-showtimes"></div>
+    <div class="section-title-wrapper">
+        <div class="section-badge"><i class="fas fa-calendar-alt"></i> PHIM SẮP CHIẾU</div>
+    </div>
+    <div class="movies-grid" id="coming-soon"></div>
 </section>
 
-<!-- COMING SOON -->
 <section class="movie-section">
-    <h2>Phim sắp chiếu</h2>
-    <div class="movie-row" id="coming-soon"></div>
+    <div class="section-title-wrapper">
+        <div class="section-badge"><i class="fas fa-bullhorn"></i> ƯU ĐÃI & KHUYẾN MÃI</div>
+    </div>
+    <div id="promotion-news"></div>
 </section>
 
-<!-- FOOTER -->
+
 <div id="footer"></div>
 
 <script>
-    /* ================= HEADER ================= */
+    // ================= DATA & STATE =================
+    let allMovies = [];
+    let currentIndex = 0;
+
+    // ================= LOAD MOVIES =================
+    async function loadMovies() {
+        try {
+            console.log("🚀 BẮT ĐẦU LOAD MOVIES...");
+            const [nowRes, soonRes] = await Promise.all([
+                fetch("http://localhost:8080/api/v1/movies/now-showing"),
+                fetch("http://localhost:8080/api/v1/movies/coming-soon")
+            ]);
+
+            const nowData = await nowRes.json();
+            const soonData = await soonRes.json();
+
+            const nowMovies = Array.isArray(nowData.result) ? nowData.result : (Array.isArray(nowData) ? nowData : []);
+            const soonMovies = Array.isArray(soonData.result) ? soonData.result : (Array.isArray(soonData) ? soonData : []);
+
+            console.log("📥 Raw API Response:", { nowData, soonData });
+
+            allMovies = [...nowMovies, ...soonMovies];
+
+            console.log("✅ THÀNH CÔNG:", {
+                nowMovies: nowMovies.length,
+                soonMovies: soonMovies.length,
+                allMovies: allMovies.length
+            });
+            console.log("📋 DATA MẪU:", allMovies[0]);
+
+            renderCarousel(allMovies);
+            renderMovieGrid("now-showing", nowMovies);
+            renderMovieGrid("coming-soon", soonMovies);
+        } catch (err) {
+            console.error("❌ Lỗi load phim:", err);
+            document.getElementById("now-showing").innerHTML = `<div style="color:#aaa;text-align:center;padding:40px;grid-column:1/-1;">Lỗi kết nối máy chủ</div>`;
+            document.getElementById("coming-soon").innerHTML = `<div style="color:#aaa;text-align:center;padding:40px;grid-column:1/-1;">Lỗi kết nối máy chủ</div>`;
+        }
+    }
+
+    // ================= LOAD PROMOTION NEWS (ĐÃ SỬA) =================
+    async function loadPromotionNews() {
+        const container = document.getElementById("promotion-news");
+        container.innerHTML = `<div class="text-center w-100 py-5 text-muted">Đang tải tin tức ưu đãi...</div>`;
+
+        try {
+            const data = await fetch("http://localhost:8080/api/v1/news?category=Promotion");
+            const result = await data.json();
+            const newsList = Array.isArray(result.result) ? result.result : result;
+
+            if (!newsList || newsList.length === 0) {
+                container.innerHTML = `<p class="text-center w-100 text-secondary mt-4">Không có tin khuyến mãi nào.</p>`;
+                return;
+            }
+
+            // Lấy nhiều tin hơn để cuộn mượt (ví dụ: 6 tin)
+            const newsToShow = newsList
+                .filter(n => n.active)
+                .slice(0, 6);
+
+            // 1. TẠO HTML CHO CÁC CARD TIN TỨC
+            const newsCardsHTML = newsToShow.map(n => `
+                <div class="news-card" onclick="window.location.href='../news/newsDetail.html?id=${n.newsID}'" style="cursor:pointer; position: relative;">
+                    <img src="${n.imageUrl || '../image/default-news.jpg'}" alt="${n.title}">
+                    <div class="news-body d-flex flex-column">
+                        <div class="flex-grow-1">
+                            <h5>${n.title}</h5>
+                            <small><i class="fa-regular fa-calendar"></i> ${new Date(n.publishDate).toLocaleDateString('vi-VN')}</small>
+                            <p>${n.content ? n.content.substring(0, 100) + "..." : ""}</p>
+                        </div>
+                        <i class="detail-icon fa-solid fa-arrow-right-long mt-auto"></i>
+                    </div>
+                </div>
+            `).join("");
+
+            // 2. NHÂN ĐÔI NỘI DUNG VÀ BỌC TRONG WRAPPER MỚI CHO HIỆU ỨNG CUỘN VÔ TẬN
+            container.innerHTML = `
+                <div class="carousel-content-wrapper">
+                    ${newsCardsHTML}
+                    ${newsCardsHTML} </div>
+            `;
+        } catch (err) {
+            console.error("❌ Lỗi tải Promotion News:", err);
+            container.innerHTML = `<p class="text-danger text-center w-100 mt-4">Không thể tải tin ưu đãi.</p>`;
+        }
+    }
+
+
+    // ================= RENDER CAROUSEL =================
+    function renderCarousel(movies) {
+        const stack = document.getElementById("bookStack");
+        const indicators = document.getElementById("indicators");
+
+        if (!movies.length) {
+            stack.innerHTML = `<div style="color:#aaa;text-align:center;padding:40px;">Chưa có phim</div>`;
+            indicators.innerHTML = '';
+            return;
+        }
+
+        stack.innerHTML = movies.map((m, i) => `
+            <div class="book-page-wrapper ${i === 0 ? 'active' : 'hidden'}" data-index="${i}">
+                <div class="movie-book">
+                    <div class="book-cover-front">
+                        <img src="${m.posterUrl || '/poster/default-poster.jpg'}" alt="${m.title}" class="book-poster">
+                        <div class="book-info">
+                            <h3 class="book-movie-title">${m.title}</h3>
+                            <div class="book-movie-meta">
+                                <span><i class="fas fa-clock"></i> ${m.duration || '??'}p</span>
+                                <span><i class="fas fa-calendar"></i> ${new Date(m.releaseDate).getFullYear()}</span>
+                            </div>
+                            <span class="book-genre">${m.genre || 'Đang cập nhật'}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        indicators.innerHTML = movies.map((_, i) =>
+            `<div class="indicator ${i === 0 ? 'active' : ''}" data-index="${i}"></div>`
+        ).join('');
+
+        updateCarousel();
+    }
+
+    function updateCarousel() {
+        const pages = document.querySelectorAll('.book-page-wrapper');
+        const indicators = document.querySelectorAll('.indicator');
+
+        if (!pages.length) return;
+
+        const maxIndex = allMovies.length - 1;
+        pages.forEach((page, i) => {
+            page.classList.remove('active', 'prev', 'next', 'hidden');
+
+            const prevIndex = (currentIndex - 1 + allMovies.length) % allMovies.length;
+            const nextIndex = (currentIndex + 1) % allMovies.length;
+
+            if (i === currentIndex) page.classList.add('active');
+            else if (i === prevIndex) page.classList.add('prev');
+            else if (i === nextIndex) page.classList.add('next');
+            else page.classList.add('hidden');
+        });
+
+        indicators.forEach((ind, i) => ind.classList.toggle('active', i === currentIndex));
+    }
+
+    // ================= RENDER MOVIE GRID (ĐÃ SỬA) =================
+    function renderMovieGrid(containerId, movies) {
+        const container = document.getElementById(containerId);
+
+        if (!movies || !movies.length) {
+            container.innerHTML = `<div style="color:#aaa;text-align:center;padding:20px;">Chưa có phim</div>`;
+            return;
+        }
+
+        // 1. TẠO HTML CHO CÁC CARD PHIM
+        const movieCardsHTML = movies.map(m => `
+            <div class="movie-card" style="position: relative;">
+                <img src="${m.posterUrl || '/poster/default-poster.jpg'}" alt="${m.title}" class="card-poster">
+                <div class="card-content">
+                    <h3 class="card-title">${m.title}</h3>
+                    <div class="card-meta">
+                        <span><i class="fas fa-clock"></i> ${m.duration || '??'}p</span>
+                        <span><i class="fas fa-calendar"></i> ${new Date(m.releaseDate).toLocaleDateString('vi-VN')}</span>
+                    </div>
+                    <span class="card-genre">${m.genre || 'Đang cập nhật'}</span>
+                </div>
+                <div class="card-overlay">
+                    <a href="../movies/movieDetail.html?id=${m.movieID || m.id}" class="btn-watch-now">
+                        <i class="fas fa-play"></i> XEM NGAY
+                    </a>
+                </div>
+            </div>
+        `).join('');
+
+        // 2. NHÂN ĐÔI NỘI DUNG VÀ BỌC TRONG WRAPPER MỚI CHO HIỆU ỨNG CUỘN VÔ TẬN
+        container.innerHTML = `
+            <div class="carousel-content-wrapper">
+                ${movieCardsHTML}
+                ${movieCardsHTML} </div>
+        `;
+    }
+
+    // ================= CAROUSEL NAVIGATION =================
+    document.getElementById('prevBtn')?.addEventListener('click', () => {
+        currentIndex = (currentIndex - 1 + allMovies.length) % allMovies.length;
+        updateCarousel();
+    });
+
+    document.getElementById('nextBtn')?.addEventListener('click', () => {
+        currentIndex = (currentIndex + 1) % allMovies.length;
+        updateCarousel();
+    });
+
+    document.addEventListener('click', (e) => {
+        const indicator = e.target.closest('.indicator');
+        if (indicator) {
+            currentIndex = parseInt(indicator.dataset.index);
+            updateCarousel();
+        }
+    });
+
+    // Auto rotate
+    setInterval(() => {
+        currentIndex = (currentIndex + 1) % allMovies.length;
+        updateCarousel();
+    }, 3000);
+
+    // ================= FLASH SALE TIMER (MỚI) =================
+    function startFlashSaleTimer() {
+        // Thiết lập thời gian ban đầu (10 phút)
+        let duration = 60 * 10; // 600 giây = 10 phút
+        const display = document.getElementById('sale-timer');
+
+        // Đặt thời điểm kết thúc dựa trên thời gian hiện tại cộng thêm duration
+        let startTime = localStorage.getItem('flashSaleStartTime');
+        let endTime;
+
+        // Nếu chưa có startTime, hoặc đã quá hạn, thiết lập lại
+        if (!startTime || (Date.now() - parseInt(startTime)) / 1000 > duration) {
+            startTime = Date.now();
+            localStorage.setItem('flashSaleStartTime', startTime);
+            endTime = startTime + duration * 1000;
+        } else {
+            endTime = parseInt(startTime) + duration * 1000;
+        }
+
+        function updateTimer() {
+            const now = Date.now();
+            let remaining = Math.round((endTime - now) / 1000); // Tính giây còn lại
+
+            if (remaining < 0) {
+                // Khi hết giờ, reset lại timer về 10 phút (tạo hiệu ứng vô tận)
+                remaining = duration;
+                const newStartTime = Date.now();
+                localStorage.setItem('flashSaleStartTime', newStartTime);
+                endTime = newStartTime + duration * 1000;
+            }
+
+            const minutes = String(Math.floor(remaining / 60)).padStart(2, '0');
+            const seconds = String(remaining % 60).padStart(2, '0');
+
+            display.textContent = `${minutes}:${seconds}`;
+        }
+
+        // Cập nhật ngay lần đầu và sau đó mỗi giây
+        updateTimer();
+        setInterval(updateTimer, 1000);
+    }
+
+
+    // ================= LOAD HEADER/FOOTER =================
     (async function loadHeader() {
         const headerEl = document.getElementById("header");
         try {
@@ -168,7 +1177,7 @@
             const html = await res.text();
             headerEl.innerHTML = html;
 
-            // ✅ Ép chạy script bên trong file header
+            // Nạp lại các script bên trong header (nếu có)
             const scripts = headerEl.querySelectorAll("script");
             scripts.forEach(s => {
                 const ns = document.createElement("script");
@@ -176,104 +1185,123 @@
                 else ns.textContent = s.textContent;
                 document.body.appendChild(ns);
             });
-
         } catch (err) {
             console.error("Lỗi load header:", err);
         }
     })();
 
-    /* ================= FOOTER ================= */
+    // ✅ Load footer đơn giản
     fetch("../home/footer.html")
         .then(res => res.text())
         .then(html => document.getElementById("footer").innerHTML = html)
         .catch(err => console.error("Lỗi load footer:", err));
 
-    /* ================= HERO CAROUSEL ================= */
-    let current = 0;
-    let items = [];
-    function updateSlides() {
-        items.forEach((item, index) => {
-            item.classList.remove('left', 'active', 'right');
-            if (index === current) item.classList.add('active');
-            else if (index === (current - 1 + items.length) % items.length) item.classList.add('left');
-            else if (index === (current + 1) % items.length) item.classList.add('right');
-            else item.style.display = "none";
-            item.style.display = "block";
-        });
-    }
-    function prevSlide() { current = (current - 1 + items.length) % items.length; updateSlides(); }
-    function nextSlide() { current = (current + 1) % items.length; updateSlides(); }
+    // ================= INIT =================
+    document.addEventListener("DOMContentLoaded", async()=>{
+        await loadMovies();
+        await loadPromotionNews();
+        startFlashSaleTimer(); // GỌI HÀM FLASH SALE
+    });
+    // ================= DYNAMIC EVENT SPOTLIGHT (MỚI) =================
 
-    /* ================= API CALLS ================= */
-    async function loadMovies() {
-        try {
-            const token = localStorage.getItem("accessToken");
-            const headers = token ? { "Authorization": "Bearer " + token } : {};
+    function getNextUpcomingHoliday() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = today.getMonth(); // 0-11
+        const day = today.getDate(); // 1-31
 
-            const now = await fetch("http://localhost:8080/api/v1/auth/movies/now-showing", { headers });
-            const coming = await fetch("http://localhost:8080/api/v1/auth/movies/coming-soon", { headers });
-            const nowData = await now.json();
-            const comingData = await coming.json();
+        // Danh sách các ngày lễ/sự kiện lớn trong năm (dạng: [tháng, ngày, 'Tên Sự kiện', 'Icon FontAwesome', 'Mô tả'])
+        // Tháng: 1=Jan, 2=Feb, ... 12=Dec
+        const holidays = [
+            [1, 1, "TẾT DƯƠNG LỊCH", "fa-glass-cheers", "Khởi động năm mới với những bộ phim bom tấn đầu tiên!"], // New Year
+            [2, 14, "VALENTINE'S DAY", "fa-heart", "Suất chiếu đôi, bắp nước miễn phí cho cặp tình nhân!"], // Valentine
+            [3, 8, "NGÀY PHỤ NỮ", "fa-gifts", "Giảm 30% vé cho phái nữ trong ngày đặc biệt này!"], // Women's Day
+            [4, 30, "NGÀY GIẢI PHÓNG", "fa-flag-usa", "Xem phim lịch sử và phim Việt yêu thích!"], // Reunification Day (Vietnam)
+            [5, 1, "NGÀY QUỐC TẾ LĐ", "fa-briefcase", "Tận hưởng ngày nghỉ với các suất chiếu Marathon!"], // Labour Day
+            [9, 2, "QUỐC KHÁNH VN", "fa-star", "Ưu đãi đặc biệt khi đặt vé online trong dịp Lễ 2/9."], // National Day (Vietnam)
+            [10, 31, "HALLOWEEN NIGHT", "fa-ghost", "Suất chiếu kinh dị lúc nửa đêm, tặng voucher 50K!"], // Halloween
+            [11, 20, "NGÀY NHÀ GIÁO", "fa-book", "Đồng giá vé cho giáo viên và sinh viên các trường!"], // Teacher's Day (Vietnam)
+            [12, 24, "LỄ GIÁNG SINH", "fa-tree", "Đón Giáng Sinh với phim gia đình và âm nhạc lãng mạn!"], // Christmas
+            [12, 31, "ĐÊM GIAO THỪA", "fa-fireworks", "Suất chiếu muộn và đếm ngược cùng bạn bè!"], // New Year's Eve
+        ];
 
-            renderMovies("now-showing", nowData);
-            renderMovies("coming-soon", comingData);
-        } catch (err) {
-            console.error("❌ Lỗi load phim:", err);
-        }
-    }
+        let nextHoliday = null;
 
-    function renderMovies(containerId, list) {
-        const wrap = document.getElementById(containerId);
-        if (!Array.isArray(list)) {
-            wrap.innerHTML = `<div style="color:#aaa">Không có dữ liệu phim.</div>`;
-            return;
-        }
-        wrap.innerHTML = "";
-        list.forEach(m => {
-            wrap.innerHTML += `
-            <div class="movie-card">
-                <img src="${m.posterUrl || '../assets/default-movie.jpg'}" alt="${m.title}">
-                <h3>${m.title}</h3>
-                <p>${m.genre || ''}</p>
-            </div>`;
-        });
-    }
+        for (const holiday of holidays) {
+            const holidayMonth = holiday[0];
+            const holidayDay = holiday[1];
+            let holidayDate = new Date(year, holidayMonth - 1, holidayDay); // JS month is 0-11
 
-    async function loadTodayShowtimes() {
-        try {
-            const token = localStorage.getItem("accessToken");
-            const headers = token ? { "Authorization": "Bearer " + token } : {};
-            const res = await fetch("http://localhost:8080/api/v1/auth/showtimes/today", { headers });
-            const showtimes = await res.json();
-            const container = document.getElementById("today-showtimes");
-
-            if (!Array.isArray(showtimes)) {
-                container.innerHTML = `<div style="color:#aaa">Không có suất chiếu hôm nay.</div>`;
-                return;
+            // Nếu ngày lễ đã qua trong năm nay, chuyển sang năm sau
+            if (holidayDate < today) {
+                holidayDate = new Date(year + 1, holidayMonth - 1, holidayDay);
             }
 
-            container.innerHTML = "";
-            showtimes.forEach(st => {
-                container.innerHTML += `
-                <div class="showtime-card">
-                    <h3>${st.movieTitle || 'Phim'}</h3>
-                    <p>${st.branchName || ''}</p>
-                    <div class="times">
-                        ${(st.times || []).map(t => `<span>${t}</span>`).join('')}
-                    </div>
-                </div>`;
+            // Tìm ngày lễ gần nhất
+            if (!nextHoliday || holidayDate < nextHoliday.date) {
+                nextHoliday = {
+                    date: holidayDate,
+                    name: holiday[2],
+                    icon: holiday[3],
+                    description: holiday[4]
+                };
+            }
+        }
+
+        // Định dạng ngày
+        if (nextHoliday) {
+            nextHoliday.formattedDate = nextHoliday.date.toLocaleDateString('vi-VN', {
+                weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
             });
-        } catch (err) {
-            console.error("❌ Lỗi load showtimes:", err);
+        }
+
+        return nextHoliday;
+    }
+
+    function updateEventSpotlight() {
+        const nextHoliday = getNextUpcomingHoliday();
+
+        if (nextHoliday) {
+            // Cập nhật nội dung HTML
+            document.getElementById('event-icon').innerHTML = `<i class="fas ${nextHoliday.icon}"></i>`;
+            document.getElementById('event-title').textContent = nextHoliday.name;
+            document.getElementById('event-date').textContent = nextHoliday.formattedDate.toUpperCase();
+            document.getElementById('event-highlight').textContent = nextHoliday.description;
+
+            // Tùy chỉnh màu CSS cho sự kiện (Ví dụ: Valentine là đỏ, Halloween là cam/đen)
+            const eventBox = document.querySelector('.event-box');
+
+            // Xóa các style inline cũ nếu có
+            eventBox.style.borderColor = '';
+            document.getElementById('event-icon').style.color = '';
+            document.getElementById('event-title').style.color = '';
+
+            // Thêm logic tùy chỉnh màu (Nếu bạn muốn khối nổi bật theo màu lễ hội)
+            if (nextHoliday.icon === 'fa-heart') { // Valentine
+                eventBox.style.borderColor = '#e74c3c';
+                document.getElementById('event-icon').style.color = '#e74c3c';
+                document.getElementById('event-title').style.color = '#e74c3c';
+            } else if (nextHoliday.icon === 'fa-ghost') { // Halloween
+                eventBox.style.borderColor = '#f39c12';
+                document.getElementById('event-icon').style.color = '#f39c12';
+                document.getElementById('event-title').style.color = '#f39c12';
+            } else {
+                // Mặc định cho các sự kiện khác
+                eventBox.style.borderColor = '#f39c12';
+                document.getElementById('event-icon').style.color = '#e74c3c';
+                document.getElementById('event-title').style.color = '#f39c12';
+            }
         }
     }
 
-    /* ================= INIT ================= */
-    document.addEventListener("DOMContentLoaded", () => {
-        loadMovies();
-        loadTodayShowtimes();
+
+    // ================= INIT =================
+    document.addEventListener("DOMContentLoaded", async()=>{
+        await loadMovies();
+        await loadPromotionNews();
+        startFlashSaleTimer();
+        updateEventSpotlight(); // GỌI HÀM CẬP NHẬT SỰ KIỆN ĐỘNG
     });
 </script>
-
 </body>
 </html>

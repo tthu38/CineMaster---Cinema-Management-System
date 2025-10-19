@@ -129,14 +129,35 @@
                    onclick="loadIframe('staff/ticketSales.html', this); return false;">
                     <i class="fas fa-ticket-alt"></i> Bán vé / Suất chiếu
                 </a>
+
+                <!-- ✅ Mục mới: Quản lý vé -->
+                <a href="#" class="list-group-item list-group-item-action"
+                   onclick="loadIframe('../tickets/listTicketManage.html', this); return false;">
+                    <i class="fas fa-ticket"></i> Quản lý vé
+                </a>
+
+
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('../user/viewUser.html', this); return false;">
                     <i class="fas fa-users"></i> Người dùng
                 </a>
                 <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('staff/feedback.html', this); return false;">
-                    <i class="fas fa-comments"></i> Phản hồi
+                   onclick="loadIframe('../contact/contactManagement.html', this); return false;">
+                    <i class="fas fa-envelope"></i> Liên hệ khách hàng
                 </a>
+
+                <!-- ✅ Mục mới: Quản lý tin tức -->
+                <a href="#" class="list-group-item list-group-item-action"
+                   onclick="loadIframe('../news/listNews.html', this); return false;">
+                    <i class="fas fa-newspaper"></i> Quản lý tin tức
+                </a>
+
+                <!-- ✅ Thêm mục mới: Tạo tài khoản người dùng -->
+                <a href="#" class="list-group-item list-group-item-action text-success"
+                   onclick="loadIframe('../user/AccountCounter.html', this); return false;">
+                    <i class="fas fa-user-plus"></i> Tạo tài khoản người dùng
+                </a>
+
                 <a href="../user/login.html" class="list-group-item list-group-item-action text-danger mt-auto" id="logoutBtn">
                     <i class="fas fa-sign-out-alt"></i> Đăng xuất
                 </a>

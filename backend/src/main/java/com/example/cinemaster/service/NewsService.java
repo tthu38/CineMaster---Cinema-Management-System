@@ -148,4 +148,17 @@ public class NewsService {
         newsRepository.save(news);
     }
 
+    @Transactional
+    public void increaseView(Integer id) {
+        News news = newsRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("News not found"));
+
+        // Nếu null thì khởi tạo 0
+        if (news.getViews() == null) news.setViews(0);
+
+        news.setViews(news.getViews() + 1);
+        news.setUpdatedDate(LocalDateTime.now());
+        newsRepository.save(news);
+    }
+
 }

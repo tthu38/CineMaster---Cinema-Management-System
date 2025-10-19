@@ -1,11 +1,11 @@
 package com.example.cinemaster.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.Nationalized;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.Instant;
 
@@ -15,18 +15,21 @@ import java.time.Instant;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Entity(name = "TicketHistory")
-@Table(schema = "dbo")
+@Entity
+@Table(name = "TicketHistory")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class TicketHistory {
 
     @Id
-    @NotNull
-    @Column(name = "TicketHistoryID", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "TicketHistoryID")
     Integer ticketHistoryID;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TicketID", referencedColumnName = "TicketID")
-    Ticket ticketID;
+    private Ticket ticket;
+
+
 
     @Size(max = 50)
     @Nationalized
@@ -40,6 +43,7 @@ public class TicketHistory {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ChangedBy", referencedColumnName = "AccountID")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     Account changedBy;
 
     @Column(name = "ChangedAt")
@@ -49,5 +53,4 @@ public class TicketHistory {
     @Lob
     @Column(name = "Note")
     String note;
-
 }

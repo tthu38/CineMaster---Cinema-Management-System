@@ -7,6 +7,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Builder
 @AllArgsConstructor
@@ -32,6 +33,10 @@ public class Otp {
     String code;
 
     @Column(name = "Expiry")
-    Instant expiry;
+    LocalDateTime expiry;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "TicketID", referencedColumnName = "TicketID")
+    Ticket ticket;
 
 }

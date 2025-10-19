@@ -400,6 +400,15 @@ const _newsApi = {
         });
         return handleResponse(res);
     },
+    // 📌 Tăng lượt xem tin tức
+    async increaseView(id) {
+        const res = await fetch(`${API_BASE_URL}/news/${id}/view`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" }
+        });
+        return handleResponse(res);
+    },
+
 };
 
 export function requireAuth() {

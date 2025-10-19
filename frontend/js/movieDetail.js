@@ -34,6 +34,8 @@ const heroPoster = document.getElementById("hero-poster");
 const casts = document.getElementById("casts");
 const ageRestrictionText = document.getElementById("ageRestrictionText");
 const btnTrailer = document.getElementById("btn-trailer");
+const btnBooking = document.getElementById("btn-booking");
+
 const trailerWrapper = document.getElementById("trailer-wrapper");
 
 const ageRestrictionBadge = document.getElementById("ageRestrictionBadge");
@@ -248,6 +250,18 @@ function bindFeedbackActions() {
 
 // ===================== BACK BUTTON =====================
 btnBack.onclick = () => (window.location.href = "listMovieCus.html");
+// ===================== BOOKING BUTTON =====================
+btnBooking.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    if (!movieId) {
+        Swal.fire("Lỗi", "Không tìm thấy mã phim để đặt vé.", "error");
+        return;
+    }
+
+    // Chuyển sang trang đặt vé, truyền kèm ID phim
+    window.location.href = `../booking/booking.html?movieId=${movieId}`;
+});
 
 // ===================== INIT =====================
 loadMovie();

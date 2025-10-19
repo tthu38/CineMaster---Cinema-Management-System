@@ -29,7 +29,12 @@ public class SecurityConfig {
     private static final String[] PUBLIC_ENDPOINTS = {
             "/api/v1/auth/**",
             "/api/v1/password/**",
-            "/uploads/**"
+            "/uploads/**",
+            "/api/v1/merchant/**",
+            "/api/v1/vnpay/**",
+            "/api/v1/momo/**",
+            "/api/v1/sepay/**",
+            "/api/v1/payments/**"   // ✅ thêm dòng này
     };
 
     @Bean
@@ -41,9 +46,12 @@ public class SecurityConfig {
                 .securityContext(context -> context.requireExplicitSave(false))
                 .requestCache(cache -> cache.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/v1/merchant/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS).permitAll()
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/contacts/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/news/*/view").permitAll()  // ✅ cho phép PUT /news/{id}/view
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
