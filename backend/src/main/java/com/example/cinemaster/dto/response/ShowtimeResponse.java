@@ -22,4 +22,5 @@ public record ShowtimeResponse(
         // ===== Thông tin phòng & chi nhánh =====
         String auditoriumName,
         Integer branchId
+
 ) {}

@@ -45,6 +45,7 @@ public class TicketService {
     private final MembershipService membershipService;
     private final OtpRepository otpRepository;
     private final TicketHistoryRepository ticketHistoryRepository;
+    private final GoogleSheetsService googleSheetsService;
 
 
 
@@ -621,6 +622,40 @@ public class TicketService {
         return dto;
     }
 
+
+    @Transactional
+    public TicketResponse verifyOnlinePayment(Integer ticketId) throws Exception {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy vé!"));
+        if (ticket.getTicketStatus() != Ticket.TicketStatus.HOLDING)
+            throw new RuntimeException("Chỉ kiểm tra thanh toán cho vé HOLDING!");
+
+        // ✅ Kiểm tra phương thức
+        if (ticket.getPaymentMethod() != Ticket.PaymentMethod.ONLINE)
+            throw new RuntimeException("Vé này không thuộc loại thanh toán online!");
+
+        // 🔍 Tạo code thanh toán cần tìm (VD: CM-123)
+        String paymentCode = "CM-" + ticket.getTicketId();
+
+        // ✅ Gọi GoogleSheetsService
+        Map<String, String> result = googleSheetsService.findTransactionByCode(paymentCode);
+        if (!"true".equals(result.get("found")))
+            throw new RuntimeException("Chưa tìm thấy giao dịch cho mã " + paymentCode);
+
+        // 🔹 Kiểm tra số tiền
+        String amountStr = result.get("amount").replaceAll("[^\\d]", "");
+        BigDecimal paidAmount = new BigDecimal(amountStr);
+        if (paidAmount.compareTo(ticket.getTotalPrice()) < 0)
+            throw new RuntimeException("Số tiền chưa đủ (" + paidAmount + " < " + ticket.getTotalPrice() + ")");
+
+        // ✅ Xác nhận thanh toán
+        log.info("✅ Đã xác nhận giao dịch hợp lệ cho mã {}", paymentCode);
+
+        // Gọi confirmPayment() để BOOK vé chính thức
+        confirmPayment(ticketId, null, null);
+
+        return ticketMapper.toResponse(ticket);
+    }
 
 
 

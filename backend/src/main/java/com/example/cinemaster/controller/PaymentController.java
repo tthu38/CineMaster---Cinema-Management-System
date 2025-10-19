@@ -24,17 +24,21 @@ public class PaymentController {
     @PostMapping("/create")
     public ResponseEntity<?> createOrder(@RequestBody Map<String, Object> body) {
         long amount;
+        Integer ticketId;
         try {
             amount = Long.parseLong(body.get("amount").toString());
+            ticketId = Integer.parseInt(body.get("ticketId").toString());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error","invalid amount"));
+            return ResponseEntity.badRequest().body(Map.of("error","invalid data"));
         }
+
         String code = "CINE" + UUID.randomUUID().toString().replaceAll("-", "").substring(0,8).toUpperCase();
-        // Lưu trạng thái pending
         statusMap.put(code, "pending");
-        // Trả về: code, account info, hướng dẫn (khách ghi code vào nội dung chuyển khoản)
+
+        // ⚡ Ghi chú: code gắn với ticketId
         return ResponseEntity.ok(Map.of(
                 "code", code,
+                "ticketId", ticketId,
                 "amount", amount,
                 "accountNumber", "00004053275",
                 "bankName", "TPBank",
@@ -43,13 +47,19 @@ public class PaymentController {
         ));
     }
 
+
     // Frontend poll: kiểm tra sheet xem đã có giao dịch chưa
     @GetMapping("/status/{code}")
     public ResponseEntity<?> checkStatus(@PathVariable String code) {
         try {
             Map<String, String> r = sheetsService.findTransactionByCode(code);
             if ("true".equals(r.get("found"))) {
-                statusMap.put(code, "paid"); // update in-memory
+                statusMap.put(code, "paid");
+
+                // Nếu muốn: tự động BOOK vé
+                // Integer ticketId = ... lấy từ map hoặc DB
+                // ticketService.confirmPayment(ticketId, null, null);
+
                 return ResponseEntity.ok(Map.of("status","paid", "meta", r));
             } else {
                 return ResponseEntity.ok(Map.of("status","pending"));
@@ -59,4 +69,5 @@ public class PaymentController {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
     }
+
 }

@@ -145,26 +145,39 @@
 <script>
     const BACKEND = "http://localhost:8080";
 
+    // 🟢 Lấy dữ liệu từ confirmBooking.html (đã lưu trong localStorage)
+    const bookingData = JSON.parse(localStorage.getItem("successBookingData") || "{}");
+    const amountInput = document.getElementById("amount");
+
+    // Hiển thị sẵn tổng tiền (nếu có)
+    if (bookingData && bookingData.grandTotal) {
+        amountInput.value = bookingData.grandTotal;
+    } else {
+        amountInput.value = 10000;
+    }
+
     document.getElementById('create').addEventListener('click', async () => {
         const amount = document.getElementById('amount').value.trim();
+        const ticketId = bookingData?.ticketId;
+
         if (!amount || amount <= 0) {
-            alert("Vui lòng nhập số tiền hợp lệ!");
+            alert("⚠️ Vui lòng nhập số tiền hợp lệ!");
             return;
         }
 
         try {
+            // 🔹 Gửi yêu cầu tạo mã thanh toán
             const res = await fetch(BACKEND + "/api/v1/payments/create", {
                 method: "POST",
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({amount})
+                body: JSON.stringify({ amount, ticketId })
             });
 
             if (!res.ok) throw new Error("Không thể tạo yêu cầu thanh toán.");
-
             const data = await res.json();
 
             if (data.error) {
-                alert("Error: " + data.error);
+                alert("❌ Lỗi: " + data.error);
                 return;
             }
 
@@ -172,27 +185,29 @@
             document.getElementById('paybox').style.display = 'block';
             document.getElementById('account').textContent = data.accountNumber || "00004053275";
             document.getElementById('bank').textContent = data.bankName || "TPBank";
-            document.getElementById('code').textContent = data.code || "CINE" + Math.floor(Math.random() * 1000000);
+            document.getElementById('code').textContent = data.code;
             document.getElementById('info').textContent = data.noteHint || "Vui lòng ghi đúng nội dung chuyển khoản để hệ thống nhận diện.";
 
-            // ✅ Tạo QR VietQR
+            // ✅ Tạo mã QR VietQR (TPBank)
             const qrUrl = `https://img.vietqr.io/image/TPB-${data.accountNumber || '00004053275'}-compact2.png?amount=${amount}&addInfo=${data.code}&accountName=CineMaster`;
             document.getElementById('qrContainer').innerHTML =
                 `<img src="${qrUrl}" class="qr" width="250" alt="QR Thanh toán">`;
 
-            // ✅ Gọi hàm kiểm tra sheet liên tục
-            pollStatus(data.code, BACKEND + (data.pollUrl || "/api/v1/payments/check?code=" + data.code));
+            // ✅ Bắt đầu kiểm tra trạng thái giao dịch (poll Google Sheet)
+            pollStatus(data.code, BACKEND + (data.pollUrl || `/api/v1/payments/status/${data.code}`), ticketId);
 
         } catch (err) {
             console.error(err);
-            alert("Lỗi khi tạo thanh toán: " + err.message);
+            alert("❌ Lỗi khi tạo thanh toán: " + err.message);
         }
     });
 
-    async function pollStatus(code, url) {
+    // ========================= 🧩 Hàm kiểm tra trạng thái =========================
+    async function pollStatus(code, url, ticketId) {
         const statusEl = document.getElementById('statustxt');
         let tries = 0;
         const maxTries = 60; // 5 phút (60 x 5s)
+
         const interval = setInterval(async () => {
             tries++;
             try {
@@ -204,7 +219,24 @@
                     statusEl.textContent = 'PAID';
                     statusEl.style.color = 'limegreen';
                     clearInterval(interval);
+
                     alert("✅ Thanh toán thành công! Hệ thống đã phát hiện giao dịch.");
+
+                    // 🟢 Gọi xác nhận vé
+                    if (ticketId) {
+                        try {
+                            const verifyRes = await fetch(`${BACKEND}/api/v1/tickets/${ticketId}/verify-payment`);
+                            const verifyData = await verifyRes.json();
+                            console.log("🎫 Vé xác nhận:", verifyData);
+
+                            alert("🎟️ Vé đã được xác nhận và gửi qua email!");
+
+                            // ✅ Chuyển sang trang chi tiết vé
+                            window.location.href = `../user/ticketDetail.html?ticketId=${ticketId}`;
+                        } catch (err) {
+                            console.error("❌ Lỗi khi xác nhận vé:", err);
+                        }
+                    }
                 } else {
                     statusEl.textContent = 'pending';
                     statusEl.style.color = 'orange';
@@ -220,5 +252,6 @@
         }, 5000);
     }
 </script>
+
 </body>
 </html>

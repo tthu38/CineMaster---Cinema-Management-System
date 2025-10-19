@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -93,4 +94,48 @@ WHERE t.ticketId = :id
             "JOIN p.branch b " +
             "WHERE b.id = :branchId")
     List<Ticket> findByBranch(@Param("branchId") Integer branchId);
+
+
+    /* ======================================================
+       🔹 BỔ SUNG TỪ FILE DƯỚI (ĐÃ SỬA account.id → account.accountID)
+    ====================================================== */
+
+    // 🔹 Lấy tất cả vé bán bởi nhân viên trong khoảng thời gian
+    @Query("""
+        SELECT t FROM Ticket t
+        WHERE t.account.accountID = :staffId
+          AND t.ticketStatus = 'Booked'
+          AND t.bookingTime BETWEEN :from AND :to
+    """)
+    List<Ticket> findAllByStaffAndTimeRange(@Param("staffId") Integer staffId,
+                                            @Param("from") LocalDateTime from,
+                                            @Param("to") LocalDateTime to);
+
+    // 🔹 Tổng doanh thu theo phương thức thanh toán
+    @Query("""
+        SELECT COALESCE(SUM(t.totalPrice), 0)
+        FROM Ticket t
+        WHERE t.account.accountID = :staffId
+          AND t.paymentMethod = :method
+          AND t.ticketStatus = 'Booked'
+          AND t.bookingTime BETWEEN :from AND :to
+    """)
+    BigDecimal sumRevenueByPaymentMethod(@Param("staffId") Integer staffId,
+                                         @Param("from") LocalDateTime from,
+                                         @Param("to") LocalDateTime to,
+                                         @Param("method") String method);
+
+    // 🔹 Tổng doanh thu ngoại trừ một phương thức (VD: không tính CASH)
+    @Query("""
+        SELECT COALESCE(SUM(t.totalPrice), 0)
+        FROM Ticket t
+        WHERE t.account.accountID = :staffId
+          AND t.paymentMethod <> :method
+          AND t.ticketStatus = 'Booked'
+          AND t.bookingTime BETWEEN :from AND :to
+    """)
+    BigDecimal sumRevenueExceptPaymentMethod(@Param("staffId") Integer staffId,
+                                             @Param("from") LocalDateTime from,
+                                             @Param("to") LocalDateTime to,
+                                             @Param("method") String method);
 }

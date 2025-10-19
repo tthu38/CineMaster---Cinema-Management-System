@@ -259,7 +259,6 @@ function violatesBuffer(startStr, endStr) {
 function onPeriodChange() {
     const opt = el.period.selectedOptions?.[0];
     const range = opt?.getAttribute('data-range') || '';
-    el.periodHint.textContent = range ? `Khoảng hợp lệ: ${range}` : '';
 
     const [from, to] = range.split('..');
     if (from && to) {

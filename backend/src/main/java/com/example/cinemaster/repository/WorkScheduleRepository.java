@@ -55,4 +55,13 @@ public interface WorkScheduleRepository
 
     boolean existsByAccount_AccountIDAndShiftDateAndStartTimeLessThanAndEndTimeGreaterThanAndIdNot(
             Integer accountId, LocalDate shiftDate, LocalTime newEnd, LocalTime newStart, Integer excludeId);
+    @Query("""
+        SELECT DISTINCT w
+        FROM WorkSchedule w
+        WHERE w.shiftDate = :date
+        AND (:branchId IS NULL OR w.branch.id = :branchId)
+        ORDER BY w.startTime
+    """)
+    List<WorkSchedule> findDistinctShiftTypesByDateAndBranch(LocalDate date, Integer branchId);
+
 }

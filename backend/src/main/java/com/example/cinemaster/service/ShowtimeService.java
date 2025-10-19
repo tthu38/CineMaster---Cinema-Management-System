@@ -4,25 +4,25 @@ import com.example.cinemaster.dto.request.ShowtimeCreateRequest;
 import com.example.cinemaster.dto.request.ShowtimeUpdateRequest;
 import com.example.cinemaster.dto.response.DayScheduleResponse;
 import com.example.cinemaster.dto.response.ShowtimeResponse;
+import com.example.cinemaster.entity.Auditorium;
+import com.example.cinemaster.entity.ScreeningPeriod;
 import com.example.cinemaster.entity.Showtime;
 import com.example.cinemaster.mapper.ShowtimeMapper;
-import com.example.cinemaster.repository.AuditoriumRepository;
-import com.example.cinemaster.repository.ScreeningPeriodRepository;
-import com.example.cinemaster.repository.ShowtimeRepository;
+import com.example.cinemaster.repository.*;
 import com.example.cinemaster.security.AccountPrincipal;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ShowtimeService {
@@ -30,26 +30,28 @@ public class ShowtimeService {
     private final ShowtimeRepository showtimeRepo;
     private final ScreeningPeriodRepository periodRepo;
     private final AuditoriumRepository auditoriumRepo;
+    private final SeatRepository seatRepository;
     private final ShowtimeMapper mapper;
 
     private static final int CLEANUP_MINUTES = 15;
 
+    /* ============================================================
+       🔹 LẤY CHI TIẾT / TÌM KIẾM SUẤT CHIẾU
+    ============================================================ */
     public ShowtimeResponse getById(Integer id) {
         var s = showtimeRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Showtime not found"));
         return mapper.toResponse(s);
     }
 
-    // SEARCH
     public Page<ShowtimeResponse> search(Integer periodId, Integer auditoriumId,
                                          LocalDateTime from, LocalDateTime to,
                                          Pageable pageable) {
 
-        // ✅ Dùng conjunction để tránh null specification
         Specification<Showtime> spec = (root, query, cb) -> cb.conjunction();
 
         if (periodId != null)
-            spec = spec.and((r, q, cb) -> cb.equal(r.get("period").get("id"), periodId));
+            spec = spec.and((r, q, cb) -> cb.equal(r.get("period").get("periodID"), periodId));
 
         if (auditoriumId != null)
             spec = spec.and((r, q, cb) -> cb.equal(r.get("auditorium").get("auditoriumID"), auditoriumId));
@@ -60,10 +62,12 @@ public class ShowtimeService {
         if (to != null)
             spec = spec.and((r, q, cb) -> cb.lessThan(r.get("startTime"), to));
 
-        return showtimeRepo.findAll(spec, pageable)
-                .map(mapper::toResponse);
+        return showtimeRepo.findAll(spec, pageable).map(mapper::toResponse);
     }
 
+    /* ============================================================
+       🟩 TẠO / CẬP NHẬT / XOÁ
+    ============================================================ */
     @Transactional
     public ShowtimeResponse create(ShowtimeCreateRequest req, AccountPrincipal user) {
         var period = periodRepo.findById(req.periodId())
@@ -71,19 +75,23 @@ public class ShowtimeService {
         var auditorium = auditoriumRepo.findById(req.auditoriumId())
                 .orElseThrow(() -> new EntityNotFoundException("Auditorium not found"));
 
-        if (user.hasRole("Manager")) {
-            if (!Objects.equals(auditorium.getBranch().getId(), user.getBranchId())) {
-                throw new SecurityException("Không thể tạo showtime cho chi nhánh khác");
-            }
+        LocalDateTime start = req.startTime();
+        LocalDateTime end = req.endTime();
+
+        if (end.isBefore(start)) {
+            end = end.plusDays(1);
+            log.info("⏩ Auto-adjust endTime sang ngày hôm sau: {}", end);
         }
 
-        validateShowtime(req.startTime(), req.endTime(), period, auditorium, null);
+        validateShowtime(start, end, period, auditorium, null);
 
         var entity = mapper.toEntity(req, period, auditorium);
+        entity.setStartTime(start);
+        entity.setEndTime(end);
+
         showtimeRepo.saveAndFlush(entity);
         return mapper.toResponse(entity);
     }
-
 
     @Transactional
     public ShowtimeResponse update(Integer id, ShowtimeUpdateRequest req, AccountPrincipal user) {
@@ -95,76 +103,84 @@ public class ShowtimeService {
         var auditorium = auditoriumRepo.findById(req.auditoriumId())
                 .orElseThrow(() -> new EntityNotFoundException("Auditorium not found"));
 
-        if (user != null && user.hasRole("Manager")) {
-            if (!Objects.equals(auditorium.getBranch().getId(), user.getBranchId())) {
-                throw new SecurityException("Không thể cập nhật showtime ngoài chi nhánh của bạn");
+        if (user != null && user.isManager()) {
+            Integer managerBranch = user.getBranchId();
+            Integer auditoriumBranch = auditorium.getBranch().getId();
+            if (managerBranch == null || !Objects.equals(managerBranch, auditoriumBranch)) {
+                throw new SecurityException("Manager không thể cập nhật showtime ngoài chi nhánh của mình");
             }
         }
 
-        validateShowtime(req.startTime(), req.endTime(), period, auditorium, id);
+        LocalDateTime start = req.startTime();
+        LocalDateTime end = req.endTime();
+        if (end.isBefore(start)) end = end.plusDays(1);
+
+        validateShowtime(start, end, period, auditorium, id);
+
         mapper.updateEntityFromRequest(req, entity, period, auditorium);
-        showtimeRepo.save(entity);
+        entity.setStartTime(start);
+        entity.setEndTime(end);
+
+        showtimeRepo.saveAndFlush(entity);
         return mapper.toResponse(entity);
     }
-
 
     @Transactional
     public void delete(Integer id, AccountPrincipal user) {
         var entity = showtimeRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Showtime not found"));
 
-        // 🔒 Nếu là Manager → chỉ được xóa trong chi nhánh của mình
-        if (user != null && user.hasRole("Manager")) {
-            Integer branchOfShowtime = entity.getAuditorium().getBranch().getId();
-            if (!Objects.equals(branchOfShowtime, user.getBranchId())) {
-                throw new SecurityException("❌ Bạn không có quyền xóa suất chiếu của chi nhánh khác.");
+        if (user != null && user.isManager()) {
+            Integer managerBranch = user.getBranchId();
+            Integer showtimeBranch = entity.getAuditorium().getBranch().getId();
+            if (managerBranch == null || !Objects.equals(managerBranch, showtimeBranch)) {
+                throw new SecurityException("Manager không thể xóa showtime của chi nhánh khác");
             }
         }
-
         showtimeRepo.delete(entity);
     }
 
-
-    // ========= VALIDATION LOGIC =========
+    /* ============================================================
+       🧩 VALIDATION
+    ============================================================ */
     private void validateShowtime(LocalDateTime start, LocalDateTime end,
-                                  com.example.cinemaster.entity.ScreeningPeriod period,
-                                  com.example.cinemaster.entity.Auditorium auditorium,
+                                  ScreeningPeriod period, Auditorium auditorium,
                                   Integer excludeId) {
 
         if (!Objects.equals(period.getBranch().getId(), auditorium.getBranch().getId()))
-            throw new IllegalArgumentException("Auditorium không thuộc cùng chi nhánh với ScreeningPeriod");
+            throw new IllegalArgumentException("❌ Auditorium không thuộc cùng chi nhánh với ScreeningPeriod");
 
         if (!end.isAfter(start))
-            throw new IllegalArgumentException("EndTime phải lớn hơn StartTime");
+            throw new IllegalArgumentException("❌ EndTime phải lớn hơn StartTime");
 
-        if (start.toLocalDate().isBefore(period.getStartDate())
-                || end.toLocalDate().isAfter(period.getEndDate()))
-            throw new IllegalArgumentException("Suất chiếu phải nằm trong khoảng ScreeningPeriod");
+        LocalDate showDate = start.toLocalDate();
+        if (showDate.isBefore(period.getStartDate()) || showDate.isAfter(period.getEndDate()))
+            throw new IllegalArgumentException("❌ Ngày chiếu nằm ngoài khoảng chiếu phim");
 
-        // Overlap trong cùng phòng (buffer 15’)
-        var startBuf = start.minusMinutes(CLEANUP_MINUTES);
-        var endBuf = end.plusMinutes(CLEANUP_MINUTES);
+        if (end.toLocalDate().isAfter(period.getEndDate().plusDays(1)))
+            throw new IllegalArgumentException("❌ Suất chiếu vượt quá giới hạn cuối của khoảng chiếu");
+
+        LocalDateTime startBuf = start.minusMinutes(CLEANUP_MINUTES);
+        LocalDateTime endBuf = end.plusMinutes(CLEANUP_MINUTES);
 
         long roomClash = (excludeId == null)
                 ? showtimeRepo.countOverlaps(auditorium.getAuditoriumID(), startBuf, endBuf)
                 : showtimeRepo.countOverlapsExcluding(auditorium.getAuditoriumID(), startBuf, endBuf, excludeId);
-
         if (roomClash > 0)
-            throw new IllegalStateException("Khung giờ vi phạm khoảng đệm 15 phút của auditorium này");
+            throw new IllegalStateException("❌ Khung giờ vi phạm khoảng đệm 15 phút trong cùng phòng chiếu");
 
-        // Cùng phim, cùng branch, cùng khung giờ
-        var movieId = period.getMovie().getMovieID();
-        var branchId = auditorium.getBranch().getId();
         long movieClash = (excludeId == null)
-                ? showtimeRepo.countMovieOverlapInBranch(movieId, branchId, start, end)
-                : showtimeRepo.countMovieOverlapInBranchExcluding(movieId, branchId, start, end, excludeId);
-
+                ? showtimeRepo.countMovieOverlapInBranch(period.getMovie().getMovieID(), auditorium.getBranch().getId(),
+                auditorium.getAuditoriumID(), start, end)
+                : showtimeRepo.countMovieOverlapInBranchExcluding(period.getMovie().getMovieID(),
+                auditorium.getBranch().getId(), auditorium.getAuditoriumID(), start, end, excludeId);
         if (movieClash > 0)
-            throw new IllegalStateException("Phim này đã có suất chiếu khác trong cùng branch ở khung giờ trùng.");
+            throw new IllegalStateException("❌ Phim này đã có suất chiếu khác trong cùng phòng ở khung giờ trùng");
     }
 
-    // ========= LỊCH TUẦN =========
-
+    /* ============================================================
+       📅 LỊCH CHIẾU THEO TUẦN
+    ============================================================ */
     public List<DayScheduleResponse> getNextWeekSchedule(Integer branchId) {
         LocalDate today = LocalDate.now();
         LocalDate nextMonday = today.plusDays((8 - today.getDayOfWeek().getValue()) % 7);
@@ -177,17 +193,26 @@ public class ShowtimeService {
         return buildWeek(monday, branchId);
     }
 
-    // ========= Helper =========
+    /* ============================================================
+       🧮 BUILD WEEK LOGIC (ĐÃ FIX)
+    ============================================================ */
     private List<DayScheduleResponse> buildWeek(LocalDate monday, Integer branchId) {
         LocalDate sunday = monday.plusDays(7);
         LocalDateTime from = monday.atStartOfDay();
         LocalDateTime to = sunday.atStartOfDay();
 
-        List<Showtime> list = (branchId == null)
-                ? showtimeRepo.findAllByStartTimeGreaterThanEqualAndStartTimeLessThan(from, to)
-                : showtimeRepo.findAllByStartTimeGreaterThanEqualAndStartTimeLessThanAndAuditorium_Branch_Id(from, to, branchId);
+        List<Showtime> list = new ArrayList<>();
+        try {
+            list = (branchId == null)
+                    ? showtimeRepo.findAllByStartTimeGreaterThanEqualAndStartTimeLessThan(from, to)
+                    : showtimeRepo.findWeekByBranch(from, to, branchId);
+        } catch (Exception e) {
+            log.error("❌ Lỗi truy vấn showtime tuần: {}", e.getMessage());
+            return Collections.emptyList();
+        }
 
         Map<LocalDate, Map<Integer, List<Showtime>>> grouped = list.stream()
+                .filter(s -> s.getStartTime() != null && s.getPeriod() != null && s.getPeriod().getMovie() != null)
                 .collect(Collectors.groupingBy(
                         s -> s.getStartTime().toLocalDate(),
                         Collectors.groupingBy(s -> s.getPeriod().getMovie().getMovieID())
@@ -198,32 +223,40 @@ public class ShowtimeService {
             LocalDate d = monday.plusDays(i);
             Map<Integer, List<Showtime>> byMovie = grouped.getOrDefault(d, Collections.emptyMap());
 
-            List<DayScheduleResponse.MovieSlots> movies = byMovie.entrySet().stream().map(e -> {
-                Integer movieId = e.getKey();
-                List<Showtime> slots = e.getValue().stream()
-                        .sorted(Comparator.comparing(Showtime::getStartTime))
-                        .toList();
-                String title = slots.get(0).getPeriod().getMovie().getTitle();
-                String poster = slots.get(0).getPeriod().getMovie().getPosterUrl();
+            List<DayScheduleResponse.MovieSlots> movies = byMovie.entrySet().stream()
+                    .map(e -> {
+                        Integer movieId = e.getKey();
+                        List<Showtime> slots = e.getValue().stream()
+                                .sorted(Comparator.comparing(Showtime::getStartTime))
+                                .toList();
+                        if (slots.isEmpty()) return null;
 
-                List<DayScheduleResponse.SlotItem> slotItems = slots.stream().map(s ->
-                        new DayScheduleResponse.SlotItem(
-                                s.getShowtimeID(),
-                                s.getAuditorium().getAuditoriumID(),
-                                s.getAuditorium().getName(),
-                                s.getStartTime(),
-                                s.getEndTime()
-                        )
-                ).toList();
+                        String title = Optional.ofNullable(slots.get(0).getPeriod().getMovie().getTitle()).orElse("(Không tên)");
+                        String poster = Optional.ofNullable(slots.get(0).getPeriod().getMovie().getPosterUrl()).orElse("/uploads/no-poster.png");
 
-                return new DayScheduleResponse.MovieSlots(movieId, title, poster, slotItems);
-            }).sorted(Comparator.comparing(DayScheduleResponse.MovieSlots::movieTitle)).toList();
+                        List<DayScheduleResponse.SlotItem> slotItems = slots.stream().map(s -> {
+                            var auditorium = s.getAuditorium();
+                            return new DayScheduleResponse.SlotItem(
+                                    s.getShowtimeID(),
+                                    auditorium.getAuditoriumID(),
+                                    auditorium.getName(),
+                                    s.getStartTime(),
+                                    s.getEndTime()
+                            );
+                        }).toList();
+
+                        return new DayScheduleResponse.MovieSlots(movieId, title, poster, slotItems);
+                    })
+                    .filter(Objects::nonNull)
+                    .sorted(Comparator.comparing(DayScheduleResponse.MovieSlots::movieTitle))
+                    .toList();
 
             days.add(new DayScheduleResponse(d, movies));
         }
         return days;
     }
-  // hong hanh
+
+    // =================== BỔ TRỢ ===================
     public List<Showtime> getShowtimesByBranchAndDate(Integer branchId, LocalDate date) {
         if (date == null) date = LocalDate.now();
         return showtimeRepo.findByBranchIdAndDate(branchId, date);

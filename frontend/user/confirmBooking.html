@@ -462,7 +462,10 @@
         if (!email) return alert("Vui lòng nhập email nhận vé!");
 
         const appliedDiscount = JSON.parse(localStorage.getItem("appliedDiscount") || "{}");
+
+        // ✅ Lưu thông tin vé tạm thời (để payment.html dùng)
         localStorage.setItem("successBookingData", JSON.stringify({
+            ticketId,
             showtimeId,
             branchId,
             seatIds,
@@ -473,8 +476,12 @@
             grandTotal: appliedDiscount?.newTotal || total,
             email
         }));
-        window.location.href = "successBooking.html";
+
+        // ✅ Chuyển hướng sang trang thanh toán (ra khỏi folder user/)
+        window.location.href = "../payment/payment_taiquay_qr.html";
     });
+
+
 
     // ==================== 🚀 KHỞI CHẠY ====================
     await loadDiscountList();

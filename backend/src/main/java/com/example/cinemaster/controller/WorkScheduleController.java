@@ -24,7 +24,7 @@ public class WorkScheduleController {
 
     private final WorkScheduleService service;
 
-    @PreAuthorize("hasAnyRole('Admin','Manager')")
+    @PreAuthorize("hasAnyRole('Manager')")
     @PostMapping
     public ResponseEntity<WorkScheduleResponse> create(
             @Valid @RequestBody WorkScheduleCreateRequest req,
@@ -45,7 +45,7 @@ public class WorkScheduleController {
 
 
     /* ======================= UPDATE ======================= */
-    @PreAuthorize("hasAnyRole('Admin','Manager')")
+    @PreAuthorize("hasAnyRole('Manager')")
     @PutMapping("/{id}")
     public ResponseEntity<WorkScheduleResponse> update(
             @PathVariable Integer id,
@@ -63,7 +63,7 @@ public class WorkScheduleController {
     }
 
     /* ======================= DELETE ======================= */
-    @PreAuthorize("hasAnyRole('Admin','Manager')")
+    @PreAuthorize("hasAnyRole('Manager')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable Integer id,

@@ -235,4 +235,16 @@ public class TicketController {
                 .result(ticketService.getById(id))
                 .build());
     }
+
+    // 🟢 Kiểm tra thanh toán online bằng Google Sheets
+    @GetMapping("/{ticketId}/verify-payment")
+    public ResponseEntity<?> verifyOnlinePayment(@PathVariable Integer ticketId) {
+        try {
+            TicketResponse res = ticketService.verifyOnlinePayment(ticketId);
+            return ResponseEntity.ok(ApiResponse.success(res));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
+        }
+    }
+
 }
