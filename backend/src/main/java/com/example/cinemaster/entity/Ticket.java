@@ -20,6 +20,7 @@ public class Ticket {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "TicketID") // ✅ thêm từ file 2
     Integer ticketId;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -39,20 +40,23 @@ public class Ticket {
     BigDecimal comboPrice;
 
     // 💳 Tổng tiền sau giảm giá (lưu vào DB)
-    @Column(precision = 12, scale = 2)
-    BigDecimal totalPrice;
+    @Column(name = "TotalPrice", precision = 12, scale = 2) // ✅ thêm annotation name
+            BigDecimal totalPrice;
 
-    @Column(columnDefinition = "DATETIME2(0) DEFAULT SYSDATETIME()")
+    @Column(name = "BookingTime", columnDefinition = "DATETIME2(0) DEFAULT SYSDATETIME()") // ✅ thêm name
     LocalDateTime bookingTime;
 
+    // ⚙️ Trạng thái vé
     @Enumerated(EnumType.STRING)
-    @Column(length = 20, nullable = false)
+    @Column(name = "TicketStatus", length = 30, nullable = false)
     @Builder.Default
     TicketStatus ticketStatus = TicketStatus.HOLDING;
 
-    @Column(length = 20, nullable = false)
+    // 💵 Phương thức thanh toán (CASH / ONLINE)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "PaymentMethod", length = 10, nullable = false)
     @Builder.Default
-    String paymentMethod = "Cash";
+    PaymentMethod paymentMethod = PaymentMethod.CASH;
 
     @Column(name = "HoldUntil", columnDefinition = "DATETIME2(0)")
     LocalDateTime holdUntil;
@@ -64,6 +68,7 @@ public class Ticket {
     @Transient
     BigDecimal discountTotal;
 
+    // ================= RELATIONSHIPS =================
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     List<TicketSeat> ticketSeats = new ArrayList<>();
 
@@ -80,7 +85,13 @@ public class Ticket {
         }
     }
 
+    // ================= ENUM =================
     public enum TicketStatus {
         HOLDING, BOOKED, USED, CANCEL_REQUESTED, CANCELLED, REFUNDED
+    }
+
+    public enum PaymentMethod {
+        CASH,    // 💵 Thanh toán trực tiếp tại quầy
+        ONLINE   // 💳 Thanh toán trực tuyến (VNPAY, MOMO, SEPAY, ...)
     }
 }

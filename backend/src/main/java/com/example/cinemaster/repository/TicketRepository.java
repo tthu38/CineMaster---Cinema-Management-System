@@ -6,11 +6,13 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface TicketRepository extends JpaRepository<Ticket, Integer> {
 
     /* ======================================================
@@ -53,7 +55,9 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
 
     List<Ticket> findByAccount_AccountIDAndTicketStatus(Integer accountId, Ticket.TicketStatus status);
 
-
+    /* ======================================================
+       🔹 Lấy vé có đầy đủ thông tin Account + Showtime (dành cho chi tiết vé)
+    ====================================================== */
     @Query("""
 SELECT t FROM Ticket t
 JOIN FETCH t.account a
@@ -62,5 +66,31 @@ WHERE t.ticketId = :id
 """)
     Optional<Ticket> findWithAccountByTicketId(@Param("id") Integer id);
 
+    /* ======================================================
+       🔹 Lấy vé mới nhất theo Account
+    ====================================================== */
     Optional<Ticket> findTopByAccountOrderByBookingTimeDesc(Account account);
+
+
+    /* ======================================================
+       🔹 EntityGraph: Load đầy đủ quan hệ cho vé
+    ====================================================== */
+    @EntityGraph(attributePaths = {
+            "showtime",
+            "showtime.period",
+            "showtime.period.movie",
+            "showtime.period.branch",
+            "showtime.auditorium"
+    })
+    Optional<Ticket> findWithRelationsByTicketId(Integer ticketID);
+
+    /* ======================================================
+       🔹 STAFF: Lấy danh sách vé theo chi nhánh
+    ====================================================== */
+    @Query("SELECT t FROM Ticket t " +
+            "JOIN t.showtime s " +
+            "JOIN s.period p " +
+            "JOIN p.branch b " +
+            "WHERE b.id = :branchId")
+    List<Ticket> findByBranch(@Param("branchId") Integer branchId);
 }

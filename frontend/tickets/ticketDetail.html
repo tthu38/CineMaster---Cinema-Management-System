@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết vé - CineMaster</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link
+            href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Bebas+Neue&display=swap"
+            rel="stylesheet">
+    <style>
+        :root {
+            --red: #e50914;
+            --cyan: #22c1ff;
+            --ink: #0a0f1c;
+            --bg: #0b162c;
+            --border: #1b2b4a;
+            --muted: #9aa7b3;
+            --card: #0f1a2f;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            color: #fff;
+            background: radial-gradient(circle at 30% 20%, #0b162c 0%, #06101f 70%);
+            min-height: 100vh;
+            background-attachment: fixed;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: auto;
+            padding: 80px 20px;
+        }
+
+        /* 🎟️ Vé xem phim */
+        .ticket {
+            display: flex;
+            flex-wrap: wrap;
+            background: linear-gradient(135deg, #0c1324 0%, #111c32 60%, #101a33 100%);
+            border: 2px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 35px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        /* Viền chấm bi “xé vé” */
+        .ticket::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 65%;
+            border-left: 2px dashed rgba(255, 255, 255, 0.15);
+        }
+
+        /* Hiệu ứng ánh đỏ */
+        .ticket::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at right, rgba(229, 9, 20, 0.15), transparent 60%);
+            pointer-events: none;
+        }
+
+        /* Phần trái */
+        .ticket-left {
+            flex: 2;
+            padding: 40px 40px 40px 60px;
+        }
+        .ticket-left h2 {
+            color: var(--cyan);
+            font-family: 'Bebas Neue';
+            font-size: 2.6rem;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+        .ticket-left p {
+            margin: 8px 0;
+            color: var(--muted);
+            font-size: 1rem;
+        }
+
+        /* Phần phải */
+        .ticket-right {
+            flex: 1;
+            padding: 35px 25px;
+            background: linear-gradient(180deg, #111a2b, #0d1423);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .ticket-right .logo {
+            font-family: 'Bebas Neue';
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            color: var(--red);
+            text-transform: uppercase;
+        }
+
+        .ticket-right .ticket-id {
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--cyan);
+            background: rgba(34, 193, 255, 0.1);
+            border: 1px solid rgba(34, 193, 255, 0.3);
+            border-radius: 10px;
+            padding: 8px 16px;
+            margin-top: 10px;
+        }
+
+        .ticket-right .status {
+            margin-top: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .Booked { background: rgba(34,193,255,.15); color: var(--cyan); }
+        .Used { background: rgba(0,255,0,.15); color: #7CFC00; }
+        .Cancelled { background: rgba(229,9,20,.15); color: var(--red); }
+        .Refunded { background: rgba(255,215,0,.15); color: #FFD700; }
+        .CancelRequested { background: rgba(255,140,0,.15); color: #FFA500; }
+
+        .timeline {
+            margin-top: 25px;
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+        }
+        .timeline h5 {
+            color: var(--cyan);
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        .timeline-item {
+            margin-bottom: 12px;
+        }
+        .timeline-item strong { color: var(--cyan); text-transform: uppercase; }
+        .timeline-item small { color: var(--muted); }
+
+        /* Nút yêu cầu hủy */
+        .btn-cancel {
+            background: var(--red);
+            border: none;
+            color: #fff;
+            padding: 10px 22px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all .2s ease;
+            box-shadow: 0 0 10px rgba(229,9,20,0.3);
+        }
+        .btn-cancel:hover {
+            background: #ff3b3b;
+            box-shadow: 0 0 15px rgba(255,59,59,0.4);
+        }
+
+        @media (max-width: 768px) {
+            .ticket {
+                flex-direction: column;
+            }
+            .ticket::before { display: none; }
+            .ticket-left { padding: 30px; }
+            .ticket-right {
+                border-top: 2px dashed rgba(255,255,255,0.1);
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div id="header"></div>
+
+<main class="container">
+    <div id="ticketDetail"></div>
+</main>
+
+<div id="footer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script type="module">
+    import {API_BASE_URL, handleResponse, getValidToken} from "../js/api.js";
+
+    const params = new URLSearchParams(window.location.search);
+    const ticketId = params.get("ticketId");
+    const ticketDetailEl = document.getElementById("ticketDetail");
+
+    async function loadDetail() {
+        try {
+            const res = await fetch(`${API_BASE_URL}/tickets/${ticketId}`);
+            const data = await handleResponse(res);
+            if (!data) {
+                Swal.fire("Lỗi!", "Không tìm thấy thông tin vé.", "error");
+                return;
+            }
+
+            ticketDetailEl.innerHTML = `
+              <div class="ticket">
+                <div class="ticket-left">
+                  <h2>${data.movieTitle || "Không xác định"}</h2>
+                  <p><i class="fa-solid fa-film"></i> ${data.movieGenre || "Không rõ"} • ${data.movieDuration || "?"} phút</p>
+                  <p><i class="fa-solid fa-location-dot"></i> ${data.branchName || "Không rõ rạp"} - ${data.auditoriumName || "Không rõ phòng"}</p>
+                  <p><i class="fa-regular fa-clock"></i> ${formatDate(data.showtimeStart)} - ${formatDate(data.showtimeEnd)}</p>
+                  <p><i class="fa-solid fa-chair"></i> Ghế: ${data.seatNumbers || "N/A"}</p>
+                  <p><i class="fa-solid fa-burger"></i> Combo: ${data.comboList?.join(", ") || "Không có"}</p>
+                  <p><i class="fa-solid fa-money-bill"></i> Tổng tiền: ${(data.totalPrice || 0).toLocaleString()}đ</p>
+                  <p><i class="fa-solid fa-credit-card"></i> Thanh toán: ${data.paymentMethod || "Không rõ"}</p>
+                  ${renderCancelButton(data)}
+                  <div class="timeline mt-4">
+                    <h5><i class="fa-solid fa-clock-rotate-left"></i> Lịch sử trạng thái</h5>
+                    <div id="historyList" class="small"></div>
+                  </div>
+                </div>
+                <div class="ticket-right">
+                    <div>
+                        <div class="logo">CineMaster</div>
+                        <div class="ticket-id">#${data.ticketId}</div>
+                        <div class="status ${data.ticketStatus}">${translateStatus(data.ticketStatus)}</div>
+                    </div>
+                    <div class="mt-4">
+                        <small class="text-muted">🎬 Cảm ơn bạn đã chọn CineMaster</small>
+                    </div>
+                </div>
+              </div>
+            `;
+
+            const btn = document.getElementById("cancelBtn");
+            if (btn) btn.addEventListener("click", () => handleCancel(data.ticketId));
+            await loadHistory(data.ticketId);
+        } catch (err) {
+            Swal.fire("Lỗi!", "Không tải được chi tiết vé.", "error");
+            console.error(err);
+        }
+    }
+
+    async function loadHistory(ticketId) {
+        try {
+            const res = await fetch(`${API_BASE_URL}/ticket-history/${ticketId}`);
+            const data = await handleResponse(res);
+            const box = document.getElementById("historyList");
+
+            if (!data || !data.length) {
+                box.innerHTML = `<p class="text-secondary">Chưa có lịch sử trạng thái.</p>`;
+                return;
+            }
+
+            box.innerHTML = data.map(h => `
+                <div class="timeline-item">
+                    <div><strong>${translateStatus(h.newStatus)}</strong> —
+                    <small>${formatDate(h.changedAt)}</small></div>
+                    <div>${h.note || ""}</div>
+                </div>
+            `).join("");
+        } catch (err) {
+            console.error("❌ Lỗi load history:", err);
+        }
+    }
+
+    function renderCancelButton(data) {
+        if (data.ticketStatus === "Booked") {
+            return `<button id="cancelBtn" class="btn-cancel">
+                <i class="fa-solid fa-xmark"></i> Yêu cầu hủy vé
+              </button>`;
+        }
+        return "";
+    }
+
+    async function handleCancel(id) {
+        const token = getValidToken();
+        const confirm = await Swal.fire({
+            title: "Xác nhận hủy vé?",
+            text: "Bạn có chắc muốn gửi yêu cầu hủy vé này?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Gửi yêu cầu",
+            cancelButtonText: "Hủy"
+        });
+        if (!confirm.isConfirmed) return;
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/tickets/${id}/cancel-request`, {
+                method: "PUT",
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            await handleResponse(res);
+            Swal.fire("✅ Thành công", "Đã gửi yêu cầu hủy vé.", "success");
+            loadDetail();
+        } catch (err) {
+            Swal.fire("❌ Lỗi", "Không thể gửi yêu cầu hủy vé.", "error");
+            console.error(err);
+        }
+    }
+
+    function formatDate(d) {
+        if (!d) return "N/A";
+        return new Date(d).toLocaleString("vi-VN", {
+            hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit'
+        });
+    }
+
+    function translateStatus(st) {
+        switch (st) {
+            case "Booked": return "Đã đặt";
+            case "Used": return "Đã sử dụng";
+            case "Cancelled": return "Đã hủy";
+            case "Refunded": return "Hoàn tiền";
+            case "CancelRequested": return "Chờ hủy";
+            default: return st;
+        }
+    }
+
+    loadDetail();
+</script>
+
+<script>
+    (async function loadHeader(){
+        const headerEl=document.getElementById("header");
+        try{
+            const res=await fetch("../home/customer-header.html");
+            const html=await res.text();
+            headerEl.innerHTML=html;
+            const scripts=headerEl.querySelectorAll("script");
+            scripts.forEach(s=>{
+                const ns=document.createElement("script");
+                if(s.src) ns.src=s.src; else ns.textContent=s.textContent;
+                document.body.appendChild(ns);
+            });
+        }catch(err){console.error("❌ Lỗi load header:",err);}
+    })();
+
+    fetch("../home/footer.html")
+        .then(r=>r.text())
+        .then(h=>document.getElementById("footer").innerHTML=h);
+</script>
+</body>
+</html>

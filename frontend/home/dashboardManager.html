@@ -127,7 +127,6 @@
                    onclick="loadIframe('../user/viewUser.html', this); return false;">
                     <i class="fas fa-users-cog"></i> Quản lý nhân viên
                 </a>
-
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('../user/work-schedule-matrix.html', this); return false;">
                     <i class="fas fa-users-cog"></i> Quản lý ca làm
@@ -144,6 +143,7 @@
                    onclick="loadIframe('manager/revenue.html', this); return false;">
                     <i class="fas fa-coins"></i> Báo cáo doanh thu
                 </a>
+                <!-- ✅ Giữ nguyên các mục từ file đầu -->
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('../user/branch-list.html', this); return false;">
                     <i class="fas fa-code-branch"></i> Thông tin chi nhánh
@@ -160,6 +160,12 @@
                    onclick="loadIframe('../user/seatManagementStaff.html', this); return false;">
                     <i class="fas fa-store"></i> Quản lý ghế chi nhánh
                 </a>
+                <!-- ✅ Thêm mục thiếu từ file thứ hai -->
+                <a href="#" class="list-group-item list-group-item-action"
+                   onclick="loadIframe('../contact/contactManagement.html', this); return false;">
+                    <i class="fas fa-envelope"></i> Liên hệ khách hàng
+                </a>
+
                 <a href="../user/login.html" class="list-group-item list-group-item-action text-danger mt-auto" id="logoutBtn">
                     <i class="fas fa-sign-out-alt"></i> Đăng xuất
                 </a>

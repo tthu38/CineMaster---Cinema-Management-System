@@ -133,14 +133,36 @@
                    onclick="loadIframe('staff/ticketSales.html', this); return false;">
                     <i class="fas fa-ticket-alt"></i> Bán vé / Suất chiếu
                 </a>
+
+                <!-- ✅ Mục mới: Quản lý vé -->
+                <a href="#" class="list-group-item list-group-item-action"
+                   onclick="loadIframe('../tickets/listTicketManage.html', this); return false;">
+                    <i class="fas fa-ticket"></i> Quản lý vé
+                </a>
+
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('../user/viewUser.html', this); return false;">
                     <i class="fas fa-users"></i> Người dùng
                 </a>
+
+                <!-- ✅ Mục mới: Liên hệ khách hàng -->
                 <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('staff/feedback.html', this); return false;">
-                    <i class="fas fa-comments"></i> Phản hồi
+                   onclick="loadIframe('../contact/contactManagement.html', this); return false;">
+                    <i class="fas fa-envelope"></i> Liên hệ khách hàng
                 </a>
+
+                <!-- ✅ Mục mới: Quản lý tin tức -->
+                <a href="#" class="list-group-item list-group-item-action"
+                   onclick="loadIframe('../news/listNews.html', this); return false;">
+                    <i class="fas fa-newspaper"></i> Quản lý tin tức
+                </a>
+
+                <!-- ✅ Mục mới: Tạo tài khoản người dùng -->
+                <a href="#" class="list-group-item list-group-item-action text-success"
+                   onclick="loadIframe('../user/AccountCounter.html', this); return false;">
+                    <i class="fas fa-user-plus"></i> Tạo tài khoản người dùng
+                </a>
+
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('../user/branch-list.html', this); return false;">
                     <i class="fas fa-code-branch"></i> Thông tin chi nhánh
@@ -157,6 +179,7 @@
                    onclick="loadIframe('../user/seatManagementStaff.html', this); return false;">
                     <i class="fas fa-store"></i> Quản lý ghế chi nhánh
                 </a>
+
                 <a href="../user/login.html" class="list-group-item list-group-item-action text-danger mt-auto" id="logoutBtn">
                     <i class="fas fa-sign-out-alt"></i> Đăng xuất
                 </a>
@@ -166,7 +189,6 @@
 
     <div id="main-content">
         <iframe id="main-frame" src="dashboard_home.html"></iframe>
-
     </div>
 </div>
 

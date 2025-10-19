@@ -42,8 +42,9 @@ async function loadNews(category = "") {
                             <h5>${news.title}</h5>
                             <p><small>${new Date(news.publishDate).toLocaleDateString("vi-VN")}</small></p>
                             <p>${news.content ? news.content.substring(0, 120) : ""}...</p>
-                            <a href="newsDetail.html?id=${news.newsID}" class="read-more">Xem chi tiết</a>
-                        </div>
+<p class="text-info mb-1"><i class="fa-solid fa-eye me-1"></i> ${news.views ?? 0} lượt xem</p>
+<a href="newsDetail.html?id=${news.newsID}" class="read-more">Xem chi tiết</a>
+  </div>
                         <div class="news-actions mt-3">${actions}</div>
                     </div>
                 </div>`;

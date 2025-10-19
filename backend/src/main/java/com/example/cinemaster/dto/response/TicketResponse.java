@@ -44,6 +44,13 @@ public class TicketResponse {
     String branchAddress;
     LocalDateTime startTime;
 
+    // 🏢 Thông tin mở rộng cho staff & giao diện tổng quan
+    String branchName;       // ✅ Tên chi nhánh
+    String showtimeStart;    // ✅ Thời gian chiếu dạng string
+    String seatNumbers;      // ✅ Danh sách ghế dạng text
+    String ticketStatus;     // ✅ Trạng thái vé dạng chuỗi
+    String customerName;     // ✅ Tên khách hàng (hiển thị cho staff)
+
     // ================== 🍿 Inner Classes ==================
     @Getter
     @Setter

@@ -71,4 +71,12 @@ export const newsApi = {
         });
         return handleResponse(res);
     },
+
+    async increaseView(id) {
+        return fetch(`${API_BASE_URL}/news/${id}/view`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" }
+        }).then(res => res.ok ? res.json() : Promise.reject("Failed to increase view"));
+    }
+
 };

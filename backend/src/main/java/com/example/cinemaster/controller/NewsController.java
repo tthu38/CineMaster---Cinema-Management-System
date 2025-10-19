@@ -27,6 +27,13 @@ public class NewsController {
         return new ApiResponse<>(1000, "Success", newsService.getById(id));
     }
 
+    // 🔹 Thêm mới — tăng lượt xem
+    @PutMapping("/{id}/view")
+    public ApiResponse<Void> increaseView(@PathVariable Integer id) {
+        newsService.increaseView(id);
+        return new ApiResponse<>(1000, "View increased", null);
+    }
+
     // Tạo mới tin tức
     @PreAuthorize("hasRole('Admin')")
     @PostMapping(consumes = {"multipart/form-data"})

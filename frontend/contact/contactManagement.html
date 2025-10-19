@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý liên hệ khách hàng - CineMaster</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { background:#0b162c; color:#e0e6f5; font-family:'Be Vietnam Pro',sans-serif; padding:20px; }
+        .page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+        .page-header h3 { color:#00bfff; font-weight:600; display:flex; align-items:center; gap:10px; }
+        .filter-select { background:#121b33; border:1px solid #1b2b4a; color:#e0e6f5; border-radius:8px; padding:6px 10px; }
+        .card-container { background:#0c1324; border-radius:12px; border:1px solid #1b2b4a; padding:20px; box-shadow:0 0 10px rgba(0,191,255,0.05); }
+        thead { background-color:#101b36; font-size:0.9rem; text-transform:uppercase; }
+        tbody tr:hover { background-color:rgba(0,191,255,0.08); }
+        .status-pill { padding:5px 12px; border-radius:999px; font-size:0.8rem; font-weight:600; text-transform:capitalize; }
+        .status-Pending{background:#ffd700;color:#000;}
+        .status-Processing{background:#00bfff;color:#fff;}
+        .status-Resolved{background:#28a745;color:#fff;}
+        .status-Rejected{background:#dc3545;color:#fff;}
+        .action-btn{border-radius:50%;width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #1b2b4a;color:#00bfff;transition:.2s;}
+        .action-btn:hover{background-color:#00bfff;color:#000;}
+    </style>
+</head>
+
+<body>
+<!-- ✅ HEADER -->
+<div id="header"></div>
+
+<div class="container my-4">
+    <div class="card-container">
+        <div class="page-header">
+            <h3><i class="fa-solid fa-envelope me-2"></i> Quản lý liên hệ khách hàng</h3>
+            <div class="d-flex align-items-center gap-2">
+                <select id="branchFilter" class="filter-select">
+                    <option value="">-- Chọn chi nhánh --</option>
+                </select>
+                <select id="statusFilter" class="filter-select">
+                    <option value="">-- Lọc theo trạng thái --</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Resolved">Resolved</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle table-hover">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Khách hàng</th>
+                    <th>Email</th>
+                    <th>Chủ đề</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày xử lý</th>
+                    <th>Thao tác</th>
+                </tr>
+                </thead>
+                <tbody id="contactTableBody">
+                <tr><td colspan="7" class="text-center text-muted">Đang tải dữ liệu...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ FOOTER -->
+<div id="footer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script type="module" src="./contactManagement.js"></script>
+
+<script>
+    // ✅ Load header (customer)
+    (async function loadHeader() {
+        const headerEl = document.getElementById("header");
+        try {
+            const res = await fetch("../home/customer-header.html");
+            const html = await res.text();
+            headerEl.innerHTML = html;
+
+            // ép chạy script bên trong customer-header.html
+            const scripts = headerEl.querySelectorAll("script");
+            scripts.forEach(s => {
+                const ns = document.createElement("script");
+                if (s.src) ns.src = s.src;
+                else ns.textContent = s.textContent;
+                document.body.appendChild(ns);
+            });
+        } catch (err) {
+            console.error("❌ Lỗi load header:", err);
+        }
+    })();
+
+    // ✅ Load footer
+    fetch("../home/footer.html")
+        .then(res => res.text())
+        .then(html => document.getElementById("footer").innerHTML = html)
+        .catch(err => console.error("❌ Lỗi load footer:", err));
+</script>
+</body>
+</html>

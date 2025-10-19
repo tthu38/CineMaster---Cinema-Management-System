@@ -1,1635 +1,3 @@
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;<!DOCTYPE html>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;<html lang="vi">&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;<head>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;    <meta charset="UTF-8">&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;    <title>CineMaster • Chi tiết phim</title>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;    <meta name="viewport" content="width=device-width, initial-scale=1">&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;    <style>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        body {&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            background: linear-gradient(180deg, #000015, #0b162c);&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            color: #fff;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            font-family: 'Roboto', sans-serif;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        .hero {&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            position: relative;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            width: 100%;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            height: 70vh;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            overflow: hidden;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        .hero img {&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            width: 100%;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            height: 100%;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            object-fit: cover;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            object-position: center;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            filter: brightness(0.6);&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        .movie-info {&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            max-width: 1000px;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            margin: -150px auto 50px auto;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            background: rgba(10, 20, 40, 0.8);&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            padding: 30px;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            border-radius: 12px;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            backdrop-filter: blur(6px);&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        .movie-info h2 {&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            color: #22c1ff;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            font-weight: 800;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        .movie-info p { color: #ccc; }&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        /* ==== FEEDBACK ==== */&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        .feedback-section {&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            max-width: 1000px;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            margin: 50px auto;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            background: rgba(255, 255, 255, 0.05);&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            padding: 25px;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            border-radius: 10px;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            box-shadow: 0 0 15px rgba(0,240,255,0.2);&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        .feedback-header {&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            text-align: center;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            margin-bottom: 30px;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        .feedback-header h3 {&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            font-weight: 700;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            color: #00f0ff;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            text-shadow: 0 0 8px #00f0ff;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        .feedback-header .avg {&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            font-size: 2.6rem;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            font-weight: 700;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            color: #ffd700;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            margin-top: 10px;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        .feedback-header .count {&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            color: #ccc;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            font-size: 1rem;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        .feedback-item {&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            background: rgba(255,255,255,0.07);&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            border-radius: 10px;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            padding: 15px 18px;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            margin-bottom: 15px;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            border-left: 4px solid #00f0ff;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            transition: 0.3s;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        .feedback-item:hover {&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            background: rgba(255,255,255,0.12);&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            transform: translateY(-3px);&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        .feedback-item .name {&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            font-weight: bold;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            color: #00f0ff;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        .feedback-item .date {&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            font-size: 0.85rem;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            color: #aaa;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        .feedback-item .stars {&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            color: #ffd700;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            font-size: 1rem;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        .feedback-form {&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            margin-top: 40px;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        .feedback-form textarea {&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            resize: none;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            border-radius: 8px;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        .btn-submit {&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            background: #e50914;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            border: none;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            color: #fff;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            font-weight: 600;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            border-radius: 8px;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            padding: 8px 18px;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        .btn-submit:hover {&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            background: #b0060f;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        .btn-back {&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            display: block;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            margin: 30px auto 60px auto;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            background: #00f0ff;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            color: #000;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            border: none;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            font-weight: 700;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            border-radius: 8px;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            padding: 10px 20px;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            transition: 0.3s;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        .btn-back:hover {&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            background: #02c4d1;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            transform: scale(1.05);&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;    </style>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;</head>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;<body>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;<div id="header"></div>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;&lt;!&ndash; HERO &ndash;&gt;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;<section class="hero">&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;    <img id="hero-poster" src="../image/default_movie.jpg" alt="Poster">&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;</section>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;&lt;!&ndash; MOVIE INFO &ndash;&gt;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;<div class="movie-info text-center text-lg-start">&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;    <div class="row align-items-center">&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        <div class="col-lg-4 text-center mb-3 mb-lg-0">&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            <img id="poster" src="../image/default_movie.jpg" alt="Poster" class="img-fluid rounded shadow" style="width: 250px;">&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        </div>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        <div class="col-lg-8">&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            <h2 id="title"></h2>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            <p id="genre"></p>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            <p id="description"></p>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            <p><strong>Đạo diễn:</strong> <span id="director"></span></p>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            <p><strong>Thời lượng:</strong> <span id="duration"></span> phút</p>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            <p><strong>Ngày phát hành:</strong> <span id="releaseDate"></span></p>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            <p><strong>Ngôn ngữ:</strong> <span id="language"></span></p>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        </div>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;    </div>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;</div>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;&lt;!&ndash; FEEDBACK &ndash;&gt;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;<section class="feedback-section">&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;    <div class="feedback-header">&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        <h3><i class="fa-solid fa-comments"></i> Đánh giá phim</h3>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        <div class="avg" id="avg-rating">⭐ 0.0</div>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        <div class="count" id="feedback-count">(0 đánh giá)</div>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;    </div>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;    <div id="feedback-list"></div>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;    &lt;!&ndash; FORM &ndash;&gt;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;    <div class="feedback-form">&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        <h5 class="text-light mb-3">Viết đánh giá của bạn</h5>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        <div class="mb-3">&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            <label class="form-label text-light">Chọn số sao:</label><br>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            <select id="rating" class="form-select w-25">&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;                <option value="5">⭐ 5 - Tuyệt vời</option>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;                <option value="4">⭐ 4 - Hay</option>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;                <option value="3">⭐ 3 - Tạm ổn</option>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;                <option value="2">⭐ 2 - Chưa hay</option>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;                <option value="1">⭐ 1 - Tệ</option>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            </select>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        </div>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        <div class="mb-3">&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;            <textarea id="comment" rows="3" class="form-control" placeholder="Chia sẻ cảm nghĩ của bạn..."></textarea>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        </div>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;        <button id="btn-submit" class="btn-submit"><i class="fa-solid fa-paper-plane"></i> Gửi đánh giá</button>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;    </div>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;</section>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;&lt;!&ndash; BACK &ndash;&gt;&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;<button id="btn-back" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Quay lại danh sách phim</button>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;<div id="footer"></div>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;<script type="module" src="../js/movieDetail.js"></script>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;<script>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;    fetch("../home/header.html").then(r=>r.text()).then(h=>document.getElementById("header").innerHTML=h);&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;    fetch("../home/footer.html").then(r=>r.text()).then(h=>document.getElementById("footer").innerHTML=h);&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;</script>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;</body>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;&lt;!&ndash;</html>&ndash;&gt;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;<!DOCTYPE html>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;<html lang="vi">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;<head>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;    <meta charset="UTF-8">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;    <title>CineMaster • Chi tiết phim</title>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;    <meta name="viewport" content="width=device-width, initial-scale=1">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&family=Orbitron:wght@600;700&display=swap" rel="stylesheet">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;    <style>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        /* ======================================= */&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        /* 1. THIẾT LẬP CHUNG & FONT (CYBERPUNK)  */&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        /* ======================================= */&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        body {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            background: #000411;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            color: #E0E7FF;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            font-family: 'Poppins', sans-serif;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            min-height: 100vh;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;        /* Hero Section (Banner/Background Blur) */&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .hero {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            position: relative;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            width: 100%;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            height: 75vh;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            overflow: hidden;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .hero img {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            width: 100%;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            height: 100%;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            object-fit: cover;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            object-position: top;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            filter: brightness(0.4) blur(4px);&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            transform: scale(1.05);&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .hero::after {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            content: '';&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            position: absolute;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            bottom: 0;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            left: 0;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            width: 100%;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            height: 200px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            background: linear-gradient(0deg, #000411 0%, rgba(0, 0, 0, 0) 100%);&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;        /* ======================================= */&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        /* 2. KHỐI CHI TIẾT PHIM (MOVIE INFO BLOCK) */&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        /* ======================================= */&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .movie-info-block {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            max-width: 1400px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            margin: -250px auto 50px auto; /* Kéo lên trên banner */&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            position: relative;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            z-index: 10;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;        /* Khối Chi Tiết (Bao gồm Poster) */&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .movie-details {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            background: rgba(10, 20, 40, 0.98);&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            padding: 40px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            border-radius: 12px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            /* Bóng Neon Xanh Cyan */&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            box-shadow: 0 0 50px rgba(56, 252, 255, 0.15), 0 15px 30px rgba(0, 0, 0, 0.8);&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            border: 1px solid rgba(56, 252, 255, 0.3);&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;        /* Poster */&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .poster-container {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            border: 4px solid #38FCFF;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            border-radius: 8px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            overflow: hidden;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            box-shadow: 0 0 25px rgba(56, 252, 255, 0.7); /* Đổ bóng mạnh */&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            aspect-ratio: 2/3;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            max-width: 300px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            width: 100%;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            transition: transform 0.3s;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .poster-container img {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            width: 100%;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            height: 100%;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            object-fit: cover;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;        /* Tiêu đề & Metadata */&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        #title {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            font-family: 'Orbitron', sans-serif;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            color: #38FCFF;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            font-weight: 700;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            font-size: 3rem;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            text-shadow: 0 0 15px rgba(56, 252, 255, 0.7);&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            letter-spacing: 1px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            margin-bottom: 5px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        #genre-text {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            color: #FF073A; /* Đỏ Rực */&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            font-weight: 600;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            text-transform: uppercase;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;        /* Badges */&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .badge-info {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            font-size: 0.85rem;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            font-weight: 700;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            padding: 6px 14px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            border-radius: 4px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            margin-right: 10px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            text-transform: uppercase;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            letter-spacing: 0.5px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .badge-age { background-color: #FF073A; box-shadow: 0 0 8px rgba(255, 7, 58, 0.5); }&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .badge-status-now { background-color: #38FCFF; color: #000411; box-shadow: 0 0 8px rgba(56, 252, 255, 0.5); }&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .badge-status-soon { background-color: #ffd700; color: #000411; }&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .badge-status-ended { background-color: #6c757d; color: #fff; }&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;        /* Mô tả & Thông tin chi tiết */&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .description-box {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            border-left: 3px solid #FF073A;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            padding-left: 15px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            margin-top: 20px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        #descriptions {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            font-size: 1rem;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            line-height: 1.7;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            margin-bottom: 0;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .metadata-line {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            padding: 8px 0;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            border-bottom: 1px dashed rgba(224, 231, 255, 0.1);&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .metadata-line strong {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            color: #38FCFF;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            min-width: 140px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            display: inline-block;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;        /* Trailer Button */&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .btn-trailer {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            background: #FF073A;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            color: #fff;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            font-weight: 700;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            padding: 12px 30px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            border-radius: 4px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            margin-top: 20px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            transition: 0.3s;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            box-shadow: 0 0 15px rgba(255, 7, 58, 0.7);&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .btn-trailer:hover {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            background: #e50914;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            transform: translateY(-2px);&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            box-shadow: 0 0 20px rgba(255, 7, 58, 0.9);&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;        /* ======================================= */&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        /* 3. ĐÁNH GIÁ (FEEDBACK) */&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        /* ======================================= */&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .feedback-section {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            max-width: 1400px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            margin: 50px auto;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            background: rgba(56, 252, 255, 0.05);&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            padding: 30px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            border-radius: 12px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            box-shadow: 0 0 15px rgba(56, 252, 255, 0.4);&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            border: 1px solid rgba(56, 252, 255, 0.2);&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .feedback-header h3 {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            color: #38FCFF;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            text-shadow: 0 0 8px #38FCFF;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            font-family: 'Orbitron', sans-serif;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .feedback-header .avg {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            color: #ffd700;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            text-shadow: 0 0 5px rgba(255, 215, 0, 0.7);&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            font-size: 3rem;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .feedback-item {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            border-left: 4px solid #FF073A;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            background: rgba(255,255,255,0.07);&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            transition: 0.3s;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .feedback-item:hover {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            background: rgba(255,255,255,0.12);&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            transform: translateY(-2px);&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .feedback-item .name {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            color: #38FCFF;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            font-weight: 700;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .feedback-item .stars {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            color: #ffd700;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;        /* Form Controls */&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .feedback-form textarea, .feedback-form .form-select {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            background-color: #0b1424;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            color: #fff;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            border: 1px solid #38FCFF;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .feedback-form .form-select { width: auto !important; }&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;        .btn-submit {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            background: #FF073A;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            border: none;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            color: #fff;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            font-weight: 700;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            border-radius: 8px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            padding: 10px 20px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            box-shadow: 0 0 10px rgba(255, 7, 58, 0.6);&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            transition: 0.3s;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .btn-submit:hover {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            background: #e50914;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;        /* Back Button */&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .btn-back {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            display: block;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            margin: 30px auto 60px auto;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            background: #38FCFF;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            color: #000411;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            border: none;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            font-weight: 700;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            border-radius: 8px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            padding: 12px 30px;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            transition: 0.3s;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        .btn-back:hover {&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            background: #19e0e3;&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            transform: scale(1.05);&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        }&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;    </style>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;</head>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;<body>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;<div id="header"></div>&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;<section class="hero">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;    <img id="hero-poster" src="../image/default_movie.jpg" alt="Banner Phim">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;</section>&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;<div class="movie-info-block container">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;    <div class="row movie-details">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        <div class="col-lg-4 text-center mb-4 mb-lg-0">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            <div class="poster-container mx-auto">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                <img id="poster" src="../image/default_movie.jpg" alt="Poster Phim">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            </div>&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;            <a id="btn-trailer" href="#" target="_blank" class="btn btn-trailer w-100 mx-auto" style="max-width: 300px;">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                <i class="fa-solid fa-bolt"></i> ACCESS TRAILER <i class="fa-solid fa-video"></i>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            </a>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        </div>&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;        <div class="col-lg-8">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            <h2 id="title">TITLE: [FILM NAME]</h2>&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;            <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                <span id="ageRestrictionBadge" class="badge-info badge-age">C18</span>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                <span id="statusBadge" class="badge-info badge-status-now">NOW SHOWING</span>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                <span id="durationBadge" class="badge-info badge-duration">148 MINS</span>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                <span id="countryBadge" class="badge-info bg-secondary"><i class="fa-solid fa-globe"></i> COUNTRY</span>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            </div>&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;            <p id="genre-text" class="lead"><i class="fa-solid fa-tags"></i> **Thể loại:** [Genre]</p>&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;            <h5 class="text-light mt-4 text-uppercase">TÓM TẮT DỮ LIỆU</h5>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            <div class="description-box">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                <p id="descriptions" class="text-light"></p>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            </div>&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;            <div class="movie-metadata mt-4">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                <div class="metadata-line d-flex">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                    <strong>Đạo diễn:</strong> <span id="director"></span>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                </div>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                <div class="metadata-line d-flex">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                    <strong>Diễn viên:</strong> <span id="casts" style="font-style: italic; color: #a0aec0;"></span>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                </div>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                <div class="metadata-line d-flex">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                    <strong>Ngày phát hành:</strong> <span id="releaseDate"></span>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                </div>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                <div class="metadata-line d-flex">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                    <strong>Ngôn ngữ:</strong> <span id="languages"></span>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                </div>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                <div class="metadata-line d-flex">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                    <strong>Giới hạn tuổi:</strong> <span id="ageRestrictionText"></span>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                </div>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            </div>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        </div>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;    </div>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;</div>&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;<section class="feedback-section">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;    <div class="feedback-header text-center">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        <h3><i class="fa-solid fa-terminal"></i> BẢNG ĐÁNH GIÁ NGƯỜI DÙNG</h3>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        <div class="avg" id="avg-rating">⭐ 0.0</div>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        <div class="count" id="feedback-count">(0 đánh giá đã được ghi nhận)</div>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;    </div>&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;    <div id="feedback-list">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;    </div>&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;    <div class="feedback-form">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        <h5 class="text-light mb-3 text-uppercase">NHẬP THÔNG TIN ĐÁNH GIÁ MỚI</h5>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        <div class="d-flex align-items-center mb-3 gap-3">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            <label class="form-label text-light mb-0">Xếp hạng:</label>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            <select id="rating" class="form-select">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                <option value="5">⭐ 5 - Tuyệt vời (Excellent)</option>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                <option value="4">⭐ 4 - Hay (Good)</option>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                <option value="3">⭐ 3 - Tạm ổn (Neutral)</option>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                <option value="2">⭐ 2 - Chưa hay (Below Average)</option>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;                <option value="1">⭐ 1 - Tệ (Poor)</option>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            </select>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        </div>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        <div class="mb-3">&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;            <textarea id="comment" rows="3" class="form-control" placeholder="[INPUT]: Chia sẻ cảm nghĩ của bạn về dự án này..."></textarea>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        </div>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;        <button id="btn-submit" class="btn btn-submit"><i class="fa-solid fa-paper-plane"></i> SUBMIT REVIEW</button>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;    </div>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;</section>&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;<button id="btn-back" class="btn btn-back"><i class="fa-solid fa-arrow-left"></i> QUAY LẠI MỤC LỰA CHỌN PHIM</button>&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;<div id="footer"></div>&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;<script type="module" src="../js/movieDetail.js"></script>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;<script>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;    fetch("../home/header.html").then(r=>r.text()).then(h=>document.getElementById("header").innerHTML=h);&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;    fetch("../home/footer.html").then(r=>r.text()).then(h=>document.getElementById("footer").innerHTML=h);&ndash;&gt;&ndash;&gt;-->
-
-<!--&lt;!&ndash;&lt;!&ndash;    // Dummy Data (Dùng cho HTML template, sẽ bị ghi đè bởi JS của bạn)&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;    // Tương tự như lần trước, bạn sẽ xóa phần này khi tích hợp thực tế&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;</script>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;</body>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;&lt;!&ndash;</html>&ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;<!DOCTYPE html>&ndash;&gt;-->
-<!--&lt;!&ndash;<html lang="vi">&ndash;&gt;-->
-<!--&lt;!&ndash;<head>&ndash;&gt;-->
-<!--&lt;!&ndash;    <meta charset="UTF-8" />&ndash;&gt;-->
-<!--&lt;!&ndash;    <title>CineMaster • Danh Sách Phim</title>&ndash;&gt;-->
-<!--&lt;!&ndash;    <meta name="viewport" content="width=device-width, initial-scale=1" />&ndash;&gt;-->
-<!--&lt;!&ndash;    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">&ndash;&gt;-->
-<!--&lt;!&ndash;    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">&ndash;&gt;-->
-<!--&lt;!&ndash;    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">&ndash;&gt;-->
-<!--&lt;!&ndash;    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>&ndash;&gt;-->
-<!--&lt;!&ndash;    <style>&ndash;&gt;-->
-<!--&lt;!&ndash;        :root{&ndash;&gt;-->
-<!--&lt;!&ndash;            &#45;&#45;red:#e50914;&ndash;&gt;-->
-<!--&lt;!&ndash;            &#45;&#45;cyan:#22c1ff;&ndash;&gt;-->
-<!--&lt;!&ndash;            &#45;&#45;blue:#0aa3ff;&ndash;&gt;-->
-<!--&lt;!&ndash;            &#45;&#45;ink:#06101f;&ndash;&gt;-->
-<!--&lt;!&ndash;            &#45;&#45;bg:#0b162c;&ndash;&gt;-->
-<!--&lt;!&ndash;            &#45;&#45;card:#0c1324;&ndash;&gt;-->
-<!--&lt;!&ndash;            &#45;&#45;border:#1b2b4a;&ndash;&gt;-->
-<!--&lt;!&ndash;            &#45;&#45;muted:#9aa7b3;&ndash;&gt;-->
-<!--&lt;!&ndash;            &#45;&#45;muted2:#cfe3ff;&ndash;&gt;-->
-<!--&lt;!&ndash;            &#45;&#45;glow:0 0 20px rgba(34,193,255,.35), 0 0 60px rgba(34,193,255,.15);&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        /* ===== Pretty cinema tickets background (static) ===== */&ndash;&gt;-->
-<!--&lt;!&ndash;        .tickets-wall{&ndash;&gt;-->
-<!--&lt;!&ndash;            position:fixed; inset:0; pointer-events:none; z-index:0;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .tickets-wall .tickets-layer{&ndash;&gt;-->
-<!--&lt;!&ndash;            position:absolute; inset:-10%;&ndash;&gt;-->
-<!--&lt;!&ndash;            background-repeat:repeat;&ndash;&gt;-->
-<!--&lt;!&ndash;            background-size:320px 160px;&ndash;&gt;-->
-<!--&lt;!&ndash;            opacity:.14;&ndash;&gt;-->
-<!--&lt;!&ndash;            filter:drop-shadow(0 0 20px rgba(22,40,76,.18));&ndash;&gt;-->
-<!--&lt;!&ndash;            transform-origin:center center;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .tickets-wall .l1{&ndash;&gt;-->
-<!--&lt;!&ndash;            transform:rotate(-3deg) scale(1.04);&ndash;&gt;-->
-<!--&lt;!&ndash;            background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='160' viewBox='0 0 320 160'%3E%3Crect fill='none' width='320' height='160'/%3E%3Cg opacity='0.95'%3E%3Cg transform='translate(8,8)'%3E%3Cpath d='M0 24 a12 12 0 0 1 12 -12 h200 a10 10 0 0 0 10 -10 a12 12 0 0 1 12 12 v60 a12 12 0 0 1 -12 12 a10 10 0 0 0 -10 10 H12 a12 12 0 0 1 -12 -12z' fill='%23192A43' stroke='%232c3e66' stroke-width='2'/%3E%3Cline x1='140' y1='12' x2='140' y2='96' stroke='%238fb4ff' stroke-opacity='0.18' stroke-dasharray='6 6' /%3E%3Ccircle cx='60' cy='54' r='22' fill='none' stroke='%238fb4ff' stroke-opacity='0.35' stroke-width='3'/%3E%3Ccircle cx='60' cy='54' r='5' fill='%238fb4ff' opacity='0.3'/%3E%3Cg fill='%238fb4ff' opacity='0.35'%3E%3Ccircle cx='49' cy='44' r='5'/%3E%3Ccircle cx='71' cy='44' r='5'/%3E%3Ccircle cx='49' cy='64' r='5'/%3E%3Ccircle cx='71' cy='64' r='5'/%3E%3C/g%3E%3Cg transform='translate(164,32)' stroke='%23cfe3ff' stroke-opacity='0.38'%3E%3Crect x='0' y='0' width='60' height='24' fill='none'/%3E%3Cpath d='M3 0 v24 M8 0 v24 M11 0 v24 M16 0 v24 M22 0 v24 M27 0 v24 M33 0 v24 M38 0 v24 M45 0 v24 M51 0 v24 M56 0 v24' stroke-width='2'/%3E%3C/g%3E%3Cg transform='translate(164,66)' stroke='%23cfe3ff' stroke-opacity='0.45'%3E%3Cline x1='0' y1='0' x2='76' y2='0' stroke-width='2'/%3E%3Cline x1='0' y1='10' x2='62' y2='10' stroke-width='2'/%3E%3Cline x1='0' y1='20' x2='70' y2='20' stroke-width='2'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(8,88)'%3E%3Cpath d='M0 24 a12 12 0 0 1 12 -12 h200 a10 10 0 0 0 10 -10 a12 12 0 0 1 12 12 v60 a12 12 0 0 1 -12 12 a10 10 0 0 0 -10 10 H12 a12 12 0 0 1 -12 -12z' fill='%231b2f50' stroke='%23314774' stroke-width='2'/%3E%3Cline x1='140' y1='12' x2='140' y2='96' stroke='%238fb4ff' stroke-opacity='0.18' stroke-dasharray='6 6'/%3E%3Ccircle cx='60' cy='54' r='22' fill='none' stroke='%23a8c8ff' stroke-opacity='0.32' stroke-width='3'/%3E%3Ccircle cx='60' cy='54' r='5' fill='%23a8c8ff' opacity='0.28'/%3E%3Cg fill='%23a8c8ff' opacity='0.32'%3E%3Ccircle cx='49' cy='44' r='5'/%3E%3Ccircle cx='71' cy='44' r='5'/%3E%3Ccircle cx='49' cy='64' r='5'/%3E%3Ccircle cx='71' cy='64' r='5'/%3E%3C/g%3E%3Cg transform='translate(164,32)' stroke='%23d8e6ff' stroke-opacity='0.38'%3E%3Cpath d='M3 0 v24 M8 0 v24 M11 0 v24 M16 0 v24 M22 0 v24 M27 0 v24 M33 0 v24 M38 0 v24 M45 0 v24 M51 0 v24 M56 0 v24' stroke-width='2'/%3E%3C/g%3E%3Cg transform='translate(164,66)' stroke='%23d8e6ff' stroke-opacity='0.45'%3E%3Cline x1='0' y1='0' x2='76' y2='0' stroke-width='2'/%3E%3Cline x1='0' y1='10' x2='62' y2='10' stroke-width='2'/%3E%3Cline x1='0' y1='20' x2='70' y2='20' stroke-width='2'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .tickets-wall .l2{&ndash;&gt;-->
-<!--&lt;!&ndash;            transform:rotate(3deg) scale(1.06);&ndash;&gt;-->
-<!--&lt;!&ndash;            background-position:160px 80px;&ndash;&gt;-->
-<!--&lt;!&ndash;            opacity:.10;&ndash;&gt;-->
-<!--&lt;!&ndash;            background-image:inherit;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        /* ===== NỀN động + pattern vé ===== */&ndash;&gt;-->
-<!--&lt;!&ndash;        html,body{&ndash;&gt;-->
-<!--&lt;!&ndash;            margin:0; color:#fff; font-family:'Roboto',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;&ndash;&gt;-->
-<!--&lt;!&ndash;            min-height:100vh;&ndash;&gt;-->
-<!--&lt;!&ndash;            background-color: var(&#45;&#45;ink);&ndash;&gt;-->
-<!--&lt;!&ndash;            background-image:&ndash;&gt;-->
-<!--&lt;!&ndash;                    radial-gradient(1200px 600px at -10% -35%, rgba(229,9,20,.18), transparent 60%),&ndash;&gt;-->
-<!--&lt;!&ndash;                    radial-gradient(900px 400px at 120% -20%, rgba(34,193,255,.12), transparent 60%),&ndash;&gt;-->
-<!--&lt;!&ndash;                    linear-gradient(180deg, var(&#45;&#45;ink), var(&#45;&#45;bg)),&ndash;&gt;-->
-<!--&lt;!&ndash;                    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='80' viewBox='0 0 160 80'><rect width='160' height='80' fill='none'/><g opacity='0.08' stroke='%23cfe3ff' stroke-width='1.2' fill='none'><path d='M8 20 h110 a10 10 0 0 0 10 -10 a10 10 0 0 1 10 10 v20 a10 10 0 0 1 -10 10 a10 10 0 0 0 -10 10 H8 z'/><path d='M30 18 v44' stroke-dasharray='6 6'/><circle cx='120' cy='20' r='3'/><circle cx='120' cy='60' r='3'/></g></svg>");&ndash;&gt;-->
-<!--&lt;!&ndash;            background-repeat:no-repeat,no-repeat,no-repeat,repeat;&ndash;&gt;-->
-<!--&lt;!&ndash;            background-size:1200px 600px,900px 400px,100% 100%,320px 160px;&ndash;&gt;-->
-<!--&lt;!&ndash;            background-position:-10% -35%,120% -20%,0 0,0 0;&ndash;&gt;-->
-<!--&lt;!&ndash;            background-attachment:fixed, fixed, fixed, fixed;&ndash;&gt;-->
-<!--&lt;!&ndash;            overflow-x:hidden;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        /* hạt bụi chiếu phim */&ndash;&gt;-->
-<!--&lt;!&ndash;        .grain{&ndash;&gt;-->
-<!--&lt;!&ndash;            pointer-events:none; position:fixed; inset:0; opacity:.14; mix-blend-mode:screen; z-index:1;&ndash;&gt;-->
-<!--&lt;!&ndash;            background-image:radial-gradient(circle at 20% 30%, rgba(255,255,255,.06) 0 2px, transparent 2px),&ndash;&gt;-->
-<!--&lt;!&ndash;            radial-gradient(circle at 70% 60%, rgba(255,255,255,.05) 0 2px, transparent 2px);&ndash;&gt;-->
-<!--&lt;!&ndash;            background-size:200px 200px, 260px 260px;&ndash;&gt;-->
-<!--&lt;!&ndash;            animation: drift 18s linear infinite alternate;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        @keyframes drift{&ndash;&gt;-->
-<!--&lt;!&ndash;            from{ transform: translate3d(0,0,0) }&ndash;&gt;-->
-<!--&lt;!&ndash;            to{ transform: translate3d(30px,-25px,0) }&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .shell{max-width:1300px;margin:110px auto 48px;padding:0 24px; position:relative; z-index:2;}&ndash;&gt;-->
-<!--&lt;!&ndash;        /* viền filmstrip bo tròn + "lỗ vé" (mask) */&ndash;&gt;-->
-<!--&lt;!&ndash;        .film{&ndash;&gt;-->
-<!--&lt;!&ndash;            position:relative; background:linear-gradient(180deg,#0b152a,#0c162c);&ndash;&gt;-->
-<!--&lt;!&ndash;            border:1px solid var(&#45;&#45;border); border-radius:18px; box-shadow:0 14px 32px rgba(0,0,0,.5);&ndash;&gt;-->
-<!--&lt;!&ndash;            overflow:hidden;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .film:before,.film:after{&ndash;&gt;-->
-<!--&lt;!&ndash;            content:""; position:absolute; left:18px; right:18px; height:10px; opacity:.5;&ndash;&gt;-->
-<!--&lt;!&ndash;            background:repeating-linear-gradient(90deg, #142443 0 16px, transparent 16px 32px);&ndash;&gt;-->
-<!--&lt;!&ndash;            filter:drop-shadow(0 0 6px rgba(34,193,255,.2));&ndash;&gt;-->
-<!--&lt;!&ndash;            z-index:1;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .film:before{ top:12px } .film:after{ bottom:12px }&ndash;&gt;-->
-<!--&lt;!&ndash;        .movie-panel{padding:26px 22px; position:relative; z-index:2;}&ndash;&gt;-->
-<!--&lt;!&ndash;        h2 {&ndash;&gt;-->
-<!--&lt;!&ndash;            font-weight: 900;&ndash;&gt;-->
-<!--&lt;!&ndash;            letter-spacing: .3px;&ndash;&gt;-->
-<!--&lt;!&ndash;            background: linear-gradient(135deg, #fff, var(&#45;&#45;cyan));&ndash;&gt;-->
-<!--&lt;!&ndash;            -webkit-background-clip: text;&ndash;&gt;-->
-<!--&lt;!&ndash;            -webkit-text-fill-color: transparent;&ndash;&gt;-->
-<!--&lt;!&ndash;            background-clip: text;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        /* Summary Cards */&ndash;&gt;-->
-<!--&lt;!&ndash;        .summary-card{&ndash;&gt;-->
-<!--&lt;!&ndash;            background:linear-gradient(180deg,#0b152a,#0c162c);&ndash;&gt;-->
-<!--&lt;!&ndash;            border:1px solid var(&#45;&#45;border);&ndash;&gt;-->
-<!--&lt;!&ndash;            border-radius:12px;&ndash;&gt;-->
-<!--&lt;!&ndash;            padding:20px;&ndash;&gt;-->
-<!--&lt;!&ndash;            text-align:center;&ndash;&gt;-->
-<!--&lt;!&ndash;            transition:transform .3s, box-shadow .3s;&ndash;&gt;-->
-<!--&lt;!&ndash;            box-shadow: 0 4px 12px rgba(0,0,0,.3);&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .summary-card:hover{&ndash;&gt;-->
-<!--&lt;!&ndash;            transform:translateY(-5px);&ndash;&gt;-->
-<!--&lt;!&ndash;            box-shadow:0 10px 24px rgba(34,193,255,.2);&ndash;&gt;-->
-<!--&lt;!&ndash;            border-color: var(&#45;&#45;cyan);&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .summary-card h4{&ndash;&gt;-->
-<!--&lt;!&ndash;            font-size:0.85rem;&ndash;&gt;-->
-<!--&lt;!&ndash;            color:var(&#45;&#45;muted);&ndash;&gt;-->
-<!--&lt;!&ndash;            margin-bottom:8px;&ndash;&gt;-->
-<!--&lt;!&ndash;            font-weight:600;&ndash;&gt;-->
-<!--&lt;!&ndash;            letter-spacing:1px;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .summary-card p{&ndash;&gt;-->
-<!--&lt;!&ndash;            font-size:2rem;&ndash;&gt;-->
-<!--&lt;!&ndash;            font-weight:700;&ndash;&gt;-->
-<!--&lt;!&ndash;            color:var(&#45;&#45;cyan);&ndash;&gt;-->
-<!--&lt;!&ndash;            margin:0;&ndash;&gt;-->
-<!--&lt;!&ndash;            text-shadow: 0 0 10px rgba(34,193,255,.3);&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .chart-container{&ndash;&gt;-->
-<!--&lt;!&ndash;            background:linear-gradient(180deg,#0b152a,#0c162c);&ndash;&gt;-->
-<!--&lt;!&ndash;            border:1px solid var(&#45;&#45;border);&ndash;&gt;-->
-<!--&lt;!&ndash;            border-radius:12px;&ndash;&gt;-->
-<!--&lt;!&ndash;            padding:20px;&ndash;&gt;-->
-<!--&lt;!&ndash;            box-shadow: 0 4px 12px rgba(0,0,0,.3);&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        /* Table */&ndash;&gt;-->
-<!--&lt;!&ndash;        .table-responsive {&ndash;&gt;-->
-<!--&lt;!&ndash;            overflow-x: auto;&ndash;&gt;-->
-<!--&lt;!&ndash;            border-radius: 12px;&ndash;&gt;-->
-<!--&lt;!&ndash;            border: 1px solid var(&#45;&#45;border);&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .table-movie{&ndash;&gt;-->
-<!--&lt;!&ndash;            width:100%;&ndash;&gt;-->
-<!--&lt;!&ndash;            border-collapse:collapse;&ndash;&gt;-->
-<!--&lt;!&ndash;            color:#e6f1ff;&ndash;&gt;-->
-<!--&lt;!&ndash;            font-size:0.9rem;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .table-movie th, .table-movie td {&ndash;&gt;-->
-<!--&lt;!&ndash;            border:1px solid var(&#45;&#45;border);&ndash;&gt;-->
-<!--&lt;!&ndash;            padding:12px 8px;&ndash;&gt;-->
-<!--&lt;!&ndash;            text-align:center;&ndash;&gt;-->
-<!--&lt;!&ndash;            vertical-align:middle;&ndash;&gt;-->
-<!--&lt;!&ndash;            white-space: nowrap;&ndash;&gt;-->
-<!--&lt;!&ndash;            overflow: hidden;&ndash;&gt;-->
-<!--&lt;!&ndash;            text-overflow: ellipsis;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .table-movie td:nth-child(1) {&ndash;&gt;-->
-<!--&lt;!&ndash;            width:100px;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .table-movie td:nth-child(2) {&ndash;&gt;-->
-<!--&lt;!&ndash;            max-width:200px;&ndash;&gt;-->
-<!--&lt;!&ndash;            white-space: normal;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .table-movie td:last-child {&ndash;&gt;-->
-<!--&lt;!&ndash;            min-width:180px;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .table-movie thead th{&ndash;&gt;-->
-<!--&lt;!&ndash;            background:linear-gradient(135deg, #0e1f3d, #0a152c);&ndash;&gt;-->
-<!--&lt;!&ndash;            color:var(&#45;&#45;cyan);&ndash;&gt;-->
-<!--&lt;!&ndash;            font-weight:700;&ndash;&gt;-->
-<!--&lt;!&ndash;            text-transform:uppercase;&ndash;&gt;-->
-<!--&lt;!&ndash;            letter-spacing:1px;&ndash;&gt;-->
-<!--&lt;!&ndash;            font-size:0.85rem;&ndash;&gt;-->
-<!--&lt;!&ndash;            padding:14px 8px;&ndash;&gt;-->
-<!--&lt;!&ndash;            position: sticky;&ndash;&gt;-->
-<!--&lt;!&ndash;            top: 0;&ndash;&gt;-->
-<!--&lt;!&ndash;            z-index: 10;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .table-movie tbody tr{&ndash;&gt;-->
-<!--&lt;!&ndash;            background:rgba(11,21,42,.6);&ndash;&gt;-->
-<!--&lt;!&ndash;            transition: all .2s ease;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .table-movie tbody tr:hover{&ndash;&gt;-->
-<!--&lt;!&ndash;            background:#112040;&ndash;&gt;-->
-<!--&lt;!&ndash;            box-shadow: inset 0 0 0 1px rgba(34,193,255,.2);&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .movie-poster{&ndash;&gt;-->
-<!--&lt;!&ndash;            width:80px;&ndash;&gt;-->
-<!--&lt;!&ndash;            height:120px;&ndash;&gt;-->
-<!--&lt;!&ndash;            border-radius:8px;&ndash;&gt;-->
-<!--&lt;!&ndash;            object-fit:cover;&ndash;&gt;-->
-<!--&lt;!&ndash;            border:1px solid var(&#45;&#45;border);&ndash;&gt;-->
-<!--&lt;!&ndash;            box-shadow: 0 4px 12px rgba(0,0,0,.4);&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .btn-group-action {&ndash;&gt;-->
-<!--&lt;!&ndash;            display: flex;&ndash;&gt;-->
-<!--&lt;!&ndash;            justify-content: center;&ndash;&gt;-->
-<!--&lt;!&ndash;            gap: 6px;&ndash;&gt;-->
-<!--&lt;!&ndash;            flex-wrap: wrap;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .btn-group-action button {&ndash;&gt;-->
-<!--&lt;!&ndash;            flex: 0 0 auto;&ndash;&gt;-->
-<!--&lt;!&ndash;            padding: 6px 12px;&ndash;&gt;-->
-<!--&lt;!&ndash;            font-size: 0.85rem;&ndash;&gt;-->
-<!--&lt;!&ndash;            border-radius: 6px;&ndash;&gt;-->
-<!--&lt;!&ndash;            transition: all .2s ease;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .btn-primary{&ndash;&gt;-->
-<!--&lt;!&ndash;            background:linear-gradient(90deg,var(&#45;&#45;blue),var(&#45;&#45;cyan));&ndash;&gt;-->
-<!--&lt;!&ndash;            border:none;&ndash;&gt;-->
-<!--&lt;!&ndash;            font-weight:700;&ndash;&gt;-->
-<!--&lt;!&ndash;            color:#051020;&ndash;&gt;-->
-<!--&lt;!&ndash;            padding: 10px 24px;&ndash;&gt;-->
-<!--&lt;!&ndash;            border-radius: 10px;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .btn-primary:hover{&ndash;&gt;-->
-<!--&lt;!&ndash;            filter:brightness(1.15);&ndash;&gt;-->
-<!--&lt;!&ndash;            transform: translateY(-1px);&ndash;&gt;-->
-<!--&lt;!&ndash;            box-shadow: 0 6px 20px rgba(34,193,255,.4);&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .btn-warning{&ndash;&gt;-->
-<!--&lt;!&ndash;            border:none;&ndash;&gt;-->
-<!--&lt;!&ndash;            background:#ffc107;&ndash;&gt;-->
-<!--&lt;!&ndash;            color:#000;&ndash;&gt;-->
-<!--&lt;!&ndash;            font-weight:600;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .btn-warning:hover{&ndash;&gt;-->
-<!--&lt;!&ndash;            background:#ffca2c;&ndash;&gt;-->
-<!--&lt;!&ndash;            box-shadow: 0 4px 12px rgba(255,193,7,.4);&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .btn-danger{&ndash;&gt;-->
-<!--&lt;!&ndash;            border:none;&ndash;&gt;-->
-<!--&lt;!&ndash;            background:var(&#45;&#45;red);&ndash;&gt;-->
-<!--&lt;!&ndash;            color:#fff;&ndash;&gt;-->
-<!--&lt;!&ndash;            font-weight:600;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .btn-danger:hover{&ndash;&gt;-->
-<!--&lt;!&ndash;            background:#ff073a;&ndash;&gt;-->
-<!--&lt;!&ndash;            box-shadow: 0 4px 12px rgba(229,9,20,.5);&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .btn-success{&ndash;&gt;-->
-<!--&lt;!&ndash;            border:none;&ndash;&gt;-->
-<!--&lt;!&ndash;            background:#28a745;&ndash;&gt;-->
-<!--&lt;!&ndash;            color:#fff;&ndash;&gt;-->
-<!--&lt;!&ndash;            font-weight:600;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .btn-success:hover{&ndash;&gt;-->
-<!--&lt;!&ndash;            background:#34ce57;&ndash;&gt;-->
-<!--&lt;!&ndash;            box-shadow: 0 4px 12px rgba(40,167,69,.4);&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        .btn-create{&ndash;&gt;-->
-<!--&lt;!&ndash;            margin-bottom:15px;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        /* Pagination */&ndash;&gt;-->
-<!--&lt;!&ndash;        #page-numbers {&ndash;&gt;-->
-<!--&lt;!&ndash;            text-align:center;&ndash;&gt;-->
-<!--&lt;!&ndash;            margin-top:20px;&ndash;&gt;-->
-<!--&lt;!&ndash;            padding: 15px 0;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        #page-numbers button {&ndash;&gt;-->
-<!--&lt;!&ndash;            margin:0 4px;&ndash;&gt;-->
-<!--&lt;!&ndash;            padding:8px 16px;&ndash;&gt;-->
-<!--&lt;!&ndash;            border-radius:8px;&ndash;&gt;-->
-<!--&lt;!&ndash;            font-weight:600;&ndash;&gt;-->
-<!--&lt;!&ndash;            background:linear-gradient(135deg, #0e1f3d, #0a152c);&ndash;&gt;-->
-<!--&lt;!&ndash;            border:1px solid var(&#45;&#45;border);&ndash;&gt;-->
-<!--&lt;!&ndash;            color:var(&#45;&#45;muted2);&ndash;&gt;-->
-<!--&lt;!&ndash;            transition: all .2s ease;&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        #page-numbers button:hover {&ndash;&gt;-->
-<!--&lt;!&ndash;            border-color:var(&#45;&#45;cyan);&ndash;&gt;-->
-<!--&lt;!&ndash;            color:var(&#45;&#45;cyan);&ndash;&gt;-->
-<!--&lt;!&ndash;            background:rgba(34,193,255,.1);&ndash;&gt;-->
-<!--&lt;!&ndash;            transform: translateY(-1px);&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;        #page-numbers button.active {&ndash;&gt;-->
-<!--&lt;!&ndash;            background:linear-gradient(90deg,var(&#45;&#45;blue),var(&#45;&#45;cyan));&ndash;&gt;-->
-<!--&lt;!&ndash;            border-color:var(&#45;&#45;cyan);&ndash;&gt;-->
-<!--&lt;!&ndash;            color:#000;&ndash;&gt;-->
-<!--&lt;!&ndash;            box-shadow: 0 0 15px rgba(34,193,255,.4);&ndash;&gt;-->
-<!--&lt;!&ndash;        }&ndash;&gt;-->
-<!--&lt;!&ndash;    </style>&ndash;&gt;-->
-<!--&lt;!&ndash;</head>&ndash;&gt;-->
-<!--&lt;!&ndash;<body>&ndash;&gt;-->
-<!--&lt;!&ndash;<div class="grain"></div>&ndash;&gt;-->
-<!--&lt;!&ndash;<div class="tickets-wall" aria-hidden="true">&ndash;&gt;-->
-<!--&lt;!&ndash;    <div class="tickets-layer l1"></div>&ndash;&gt;-->
-<!--&lt;!&ndash;    <div class="tickets-layer l2"></div>&ndash;&gt;-->
-<!--&lt;!&ndash;</div>&ndash;&gt;-->
-<!--&lt;!&ndash;<div id="header"></div>&ndash;&gt;-->
-<!--&lt;!&ndash;<main class="shell">&ndash;&gt;-->
-<!--&lt;!&ndash;    <section class="film movie-panel">&ndash;&gt;-->
-<!--&lt;!&ndash;        &lt;!&ndash; Thống kê &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;        <div class="row mb-4">&ndash;&gt;-->
-<!--&lt;!&ndash;            <div class="col-md-3">&ndash;&gt;-->
-<!--&lt;!&ndash;                <div class="summary-card">&ndash;&gt;-->
-<!--&lt;!&ndash;                    <h4>TỔNG SỐ PHIM</h4>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <p id="total-movies">0</p>&ndash;&gt;-->
-<!--&lt;!&ndash;                </div>&ndash;&gt;-->
-<!--&lt;!&ndash;            </div>&ndash;&gt;-->
-<!--&lt;!&ndash;            <div class="col-md-3">&ndash;&gt;-->
-<!--&lt;!&ndash;                <div class="summary-card">&ndash;&gt;-->
-<!--&lt;!&ndash;                    <h4>ĐANG CHIẾU</h4>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <p id="current-movies">0</p>&ndash;&gt;-->
-<!--&lt;!&ndash;                </div>&ndash;&gt;-->
-<!--&lt;!&ndash;            </div>&ndash;&gt;-->
-<!--&lt;!&ndash;            <div class="col-md-3">&ndash;&gt;-->
-<!--&lt;!&ndash;                <div class="summary-card">&ndash;&gt;-->
-<!--&lt;!&ndash;                    <h4>SẮP CHIẾU</h4>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <p id="upcoming-movies">0</p>&ndash;&gt;-->
-<!--&lt;!&ndash;                </div>&ndash;&gt;-->
-<!--&lt;!&ndash;            </div>&ndash;&gt;-->
-<!--&lt;!&ndash;            <div class="col-md-3">&ndash;&gt;-->
-<!--&lt;!&ndash;                <div class="chart-container">&ndash;&gt;-->
-<!--&lt;!&ndash;                    <canvas id="movieStatusChart"></canvas>&ndash;&gt;-->
-<!--&lt;!&ndash;                </div>&ndash;&gt;-->
-<!--&lt;!&ndash;            </div>&ndash;&gt;-->
-<!--&lt;!&ndash;        </div>&ndash;&gt;-->
-<!--&lt;!&ndash;        &lt;!&ndash; Bảng phim &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;        <div class="d-flex justify-content-between align-items-center mb-3">&ndash;&gt;-->
-<!--&lt;!&ndash;            <h2 class="fw-bold">Danh Sách Phim</h2>&ndash;&gt;-->
-<!--&lt;!&ndash;            <button class="btn btn-primary btn-create" onclick="window.location.href='createMovie.html'">&ndash;&gt;-->
-<!--&lt;!&ndash;                <i class="fa fa-plus me-2"></i> Thêm Phim&ndash;&gt;-->
-<!--&lt;!&ndash;            </button>&ndash;&gt;-->
-<!--&lt;!&ndash;        </div>&ndash;&gt;-->
-<!--&lt;!&ndash;        <div class="table-responsive">&ndash;&gt;-->
-<!--&lt;!&ndash;            <table class="table-movie">&ndash;&gt;-->
-<!--&lt;!&ndash;                <thead>&ndash;&gt;-->
-<!--&lt;!&ndash;                <tr>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <th>Poster</th>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <th>Tiêu đề</th>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <th>Thể loại</th>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <th>Thời lượng</th>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <th>Ngày phát hành</th>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <th>Đạo diễn</th>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <th>Trạng thái</th>&ndash;&gt;-->
-<!--&lt;!&ndash;                    <th>Hành động</th>&ndash;&gt;-->
-<!--&lt;!&ndash;                </tr>&ndash;&gt;-->
-<!--&lt;!&ndash;                </thead>&ndash;&gt;-->
-<!--&lt;!&ndash;                <tbody id="movies-body"></tbody>&ndash;&gt;-->
-<!--&lt;!&ndash;            </table>&ndash;&gt;-->
-<!--&lt;!&ndash;        </div>&ndash;&gt;-->
-<!--&lt;!&ndash;        &lt;!&ndash; Phân trang &ndash;&gt;&ndash;&gt;-->
-<!--&lt;!&ndash;        <div id="page-numbers"></div>&ndash;&gt;-->
-<!--&lt;!&ndash;    </section>&ndash;&gt;-->
-<!--&lt;!&ndash;</main>&ndash;&gt;-->
-<!--&lt;!&ndash;<div id="footer"></div>&ndash;&gt;-->
-<!--&lt;!&ndash;<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>&ndash;&gt;-->
-<!--&lt;!&ndash;<script type="module" src="../js/listMovies.js"></script>&ndash;&gt;-->
-<!--&lt;!&ndash;<script>&ndash;&gt;-->
-<!--&lt;!&ndash;    fetch("../home/header.html").then(r=>r.text()).then(h=>document.getElementById("header").innerHTML=h);&ndash;&gt;-->
-<!--&lt;!&ndash;    fetch("../home/footer.html").then(r=>r.text()).then(h=>document.getElementById("footer").innerHTML=h);&ndash;&gt;-->
-<!--&lt;!&ndash;</script>&ndash;&gt;-->
-<!--&lt;!&ndash;</body>&ndash;&gt;-->
-<!--&lt;!&ndash;</html>&ndash;&gt;-->
-
-<!--<!DOCTYPE html>-->
-<!--<html lang="vi">-->
-<!--<head>-->
-<!--    <meta charset="UTF-8">-->
-<!--    <title>CineMaster • Chi tiết phim</title>-->
-<!--    <meta name="viewport" content="width=device-width, initial-scale=1">-->
-<!--    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">-->
-<!--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">-->
-<!--    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Bebas+Neue&display=swap"-->
-<!--          rel="stylesheet">-->
-<!--    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>-->
-<!--    <style>-->
-<!--        :root {-->
-<!--            &#45;&#45;red: #e50914;-->
-<!--            &#45;&#45;cyan: #22c1ff;-->
-<!--            &#45;&#45;blue: #0aa3ff;-->
-<!--            &#45;&#45;ink: #06101f;-->
-<!--            &#45;&#45;bg: #0b162c;-->
-<!--            &#45;&#45;card: #0c1324;-->
-<!--            &#45;&#45;border: #1b2b4a;-->
-<!--            &#45;&#45;muted: #9aa7b3;-->
-<!--            &#45;&#45;muted2: #cfe3ff;-->
-<!--            &#45;&#45;glow: 0 0 20px rgba(34, 193, 255, .35), 0 0 60px rgba(34, 193, 255, .15);-->
-<!--        }-->
-
-<!--        /* ===== Pretty cinema tickets background (static) ===== */-->
-<!--        .tickets-wall {-->
-<!--            position: fixed;-->
-<!--            inset: 0;-->
-<!--            pointer-events: none;-->
-<!--            z-index: 0;-->
-<!--        }-->
-
-<!--        .tickets-wall .tickets-layer {-->
-<!--            position: absolute;-->
-<!--            inset: -10%;-->
-<!--            background-repeat: repeat;-->
-<!--            background-size: 320px 160px;-->
-<!--            opacity: .14;-->
-<!--            filter: drop-shadow(0 0 20px rgba(22, 40, 76, .18));-->
-<!--            transform-origin: center center;-->
-<!--        }-->
-
-<!--        .tickets-wall .l1 {-->
-<!--            transform: rotate(-3deg) scale(1.04);-->
-<!--            background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='160' viewBox='0 0 320 160'%3E%3Crect fill='none' width='320' height='160'/%3E%3Cg opacity='0.95'%3E%3Cg transform='translate(8,8)'%3E%3Cpath d='M0 24 a12 12 0 0 1 12 -12 h200 a10 10 0 0 0 10 -10 a12 12 0 0 1 12 12 v60 a12 12 0 0 1 -12 12 a10 10 0 0 0 -10 10 H12 a12 12 0 0 1 -12 -12z' fill='%23192A43' stroke='%232c3e66' stroke-width='2'/%3E%3Cline x1='140' y1='12' x2='140' y2='96' stroke='%238fb4ff' stroke-opacity='0.18' stroke-dasharray='6 6' /%3E%3Ccircle cx='60' cy='54' r='22' fill='none' stroke='%238fb4ff' stroke-opacity='0.35' stroke-width='3'/%3E%3Ccircle cx='60' cy='54' r='5' fill='%238fb4ff' opacity='0.3'/%3E%3Cg fill='%238fb4ff' opacity='0.35'%3E%3Ccircle cx='49' cy='44' r='5'/%3E%3Ccircle cx='71' cy='44' r='5'/%3E%3Ccircle cx='49' cy='64' r='5'/%3E%3Ccircle cx='71' cy='64' r='5'/%3E%3C/g%3E%3Cg transform='translate(164,32)' stroke='%23cfe3ff' stroke-opacity='0.38'%3E%3Crect x='0' y='0' width='60' height='24' fill='none'/%3E%3Cpath d='M3 0 v24 M8 0 v24 M11 0 v24 M16 0 v24 M22 0 v24 M27 0 v24 M33 0 v24 M38 0 v24 M45 0 v24 M51 0 v24 M56 0 v24' stroke-width='2'/%3E%3C/g%3E%3Cg transform='translate(164,66)' stroke='%23cfe3ff' stroke-opacity='0.45'%3E%3Cline x1='0' y1='0' x2='76' y2='0' stroke-width='2'/%3E%3Cline x1='0' y1='10' x2='62' y2='10' stroke-width='2'/%3E%3Cline x1='0' y1='20' x2='70' y2='20' stroke-width='2'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(8,88)'%3E%3Cpath d='M0 24 a12 12 0 0 1 12 -12 h200 a10 10 0 0 0 10 -10 a12 12 0 0 1 12 12 v60 a12 12 0 0 1 -12 12 a10 10 0 0 0 -10 10 H12 a12 12 0 0 1 -12 -12z' fill='%231b2f50' stroke='%23314774' stroke-width='2'/%3E%3Cline x1='140' y1='12' x2='140' y2='96' stroke='%238fb4ff' stroke-opacity='0.18' stroke-dasharray='6 6'/%3E%3Ccircle cx='60' cy='54' r='22' fill='none' stroke='%23a8c8ff' stroke-opacity='0.32' stroke-width='3'/%3E%3Ccircle cx='60' cy='54' r='5' fill='%23a8c8ff' opacity='0.28'/%3E%3Cg fill='%23a8c8ff' opacity='0.32'%3E%3Ccircle cx='49' cy='44' r='5'/%3E%3Ccircle cx='71' cy='44' r='5'/%3E%3Ccircle cx='49' cy='64' r='5'/%3E%3Ccircle cx='71' cy='64' r='5'/%3E%3C/g%3E%3Cg transform='translate(164,32)' stroke='%23d8e6ff' stroke-opacity='0.38'%3E%3Cpath d='M3 0 v24 M8 0 v24 M11 0 v24 M16 0 v24 M22 0 v24 M27 0 v24 M33 0 v24 M38 0 v24 M45 0 v24 M51 0 v24 M56 0 v24' stroke-width='2'/%3E%3C/g%3E%3Cg transform='translate(164,66)' stroke='%23d8e6ff' stroke-opacity='0.45'%3E%3Cline x1='0' y1='0' x2='76' y2='0' stroke-width='2'/%3E%3Cline x1='0' y1='10' x2='62' y2='10' stroke-width='2'/%3E%3Cline x1='0' y1='20' x2='70' y2='20' stroke-width='2'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");-->
-<!--        }-->
-
-<!--        .tickets-wall .l2 {-->
-<!--            transform: rotate(3deg) scale(1.06);-->
-<!--            background-position: 160px 80px;-->
-<!--            opacity: .10;-->
-<!--            background-image: inherit;-->
-<!--        }-->
-
-<!--        /* ===== NỀN động + pattern vé ===== */-->
-<!--        html, body {-->
-<!--            margin: 0;-->
-<!--            color: #fff;-->
-<!--            font-family: 'Roboto', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;-->
-<!--            min-height: 100vh;-->
-<!--            background-color: var(&#45;&#45;ink);-->
-<!--            background-image: radial-gradient(1200px 600px at -10% -35%, rgba(229, 9, 20, .18), transparent 60%),-->
-<!--            radial-gradient(900px 400px at 120% -20%, rgba(34, 193, 255, .12), transparent 60%),-->
-<!--            linear-gradient(180deg, var(&#45;&#45;ink), var(&#45;&#45;bg)),-->
-<!--            url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='80' viewBox='0 0 160 80'><rect width='160' height='80' fill='none'/><g opacity='0.08' stroke='%23cfe3ff' stroke-width='1.2' fill='none'><path d='M8 20 h110 a10 10 0 0 0 10 -10 a10 10 0 0 1 10 10 v20 a10 10 0 0 1 -10 10 a10 10 0 0 0 -10 10 H8 z'/><path d='M30 18 v44' stroke-dasharray='6 6'/><circle cx='120' cy='20' r='3'/><circle cx='120' cy='60' r='3'/></g></svg>");-->
-<!--            background-repeat: no-repeat, no-repeat, no-repeat, repeat;-->
-<!--            background-size: 1200px 600px, 900px 400px, 100% 100%, 320px 160px;-->
-<!--            background-position: -10% -35%, 120% -20%, 0 0, 0 0;-->
-<!--            background-attachment: fixed, fixed, fixed, fixed;-->
-<!--            overflow-x: hidden;-->
-<!--        }-->
-
-<!--        /* hạt bụi chiếu phim */-->
-<!--        .grain {-->
-<!--            pointer-events: none;-->
-<!--            position: fixed;-->
-<!--            inset: 0;-->
-<!--            opacity: .14;-->
-<!--            mix-blend-mode: screen;-->
-<!--            z-index: 1;-->
-<!--            background-image: radial-gradient(circle at 20% 30%, rgba(255, 255, 255, .06) 0 2px, transparent 2px),-->
-<!--            radial-gradient(circle at 70% 60%, rgba(255, 255, 255, .05) 0 2px, transparent 2px);-->
-<!--            background-size: 200px 200px, 260px 260px;-->
-<!--            animation: drift 18s linear infinite alternate;-->
-<!--        }-->
-
-<!--        @keyframes drift {-->
-<!--            from {-->
-<!--                transform: translate3d(0, 0, 0)-->
-<!--            }-->
-<!--            to {-->
-<!--                transform: translate3d(30px, -25px, 0)-->
-<!--            }-->
-<!--        }-->
-
-<!--        .shell {-->
-<!--            max-width: 1300px;-->
-<!--            margin: 110px auto 48px;-->
-<!--            padding: 0 24px;-->
-<!--            position: relative;-->
-<!--            z-index: 2;-->
-<!--        }-->
-
-<!--        /* viền filmstrip bo tròn + "lỗ vé" (mask) */-->
-<!--        .film {-->
-<!--            position: relative;-->
-<!--            background: linear-gradient(180deg, #0b152a, #0c162c);-->
-<!--            border: 1px solid var(&#45;&#45;border);-->
-<!--            border-radius: 18px;-->
-<!--            box-shadow: 0 14px 32px rgba(0, 0, 0, .5);-->
-<!--            overflow: hidden;-->
-<!--        }-->
-
-<!--        .film:before, .film:after {-->
-<!--            content: "";-->
-<!--            position: absolute;-->
-<!--            left: 18px;-->
-<!--            right: 18px;-->
-<!--            height: 10px;-->
-<!--            opacity: .5;-->
-<!--            background: repeating-linear-gradient(90deg, #142443 0 16px, transparent 16px 32px);-->
-<!--            filter: drop-shadow(0 0 6px rgba(34, 193, 255, .2));-->
-<!--            z-index: 1;-->
-<!--        }-->
-
-<!--        .film:before {-->
-<!--            top: 12px-->
-<!--        }-->
-
-<!--        .film:after {-->
-<!--            bottom: 12px-->
-<!--        }-->
-
-<!--        .movie-panel {-->
-<!--            padding: 26px 22px;-->
-<!--            position: relative;-->
-<!--            z-index: 2;-->
-<!--        }-->
-
-<!--        h2 {-->
-<!--            font-weight: 900;-->
-<!--            letter-spacing: .3px;-->
-<!--            background: linear-gradient(135deg, #fff, var(&#45;&#45;cyan));-->
-<!--            -webkit-background-clip: text;-->
-<!--            -webkit-text-fill-color: transparent;-->
-<!--            background-clip: text;-->
-<!--        }-->
-
-<!--        /* Summary Cards */-->
-<!--        .summary-card {-->
-<!--            background: linear-gradient(180deg, #0b152a, #0c162c);-->
-<!--            border: 1px solid var(&#45;&#45;border);-->
-<!--            border-radius: 12px;-->
-<!--            padding: 20px;-->
-<!--            text-align: center;-->
-<!--            transition: transform .3s, box-shadow .3s;-->
-<!--            box-shadow: 0 4px 12px rgba(0, 0, 0, .3);-->
-<!--        }-->
-
-<!--        .summary-card:hover {-->
-<!--            transform: translateY(-5px);-->
-<!--            box-shadow: 0 10px 24px rgba(34, 193, 255, .2);-->
-<!--            border-color: var(&#45;&#45;cyan);-->
-<!--        }-->
-
-<!--        .summary-card h4 {-->
-<!--            font-size: 0.85rem;-->
-<!--            color: var(&#45;&#45;muted);-->
-<!--            margin-bottom: 8px;-->
-<!--            font-weight: 600;-->
-<!--            letter-spacing: 1px;-->
-<!--        }-->
-
-<!--        .summary-card p {-->
-<!--            font-size: 2rem;-->
-<!--            font-weight: 700;-->
-<!--            color: var(&#45;&#45;cyan);-->
-<!--            margin: 0;-->
-<!--            text-shadow: 0 0 10px rgba(34, 193, 255, .3);-->
-<!--        }-->
-
-<!--        .chart-container {-->
-<!--            background: linear-gradient(180deg, #0b152a, #0c162c);-->
-<!--            border: 1px solid var(&#45;&#45;border);-->
-<!--            border-radius: 12px;-->
-<!--            padding: 20px;-->
-<!--            box-shadow: 0 4px 12px rgba(0, 0, 0, .3);-->
-<!--        }-->
-
-<!--        /* Table */-->
-<!--        .table-responsive {-->
-<!--            overflow-x: auto;-->
-<!--            border-radius: 12px;-->
-<!--            border: 1px solid var(&#45;&#45;border);-->
-<!--        }-->
-
-<!--        .table-movie {-->
-<!--            width: 100%;-->
-<!--            border-collapse: collapse;-->
-<!--            color: #e6f1ff;-->
-<!--            font-size: 0.9rem;-->
-<!--        }-->
-
-<!--        .table-movie th, .table-movie td {-->
-<!--            border: 1px solid var(&#45;&#45;border);-->
-<!--            padding: 12px 8px;-->
-<!--            text-align: center;-->
-<!--            vertical-align: middle;-->
-<!--            white-space: nowrap;-->
-<!--            overflow: hidden;-->
-<!--            text-overflow: ellipsis;-->
-<!--        }-->
-
-<!--        .table-movie td:nth-child(1) {-->
-<!--            width: 100px;-->
-<!--        }-->
-
-<!--        .table-movie td:nth-child(2) {-->
-<!--            max-width: 200px;-->
-<!--            white-space: normal;-->
-<!--        }-->
-
-<!--        .table-movie td:last-child {-->
-<!--            min-width: 180px;-->
-<!--        }-->
-
-<!--        .table-movie thead th {-->
-<!--            background: linear-gradient(135deg, #0e1f3d, #0a152c);-->
-<!--            color: var(&#45;&#45;cyan);-->
-<!--            font-weight: 700;-->
-<!--            text-transform: uppercase;-->
-<!--            letter-spacing: 1px;-->
-<!--            font-size: 0.85rem;-->
-<!--            padding: 14px 8px;-->
-<!--            position: sticky;-->
-<!--            top: 0;-->
-<!--            z-index: 10;-->
-<!--        }-->
-
-<!--        .table-movie tbody tr {-->
-<!--            background: rgba(11, 21, 42, .6);-->
-<!--            transition: all .2s ease;-->
-<!--        }-->
-
-<!--        .table-movie tbody tr:hover {-->
-<!--            background: #112040;-->
-<!--            box-shadow: inset 0 0 0 1px rgba(34, 193, 255, .2);-->
-<!--        }-->
-
-<!--        .movie-poster {-->
-<!--            width: 80px;-->
-<!--            height: 120px;-->
-<!--            border-radius: 8px;-->
-<!--            object-fit: cover;-->
-<!--            border: 1px solid var(&#45;&#45;border);-->
-<!--            box-shadow: 0 4px 12px rgba(0, 0, 0, .4);-->
-<!--        }-->
-
-<!--        .btn-group-action {-->
-<!--            display: flex;-->
-<!--            justify-content: center;-->
-<!--            gap: 6px;-->
-<!--            flex-wrap: wrap;-->
-<!--        }-->
-
-<!--        .btn-group-action button {-->
-<!--            flex: 0 0 auto;-->
-<!--            padding: 6px 12px;-->
-<!--            font-size: 0.85rem;-->
-<!--            border-radius: 6px;-->
-<!--            transition: all .2s ease;-->
-<!--        }-->
-
-<!--        .btn-primary {-->
-<!--            background: linear-gradient(90deg, var(&#45;&#45;blue), var(&#45;&#45;cyan));-->
-<!--            border: none;-->
-<!--            font-weight: 700;-->
-<!--            color: #051020;-->
-<!--            padding: 10px 24px;-->
-<!--            border-radius: 10px;-->
-<!--        }-->
-
-<!--        .btn-primary:hover {-->
-<!--            filter: brightness(1.15);-->
-<!--            transform: translateY(-1px);-->
-<!--            box-shadow: 0 6px 20px rgba(34, 193, 255, .4);-->
-<!--        }-->
-
-<!--        .btn-warning {-->
-<!--            border: none;-->
-<!--            background: #ffc107;-->
-<!--            color: #000;-->
-<!--            font-weight: 600;-->
-<!--        }-->
-
-<!--        .btn-warning:hover {-->
-<!--            background: #ffca2c;-->
-<!--            box-shadow: 0 4px 12px rgba(255, 193, 7, .4);-->
-<!--        }-->
-
-<!--        .btn-danger {-->
-<!--            border: none;-->
-<!--            background: var(&#45;&#45;red);-->
-<!--            color: #fff;-->
-<!--            font-weight: 600;-->
-<!--        }-->
-
-<!--        .btn-danger:hover {-->
-<!--            background: #ff073a;-->
-<!--            box-shadow: 0 4px 12px rgba(229, 9, 20, .5);-->
-<!--        }-->
-
-<!--        .btn-success {-->
-<!--            border: none;-->
-<!--            background: #28a745;-->
-<!--            color: #fff;-->
-<!--            font-weight: 600;-->
-<!--        }-->
-
-<!--        .btn-success:hover {-->
-<!--            background: #34ce57;-->
-<!--            box-shadow: 0 4px 12px rgba(40, 167, 69, .4);-->
-<!--        }-->
-
-<!--        .btn-create {-->
-<!--            margin-bottom: 15px;-->
-<!--        }-->
-
-<!--        /* Pagination */-->
-<!--        #page-numbers {-->
-<!--            text-align: center;-->
-<!--            margin-top: 20px;-->
-<!--            padding: 15px 0;-->
-<!--        }-->
-
-<!--        #page-numbers button {-->
-<!--            margin: 0 4px;-->
-<!--            padding: 8px 16px;-->
-<!--            border-radius: 8px;-->
-<!--            font-weight: 600;-->
-<!--            background: linear-gradient(135deg, #0e1f3d, #0a152c);-->
-<!--            border: 1px solid var(&#45;&#45;border);-->
-<!--            color: var(&#45;&#45;muted2);-->
-<!--            transition: all .2s ease;-->
-<!--        }-->
-
-<!--        #page-numbers button:hover {-->
-<!--            border-color: var(&#45;&#45;cyan);-->
-<!--            color: var(&#45;&#45;cyan);-->
-<!--            background: rgba(34, 193, 255, .1);-->
-<!--            transform: translateY(-1px);-->
-<!--        }-->
-
-<!--        #page-numbers button.active {-->
-<!--            background: linear-gradient(90deg, var(&#45;&#45;blue), var(&#45;&#45;cyan));-->
-<!--            border-color: var(&#45;&#45;cyan);-->
-<!--            color: #000;-->
-<!--            box-shadow: 0 0 15px rgba(34, 193, 255, .4);-->
-<!--        }-->
-
-<!--        /* ======================================= */-->
-<!--        /* Hero Section (Banner/Background Blur) */-->
-<!--        /* ======================================= */-->
-<!--        .hero {-->
-<!--            position: relative;-->
-<!--            width: 100%;-->
-<!--            height: 75vh;-->
-<!--            overflow: hidden;-->
-<!--        }-->
-
-<!--        .hero img {-->
-<!--            width: 100%;-->
-<!--            height: 100%;-->
-<!--            object-fit: cover;-->
-<!--            object-position: top;-->
-<!--            filter: brightness(0.4) blur(4px);-->
-<!--            transform: scale(1.05);-->
-<!--        }-->
-
-<!--        .hero::after {-->
-<!--            content: '';-->
-<!--            position: absolute;-->
-<!--            bottom: 0;-->
-<!--            left: 0;-->
-<!--            width: 100%;-->
-<!--            height: 200px;-->
-<!--            background: linear-gradient(0deg, var(&#45;&#45;ink) 0%, rgba(0, 0, 0, 0) 100%);-->
-<!--        }-->
-
-<!--        /* ======================================= */-->
-<!--        /* 2. KHỐI CHI TIẾT PHIM (MOVIE INFO BLOCK) */-->
-<!--        /* ======================================= */-->
-<!--        .movie-info-block {-->
-<!--            max-width: 1400px;-->
-<!--            margin: -250px auto 50px auto; /* Kéo lên trên banner */-->
-<!--            position: relative;-->
-<!--            z-index: 10;-->
-<!--        }-->
-
-<!--        /* Khối Chi Tiết (Bao gồm Poster) */-->
-<!--        .movie-details {-->
-<!--            background: linear-gradient(180deg, #0b152a, #0c162c);-->
-<!--            padding: 40px;-->
-<!--            border: 1px solid var(&#45;&#45;border);-->
-<!--            border-radius: 18px;-->
-<!--            box-shadow: 0 14px 32px rgba(0, 0, 0, .5);-->
-<!--            overflow: hidden;-->
-<!--        }-->
-
-<!--        .movie-details:before, .movie-details:after {-->
-<!--            content: "";-->
-<!--            position: absolute;-->
-<!--            left: 18px;-->
-<!--            right: 18px;-->
-<!--            height: 10px;-->
-<!--            opacity: .5;-->
-<!--            background: repeating-linear-gradient(90deg, #142443 0 16px, transparent 16px 32px);-->
-<!--            filter: drop-shadow(0 0 6px rgba(34, 193, 255, .2));-->
-<!--            z-index: 1;-->
-<!--        }-->
-
-<!--        .movie-details:before {-->
-<!--            top: 12px-->
-<!--        }-->
-
-<!--        .movie-details:after {-->
-<!--            bottom: 12px-->
-<!--        }-->
-
-<!--        /* Poster */-->
-<!--        .poster-container {-->
-<!--            border: 4px solid var(&#45;&#45;cyan);-->
-<!--            border-radius: 8px;-->
-<!--            overflow: hidden;-->
-<!--            box-shadow: 0 0 25px rgba(34, 193, 255, 0.7); /* Đổ bóng mạnh */-->
-<!--            aspect-ratio: 2/3;-->
-<!--            max-width: 300px;-->
-<!--            width: 100%;-->
-<!--            transition: transform 0.3s;-->
-<!--        }-->
-
-<!--        .poster-container img {-->
-<!--            width: 100%;-->
-<!--            height: 100%;-->
-<!--            object-fit: cover;-->
-<!--        }-->
-
-<!--        /* Tiêu đề & Metadata */-->
-<!--        #title {-->
-<!--            font-family: 'Bebas Neue', sans-serif;-->
-<!--            color: var(&#45;&#45;cyan);-->
-<!--            font-weight: 700;-->
-<!--            font-size: 3rem;-->
-<!--            text-shadow: 0 0 15px rgba(34, 193, 255, 0.7);-->
-<!--            letter-spacing: 1px;-->
-<!--            margin-bottom: 5px;-->
-<!--        }-->
-
-<!--        #genre-text {-->
-<!--            color: var(&#45;&#45;red); /* Đỏ Rực */-->
-<!--            font-weight: 600;-->
-<!--            text-transform: uppercase;-->
-<!--        }-->
-
-<!--        /* Badges */-->
-<!--        .badge-info {-->
-<!--            font-size: 0.85rem;-->
-<!--            font-weight: 700;-->
-<!--            padding: 6px 14px;-->
-<!--            border-radius: 4px;-->
-<!--            margin-right: 10px;-->
-<!--            text-transform: uppercase;-->
-<!--            letter-spacing: 0.5px;-->
-<!--        }-->
-
-<!--        .badge-age {-->
-<!--            background-color: var(&#45;&#45;red);-->
-<!--            box-shadow: 0 0 8px rgba(229, 9, 14, 0.5);-->
-<!--        }-->
-
-<!--        .badge-status-now {-->
-<!--            background-color: var(&#45;&#45;cyan);-->
-<!--            color: var(&#45;&#45;ink);-->
-<!--            box-shadow: 0 0 8px rgba(34, 193, 255, 0.5);-->
-<!--        }-->
-
-<!--        .badge-status-soon {-->
-<!--            background-color: #ffd700;-->
-<!--            color: var(&#45;&#45;ink);-->
-<!--        }-->
-
-<!--        .badge-status-ended {-->
-<!--            background-color: #6c757d;-->
-<!--            color: #fff;-->
-<!--        }-->
-
-<!--        /* Mô tả & Thông tin chi tiết */-->
-<!--        .description-box {-->
-<!--            border-left: 3px solid var(&#45;&#45;red);-->
-<!--            padding-left: 15px;-->
-<!--            margin-top: 20px;-->
-<!--        }-->
-
-<!--        #descriptions {-->
-<!--            font-size: 1rem;-->
-<!--            line-height: 1.7;-->
-<!--            margin-bottom: 0;-->
-<!--        }-->
-
-<!--        .metadata-line {-->
-<!--            padding: 8px 0;-->
-<!--            border-bottom: 1px dashed rgba(224, 231, 255, 0.1);-->
-<!--        }-->
-
-<!--        .metadata-line strong {-->
-<!--            color: var(&#45;&#45;cyan);-->
-<!--            min-width: 140px;-->
-<!--            display: inline-block;-->
-<!--        }-->
-
-<!--        /* Trailer Button */-->
-<!--        .btn-trailer {-->
-<!--            background: var(&#45;&#45;red);-->
-<!--            color: #fff;-->
-<!--            font-weight: 700;-->
-<!--            padding: 12px 30px;-->
-<!--            border-radius: 4px;-->
-<!--            margin-top: 20px;-->
-<!--            transition: 0.3s;-->
-<!--            box-shadow: 0 0 15px rgba(229, 9, 14, 0.7);-->
-<!--        }-->
-
-<!--        .btn-trailer:hover {-->
-<!--            background: #ff073a;-->
-<!--            transform: translateY(-2px);-->
-<!--            box-shadow: 0 0 20px rgba(229, 9, 14, 0.9);-->
-<!--        }-->
-
-<!--        /* ======================================= */-->
-<!--        /* 3. ĐÁNH GIÁ (FEEDBACK) */-->
-<!--        /* ======================================= */-->
-<!--        .feedback-section {-->
-<!--            max-width: 1400px;-->
-<!--            margin: 50px auto;-->
-<!--            background: linear-gradient(180deg, #0b152a, #0c162c);-->
-<!--            padding: 30px;-->
-<!--            border: 1px solid var(&#45;&#45;border);-->
-<!--            border-radius: 18px;-->
-<!--            box-shadow: 0 14px 32px rgba(0, 0, 0, .5);-->
-<!--            overflow: hidden;-->
-<!--        }-->
-
-<!--        .feedback-section:before, .feedback-section:after {-->
-<!--            content: "";-->
-<!--            position: absolute;-->
-<!--            left: 18px;-->
-<!--            right: 18px;-->
-<!--            height: 10px;-->
-<!--            opacity: .5;-->
-<!--            background: repeating-linear-gradient(90deg, #142443 0 16px, transparent 16px 32px);-->
-<!--            filter: drop-shadow(0 0 6px rgba(34, 193, 255, .2));-->
-<!--            z-index: 1;-->
-<!--        }-->
-
-<!--        .feedback-section:before {-->
-<!--            top: 12px-->
-<!--        }-->
-
-<!--        .feedback-section:after {-->
-<!--            bottom: 12px-->
-<!--        }-->
-
-<!--        .feedback-header h3 {-->
-<!--            color: var(&#45;&#45;cyan);-->
-<!--            text-shadow: 0 0 8px var(&#45;&#45;cyan);-->
-<!--            font-family: 'Bebas Neue', sans-serif;-->
-<!--        }-->
-
-<!--        .feedback-header .avg {-->
-<!--            color: #ffd700;-->
-<!--            text-shadow: 0 0 5px rgba(255, 215, 0, 0.7);-->
-<!--            font-size: 3rem;-->
-<!--        }-->
-
-<!--        .feedback-item {-->
-<!--            border-left: 4px solid var(&#45;&#45;red);-->
-<!--            background: rgba(11, 21, 42, .6);-->
-<!--            transition: all .2s ease;-->
-<!--        }-->
-
-<!--        .feedback-item:hover {-->
-<!--            background: #112040;-->
-<!--            box-shadow: inset 0 0 0 1px rgba(34, 193, 255, .2);-->
-<!--        }-->
-
-<!--        .feedback-item .name {-->
-<!--            color: var(&#45;&#45;cyan);-->
-<!--            font-weight: 700;-->
-<!--        }-->
-
-<!--        .feedback-item .stars {-->
-<!--            color: #ffd700;-->
-<!--        }-->
-
-<!--        /* Form Controls */-->
-<!--        .feedback-form textarea, .feedback-form .form-select {-->
-<!--            background-color: var(&#45;&#45;card);-->
-<!--            color: #fff;-->
-<!--            border: 1px solid var(&#45;&#45;border);-->
-<!--        }-->
-
-<!--        .feedback-form .form-select {-->
-<!--            width: auto !important;-->
-<!--        }-->
-
-<!--        .btn-submit {-->
-<!--            background: var(&#45;&#45;red);-->
-<!--            border: none;-->
-<!--            color: #fff;-->
-<!--            font-weight: 700;-->
-<!--            border-radius: 8px;-->
-<!--            padding: 10px 20px;-->
-<!--            box-shadow: 0 0 10px rgba(229, 9, 14, 0.6);-->
-<!--            transition: 0.3s;-->
-<!--        }-->
-
-<!--        .btn-submit:hover {-->
-<!--            background: #ff073a;-->
-<!--        }-->
-
-<!--        /* Back Button */-->
-<!--        .btn-back {-->
-<!--            display: block;-->
-<!--            margin: 30px auto 60px auto;-->
-<!--            background: var(&#45;&#45;cyan);-->
-<!--            color: var(&#45;&#45;ink);-->
-<!--            border: none;-->
-<!--            font-weight: 700;-->
-<!--            border-radius: 8px;-->
-<!--            padding: 12px 30px;-->
-<!--            transition: 0.3s;-->
-<!--        }-->
-
-<!--        .btn-back:hover {-->
-<!--            background: #0aa3ff;-->
-<!--            transform: scale(1.05);-->
-<!--        }-->
-<!--    </style>-->
-<!--</head>-->
-<!--<body>-->
-<!--<div class="grain"></div>-->
-<!--<div class="tickets-wall" aria-hidden="true">-->
-<!--    <div class="tickets-layer l1"></div>-->
-<!--    <div class="tickets-layer l2"></div>-->
-<!--</div>-->
-<!--<div id="header"></div>-->
-<!--<main class="shell">-->
-<!--    <section class="hero">-->
-<!--        <img id="hero-poster" src="../image/default_movie.jpg" alt="Banner Phim">-->
-<!--    </section>-->
-<!--    <div class="movie-info-block">-->
-<!--        <section class="film movie-details">-->
-<!--            <div class="row">-->
-<!--                <div class="col-lg-4 text-center mb-4 mb-lg-0">-->
-<!--                    <div class="poster-container mx-auto">-->
-<!--                        <img id="poster" src="../image/default_movie.jpg" alt="Poster Phim">-->
-<!--                    </div>-->
-<!--                    <a id="btn-trailer" href="#" target="_blank" class="btn btn-trailer w-100 mx-auto"-->
-<!--                       style="max-width: 300px;">-->
-<!--                        <i class="fa-solid fa-bolt"></i> ACCESS TRAILER <i class="fa-solid fa-video"></i>-->
-<!--                    </a>-->
-<!--                </div>-->
-<!--                <div class="col-lg-8">-->
-<!--                    <h2 id="title">TITLE: [FILM NAME]</h2>-->
-<!--                    <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">-->
-<!--                        <span id="ageRestrictionBadge" class="badge-info badge-age">C18</span>-->
-<!--                        <span id="statusBadge" class="badge-info badge-status-now">NOW SHOWING</span>-->
-<!--                        <span id="durationBadge" class="badge-info badge-duration">148 MINS</span>-->
-<!--                        <span id="countryBadge" class="badge-info bg-secondary"><i class="fa-solid fa-globe"></i> COUNTRY</span>-->
-<!--                    </div>-->
-<!--                    <p id="genre-text" class="lead"><i class="fa-solid fa-tags"></i> **Thể loại:** [Genre]</p>-->
-<!--                    <h5 class="text-light mt-4 text-uppercase">TÓM TẮT DỮ LIỆU</h5>-->
-<!--                    <div class="description-box">-->
-<!--                        <p id="descriptions" class="text-light"></p>-->
-<!--                    </div>-->
-<!--                    <div class="movie-metadata mt-4">-->
-<!--                        <div class="metadata-line d-flex">-->
-<!--                            <strong>Đạo diễn:</strong> <span id="director"></span>-->
-<!--                        </div>-->
-<!--                        <div class="metadata-line d-flex">-->
-<!--                            <strong>Diễn viên:</strong> <span id="casts"-->
-<!--                                                              style="font-style: italic; color: #a0aec0;"></span>-->
-<!--                        </div>-->
-<!--                        <div class="metadata-line d-flex">-->
-<!--                            <strong>Ngày phát hành:</strong> <span id="releaseDate"></span>-->
-<!--                        </div>-->
-<!--                        <div class="metadata-line d-flex">-->
-<!--                            <strong>Ngôn ngữ:</strong> <span id="languages"></span>-->
-<!--                        </div>-->
-<!--                        <div class="metadata-line d-flex">-->
-<!--                            <strong>Giới hạn tuổi:</strong> <span id="ageRestrictionText"></span>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </section>-->
-<!--    </div>-->
-<!--    <section class="feedback-section">-->
-<!--        <div class="feedback-header text-center">-->
-<!--            <h3><i class="fa-solid fa-terminal"></i> BẢNG ĐÁNH GIÁ NGƯỜI DÙNG</h3>-->
-<!--            <div class="avg" id="avg-rating">⭐ 0.0</div>-->
-<!--            <div class="count" id="feedback-count">(0 đánh giá đã được ghi nhận)</div>-->
-<!--        </div>-->
-<!--        <div id="feedback-list">-->
-<!--        </div>-->
-<!--        <div class="feedback-form">-->
-<!--            <h5 class="text-light mb-3 text-uppercase">NHẬP THÔNG TIN ĐÁNH GIÁ MỚI</h5>-->
-<!--            <div class="d-flex align-items-center mb-3 gap-3">-->
-<!--                <label class="form-label text-light mb-0">Xếp hạng:</label>-->
-<!--                <select id="rating" class="form-select">-->
-<!--                    <option value="5">⭐ 5 - Tuyệt vời (Excellent)</option>-->
-<!--                    <option value="4">⭐ 4 - Hay (Good)</option>-->
-<!--                    <option value="3">⭐ 3 - Tạm ổn (Neutral)</option>-->
-<!--                    <option value="2">⭐ 2 - Chưa hay (Below Average)</option>-->
-<!--                    <option value="1">⭐ 1 - Tệ (Poor)</option>-->
-<!--                </select>-->
-<!--            </div>-->
-<!--            <div class="mb-3">-->
-<!--                <textarea id="comment" rows="3" class="form-control"-->
-<!--                          placeholder="[INPUT]: Chia sẻ cảm nghĩ của bạn về dự án này..."></textarea>-->
-<!--            </div>-->
-<!--            <button id="btn-submit" class="btn btn-submit"><i class="fa-solid fa-paper-plane"></i> SUBMIT REVIEW-->
-<!--            </button>-->
-<!--        </div>-->
-<!--    </section>-->
-<!--</main>-->
-<!--<button id="btn-back" class="btn btn-back"><i class="fa-solid fa-arrow-left"></i> QUAY LẠI MỤC LỰA CHỌN PHIM</button>-->
-<!--<div id="footer"></div>-->
-<!--<script type="module" src="../js/movieDetail.js"></script>-->
-<!--<script>-->
-<!--    fetch("../home/header.html").then(r => r.text()).then(h => document.getElementById("header").innerHTML = h);-->
-<!--    fetch("../home/footer.html").then(r => r.text()).then(h => document.getElementById("footer").innerHTML = h);-->
-<!--    // Dummy Data (Dùng cho HTML template, sẽ bị ghi đè bởi JS của bạn)-->
-<!--    // Tương tự như lần trước, bạn sẽ xóa phần này khi tích hợp thực tế-->
-<!--</script>-->
-<!--</body>-->
-<!--</html>-->
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -1652,7 +20,6 @@
             --border: #1b2b4a;
             --muted: #9aa7b3;
             --muted2: #cfe3ff;
-            --glow: 0 0 20px rgba(34, 193, 255, .35), 0 0 60px rgba(34, 193, 255, .15);
         }
 
         html, body {
@@ -1660,51 +27,52 @@
             color: #fff;
             font-family: 'Roboto', sans-serif;
             background-color: var(--ink);
-            background-image: radial-gradient(1200px 600px at -10% -35%, rgba(229, 9, 20, .18), transparent 60%),
-            radial-gradient(900px 400px at 120% -20%, rgba(34, 193, 255, .12), transparent 60%),
-            linear-gradient(180deg, var(--ink), var(--bg));
+            background-image:
+                    radial-gradient(1200px 600px at -10% -35%, rgba(229, 9, 20, .18), transparent 60%),
+                    radial-gradient(900px 400px at 120% -20%, rgba(34, 193, 255, .12), transparent 60%),
+                    linear-gradient(180deg, var(--ink), var(--bg));
             background-repeat: no-repeat;
             background-attachment: fixed;
             min-height: 100vh;
         }
 
+        /* 🎬 Hero Section */
         .hero {
             position: relative;
             width: 100%;
-            height: 75vh;
+            height: 70vh;
             overflow: hidden;
         }
-
         .hero img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            filter: brightness(0.4) blur(4px);
+            filter: brightness(0.35) blur(3px);
         }
 
+        /* 🎥 Movie Block */
         .movie-info-block {
-            max-width: 1400px;
-            margin: -250px auto 50px auto;
+            max-width: 1300px;
+            margin: -200px auto 60px auto;
             position: relative;
             z-index: 10;
         }
 
         .movie-details {
             background: linear-gradient(180deg, #0b152a, #0c162c);
-            padding: 40px;
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            box-shadow: 0 14px 32px rgba(0, 0, 0, .5);
+            padding: 45px;
+            border-radius: 20px;
+            box-shadow: 0 12px 35px rgba(0,0,0,.6);
         }
 
         .poster-container {
-            border: 4px solid var(--cyan);
-            border-radius: 8px;
+            border: 3px solid var(--cyan);
+            border-radius: 10px;
             overflow: hidden;
             box-shadow: 0 0 25px rgba(34, 193, 255, 0.7);
             aspect-ratio: 2/3;
             max-width: 300px;
-            width: 100%;
+            margin: 0 auto 20px auto;
         }
 
         .poster-container img {
@@ -1718,41 +86,26 @@
             color: var(--cyan);
             font-weight: 700;
             font-size: 3rem;
-            text-shadow: 0 0 15px rgba(34, 193, 255, 0.7);
-            letter-spacing: 1px;
-        }
-
-        #genre-text {
-            color: var(--red);
-            font-weight: 600;
-            text-transform: uppercase;
+            text-shadow: 0 0 15px rgba(34,193,255,0.7);
         }
 
         .badge-info {
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             font-weight: 700;
             padding: 6px 14px;
             border-radius: 4px;
             margin-right: 10px;
         }
 
-        .badge-age {
-            background-color: var(--red);
-        }
+        .badge-age { background-color: var(--red); }
+        .badge-status-now { background-color: var(--cyan); color: var(--ink); }
+        .badge-status-soon { background-color: #ffd700; color: var(--ink); }
+        .badge-status-ended { background-color: #6c757d; color: #fff; }
 
-        .badge-status-now {
-            background-color: var(--cyan);
-            color: var(--ink);
-        }
-
-        .badge-status-soon {
-            background-color: #ffd700;
-            color: var(--ink);
-        }
-
-        .badge-status-ended {
-            background-color: #6c757d;
-            color: #fff;
+        #genre-text {
+            color: var(--red);
+            font-weight: 600;
+            text-transform: uppercase;
         }
 
         .description-box {
@@ -1761,19 +114,14 @@
             margin-top: 20px;
         }
 
-        #descriptions {
-            font-size: 1rem;
-            line-height: 1.7;
-        }
-
         .metadata-line {
             padding: 8px 0;
-            border-bottom: 1px dashed rgba(224, 231, 255, 0.1);
+            border-bottom: 1px dashed rgba(224,231,255,0.1);
         }
 
         .metadata-line strong {
             color: var(--cyan);
-            min-width: 140px;
+            width: 160px;
             display: inline-block;
         }
 
@@ -1781,52 +129,62 @@
             background: var(--red);
             color: #fff;
             font-weight: 700;
-            padding: 12px 30px;
-            border-radius: 4px;
-            margin-top: 20px;
-            box-shadow: 0 0 15px rgba(229, 9, 14, 0.7);
-            transition: .3s;
+            padding: 12px 25px;
+            border-radius: 6px;
+            margin-top: 15px;
+            box-shadow: 0 0 15px rgba(229,9,14,0.6);
+            transition: all .3s;
         }
+        .btn-trailer:hover { background: #ff073a; transform: scale(1.03); }
 
-        .btn-trailer:hover {
-            background: #ff073a;
-        }
 
-        /* 🎥 Trailer Frame */
-        .trailer-frame {
+
+        .trailer-wrapper iframe {
             width: 100%;
-            aspect-ratio: 16/9;
-            border: none;
             border-radius: 10px;
-            margin-top: 20px;
-            pointer-events: none; /* Không cho click */
-            box-shadow: 0 0 25px rgba(34, 193, 255, .5);
+            box-shadow: 0 0 25px rgba(34,193,255,0.5);
         }
 
+        /* ⭐ Feedback Section */
         .feedback-section {
-            max-width: 1400px;
-            margin: 50px auto;
+            max-width: 1300px;
+            margin: 70px auto;
             background: linear-gradient(180deg, #0b152a, #0c162c);
-            padding: 30px;
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            box-shadow: 0 14px 32px rgba(0, 0, 0, .5);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 14px 32px rgba(0,0,0,.5);
         }
+
+        .btn-booking {
+            background: linear-gradient(90deg, var(--cyan), var(--blue));
+            color: var(--ink);
+            font-weight: 700;
+            border-radius: 8px;
+            padding: 12px 25px;
+            box-shadow: 0 0 20px rgba(34, 193, 255, 0.5);
+            transition: 0.3s;
+        }
+        .btn-booking:hover {
+            background: linear-gradient(90deg, #22c1ff, #0aa3ff);
+            transform: scale(1.05);
+        }
+
 
         .feedback-header h3 {
             color: var(--cyan);
-            text-shadow: 0 0 8px var(--cyan);
             font-family: 'Bebas Neue', sans-serif;
+            text-shadow: 0 0 8px var(--cyan);
         }
 
         .feedback-header .avg {
             color: #ffd700;
             font-size: 3rem;
+            margin-top: 10px;
         }
 
         .feedback-item {
             border-left: 4px solid var(--red);
-            background: rgba(11, 21, 42, .6);
+            background: rgba(11,21,42,.6);
             padding: 1rem;
             margin-bottom: 1rem;
             border-radius: 6px;
@@ -1835,15 +193,15 @@
         .btn-submit {
             background: var(--red);
             color: #fff;
-            border: none;
             font-weight: 700;
             border-radius: 8px;
-            padding: 10px 20px;
+            padding: 10px 25px;
+            border: none;
         }
 
         .btn-back {
             display: block;
-            margin: 30px auto 60px auto;
+            margin: 40px auto 80px auto;
             background: var(--cyan);
             color: var(--ink);
             border: none;
@@ -1857,109 +215,142 @@
             background: #0aa3ff;
             transform: scale(1.05);
         }
+
+        @media (max-width: 992px) {
+            #title { font-size: 2.2rem; text-align: center; }
+            .movie-details { padding: 30px; }
+            .poster-container { max-width: 250px; }
+        }
     </style>
 </head>
 <body>
 <div id="header"></div>
 
 <main class="shell">
+    <!-- Hero background -->
     <section class="hero">
         <img id="hero-poster" src="../image/default_movie.jpg" alt="Banner Phim">
     </section>
 
+    <!-- Movie Info -->
     <div class="movie-info-block">
-        <section class="film movie-details">
-            <div class="row">
-                <div class="col-lg-4 text-center mb-4 mb-lg-0">
-                    <div class="poster-container mx-auto">
+        <section class="movie-details">
+            <div class="row g-4 align-items-start">
+                <!-- Left -->
+                <div class="col-lg-4 text-center">
+                    <div class="poster-container">
                         <img id="poster" src="../image/default_movie.jpg" alt="Poster Phim">
                     </div>
-
-                    <!-- 🎥 Trailer auto phát -->
-                    <div id="trailer-wrapper" class="mx-auto" style="max-width:300px;">
-                        <!-- JS sẽ chèn iframe vào đây -->
-                    </div>
-
-                    <a id="btn-trailer" href="#" target="_blank" class="btn btn-trailer w-100 mx-auto"
-                       style="max-width:300px;">
-                        <i class="fa-solid fa-bolt"></i> ACCESS TRAILER <i class="fa-solid fa-video"></i>
+                    <div id="trailer-wrapper" class="trailer-wrapper mt-3" style="max-width:320px; margin:auto;"></div>
+                    <a id="btn-trailer" href="#" target="_blank" class="btn btn-trailer w-100">
+                        <i class="fa-solid fa-video"></i> XEM TRAILER
                     </a>
+
+                    <a id="btn-booking" href="#" class="btn w-100 mt-3 btn-booking">
+                        <i class="fa-solid fa-ticket"></i> ĐẶT VÉ NGAY
+                    </a>
+
                 </div>
 
+                <!-- Right -->
                 <div class="col-lg-8">
-                    <h2 id="title">TITLE: [FILM NAME]</h2>
+                    <h2 id="title">[TÊN PHIM]</h2>
                     <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
                         <span id="ageRestrictionBadge" class="badge-info badge-age">C18</span>
-                        <span id="statusBadge" class="badge-info badge-status-now">NOW SHOWING</span>
-                        <span id="durationBadge" class="badge-info badge-duration">148 MINS</span>
-                        <span id="countryBadge" class="badge-info bg-secondary"><i class="fa-solid fa-globe"></i> COUNTRY</span>
+                        <span id="statusBadge" class="badge-info badge-status-now">ĐANG CHIẾU</span>
+                        <span id="durationBadge" class="badge-info badge-duration">148 PHÚT</span>
+                        <span id="countryBadge" class="badge-info bg-secondary">
+                            <i class="fa-solid fa-globe"></i> VIỆT NAM
+                        </span>
                     </div>
-                    <p id="genre-text" class="lead"><i class="fa-solid fa-tags"></i> **Thể loại:** [Genre]</p>
+                    <p id="genre-text" class="lead"><i class="fa-solid fa-tags"></i> Thể loại: Hành động / Kịch tính</p>
 
-                    <h5 class="text-light mt-4 text-uppercase">TÓM TẮT DỮ LIỆU</h5>
                     <div class="description-box">
-                        <p id="descriptions" class="text-light"></p>
+                        <h5 class="text-light text-uppercase mb-2">Tóm tắt nội dung</h5>
+                        <p id="descriptions" class="text-light">
+                            Đây là phần mô tả nội dung chi tiết của phim, được tải từ cơ sở dữ liệu.
+                        </p>
                     </div>
 
                     <div class="movie-metadata mt-4">
-                        <div class="metadata-line d-flex">
-                            <strong>Đạo diễn:</strong> <span id="director"></span>
-                        </div>
-                        <div class="metadata-line d-flex">
-                            <strong>Diễn viên:</strong> <span id="casts" style="font-style: italic; color: #a0aec0;"></span>
-                        </div>
-                        <div class="metadata-line d-flex">
-                            <strong>Ngày phát hành:</strong> <span id="releaseDate"></span>
-                        </div>
-                        <div class="metadata-line d-flex">
-                            <strong>Ngôn ngữ:</strong> <span id="languages"></span>
-                        </div>
-                        <div class="metadata-line d-flex">
-                            <strong>Giới hạn tuổi:</strong> <span id="ageRestrictionText"></span>
-                        </div>
+                        <div class="metadata-line"><strong>Đạo diễn:</strong> <span id="director"></span></div>
+                        <div class="metadata-line"><strong>Diễn viên:</strong>
+                            <span id="casts" style="font-style: italic; color: #a0aec0;"></span></div>
+                        <div class="metadata-line"><strong>Ngày phát hành:</strong> <span id="releaseDate"></span></div>
+                        <div class="metadata-line"><strong>Ngôn ngữ:</strong> <span id="languages"></span></div>
+                        <div class="metadata-line"><strong>Giới hạn tuổi:</strong> <span id="ageRestrictionText"></span></div>
                     </div>
                 </div>
             </div>
         </section>
     </div>
 
+    <!-- Feedback -->
     <section class="feedback-section">
         <div class="feedback-header text-center">
-            <h3><i class="fa-solid fa-terminal"></i> BẢNG ĐÁNH GIÁ NGƯỜI DÙNG</h3>
+            <h3><i class="fa-solid fa-star-half-stroke"></i> ĐÁNH GIÁ NGƯỜI DÙNG</h3>
             <div class="avg" id="avg-rating">⭐ 0.0</div>
             <div class="count" id="feedback-count">(0 đánh giá đã được ghi nhận)</div>
         </div>
 
         <div id="feedback-list"></div>
 
+        <hr class="border-secondary my-4">
+
         <div class="feedback-form">
-            <h5 class="text-light mb-3 text-uppercase">NHẬP THÔNG TIN ĐÁNH GIÁ MỚI</h5>
-            <div class="d-flex align-items-center mb-3 gap-3">
+            <h5 class="text-light mb-3 text-uppercase">
+                <i class="fa-solid fa-pen-to-square"></i> Nhập đánh giá của bạn
+            </h5>
+            <div class="d-flex align-items-center mb-3 gap-3 flex-wrap">
                 <label class="form-label text-light mb-0">Xếp hạng:</label>
-                <select id="rating" class="form-select">
-                    <option value="5">⭐ 5 - Tuyệt vời (Excellent)</option>
-                    <option value="4">⭐ 4 - Hay (Good)</option>
-                    <option value="3">⭐ 3 - Tạm ổn (Neutral)</option>
-                    <option value="2">⭐ 2 - Chưa hay (Below Average)</option>
-                    <option value="1">⭐ 1 - Tệ (Poor)</option>
+                <select id="rating" class="form-select" style="max-width: 220px;">
+                    <option value="5">⭐ 5 - Tuyệt vời</option>
+                    <option value="4">⭐ 4 - Hay</option>
+                    <option value="3">⭐ 3 - Bình thường</option>
+                    <option value="2">⭐ 2 - Chưa hay</option>
+                    <option value="1">⭐ 1 - Tệ</option>
                 </select>
             </div>
             <div class="mb-3">
                 <textarea id="comment" rows="3" class="form-control"
-                          placeholder="[INPUT]: Chia sẻ cảm nghĩ của bạn về dự án này..."></textarea>
+                          placeholder="Chia sẻ cảm nghĩ của bạn về bộ phim này..."></textarea>
             </div>
-            <button id="btn-submit" class="btn btn-submit"><i class="fa-solid fa-paper-plane"></i> SUBMIT REVIEW</button>
+            <button id="btn-submit" class="btn btn-submit">
+                <i class="fa-solid fa-paper-plane"></i> Gửi đánh giá
+            </button>
         </div>
     </section>
+
+    <button id="btn-back" class="btn btn-back">
+        <i class="fa-solid fa-arrow-left"></i> Quay lại danh sách phim
+    </button>
 </main>
 
-<button id="btn-back" class="btn btn-back"><i class="fa-solid fa-arrow-left"></i> QUAY LẠI MỤC LỰA CHỌN PHIM</button>
 <div id="footer"></div>
 
 <script type="module" src="../js/movieDetail.js"></script>
 <script>
-    fetch("../home/header.html").then(r => r.text()).then(h => document.getElementById("header").innerHTML = h);
-    fetch("../home/footer.html").then(r => r.text()).then(h => document.getElementById("footer").innerHTML = h);
+    (async function loadHeader() {
+        const headerEl = document.getElementById("header");
+        try {
+            const res = await fetch("../home/customer-header.html");
+            const html = await res.text();
+            headerEl.innerHTML = html;
+
+            const scripts = headerEl.querySelectorAll("script");
+            scripts.forEach(s => {
+                const ns = document.createElement("script");
+                if (s.src) ns.src = s.src; else ns.textContent = s.textContent;
+                document.body.appendChild(ns);
+            });
+        } catch (err) { console.error("Lỗi load header:", err); }
+    })();
+
+    fetch("../home/footer.html")
+        .then(res => res.text())
+        .then(html => document.getElementById("footer").innerHTML = html)
+        .catch(err => console.error("Lỗi load footer:", err));
 </script>
+
 </body>
 </html>

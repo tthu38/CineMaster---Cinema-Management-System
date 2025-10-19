@@ -413,7 +413,9 @@
 
 <script type="module" src="../js/updateNews.js"></script>
 <script>
-    fetch("../home/header.html").then(r=>r.text()).then(h=>document.getElementById("header").innerHTML=h);
+    fetch("../home/customer-header.html")
+        .then(r => r.text())
+        .then(t => document.getElementById("header").innerHTML = t);
     fetch("../home/footer.html").then(r=>r.text()).then(h=>document.getElementById("footer").innerHTML=h);
 </script>
 </body>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <title>Thanh toán QR VietQR - CineMaster</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@5/dark.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        body {
+            background: #071226;
+            color: #e6f1ff;
+            font-family: 'Roboto', Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            width: 100%;
+            max-width: 520px;
+            border-radius: 14px;
+            padding: 22px;
+            background: linear-gradient(180deg, #071226 0%, #081731 100%);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .6);
+            border: 1px solid rgba(255, 255, 255, .03);
+        }
+        .qr { text-align:center; margin-top:12px; }
+        .muted { color:#9fb0c8; font-size:0.95rem; }
+        .staff-section { margin-top: 25px; border-top: 1px solid #1c2741; padding-top: 15px; text-align:center; }
+        .btn-confirm { background: #22c55e; border: none; font-weight: 600; color: white; }
+        .btn-confirm:hover { background: #16a34a; }
+    </style>
+</head>
+<body>
+<div class="card">
+    <h4 class="mb-3">💳 Thanh toán QR VietQR</h4>
+
+    <div class="mb-3">
+        <label class="form-label">Số tiền (VNĐ)</label>
+        <input id="amount" type="number" class="form-control" placeholder="Nhập số tiền cần thanh toán..." />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Nội dung chuyển khoản (optional)</label>
+        <input id="note" type="text" class="form-control" placeholder="Ví dụ: THANH_TOAN_CINEMA" />
+    </div>
+
+    <button id="btnGenerate" class="btn btn-info w-100 mb-3">Tạo mã QR thanh toán</button>
+
+    <div id="qrContainer" class="qr"></div>
+
+    <!-- ✅ Phần xác nhận tại quầy -->
+    <div id="staffSection" class="staff-section" style="display:none;">
+        <h6 class="text-info mb-3">🧾 Xác nhận thanh toán tại quầy</h6>
+        <button id="btnConfirm" class="btn btn-confirm px-4 py-2">✅ ĐÃ NHẬN ĐƯỢC TIỀN</button>
+    </div>
+</div>
+
+<script>
+    const API_URL = "http://localhost:8080/api/v1/merchant/default";
+    let merchant = null;
+
+    async function loadMerchant() {
+        try {
+            const res = await fetch(API_URL);
+            if (!res.ok) throw new Error("Không lấy được tài khoản");
+            merchant = await res.json();
+            console.log("Merchant info:", merchant);
+        } catch (err) {
+            alert("Không thể tải thông tin tài khoản thanh toán!");
+            console.error(err);
+        }
+    }
+
+    async function generateQR() {
+        if (!merchant) {
+            alert("Không có thông tin tài khoản để tạo QR!");
+            return;
+        }
+
+        const amount = document.getElementById("amount").value;
+        if (!amount || amount <= 0) {
+            alert("Nhập số tiền hợp lệ!");
+            return;
+        }
+
+        const note = document.getElementById("note").value.trim() || "THANH_TOAN_CINEMA";
+        const ref = "CM-" + Date.now().toString().slice(-6);
+
+        const qrUrl =
+            `https://img.vietqr.io/image/${merchant.bankCode}-${merchant.accountNumber}-compact.png` +
+            `?amount=${amount}&addInfo=${encodeURIComponent(note + ' ' + ref)}` +
+            `&accountName=${encodeURIComponent(merchant.accountName)}`;
+
+        document.getElementById("qrContainer").innerHTML = `
+      <h5 class="text-success">Quét mã để thanh toán</h5>
+      <img src="${qrUrl}" width="260" alt="QR thanh toán">
+      <p class="mt-2 small">💡 STK: <b>${merchant.accountNumber}</b> (${merchant.bankCode})<br>Tên: <b>${merchant.accountName}</b></p>
+      <p class="text-warning">Số tiền: ${Number(amount).toLocaleString()} đ</p>
+      <p class="muted small">Nội dung: ${note} ${ref}</p>
+    `;
+
+        // 🔹 Hiện phần xác nhận tại quầy
+        document.getElementById("staffSection").style.display = "block";
+    }
+
+    document.getElementById("btnGenerate").addEventListener("click", generateQR);
+
+    // ✅ Khi nhân viên nhấn "ĐÃ NHẬN ĐƯỢC TIỀN"
+    document.getElementById("btnConfirm").addEventListener("click", () => {
+        Swal.fire({
+            icon: 'success',
+            title: '💵 Thanh toán thành công!',
+            text: 'Giao dịch đã được xác nhận tại quầy.',
+            confirmButtonText: 'Hoàn tất',
+            confirmButtonColor: '#22c55e'
+        });
+        document.getElementById("btnConfirm").disabled = true;
+        document.getElementById("btnConfirm").innerText = "✅ ĐÃ XÁC NHẬN";
+    });
+
+    loadMerchant();
+</script>
+</body>
+</html>

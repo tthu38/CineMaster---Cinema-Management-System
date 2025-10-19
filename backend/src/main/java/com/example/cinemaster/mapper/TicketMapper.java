@@ -1,13 +1,20 @@
 package com.example.cinemaster.mapper;
 
+import com.example.cinemaster.dto.response.TicketDetailResponse;
 import com.example.cinemaster.dto.response.TicketResponse;
 import com.example.cinemaster.entity.Ticket;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.mapstruct.*;
+import org.mapstruct.factory.Mappers;
+
+import java.util.stream.Collectors;
+import java.math.BigDecimal;
 
 @Mapper(componentModel = "spring", imports = { java.util.stream.Collectors.class, java.math.BigDecimal.class })
 public interface TicketMapper {
 
+    TicketMapper INSTANCE = Mappers.getMapper(TicketMapper.class);
+
+    // ========================== FULL TICKET MAPPING (gốc) ==========================
     @Mapping(target = "accountId", source = "account.accountID")
     @Mapping(target = "showtimeId", source = "showtime.showtimeID")
     @Mapping(target = "status", source = "ticketStatus")
@@ -51,19 +58,19 @@ public interface TicketMapper {
                     "td.getAmount()))" +
                     ".collect(Collectors.toList()))")
 
-    // 💺 Tổng tiền ghế (seatTotal)
+    // 💺 Tổng tiền ghế
     @Mapping(target = "seatTotal",
             expression = "java(ticket.getTicketSeats().stream()" +
                     ".map(ts -> ts.getSeat().getSeatType().getPriceMultiplier().multiply(ticket.getShowtime().getPrice()))" +
                     ".reduce(BigDecimal.ZERO, BigDecimal::add))")
 
-    // 🍿 Tổng tiền combo (comboTotal)
+    // 🍿 Tổng tiền combo
     @Mapping(target = "comboTotal",
             expression = "java(ticket.getTicketCombos().stream()" +
                     ".map(tc -> tc.getCombo().getPrice().multiply(BigDecimal.valueOf(tc.getQuantity())))" +
                     ".reduce(BigDecimal.ZERO, BigDecimal::add))")
 
-    // 💸 Tổng tiền gốc (seatTotal + comboTotal)
+    // 💸 Tổng tiền gốc (ghế + combo)
     @Mapping(target = "originalPrice",
             expression = "java(ticket.getTicketSeats().stream()" +
                     ".map(ts -> ts.getSeat().getSeatType().getPriceMultiplier().multiply(ticket.getShowtime().getPrice()))" +
@@ -80,6 +87,35 @@ public interface TicketMapper {
 
     // ✅ Tổng cuối (đã lưu DB)
     @Mapping(target = "totalPrice", source = "totalPrice")
-
     TicketResponse toResponse(Ticket ticket);
+
+    // ========================== LIST VIEW (rút gọn) ==========================
+    @Mapping(target = "ticketId", source = "ticketId")
+    @Mapping(target = "movieTitle", source = "showtime.period.movie.title")
+    @Mapping(target = "showtimeStart", source = "showtime.startTime")
+    @Mapping(target = "branchName", source = "showtime.period.branch.branchName")
+    @Mapping(target = "customerName", source = "account.fullName")
+    @Mapping(target = "seatNumbers", expression = "java(getSeatNumbers(entity))")
+    TicketResponse toShortResponse(Ticket entity);
+
+    // ========================== CHI TIẾT VÉ (TicketDetailResponse) ==========================
+    @Mapping(target = "ticketId", source = "ticketId")
+    @Mapping(target = "movieTitle", source = "showtime.period.movie.title")
+    @Mapping(target = "movieGenre", source = "showtime.period.movie.genre")
+    @Mapping(target = "movieDuration", source = "showtime.period.movie.duration")
+    @Mapping(target = "showtimeStart", source = "showtime.startTime")
+    @Mapping(target = "showtimeEnd", source = "showtime.endTime")
+    @Mapping(target = "branchName", source = "showtime.period.branch.branchName")
+    @Mapping(target = "auditoriumName", source = "showtime.auditorium.name")
+    @Mapping(target = "seatNumbers", expression = "java(getSeatNumbers(entity))")
+    @Mapping(target = "comboList", ignore = true)
+    TicketDetailResponse toDetailResponse(Ticket entity);
+
+    // ========================== HELPER ==========================
+    default String getSeatNumbers(Ticket ticket) {
+        if (ticket.getTicketSeats() == null || ticket.getTicketSeats().isEmpty()) return "-";
+        return ticket.getTicketSeats().stream()
+                .map(ts -> ts.getSeat().getSeatRow() + ts.getSeat().getSeatNumber())
+                .collect(Collectors.joining(", "));
+    }
 }

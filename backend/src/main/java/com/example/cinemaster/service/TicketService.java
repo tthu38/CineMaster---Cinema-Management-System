@@ -3,6 +3,7 @@ package com.example.cinemaster.service;
 import com.example.cinemaster.dto.request.ComboRequest;
 import com.example.cinemaster.dto.request.TicketComboRequest;
 import com.example.cinemaster.dto.request.TicketCreateRequest;
+import com.example.cinemaster.dto.response.TicketDetailResponse;
 import com.example.cinemaster.dto.response.TicketResponse;
 import com.example.cinemaster.entity.*;
 import com.example.cinemaster.mapper.TicketMapper;
@@ -22,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -42,6 +44,7 @@ public class TicketService {
     private final EmailService emailService;
     private final MembershipService membershipService;
     private final OtpRepository otpRepository;
+    private final TicketHistoryRepository ticketHistoryRepository;
 
 
 
@@ -70,7 +73,7 @@ public class TicketService {
                         .account(account)
                         .showtime(showtime)
                         .ticketStatus(Ticket.TicketStatus.HOLDING)
-                        .paymentMethod("Cash")
+                        .paymentMethod(Ticket.PaymentMethod.CASH)
                         .holdUntil(LocalDateTime.now().plusMinutes(5))
                         .ticketSeats(new ArrayList<>())
                         .ticketCombos(new ArrayList<>())
@@ -103,7 +106,7 @@ public class TicketService {
                     .account(account)
                     .showtime(showtime)
                     .ticketStatus(Ticket.TicketStatus.HOLDING)
-                    .paymentMethod("Cash")
+                    .paymentMethod(Ticket.PaymentMethod.CASH)
                     .holdUntil(LocalDateTime.now().plusMinutes(5))
                     .ticketSeats(new ArrayList<>())
                     .ticketCombos(new ArrayList<>())
@@ -162,7 +165,6 @@ public class TicketService {
         }
 
         // ======================= 💰 5. Cập nhật tổng tiền tạm tính =======================
-        // ❌ Không set seatPrice/comboPrice vì là @Transient
         BigDecimal total = seatTotal.add(comboTotal).subtract(discountTotal);
         if (total.compareTo(BigDecimal.ZERO) < 0) total = BigDecimal.ZERO;
         ticket.setTotalPrice(total);
@@ -175,6 +177,7 @@ public class TicketService {
         ticketRepository.flush();
         return ticketMapper.toResponse(ticket);
     }
+
     /* 🟢 Đổi ghế khi quay lại */
     @Transactional
     public TicketResponse replaceSeats(Integer ticketId, List<Integer> newSeatIds) {
@@ -441,4 +444,191 @@ public class TicketService {
 
         log.info("🍿 Vé {} đã thêm {} combo mới (tổng {}₫)", ticketId, combos.size(), comboTotal);
     }
+
+
+    private void saveTicketHistory(Ticket ticket, String oldStatus, String newStatus, Account changer, String note) {
+        // ⚡ Nếu changer chỉ có ID (transient) => fetch entity thật
+        Account realChanger = null;
+        if (changer != null && changer.getAccountID() != null) {
+            realChanger = accountRepository.findById(changer.getAccountID()).orElse(null);
+        }
+
+        TicketHistory history = TicketHistory.builder()
+                .ticket(ticket)
+                .oldStatus(oldStatus)
+                .newStatus(newStatus)
+                .changedBy(realChanger)
+                .changedAt(Instant.now())
+                .note(note)
+                .build();
+
+        ticketHistoryRepository.save(history);
+    }
+
+    @Transactional
+    public TicketResponse requestCancel(Integer ticketId, Account requester) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy vé"));
+
+        Ticket.TicketStatus current = ticket.getTicketStatus();
+        if (current != Ticket.TicketStatus.BOOKED)
+            throw new RuntimeException("Chỉ có thể gửi yêu cầu hủy khi vé đang ở trạng thái 'BOOKED'");
+
+        ticket.setTicketStatus(Ticket.TicketStatus.CANCEL_REQUESTED);
+        ticketRepository.save(ticket);
+
+        Account realCustomer = ticket.getAccount();
+
+        saveTicketHistory(ticket,
+                current.name(),
+                Ticket.TicketStatus.CANCEL_REQUESTED.name(),
+                realCustomer,
+                "Khách hàng yêu cầu hủy vé");
+
+        return ticketMapper.toResponse(ticket);
+    }
+
+    @Transactional
+    public TicketResponse approveCancel(Integer ticketId, Account staff) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy vé!"));
+
+        Ticket.TicketStatus currentStatus = ticket.getTicketStatus();
+        if (currentStatus != Ticket.TicketStatus.CANCEL_REQUESTED)
+            throw new RuntimeException("Chỉ phê duyệt khi vé ở trạng thái 'CANCEL_REQUESTED'");
+
+        // 🔹 Lưu trạng thái cũ và cập nhật mới
+        String oldStatus = currentStatus.name();
+        ticket.setTicketStatus(Ticket.TicketStatus.CANCELLED);
+        ticketRepository.save(ticket);
+
+        // 🔹 Ghi lại lịch sử thay đổi
+        saveTicketHistory(ticket, oldStatus, Ticket.TicketStatus.CANCELLED.name(), staff, "Nhân viên duyệt hủy vé");
+
+        log.info("✅ Vé {} được staff {} duyệt hủy thành công.", ticketId,
+                staff != null ? staff.getFullName() : "Unknown");
+
+        return ticketMapper.toResponse(ticket);
+    }
+
+    @Transactional
+    public TicketResponse approveRefund(Integer ticketId, Account staff) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy vé!"));
+
+        Ticket.TicketStatus currentStatus = ticket.getTicketStatus();
+        if (currentStatus != Ticket.TicketStatus.CANCELLED)
+            throw new RuntimeException("Chỉ hoàn tiền cho vé đã bị hủy (CANCELLED)!");
+
+        // 🔹 Lưu lại trạng thái cũ và cập nhật mới
+        String oldStatus = currentStatus.name();
+        ticket.setTicketStatus(Ticket.TicketStatus.REFUNDED);
+        ticketRepository.save(ticket);
+
+        // 🔹 Ghi lịch sử
+        saveTicketHistory(ticket, oldStatus, Ticket.TicketStatus.REFUNDED.name(), staff, "Nhân viên xác nhận hoàn tiền vé");
+
+        log.info("💸 Vé {} đã được hoàn tiền bởi nhân viên {}.", ticketId,
+                staff != null ? staff.getFullName() : "Unknown");
+
+        return ticketMapper.toResponse(ticket);
+    }
+
+    public List<TicketResponse> getPendingCancelTickets(Integer branchId) {
+        return ticketRepository.findByBranch(branchId).stream()
+                .filter(t -> t.getTicketStatus() == Ticket.TicketStatus.CANCEL_REQUESTED)
+                .map(ticketMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    //CUSTOMER: Lấy danh sách vé của người dùng
+    public List<TicketResponse> getTicketsByAccount(Integer accountID) {
+        return ticketRepository.findByAccount_AccountID(accountID).stream()
+                .map(ticketMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    // STAFF: Lấy danh sách vé theo chi nhánh
+    public List<TicketResponse> getTicketsByBranch(Integer branchId) {
+        return ticketRepository.findByBranch(branchId).stream()
+                .map(ticketMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    //       STAFF: Cập nhật trạng thái thủ công (debug / special case)
+    @Transactional
+    public TicketResponse updateTicketStatus(Integer ticketId, String newStatus, Account staff) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy vé!"));
+
+        Ticket.TicketStatus oldStatus = ticket.getTicketStatus();
+
+        // 🔹 Kiểm tra hợp lệ của trạng thái mới
+        Ticket.TicketStatus newEnumStatus;
+        try {
+            newEnumStatus = Ticket.TicketStatus.valueOf(newStatus.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("❌ Trạng thái không hợp lệ: " + newStatus);
+        }
+
+        // 🔹 Cập nhật và lưu vé
+        ticket.setTicketStatus(newEnumStatus);
+        ticketRepository.save(ticket);
+
+        // 🔹 Lưu lịch sử thay đổi
+        saveTicketHistory(ticket, oldStatus.name(), newEnumStatus.name(), staff, "Cập nhật trạng thái thủ công");
+
+        log.info("🛠️ Vé {} được cập nhật từ {} ➜ {} bởi nhân viên {}",
+                ticketId, oldStatus, newEnumStatus,
+                staff != null ? staff.getFullName() : "Unknown");
+
+        return ticketMapper.toResponse(ticket);
+    }
+
+    public TicketDetailResponse getById(Integer id) {
+        Ticket ticket = ticketRepository.findWithRelationsByTicketId(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy vé!"));
+
+        TicketDetailResponse dto = ticketMapper.toDetailResponse(ticket);
+
+        // ================= 🎟️ Ghế =================
+        String seatNums = (ticket.getTicketSeats() != null && !ticket.getTicketSeats().isEmpty())
+                ? ticket.getTicketSeats().stream()
+                .map(ts -> ts.getSeat().getSeatRow() + ts.getSeat().getSeatNumber())
+                .collect(Collectors.joining(", "))
+                : "N/A";
+        dto.setSeatNumbers(seatNums);
+
+        // ================= 🍿 Combo =================
+        List<String> comboList = (ticket.getTicketCombos() != null && !ticket.getTicketCombos().isEmpty())
+                ? ticket.getTicketCombos().stream()
+                .map(tc -> String.format("%s x%d",
+                        tc.getCombo().getNameCombo(),
+                        tc.getQuantity() != null ? tc.getQuantity() : 1))
+                .collect(Collectors.toList())
+                : List.of();
+        dto.setComboList(comboList);
+
+        // ================= ⚙️ Thông tin bổ sung =================
+        dto.setTicketStatus(ticket.getTicketStatus().name()); // Enum ➜ String
+        dto.setTotalPrice(ticket.getTotalPrice() != null
+                ? ticket.getTotalPrice().doubleValue()
+                : 0.0);
+        dto.setPaymentMethod(ticket.getPaymentMethod() != null
+                ? ticket.getPaymentMethod().toString()
+                : "UNKNOWN");
+
+        return dto;
+    }
+
+
+
+
+
+
+
+
+
+
+
 }
