@@ -9,6 +9,7 @@ import org.hibernate.annotations.Nationalized;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Builder
 @AllArgsConstructor
@@ -56,9 +57,10 @@ public class Payment {
     Ticket ticketID;
 
     @Column(name = "CreatedAt")
-    Instant createdAt;
+    LocalDateTime createdAt;
 
     @Column(name = "UpdatedAt")
-    Instant updatedAt;
+    LocalDateTime updatedAt;
+
 
 }

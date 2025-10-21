@@ -23,6 +23,7 @@ public class EmailService {
     @Value("${app.frontend.reset-password-url}")
     private String resetPasswordUrl;
 
+
     public void sendVerificationEmail(String to, String code) throws MessagingException {
         String subject = "Xác thực tài khoản";
         String content = "<h3>Chào bạn!</h3>"
@@ -135,12 +136,29 @@ public class EmailService {
             String branchAddress,
             String qrCodeUrl,
             String otpCode,
-            List<String> comboDetails // 🟢 danh sách combo (tên + SL + giá)
+            List<String> comboDetails
     ) throws MessagingException {
 
         String subject = "🎬 Vé xem phim của bạn tại CineMaster";
 
-        // 🔹 Tạo nội dung danh sách combo chi tiết
+        // ✅ Bảo vệ null cho toàn bộ tham số
+        String safeReservation = reservationCode != null ? reservationCode : "N/A";
+        String safeOtp = otpCode != null ? otpCode : "000000";
+        String safeQr = qrCodeUrl != null ? qrCodeUrl : "";
+        String safeMovie = movieTitle != null ? movieTitle : "Không xác định";
+        String safeAuditorium = auditoriumName != null ? auditoriumName : "Không rõ phòng";
+        String safeSeats = seatNames != null ? seatNames : "Không rõ ghế";
+        String safeShowtime = showtime != null
+                ? showtime.toString().replace("T", " ")
+                : "Không rõ thời gian";
+
+        BigDecimal safeCombo = comboTotal != null ? comboTotal : BigDecimal.ZERO;
+        BigDecimal safeOriginal = originalPrice != null ? originalPrice : BigDecimal.ZERO;
+        BigDecimal safeDiscount = discountTotal != null ? discountTotal : BigDecimal.ZERO;
+        BigDecimal safeTotal = totalPrice != null ? totalPrice : BigDecimal.ZERO;
+        String safeBranch = branchAddress != null ? branchAddress : "Không rõ địa chỉ";
+
+        // 🔹 Tạo danh sách combo chi tiết
         String comboSection;
         if (comboDetails != null && !comboDetails.isEmpty()) {
             comboSection = "<h4 style='margin-top:20px;color:#0aa3ff;'>🍿 Combo đã chọn:</h4><ul style='padding-left:18px;'>";
@@ -152,7 +170,7 @@ public class EmailService {
             comboSection = "<p style='color:#777;font-style:italic;'>Không có combo được chọn.</p>";
         }
 
-        // 🧾 Nội dung email
+        // 🧾 Nội dung email an toàn
         String content = """
     <div style="font-family: Arial, sans-serif; color:#222; line-height:1.6; max-width:600px; margin:auto;
                 border:1px solid #ddd; border-radius:10px; overflow:hidden;">
@@ -202,19 +220,19 @@ public class EmailService {
       </div>
     </div>
     """.formatted(
-                reservationCode,   // %s #1
-                otpCode,           // %s #2
-                qrCodeUrl,         // %s #3
-                movieTitle,        // %s #4
-                auditoriumName,    // %s #5
-                seatNames,         // %s #6
-                showtime.toString().replace("T", " "), // %s #7
-                comboTotal,        // %.0f #8
-                originalPrice,     // %.0f #9
-                discountTotal,     // %.0f #10
-                totalPrice,        // %.0f #11
-                comboSection,      // %s #12
-                branchAddress      // %s #13
+                safeReservation,
+                safeOtp,
+                safeQr,
+                safeMovie,
+                safeAuditorium,
+                safeSeats,
+                safeShowtime,
+                safeCombo,
+                safeOriginal,
+                safeDiscount,
+                safeTotal,
+                comboSection,
+                safeBranch
         );
 
         MimeMessage message = mailSender.createMimeMessage();
@@ -223,9 +241,17 @@ public class EmailService {
         helper.setSubject(subject);
         helper.setText(content, true);
 
-        mailSender.send(message);
+        try {
+            mailSender.send(message);
+            log.info("📩 Đã gửi email xác nhận vé cho {} (OTP={}, ComboTotal={})", to, safeOtp, safeCombo);
+        } catch (Exception e) {
+            e.printStackTrace(); // 👈 Bắt buộc để thấy lỗi thật trong IntelliJ
+            log.error("❌ Lỗi khi gửi email xác nhận vé cho {}: {}", to, e.getMessage(), e);
+            throw new RuntimeException("Lỗi gửi email xác nhận vé", e);
+        }
 
-        log.info("📩 Đã gửi email xác nhận vé cho {} (OTP={}, ComboTotal={})", to, otpCode, comboTotal);
+
     }
+
 
 }

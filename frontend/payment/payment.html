@@ -203,6 +203,55 @@
     });
 
     // ========================= 🧩 Hàm kiểm tra trạng thái =========================
+    // async function pollStatus(code, url, ticketId) {
+    //     const statusEl = document.getElementById('statustxt');
+    //     let tries = 0;
+    //     const maxTries = 60; // 5 phút (60 x 5s)
+    //
+    //     const interval = setInterval(async () => {
+    //         tries++;
+    //         try {
+    //             const res = await fetch(url);
+    //             if (!res.ok) throw new Error("Không thể truy cập API trạng thái");
+    //             const data = await res.json();
+    //
+    //             if (data.status === 'paid' || data.status === 'success') {
+    //                 statusEl.textContent = 'PAID';
+    //                 statusEl.style.color = 'limegreen';
+    //                 clearInterval(interval);
+    //
+    //                 alert("✅ Thanh toán thành công! Hệ thống đã phát hiện giao dịch.");
+    //
+    //                 // 🟢 Gọi xác nhận vé
+    //                 if (ticketId) {
+    //                     try {
+    //                         const verifyRes = await fetch(`${BACKEND}/api/v1/tickets/${ticketId}/verify-payment`);
+    //                         const verifyData = await verifyRes.json();
+    //                         console.log("🎫 Vé xác nhận:", verifyData);
+    //
+    //                         alert("🎟️ Vé đã được xác nhận và gửi qua email!");
+    //
+    //                         // ✅ Chuyển sang trang chi tiết vé
+    //                         window.location.href = `../user/ticketDetail.html?ticketId=${ticketId}`;
+    //                     } catch (err) {
+    //                         console.error("❌ Lỗi khi xác nhận vé:", err);
+    //                     }
+    //                 }
+    //             } else {
+    //                 statusEl.textContent = 'pending';
+    //                 statusEl.style.color = 'orange';
+    //             }
+    //
+    //             if (tries >= maxTries) {
+    //                 clearInterval(interval);
+    //                 alert("⏰ Hết thời gian chờ. Vui lòng kiểm tra lại giao dịch hoặc thử lại.");
+    //             }
+    //         } catch (e) {
+    //             console.error(e);
+    //         }
+    //     }, 5000);
+    // }
+    // ========================= 🧩 Hàm kiểm tra trạng thái =========================
     async function pollStatus(code, url, ticketId) {
         const statusEl = document.getElementById('statustxt');
         let tries = 0;
@@ -220,6 +269,7 @@
                     statusEl.style.color = 'limegreen';
                     clearInterval(interval);
 
+                    // ✅ Hiển thị thông báo
                     alert("✅ Thanh toán thành công! Hệ thống đã phát hiện giao dịch.");
 
                     // 🟢 Gọi xác nhận vé
@@ -229,12 +279,20 @@
                             const verifyData = await verifyRes.json();
                             console.log("🎫 Vé xác nhận:", verifyData);
 
-                            alert("🎟️ Vé đã được xác nhận và gửi qua email!");
+                            // ✅ Lưu lại kết quả xác nhận vào localStorage
+                            localStorage.setItem("lastPaymentResult", JSON.stringify({
+                                status: "success",
+                                ticketId: ticketId,
+                                message: "Thanh toán thành công!",
+                                time: new Date().toISOString()
+                            }));
 
-                            // ✅ Chuyển sang trang chi tiết vé
-                            window.location.href = `../user/ticketDetail.html?ticketId=${ticketId}`;
+                            // 🚀 Chuyển sang trang successBooking.html
+                            window.location.href = "../user/successBooking.html";
+                            return;
                         } catch (err) {
                             console.error("❌ Lỗi khi xác nhận vé:", err);
+                            alert("⚠️ Lỗi khi xác nhận vé. Vui lòng kiểm tra email hoặc vé của bạn.");
                         }
                     }
                 } else {
@@ -251,6 +309,7 @@
             }
         }, 5000);
     }
+
 </script>
 
 </body>

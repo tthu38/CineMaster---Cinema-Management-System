@@ -5,8 +5,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     // ===== Load header/footer =====
     const headerHTML = await (await fetch("../home/header.html")).text();
     const footerHTML = await (await fetch("../home/footer.html")).text();
-    document.getElementById("headerContainer").innerHTML = headerHTML;
-    document.getElementById("footerContainer").innerHTML = footerHTML;
+    document.getElementById("header").innerHTML = headerHTML;
+    document.getElementById("footer").innerHTML = footerHTML;
 
     const headerScript = document.createElement("script");
     headerScript.src = "../home/header.js";

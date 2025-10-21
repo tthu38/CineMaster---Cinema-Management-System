@@ -14,6 +14,9 @@ import java.util.List;
 @Repository
 public interface TicketComboRepository extends JpaRepository<TicketCombo, Integer> {
 
+    boolean existsByTicket_TicketIdAndCombo_Id(Integer ticketId, Integer comboId);
+
+
     // ✅ Giữ nguyên từ bản đầu tiên: load combo kèm quan hệ
     @EntityGraph(attributePaths = {"combo"})
     List<TicketCombo> findByTicket_TicketId(Integer ticketId);

@@ -8,6 +8,7 @@ import org.hibernate.annotations.Nationalized;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Builder
 @AllArgsConstructor
@@ -47,7 +48,7 @@ public class TicketHistory {
     Account changedBy;
 
     @Column(name = "ChangedAt")
-    Instant changedAt;
+    LocalDateTime changedAt;
 
     @Nationalized
     @Lob

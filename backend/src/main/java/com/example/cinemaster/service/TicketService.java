@@ -230,134 +230,129 @@ public class TicketService {
     }
 
 
-    @Transactional
-    public void confirmPayment(Integer ticketId, List<TicketComboRequest> combos, String customEmail) {
-        Ticket ticket = ticketRepository.findById(ticketId)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy vé!"));
-
-        if (ticket.getTicketStatus() != Ticket.TicketStatus.HOLDING)
-            throw new RuntimeException("Vé không ở trạng thái HOLDING!");
-
-        // 🧩 Ép Hibernate load danh sách liên quan
-        ticket.getTicketSeats().size();
-        ticket.getTicketDiscounts().size();
-
-        Showtime showtime = ticket.getShowtime();
-        BigDecimal seatTotal = ticket.getTicketSeats().stream()
-                .map(ts -> showtime.getPrice().multiply(ts.getSeat().getSeatType().getPriceMultiplier()))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        // ====================== 🍿 1️⃣ TẠO COMBO CHÍNH THỨC ======================
-        BigDecimal comboTotal = BigDecimal.ZERO;
-
-        if (combos != null && !combos.isEmpty()) {
-            // 🔹 Xóa combo cũ (nếu có)
-            List<TicketCombo> oldCombos = ticketComboRepository.findByTicket_TicketId(ticketId);
-            if (!oldCombos.isEmpty()) {
-                ticketComboRepository.deleteAll(oldCombos);
-                log.info("🧹 Đã xóa combo cũ của vé {}", ticketId);
-            }
-
-            // 🔹 Tạo combo mới
-            for (TicketComboRequest comboReq : combos) {
-                Combo combo = comboRepository.findById(comboReq.getComboId())
-                        .orElseThrow(() -> new RuntimeException("Không tìm thấy combo!"));
-
-                BigDecimal subtotal = combo.getPrice()
-                        .multiply(BigDecimal.valueOf(comboReq.getQuantity()));
-                comboTotal = comboTotal.add(subtotal);
-
-                TicketCombo ticketCombo = TicketCombo.builder()
-                        .ticket(ticket)
-                        .combo(combo)
-                        .ticketId(ticket.getTicketId())
-                        .comboId(combo.getId())
-                        .quantity(comboReq.getQuantity())
-                        .build();
-
-                ticketComboRepository.save(ticketCombo);
-            }
-        }
-
-        // ====================== 🎁 2️⃣ TÍNH LẠI GIẢM GIÁ ======================
-        BigDecimal discountTotal = ticket.getTicketDiscounts().stream()
-                .map(TicketDiscount::getAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        // ====================== 💰 3️⃣ TÍNH LẠI TỔNG TIỀN ======================
-        BigDecimal total = seatTotal.add(comboTotal).subtract(discountTotal);
-        if (total.compareTo(BigDecimal.ZERO) < 0) total = BigDecimal.ZERO;
-
-        // 💾 Cập nhật vé
-        ticket.setTotalPrice(total);
-        ticket.setTicketStatus(Ticket.TicketStatus.BOOKED);
-        ticket.setHoldUntil(null);
-        ticketRepository.save(ticket);
-
-        // ====================== 🔐 4️⃣ TẠO OTP & GỬI MAIL ======================
-        String otpCode = createOtpForTicket(ticket);
-
-        try {
-            Account account = ticket.getAccount();
-            Movie movie = showtime.getPeriod().getMovie();
-            Auditorium auditorium = showtime.getAuditorium();
-            Branch branch = auditorium.getBranch();
-
-            // 💎 Cập nhật điểm thành viên
-            int earnedPoints = ticket.getTotalPrice().divide(BigDecimal.valueOf(10000)).intValue();
-            membershipService.updateMembershipAfterPayment(account, earnedPoints);
-
-            // 💺 Tên ghế
-            String seatNames = ticket.getTicketSeats().stream()
-                    .map(ts -> ts.getSeat().getSeatRow() + ts.getSeat().getSeatNumber())
-                    .collect(Collectors.joining(", "));
-
-            // 🍿 Danh sách combo chi tiết (vừa tạo)
-            List<String> comboDetails = ticketComboRepository.findByTicket_TicketId(ticketId).stream()
-                    .map(tc -> String.format("%dx %s (%,.0f VND)",
-                            tc.getQuantity(),
-                            tc.getCombo().getNameCombo(),
-                            tc.getCombo().getPrice().multiply(BigDecimal.valueOf(tc.getQuantity()))
-                    ))
-                    .collect(Collectors.toList());
-
-            // 🔹 QR Code dẫn đến trang chi tiết vé
-            String ticketLink = "http://localhost:63342/CineMaster/frontend/user/ticketDetail.html?ticketId="
-                    + ticket.getTicketId();
-            String qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + ticketLink;
-
-            // ✉️ Địa chỉ nhận email
-            String recipient = (customEmail != null && !customEmail.isBlank())
-                    ? customEmail
-                    : account.getEmail();
-
-            log.info("📧 Gửi vé xác nhận đến: {}", recipient);
-
-            // 📩 Gửi email xác nhận vé
-            emailService.sendBookingConfirmationEmail(
-                    recipient,
-                    "CM-" + ticket.getTicketId(),
-                    movie.getTitle(),
-                    auditorium.getName(),
-                    seatNames,
-                    showtime.getStartTime(),
-                    comboTotal,                        // tổng combo
-                    seatTotal.add(comboTotal),         // giá gốc (chưa giảm)
-                    discountTotal,                     // tổng giảm
-                    ticket.getTotalPrice(),            // tổng thực trả
-                    branch.getAddress(),
-                    qrUrl,
-                    otpCode,
-                    comboDetails
-            );
-
-            log.info("✅ Đã gửi email xác nhận vé cho {}", recipient);
-
-        } catch (Exception e) {
-            log.error("❌ Lỗi gửi email xác nhận vé: {}", e.getMessage(), e);
-            throw new RuntimeException("Lỗi gửi email xác nhận vé", e);
-        }
-    }
+//    @Transactional
+//    public void confirmPayment(Integer ticketId, List<TicketComboRequest> combos, String customEmail) {
+//        Ticket ticket = ticketRepository.findById(ticketId)
+//                .orElseThrow(() -> new RuntimeException("Không tìm thấy vé!"));
+//
+//        if (ticket.getTicketStatus() != Ticket.TicketStatus.HOLDING)
+//            throw new RuntimeException("Vé không ở trạng thái HOLDING!");
+//
+//        // 🧩 Ép Hibernate load danh sách liên quan
+//        ticket.getTicketSeats().size();
+//        ticket.getTicketDiscounts().size();
+//        ticket.getTicketCombos().size(); //
+//        Showtime showtime = ticket.getShowtime();
+//        BigDecimal seatTotal = ticket.getTicketSeats().stream()
+//                .map(ts -> showtime.getPrice().multiply(ts.getSeat().getSeatType().getPriceMultiplier()))
+//                .reduce(BigDecimal.ZERO, BigDecimal::add);
+//
+//        // ====================== 🍿 1️⃣ TẠO COMBO CHÍNH THỨC ======================
+//        BigDecimal comboTotal = BigDecimal.ZERO;
+//
+//        List<TicketComboRequest> finalCombos;
+//
+//// ✅ Nếu combos null (ví dụ từ polling) → lấy từ DB
+//        if (combos == null || combos.isEmpty()) {
+//            finalCombos = ticket.getTicketCombos().stream()
+//                    .map(tc -> new TicketComboRequest(tc.getCombo().getId(), tc.getQuantity()))
+//                    .collect(Collectors.toList());
+//        } else {
+//            finalCombos = combos;
+//        }
+//
+//// 🔹 Xóa combo cũ (nếu có)
+//        List<TicketCombo> oldCombos = ticketComboRepository.findByTicket_TicketId(ticketId);
+//        if (!oldCombos.isEmpty()) {
+//            ticketComboRepository.deleteAll(oldCombos);
+//            log.info("🧹 Đã xóa combo cũ của vé {}", ticketId);
+//        }
+//
+//// 🔹 Tạo combo mới
+//        for (TicketComboRequest comboReq : finalCombos) {
+//            Combo combo = comboRepository.findById(comboReq.getComboId())
+//                    .orElseThrow(() -> new RuntimeException("Không tìm thấy combo!"));
+//
+//            BigDecimal subtotal = combo.getPrice()
+//                    .multiply(BigDecimal.valueOf(comboReq.getQuantity()));
+//            comboTotal = comboTotal.add(subtotal);
+//
+//            TicketCombo ticketCombo = TicketCombo.builder()
+//                    .ticket(ticket)
+//                    .combo(combo)
+//                    .ticketId(ticket.getTicketId())
+//                    .comboId(combo.getId())
+//                    .quantity(comboReq.getQuantity())
+//                    .build();
+//
+//            ticketComboRepository.save(ticketCombo);
+//        }
+//
+//
+//        // ====================== 🎁 2️⃣ TÍNH LẠI GIẢM GIÁ ======================
+//        BigDecimal discountTotal = ticket.getTicketDiscounts().stream()
+//                .map(TicketDiscount::getAmount)
+//                .reduce(BigDecimal.ZERO, BigDecimal::add);
+//
+//        // ====================== 💰 3️⃣ TÍNH LẠI TỔNG TIỀN ======================
+//        BigDecimal total = seatTotal.add(comboTotal).subtract(discountTotal);
+//        if (total.compareTo(BigDecimal.ZERO) < 0) total = BigDecimal.ZERO;
+//
+//        // 💾 Cập nhật vé
+//        ticket.setTotalPrice(total);
+//        ticket.setTicketStatus(Ticket.TicketStatus.BOOKED);
+//        ticket.setHoldUntil(null);
+//        ticketRepository.save(ticket);
+//
+//        // ====================== 🔐 4️⃣ TẠO OTP & GỬI MAIL ======================
+//        String otpCode = createOtpForTicket(ticket);
+//
+//        try {
+//            Account account = ticket.getAccount();
+//            Movie movie = showtime != null ? showtime.getPeriod().getMovie() : null;
+//            Auditorium auditorium = showtime != null ? showtime.getAuditorium() : null;
+//            Branch branch = (auditorium != null) ? auditorium.getBranch() : null;
+//
+//            String recipient = (customEmail != null && !customEmail.isBlank())
+//                    ? customEmail
+//                    : (account != null ? account.getEmail() : ticket.getCustomerEmail());
+//
+//            if (recipient == null || recipient.isBlank()) {
+//                log.warn("⚠️ Vé {} không có email hợp lệ, bỏ qua gửi mail.", ticket.getTicketId());
+//            } else {
+//                emailService.sendBookingConfirmationEmail(
+//                        recipient,
+//                        "CM-" + ticket.getTicketId(),
+//                        movie != null ? movie.getTitle() : "Không xác định",
+//                        auditorium != null ? auditorium.getName() : "Không xác định",
+//                        ticket.getTicketSeats().stream()
+//                                .map(ts -> ts.getSeat().getSeatRow() + ts.getSeat().getSeatNumber())
+//                                .collect(Collectors.joining(", ")),
+//                        showtime != null ? showtime.getStartTime() : LocalDateTime.now(),
+//                        comboTotal != null ? comboTotal : BigDecimal.ZERO,
+//                        seatTotal.add(comboTotal != null ? comboTotal : BigDecimal.ZERO),
+//                        discountTotal != null ? discountTotal : BigDecimal.ZERO,
+//                        ticket.getTotalPrice() != null ? ticket.getTotalPrice() : BigDecimal.ZERO,
+//                        (branch != null && branch.getAddress() != null) ? branch.getAddress() : "Không xác định",
+//                        "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ticket-" + ticket.getTicketId(),
+//                        otpCode,
+//                        ticketComboRepository.findByTicket_TicketId(ticketId).stream()
+//                                .map(tc -> String.format("%dx %s (%,.0f VND)",
+//                                        tc.getQuantity(),
+//                                        tc.getCombo().getNameCombo(),
+//                                        tc.getCombo().getPrice().multiply(BigDecimal.valueOf(tc.getQuantity()))))
+//                                .collect(Collectors.toList())
+//                );
+//                log.info("📧 Đã gửi mail xác nhận vé cho {}", recipient);
+//            }
+//        } catch (Exception e) {
+//            log.error("⚠️ Gửi mail thất bại nhưng KHÔNG rollback vé: {}", e.getMessage(), e);
+//        }
+//
+//
+//
+//
+//    }
 
     @Transactional
     public void cancelTicket(Integer ticketId) {
@@ -412,6 +407,13 @@ public class TicketService {
         List<TicketCombo> oldCombos = ticketComboRepository.findByTicket_TicketId(ticketId);
         if (!oldCombos.isEmpty()) {
             ticketComboRepository.deleteAll(oldCombos);
+            if (!oldCombos.isEmpty()) {
+                ticketComboRepository.deleteAll(oldCombos);
+                ticketComboRepository.flush(); // 💥 đảm bảo DELETE thực thi ngay
+                entityManager.detach(ticket); // 💥 clear cache
+                log.info("🧹 Đã xóa combo cũ của vé {}", ticketId);
+            }
+
             ticket.getTicketCombos().clear();
             ticketRepository.flush();
 
@@ -459,7 +461,7 @@ public class TicketService {
                 .oldStatus(oldStatus)
                 .newStatus(newStatus)
                 .changedBy(realChanger)
-                .changedAt(Instant.now())
+                .changedAt(LocalDateTime.now())
                 .note(note)
                 .build();
 
@@ -657,12 +659,173 @@ public class TicketService {
         return ticketMapper.toResponse(ticket);
     }
 
+//    public void confirmPayment(Integer ticketId) {
+//        // ✅ Lấy danh sách combo đã lưu trong DB (để không bị mất)
+//        List<TicketComboRequest> combos = ticketComboRepository.findByTicket_TicketId(ticketId)
+//                .stream()
+//                .map(tc -> new TicketComboRequest(tc.getCombo().getId(), tc.getQuantity()))
+//                .collect(Collectors.toList());
+//
+//        // ✅ Gọi lại hàm đầy đủ để tính combo + discount + gửi mail đúng
+//        confirmPayment(ticketId, combos, null);
+//    }
 
+    // ✅ Thay thế method confirmPayment(Integer ticketId) trong TicketService.java
 
+    @Transactional
+    public void confirmPayment(Integer ticketId) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy vé!"));
 
+        // ⚠️ BỎ CHECK NÀY ĐI vì từ polling có thể đã BOOKED rồi
+        // if (ticket.getTicketStatus() != Ticket.TicketStatus.HOLDING)
+        //     throw new RuntimeException("Vé không ở trạng thái HOLDING!");
 
+        // ✅ Kiểm tra nếu vé đã BOOKED thì bỏ qua
+        if (ticket.getTicketStatus() == Ticket.TicketStatus.BOOKED) {
+            log.info("ℹ️ Vé {} đã BOOKED rồi, không xử lý lại.", ticketId);
+            return;
+        }
 
+        // ✅ Nếu vé đang HOLDING → tiến hành xác nhận
+        if (ticket.getTicketStatus() == Ticket.TicketStatus.HOLDING) {
+            // ✅ Lấy danh sách combo đã lưu trong DB
+            List<TicketComboRequest> combos = ticketComboRepository.findByTicket_TicketId(ticketId)
+                    .stream()
+                    .map(tc -> new TicketComboRequest(tc.getCombo().getId(), tc.getQuantity()))
+                    .collect(Collectors.toList());
 
+            // ✅ Gọi hàm đầy đủ để tính combo + discount + gửi mail
+            confirmPayment(ticketId, combos, null);
+        } else {
+            log.warn("⚠️ Vé {} có trạng thái {}, không thể xác nhận.", ticketId, ticket.getTicketStatus());
+        }
+    }
+
+    // ============ GIỮ NGUYÊN method confirmPayment() đầy đủ bên dưới ============
+    @Transactional
+    public void confirmPayment(Integer ticketId, List<TicketComboRequest> combos, String customEmail) {
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy vé!"));
+
+        // ✅ CHỈ kiểm tra HOLDING ở đây (method này được gọi từ confirm trực tiếp)
+        if (ticket.getTicketStatus() != Ticket.TicketStatus.HOLDING) {
+            log.warn("⚠️ Vé {} không ở trạng thái HOLDING, bỏ qua xác nhận.", ticketId);
+            return;
+        }
+
+        // 🧩 Ép Hibernate load danh sách liên quan
+        ticket.getTicketSeats().size();
+        ticket.getTicketDiscounts().size();
+        ticket.getTicketCombos().size();
+
+        Showtime showtime = ticket.getShowtime();
+        BigDecimal seatTotal = ticket.getTicketSeats().stream()
+                .map(ts -> showtime.getPrice().multiply(ts.getSeat().getSeatType().getPriceMultiplier()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // ====================== 🍿 1️⃣ TẠO COMBO CHÍNH THỨC ======================
+        BigDecimal comboTotal = BigDecimal.ZERO;
+
+        List<TicketComboRequest> finalCombos;
+
+        // ✅ Nếu combos null (ví dụ từ polling) → lấy từ DB
+        if (combos == null || combos.isEmpty()) {
+            finalCombos = ticket.getTicketCombos().stream()
+                    .map(tc -> new TicketComboRequest(tc.getCombo().getId(), tc.getQuantity()))
+                    .collect(Collectors.toList());
+        } else {
+            finalCombos = combos;
+        }
+
+        // 🔹 Xóa combo cũ (nếu có)
+        List<TicketCombo> oldCombos = ticketComboRepository.findByTicket_TicketId(ticketId);
+        if (!oldCombos.isEmpty()) {
+            ticketComboRepository.deleteAll(oldCombos);
+            log.info("🧹 Đã xóa combo cũ của vé {}", ticketId);
+        }
+
+        // 🔹 Tạo combo mới
+        for (TicketComboRequest comboReq : finalCombos) {
+            Combo combo = comboRepository.findById(comboReq.getComboId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy combo!"));
+
+            BigDecimal subtotal = combo.getPrice()
+                    .multiply(BigDecimal.valueOf(comboReq.getQuantity()));
+            comboTotal = comboTotal.add(subtotal);
+
+            TicketCombo ticketCombo = TicketCombo.builder()
+                    .ticket(ticket)
+                    .combo(combo)
+                    .ticketId(ticket.getTicketId())
+                    .comboId(combo.getId())
+                    .quantity(comboReq.getQuantity())
+                    .build();
+
+            ticketComboRepository.save(ticketCombo);
+        }
+
+        // ====================== 🎁 2️⃣ TÍNH LẠI GIẢM GIÁ ======================
+        BigDecimal discountTotal = ticket.getTicketDiscounts().stream()
+                .map(TicketDiscount::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // ====================== 💰 3️⃣ TÍNH LẠI TỔNG TIỀN ======================
+        BigDecimal total = seatTotal.add(comboTotal).subtract(discountTotal);
+        if (total.compareTo(BigDecimal.ZERO) < 0) total = BigDecimal.ZERO;
+
+        // 💾 Cập nhật vé
+        ticket.setTotalPrice(total);
+        ticket.setTicketStatus(Ticket.TicketStatus.BOOKED);
+        ticket.setHoldUntil(null);
+        ticketRepository.save(ticket);
+
+        // ====================== 🔐 4️⃣ TẠO OTP & GỬI MAIL ======================
+        String otpCode = createOtpForTicket(ticket);
+
+        try {
+            Account account = ticket.getAccount();
+            Movie movie = showtime != null ? showtime.getPeriod().getMovie() : null;
+            Auditorium auditorium = showtime != null ? showtime.getAuditorium() : null;
+            Branch branch = (auditorium != null) ? auditorium.getBranch() : null;
+
+            String recipient = (customEmail != null && !customEmail.isBlank())
+                    ? customEmail
+                    : (account != null ? account.getEmail() : ticket.getCustomerEmail());
+
+            if (recipient == null || recipient.isBlank()) {
+                log.warn("⚠️ Vé {} không có email hợp lệ, bỏ qua gửi mail.", ticket.getTicketId());
+            } else {
+                emailService.sendBookingConfirmationEmail(
+                        recipient,
+                        "CM-" + ticket.getTicketId(),
+                        movie != null ? movie.getTitle() : "Không xác định",
+                        auditorium != null ? auditorium.getName() : "Không xác định",
+                        ticket.getTicketSeats().stream()
+                                .map(ts -> ts.getSeat().getSeatRow() + ts.getSeat().getSeatNumber())
+                                .collect(Collectors.joining(", ")),
+                        showtime != null ? showtime.getStartTime() : LocalDateTime.now(),
+                        comboTotal != null ? comboTotal : BigDecimal.ZERO,
+                        seatTotal.add(comboTotal != null ? comboTotal : BigDecimal.ZERO),
+                        discountTotal != null ? discountTotal : BigDecimal.ZERO,
+                        ticket.getTotalPrice() != null ? ticket.getTotalPrice() : BigDecimal.ZERO,
+                        (branch != null && branch.getAddress() != null) ? branch.getAddress() : "Không xác định",
+                        "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ticket-" + ticket.getTicketId(),
+                        otpCode,
+                        ticketComboRepository.findByTicket_TicketId(ticketId).stream()
+                                .map(tc -> String.format("%dx %s (%,.0f VND)",
+                                        tc.getQuantity(),
+                                        tc.getCombo().getNameCombo(),
+                                        tc.getCombo().getPrice().multiply(BigDecimal.valueOf(tc.getQuantity()))))
+                                .collect(Collectors.toList())
+                );
+                log.info("📧 Đã gửi mail xác nhận vé cho {}", recipient);
+            }
+        } catch (Exception e) {
+            log.error("⚠️ Gửi mail thất bại nhưng KHÔNG rollback vé: {}", e.getMessage(), e);
+            // ⚠️ KHÔNG throw exception để tránh rollback transaction
+        }
+    }
 
 
 

@@ -65,6 +65,9 @@ public class SecurityConfig {
                         // ✅ Cho phép tăng lượt xem tin tức (PUT /news/{id}/view)
                         .requestMatchers(HttpMethod.PUT, "/api/v1/news/*/view").permitAll()
 
+                        .requestMatchers("/api/v1/branches/names").permitAll()
+                        .requestMatchers("/api/v1/branches/active").permitAll()
+
                         // ✅ Các API khác phải xác thực
                         .anyRequest().authenticated()
                 )

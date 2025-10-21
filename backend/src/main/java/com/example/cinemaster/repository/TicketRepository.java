@@ -16,6 +16,7 @@ import java.util.Optional;
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Integer> {
 
+
     /* ======================================================
        🔹 Danh sách ghế đã được BOOKED hoặc HOLDING (chưa hết hạn)
     ====================================================== */

@@ -45,31 +45,51 @@ public class GoogleSheetsService {
      * Trả về thông tin nếu tìm thấy: (found true) and a map chứa các trường quan trọng.
      */
     public Map<String, String> findTransactionByCode(String code) throws Exception {
-        // đọc nhiều cột (A..J) vì sheet của bạn có nhiều trường
         String range = "A:J";
         ValueRange response = sheetsService.spreadsheets().values()
                 .get(spreadsheetId, range)
                 .execute();
         List<List<Object>> rows = response.getValues();
-        if (rows == null || rows.isEmpty()) return Map.of("found","false");
+        if (rows == null || rows.isEmpty()) return Map.of("found", "false");
 
-        // bắt đầu từ row 2 (row 1 là header)
+        String normalizedCode = normalize(code);
+        System.out.println("🔍 Đang tìm code: " + normalizedCode);
+
         for (int i = 1; i < rows.size(); i++) {
             List<Object> r = rows.get(i);
-            // cột E (index 4) = Code TT, cột F (index 5) = nội dung, cột H (index 7) = số tiền
-            String codeTT = r.size() > 4 ? r.get(4).toString() : "";
-            String note = r.size() > 5 ? r.get(5).toString() : "";
+            String codeTT = r.size() > 4 ? normalize(r.get(4).toString()) : "";
+            String note = r.size() > 5 ? normalize(r.get(5).toString()) : "";
             String amount = r.size() > 7 ? r.get(7).toString() : "";
-            if ((codeTT != null && codeTT.contains(code)) || (note != null && note.contains(code))) {
+
+            // debug log
+            System.out.printf("🧾 Dòng %d | CodeTT=[%s] | Note=[%s]%n", i + 1, codeTT, note);
+
+            if (codeTT.contains(normalizedCode) || note.contains(normalizedCode)) {
+                System.out.println("✅ Tìm thấy giao dịch tại dòng " + (i + 1));
                 return Map.of(
-                        "found","true",
-                        "rowIndex", String.valueOf(i+1), // người dùng dễ debug
-                        "codeTT", codeTT,
-                        "note", note,
+                        "found", "true",
+                        "rowIndex", String.valueOf(i + 1),
+                        "codeTT", r.size() > 4 ? r.get(4).toString() : "",
+                        "note", r.size() > 5 ? r.get(5).toString() : "",
                         "amount", amount
                 );
             }
         }
-        return Map.of("found","false");
+        System.out.println("❌ Không tìm thấy giao dịch cho code: " + normalizedCode);
+
+        return Map.of("found", "false");
+
     }
+
+    /** 🔹 Hàm normalize loại bỏ ký tự lạ, khoảng trắng, chuyển về lowercase */
+    private String normalize(String s) {
+        if (s == null) return "";
+        return s
+                .replaceAll("[^a-zA-Z0-9]", "") // chỉ giữ lại chữ & số
+                .toLowerCase()
+                .trim();
+    }
+
+
+
 }
