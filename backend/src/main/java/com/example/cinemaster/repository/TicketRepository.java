@@ -32,6 +32,19 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
     """)
     List<Integer> findOccupiedSeatIdsByShowtime(@Param("showtimeId") Integer showtimeId);
 
+    // ✅ THÊM từ bài bạn: phương thức loại trừ một vé cụ thể
+    @Query("""
+    SELECT ts.seat.seatID
+    FROM TicketSeat ts
+    WHERE ts.ticket.showtime.showtimeID = :showtimeId
+      AND ts.ticket.ticketStatus IN ('HOLDING', 'BOOKED')
+      AND (:ticketId IS NULL OR ts.ticket.ticketId <> :ticketId)
+    """)
+    List<Integer> findOccupiedSeatIdsByShowtimeExcludeTicket(
+            @Param("showtimeId") Integer showtimeId,
+            @Param("ticketId") Integer ticketId
+    );
+
     /* ======================================================
        🔹 Danh sách ghế đã BOOKED (dùng cho thống kê hoặc check)
     ====================================================== */
@@ -58,25 +71,31 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
 
     /* ======================================================
        🔹 Lấy vé có đầy đủ thông tin (dành cho chi tiết vé)
-       ⚡️ Quan trọng: join fetch toàn bộ quan hệ
     ====================================================== */
+    @EntityGraph(attributePaths = {
+            "showtime",
+            "showtime.period",
+            "showtime.period.movie",
+            "showtime.period.branch",
+            "showtime.auditorium"
+    })
     @Query("""
-        SELECT DISTINCT t FROM Ticket t
-        LEFT JOIN FETCH t.account a
-        LEFT JOIN FETCH t.showtime s
-        LEFT JOIN FETCH s.period p
-        LEFT JOIN FETCH p.movie m
-        LEFT JOIN FETCH s.auditorium au
-        LEFT JOIN FETCH au.branch b
-        LEFT JOIN FETCH t.ticketSeats ts
-        LEFT JOIN FETCH ts.seat st
-        LEFT JOIN FETCH st.seatType
-        LEFT JOIN FETCH t.ticketCombos tc
-        LEFT JOIN FETCH tc.combo c
-        LEFT JOIN FETCH t.ticketDiscounts td
-        LEFT JOIN FETCH td.discount d
-        WHERE t.ticketId = :id
-    """)
+    SELECT DISTINCT t FROM Ticket t
+    LEFT JOIN FETCH t.account a
+    LEFT JOIN FETCH t.showtime s
+    LEFT JOIN FETCH s.period p
+    LEFT JOIN FETCH p.movie m
+    LEFT JOIN FETCH s.auditorium au
+    LEFT JOIN FETCH au.branch b
+    LEFT JOIN FETCH t.ticketSeats ts
+    LEFT JOIN FETCH ts.seat st
+    LEFT JOIN FETCH st.seatType
+    LEFT JOIN FETCH t.ticketCombos tc
+    LEFT JOIN FETCH tc.combo c
+    LEFT JOIN FETCH t.ticketDiscounts td
+    LEFT JOIN FETCH td.discount d
+    WHERE t.ticketId = :id
+""")
     Optional<Ticket> findWithRelationsByTicketId(@Param("id") Integer id);
 
     /* ======================================================
@@ -95,6 +114,11 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
        🔹 Lấy vé mới nhất theo Account
     ====================================================== */
     Optional<Ticket> findTopByAccountOrderByBookingTimeDesc(Account account);
+
+    // ✅ THÊM từ bài bạn: lấy vé mới nhất theo account + trạng thái
+    Optional<Ticket> findTopByAccount_AccountIDAndTicketStatusOrderByBookingTimeDesc(
+            Integer accountId, Ticket.TicketStatus status
+    );
 
     /* ======================================================
        🔹 Doanh thu & thống kê
@@ -135,7 +159,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
                                              @Param("to") LocalDateTime to,
                                              @Param("method") String method);
 
-
     //------------------giang
     @Query("""
    SELECT CAST(t.bookingTime AS date), SUM(t.totalPrice)
@@ -154,7 +177,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
             @Param("to") LocalDate to,
             @Param("branchId") Integer branchId
     );
-    // 🔹 Theo tháng trong năm
+
     @Query("""
    SELECT MONTH(t.bookingTime), SUM(t.totalPrice)
    FROM Ticket t
@@ -170,8 +193,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
     List<Object[]> findRevenueByMonth(@Param("year") Integer year,
                                       @Param("branchId") Integer branchId);
 
-
-    // 🔹 Theo khoảng thời gian tuỳ chọn
     @Query("""
    SELECT CAST(t.bookingTime AS date), SUM(t.totalPrice)
    FROM Ticket t
@@ -187,9 +208,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
     List<Object[]> findRevenueBetweenDates(@Param("from") LocalDate from,
                                            @Param("to") LocalDate to,
                                            @Param("branchId") Integer branchId);
-
-
-
 
     @Query("""
    SELECT m.title, COUNT(ts.seat.seatID) AS seatsSold
@@ -212,7 +230,4 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
             @Param("from") LocalDateTime from,
             @Param("to") LocalDateTime to
     );
-
-
-
 }

@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <title>Đặt vé thành công - CineMaster</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         body {
             background-color: #06101f;
@@ -16,6 +18,8 @@
             align-items: center;
             justify-content: center;
         }
+
+
         .card-custom {
             background: rgba(8, 20, 40, 0.5);
             border: 1px solid rgba(34, 193, 255, 0.25);
@@ -26,6 +30,8 @@
             max-width: 600px;
             box-shadow: 0 0 25px rgba(0, 163, 255, 0.2);
         }
+
+
         .btn-cyan {
             background: linear-gradient(90deg, #0aa3ff, #22c1ff);
             border: none;
@@ -34,49 +40,66 @@
             border-radius: 10px;
             padding: 10px 30px;
         }
+
+
+        .ticket-info b {
+            color: #22c1ff;
+        }
     </style>
 </head>
 <body>
+
+
 <div class="card-custom text-center">
     <i class="fa-solid fa-circle-check text-success fa-5x mb-4"></i>
     <h3 class="fw-bold text-light mb-3">🎉 Đặt vé thành công!</h3>
-    <p class="text-info mb-4">Thông tin vé của bạn được hiển thị bên dưới. Cảm ơn bạn đã đặt vé tại CineMaster!</p>
+    <p class="text-info mb-4">
+        Cảm ơn bạn đã đặt vé tại <b>CineMaster</b>! Thông tin vé của bạn được hiển thị bên dưới.
+    </p>
 
-    <div id="ticketDetail" class="text-start bg-dark bg-opacity-25 p-3 rounded mb-3"></div>
+
+    <div id="ticketDetail" class="ticket-info text-start bg-dark bg-opacity-25 p-3 rounded mb-3">
+        <p>⏳ Đang tải thông tin vé...</p>
+    </div>
+
 
     <button class="btn-cyan" onclick="window.location.href='../home/home.html'">
         Quay lại trang chủ
     </button>
 </div>
 
+
 <script type="module">
     import { showtimeApi } from "../js/api/showtimeApi.js";
     import { movieApi } from "../js/api/movieApi.js";
     import { branchApi } from "../js/api/branchApi.js";
-    import { API_BASE_URL } from "../js/api/config.js";
 
-    // 🎟️ Lấy dữ liệu vé đã lưu tạm
-    const data = JSON.parse(localStorage.getItem("successBookingData") || "{}");
-    const ticketId = Number(localStorage.getItem("tempTicketId") || 0);
 
-    if (!data.showtimeId || !ticketId) {
+    // 🔹 Lấy dữ liệu lưu từ payment.html
+    const bookingData = JSON.parse(localStorage.getItem("successBookingData") || "{}");
+    const lastPayment = JSON.parse(localStorage.getItem("lastPaymentResult") || "{}");
+
+
+    if (!bookingData?.showtimeId || !bookingData?.branchId) {
         document.getElementById("ticketDetail").innerHTML =
-            "<p class='text-danger'>Không tìm thấy thông tin vé!</p>";
-        throw new Error("Thiếu dữ liệu đặt vé");
+            "<p class='text-danger'>❌ Không tìm thấy thông tin vé! Vui lòng đặt lại.</p>";
+        throw new Error("Thiếu dữ liệu booking");
     }
 
-    /* ==================== 🔹 LOAD THÔNG TIN VÉ ==================== */
-    async function loadSuccessInfo() {
+
+    async function loadTicketInfo() {
         try {
-            // --- Lấy suất chiếu + phim + chi nhánh ---
-            const showtimeRes = await showtimeApi.getPublicById(data.showtimeId);
+            const showtimeRes = await showtimeApi.getPublicById(bookingData.showtimeId);
             const showtime = showtimeRes?.result || showtimeRes;
 
-            const movieRes = await movieApi.getById(showtime.movieId || showtime.period.movieId);
+
+            const movieRes = await movieApi.getById(showtime.movieId || showtime.period?.movieId);
             const movie = movieRes?.result || movieRes;
 
-            const branchRes = await branchApi.getById(data.branchId);
+
+            const branchRes = await branchApi.getById(bookingData.branchId);
             const branch = branchRes?.result || branchRes;
+
 
             const date = new Date(showtime.startTime);
             const dateStr = date.toLocaleDateString("vi-VN", {
@@ -85,85 +108,52 @@
                 month: "2-digit",
                 year: "numeric"
             });
-            const timeStr = date.toLocaleTimeString("vi-VN", {
-                hour: "2-digit",
-                minute: "2-digit"
-            });
+            const timeStr = date.toLocaleTimeString("vi-VN", {hour: "2-digit", minute: "2-digit"});
 
-            // --- Render chi tiết vé ---
+
+            const discountText = bookingData.discountCode
+                ? `Mã: <b>${bookingData.discountCode}</b> (-${bookingData.discountAmount?.toLocaleString("vi-VN")}đ)`
+                : "Không có";
+
+
             document.getElementById("ticketDetail").innerHTML = `
-      <div><b>🎬 Phim:</b> ${movie.title}</div>
-      <div><b>🏠 Chi nhánh:</b> ${branch.name}</div>
-      <div><b>🕓 Suất chiếu:</b> ${dateStr} - ${timeStr}</div>
-      <div><b>💺 Ghế:</b> ${data.seatIds?.join(", ")}</div>
-      <div><b>🎁 Mã giảm giá:</b> ${data.discountCode || "Không có"}</div>
-      <div><b>🔻 Giảm:</b> ${data.discountAmount?.toLocaleString("vi-VN") || 0} VNĐ</div>
-      <hr>
-      <div><b>🎟️ Vé:</b> ${data.ticketTotal?.toLocaleString("vi-VN") || 0} VNĐ</div>
-      <div><b>🥤 Combo:</b> ${data.comboTotal?.toLocaleString("vi-VN") || 0} VNĐ</div>
-      <div class="fw-bold text-info mt-2"><b>Tổng cộng:</b> ${data.grandTotal?.toLocaleString("vi-VN") || 0} VNĐ</div>
-      <div class="mt-2"><b>📧 Gửi vé đến:</b> ${data.email}</div>
-      <div id="emailStatus" class="mt-3 text-warning">⏳ Đang xác nhận vé và gửi email...</div>
-    `;
+       <div><b>🎬 Phim:</b> ${movie.title}</div>
+       <div><b>🏠 Chi nhánh:</b> ${branch.name}</div>
+       <div><b>🕓 Suất chiếu:</b> ${dateStr} - ${timeStr}</div>
+       <div><b>💺 Ghế:</b> ${bookingData.seatIds?.join(", ") || "Không rõ"}</div>
+       <div><b>🎁 Ưu đãi:</b> ${discountText}</div>
+       <hr>
+       <div><b>🎟️ Vé:</b> ${(bookingData.seatPrice || 0).toLocaleString("vi-VN")}đ</div>
+       <div><b>🥤 Combo:</b> ${(bookingData.comboPrice || 0).toLocaleString("vi-VN")}đ</div>
+       <div class="fw-bold text-info mt-2"><b>Tổng cộng:</b> ${(bookingData.grandTotal || 0).toLocaleString("vi-VN")}đ</div>
+       <div class="mt-3"><b>📧 Vé gửi đến:</b> ${bookingData.email}</div>
+     `;
 
-            // --- Xác nhận vé + gửi email ---
-           await confirmTicketAndSendMail();
+
+            // 🔹 Hiển thị trạng thái mail đã gửi
+            if (lastPayment?.status === "success") {
+                document.getElementById("ticketDetail").innerHTML += `
+         <div class="mt-3 text-success fw-bold">
+           ✅ Vé đã được xác nhận & email xác nhận đã gửi thành công!
+         </div>`;
+            } else {
+                document.getElementById("ticketDetail").innerHTML += `
+         <div class="mt-3 text-warning">
+           ⚠️ Hệ thống chưa xác nhận thanh toán. Vui lòng kiểm tra lại hoặc liên hệ hỗ trợ.
+         </div>`;
+            }
+
 
         } catch (err) {
-            console.error("❌ Lỗi tải thông tin vé:", err);
+            console.error("❌ Lỗi load vé:", err);
             document.getElementById("ticketDetail").innerHTML =
-                `<p class='text-danger'>Không thể tải thông tin vé!</p>`;
+                "<p class='text-danger'>Không thể tải thông tin vé!</p>";
         }
     }
 
-    /* ==================== 📩 GỌI API XÁC NHẬN VÉ ==================== */
-    async function confirmTicketAndSendMail() {
-        const emailStatus = document.getElementById("emailStatus");
-        try {
-            const token = localStorage.getItem("accessToken");
 
-            // ⚠️ Nếu chưa có token → hiển thị lỗi thay vì gửi request 403
-            if (!token) {
-                emailStatus.classList.remove("text-warning");
-                emailStatus.classList.add("text-danger");
-                emailStatus.innerHTML = "⚠️ Bạn cần đăng nhập để xác nhận vé.";
-                return;
-            }
-
-            const res = await fetch(`${API_BASE_URL}/tickets/${ticketId}/confirm`, {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ email: data.email })
-            });
-
-            if (res.status === 403) {
-                throw new Error("Bạn không có quyền xác nhận vé (403)");
-            }
-            if (!res.ok) {
-                throw new Error("Lỗi xác nhận vé (status " + res.status + ")");
-            }
-
-            const result = await res.json();
-            console.log("✅ Vé đã được xác nhận:", result);
-
-            emailStatus.classList.remove("text-warning");
-            emailStatus.classList.add("text-success");
-            emailStatus.innerHTML = "✅ Vé đã được xác nhận và email đã được gửi thành công!";
-        } catch (err) {
-            console.error("❌ Lỗi gửi mail xác nhận:", err);
-            emailStatus.classList.remove("text-warning");
-            emailStatus.classList.add("text-danger");
-            emailStatus.innerHTML = "❌ Không thể gửi email xác nhận vé! (" + err.message + ")";
-        }
-    }
-
-    /* ==================== 🚀 KHỞI CHẠY ==================== */
-    await loadSuccessInfo();
+    await loadTicketInfo();
 </script>
-
-
 </body>
 </html>
+

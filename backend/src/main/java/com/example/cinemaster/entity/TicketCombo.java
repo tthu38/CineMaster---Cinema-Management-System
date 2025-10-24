@@ -1,10 +1,12 @@
 package com.example.cinemaster.entity;
 
+
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
+import java.io.Serializable;
 import java.math.BigDecimal;
+
 
 @Entity
 @Table(name = "TicketCombo")
@@ -14,44 +16,36 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@IdClass(TicketCombo.TicketComboKey.class)
-public class TicketCombo {
+public class TicketCombo implements Serializable {
 
-    @Id
-    @Column(name = "TicketID")
-    Integer ticketId;
 
-    @Id
-    @Column(name = "ComboID")
-    Integer comboId;
+    @EmbeddedId
+    private TicketComboKey id;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "TicketID", insertable = false, updatable = false)
-    Ticket ticket;
+    @MapsId("ticketId")
+    @JoinColumn(name = "TicketID")
+    private Ticket ticket;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ComboID", insertable = false, updatable = false)
-    Combo combo;
+    @MapsId("comboId")
+    @JoinColumn(name = "ComboID")
+    private Combo combo;
 
-    @Builder.Default
+
     @Column(name = "Quantity")
-    Integer quantity = 1;  // ✅ giữ giá trị mặc định khi dùng builder
+    @Builder.Default
+    private Integer quantity = 1;
 
-    // ✅ Tính tổng tiền combo = Combo.Price * Quantity
+
     @Transient
     public BigDecimal getTotalPrice() {
-        if (combo == null || combo.getPrice() == null)
+        if (combo == null || combo.getPrice() == null) {
             return BigDecimal.ZERO;
+        }
         return combo.getPrice().multiply(BigDecimal.valueOf(quantity));
     }
-    // 🔹 Inner composite key
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @EqualsAndHashCode
-    public static class TicketComboKey implements java.io.Serializable {
-        Integer ticketId;
-        Integer comboId;
-    }
 }
+

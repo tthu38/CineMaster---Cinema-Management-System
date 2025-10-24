@@ -75,6 +75,7 @@
             color: white;
         }
 
+
         /* Danh sách mã giảm giá trong panel phải */
         #discountListPanel .voucher-card {
             background: linear-gradient(135deg, #e50914 0%, #ff3c00 100%);
@@ -87,10 +88,12 @@
             cursor: pointer;
         }
 
+
         #discountListPanel .voucher-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 0 16px rgba(255, 255, 0, 0.6);
         }
+
 
         #discountListPanel .voucher-code {
             background: #ffc107;
@@ -102,11 +105,13 @@
             margin-bottom: 8px;
         }
 
+
         #discountListPanel .voucher-desc {
             font-size: 13px;
             color: #fff;
             opacity: 0.9;
         }
+
 
         #discountListPanel .btn-use {
             background: linear-gradient(90deg, var(--blue), var(--cyan));
@@ -118,6 +123,7 @@
             width: 100%;
         }
 
+
         /* ===== Scroll voucher ngang ===== */
         .voucher-scroll {
             display: flex;
@@ -127,6 +133,7 @@
             scrollbar-width: thin;
             scrollbar-color: #00e5ff rgba(255,255,255,0.1);
         }
+
 
         .voucher-scroll::-webkit-scrollbar {
             height: 8px;
@@ -138,6 +145,7 @@
         .voucher-scroll::-webkit-scrollbar-track {
             background: rgba(255,255,255,0.05);
         }
+
 
         /* ===== Card voucher ===== */
         .voucher-card {
@@ -155,6 +163,7 @@
             transform: translateY(-4px);
             box-shadow: 0 0 15px rgba(255,255,0,0.5);
         }
+
 
         .voucher-code {
             background: #ffc107;
@@ -186,6 +195,7 @@
             position: relative;
         }
 
+
         .voucher-disabled::after {
             content: "Không đủ điều kiện";
             position: absolute;
@@ -199,10 +209,14 @@
 
 
 
+
+
+
     </style>
 </head>
 <body>
 <div id="header"></div>
+
 
 <div class="container my-5">
     <h3 class="mb-4"><i class="fa-solid fa-clipboard-check me-2"></i>Xác nhận thông tin đặt vé</h3>
@@ -229,6 +243,7 @@
             </div>
         </div>
 
+
         <!-- Panel phải -->
         <!-- Panel phải -->
         <div class="col-md-6">
@@ -249,6 +264,8 @@
                 </div>
 
 
+
+
                 <!-- Mã giảm giá -->
                 <label>Mã giảm giá</label>
                 <div class="input-group mb-3">
@@ -257,34 +274,39 @@
                 </div>
                 <div id="discountResult" class="text-info fw-semibold mb-3"></div>
 
+
                 <!-- Danh sách mã giảm giá cuộn ngang -->
                 <div id="discountListScroll" class="voucher-scroll mb-4">
                     <!-- Vouchers sẽ được JS render vào đây -->
                 </div>
 
+
                 <!-- Danh sách mã giảm giá hiển thị ngay dưới ô -->
                 <div id="discountListPanel" class="row g-2 mb-4"></div>
+
 
                 <button id="nextBtn" class="btn-cyan w-100 mt-4">Tiếp tục thanh toán</button>
             </div>
         </div>
 
+
     </div>
 </div>
 
+
 <div id="footer"></div>
+
 
 <script type="module">
     import { api, requireAuth } from "../js/api.js";
     import { discountApi } from "../js/api/discountApi.js";
     import { showtimeApi } from "../js/api/showtimeApi.js";
-    import { movieApi } from "../js/api/movieApi.js";
-    import { branchApi } from "../js/api/branchApi.js";
     import { screeningPeriodApi } from "../js/api/screeningPeriodApi.js";
-    import { API_BASE_URL } from "../js/api/config.js";
     import { ticketApi } from "../js/api/ticketApi.js";
 
+
     requireAuth();
+
 
     // ==================== 🔹 LẤY THÔNG TIN TỪ URL + LOCAL STORAGE ====================
     const params = new URLSearchParams(window.location.search);
@@ -293,6 +315,7 @@
     const branchId = params.get("branchId");
     const ticketId = Number(params.get("ticketId") || localStorage.getItem("tempTicketId") || 0);
 
+
     const tempTicket = JSON.parse(localStorage.getItem("tempTicket") || "{}");
     let seatPrice = Number(tempTicket.seatPrice || localStorage.getItem("ticketPriceTotal") || 0) || 0;
     let comboPrice = Number(tempTicket.comboPrice || localStorage.getItem("comboTotal") || 0) || 0;
@@ -300,17 +323,19 @@
     let discountAmount = 0;
     let discountCode = null;
 
-    // ==================== 🔹 HIỂN THỊ DANH SÁCH VOUCHER ====================
+
+    // ==================== 🧾 HIỂN THỊ DANH SÁCH VOUCHER ====================
     async function loadDiscountList() {
         try {
             const discounts = await discountApi.getAll();
-            console.log("🧾 Danh sách mã giảm giá từ API:", discounts);
             const listContainer = document.getElementById("discountListScroll");
+
 
             if (!discounts || discounts.length === 0) {
                 listContainer.innerHTML = `<p class="text-center text-muted">Hiện chưa có ưu đãi nào.</p>`;
                 return;
             }
+
 
             const today = new Date();
             listContainer.innerHTML = discounts.map(d => {
@@ -321,61 +346,65 @@
                         ? `Giảm ${Number(d.fixedAmount).toLocaleString("vi-VN")}đ`
                         : "Không xác định";
 
+
                 const expiry = d.expiryDate ? new Date(d.expiryDate) : null;
                 const isExpired = expiry && expiry < today;
                 const isInactive = d.discountStatus && d.discountStatus !== "ACTIVE";
                 const disabled = isExpired || isInactive;
                 const disabledLabel = disabled ? "(Không khả dụng)" : "";
 
+
                 return `
-                <div class="voucher-card ${disabled ? "voucher-disabled" : ""}">
-                    <div class="voucher-code">${d.code}</div>
-                    <div class="voucher-desc">${desc}</div>
-                    <div class="mt-1 fw-bold">${valueText} ${disabledLabel}</div>
-                    ${!disabled ? `<button class="btn-use" data-code="${d.code}">Dùng mã này</button>` : ""}
-                </div>`;
+               <div class="voucher-card ${disabled ? "voucher-disabled" : ""}">
+                   <div class="voucher-code">${d.code}</div>
+                   <div class="voucher-desc">${desc}</div>
+                   <div class="mt-1 fw-bold">${valueText} ${disabledLabel}</div>
+                   ${!disabled ? `<button class="btn-use" data-code="${d.code}">Dùng mã này</button>` : ""}
+               </div>`;
             }).join("");
+
 
             document.querySelectorAll(".btn-use").forEach(btn => {
                 btn.addEventListener("click", () => applyDiscountCode(btn.dataset.code));
             });
         } catch (err) {
-            console.error("Không thể tải danh sách ưu đãi:", err);
+            console.error("❌ Không thể tải danh sách ưu đãi:", err);
             document.getElementById("discountListScroll").innerHTML =
                 `<p class="text-center text-danger">Lỗi khi tải danh sách ưu đãi.</p>`;
         }
     }
 
-    // ==================== 🔹 ÁP DỤNG MÃ GIẢM GIÁ ====================
+
+    // ==================== 🎟️ ÁP DỤNG MÃ GIẢM GIÁ ====================
     async function applyDiscountCode(code) {
         if (!code) return alert("Vui lòng nhập mã giảm giá!");
         if (!ticketId) return alert("⚠️ Không thể áp dụng mã vì chưa có vé hợp lệ!");
 
+
         try {
             const res = await ticketApi.applyDiscount(ticketId, code);
-            console.log("💬 Response discount:", res);
-
             const data = res?.result || res;
 
-            // ✅ Cập nhật giá trị mới từ API
+
             const originalTotal = Number(data?.originalTotal || seatPrice + comboPrice);
             discountAmount = Number(data?.discountAmount || 0);
             total = Number(data?.newTotal || originalTotal);
             discountCode = data?.discountCode || code;
 
-            // ✅ Cập nhật UI
+
             document.getElementById("discountAmount").textContent =
                 `- ${discountAmount.toLocaleString("vi-VN")} VNĐ`;
             document.getElementById("grandTotal").textContent =
                 `${total.toLocaleString("vi-VN")} VNĐ`;
 
-            document.getElementById("discountResult").innerHTML = `
-            ✅ Mã <b>${discountCode}</b> áp dụng thành công!<br>
-            <span class="text-warning">Giảm: -${discountAmount.toLocaleString("vi-VN")}đ</span><br>
-            <span class="text-info">Tổng mới: ${total.toLocaleString("vi-VN")}đ</span>
-        `;
 
-            // ✅ Lưu để trang sau dùng lại
+            document.getElementById("discountResult").innerHTML = `
+           ✅ Mã <b>${discountCode}</b> áp dụng thành công!<br>
+           <span class="text-warning">Giảm: -${discountAmount.toLocaleString("vi-VN")}đ</span><br>
+           <span class="text-info">Tổng mới: ${total.toLocaleString("vi-VN")}đ</span>
+       `;
+
+
             localStorage.setItem("appliedDiscount", JSON.stringify({
                 code: discountCode,
                 discountAmount,
@@ -385,25 +414,28 @@
             console.error("❌ Lỗi áp dụng mã:", err);
             document.getElementById("discountResult").textContent =
                 "❌ Mã không hợp lệ hoặc đã hết hạn.";
-
             discountAmount = 0;
             total = seatPrice + comboPrice;
             renderTotal();
         }
     }
 
-    // ==================== 🔹 HIỂN THỊ SUẤT CHIẾU ====================
+
+    // ==================== 🎬 HIỂN THỊ SUẤT CHIẾU ====================
     async function loadShowtimeInfo() {
         try {
             const showtimeRes = await showtimeApi.getPublicById(showtimeId);
             const showtime = showtimeRes?.result || showtimeRes;
 
+
             const screeningRes = showtime?.periodId ? await screeningPeriodApi.getById(showtime.periodId) : null;
             const screening = screeningRes?.result || screeningRes || {};
+
 
             const movie = showtime.movie || screening.movie || {};
             const branch = screening.branch || showtime.branch || {};
             const room = showtime.auditorium || screening.room || {};
+
 
             const date = new Date(showtime.startTime);
             const dateStr = date.toLocaleDateString("vi-VN", {
@@ -411,14 +443,15 @@
             });
             const timeStr = date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
 
+
             document.getElementById("movieInfo").innerHTML = `
-            <div><strong>🎬 Phim:</strong> ${movie?.title || "Không rõ"}</div>
-            <div><strong>🕓 Suất chiếu:</strong> ${dateStr} - ${timeStr}</div>
-            <div><strong>🏠 Chi nhánh:</strong> ${branch?.name || "Không rõ"}</div>
-            <div><strong>📍 Địa chỉ:</strong> ${branch?.address || "Đang cập nhật"}</div>
-            <div><strong>🏢 Phòng chiếu:</strong> ${room?.name || "Đang cập nhật"}</div>
-            <div><strong>💺 Ghế:</strong> ${seatIds.join(", ")}</div>
-        `;
+           <div><strong>🎬 Phim:</strong> ${movie?.title || "Không rõ"}</div>
+           <div><strong>🕓 Suất chiếu:</strong> ${dateStr} - ${timeStr}</div>
+           <div><strong>🏠 Chi nhánh:</strong> ${branch?.name || "Không rõ"}</div>
+           <div><strong>📍 Địa chỉ:</strong> ${branch?.address || "Đang cập nhật"}</div>
+           <div><strong>🏢 Phòng chiếu:</strong> ${room?.name || "Đang cập nhật"}</div>
+           <div><strong>💺 Ghế:</strong> ${seatIds.join(", ")}</div>
+       `;
         } catch (err) {
             console.error("❌ Không thể tải thông tin suất chiếu:", err);
             document.getElementById("movieInfo").innerHTML =
@@ -426,7 +459,8 @@
         }
     }
 
-    // ==================== 🔹 HIỂN THỊ NGƯỜI DÙNG ====================
+
+    // ==================== 👤 HIỂN THỊ NGƯỜI DÙNG ====================
     async function loadUser() {
         try {
             const acc = await api.getProfile();
@@ -439,7 +473,8 @@
         }
     }
 
-    // ==================== 🔹 HIỂN THỊ TỔNG TIỀN ====================
+
+    // ==================== 💰 HIỂN THỊ TỔNG TIỀN ====================
     function renderTotal() {
         document.getElementById("ticketTotal").textContent =
             seatPrice.toLocaleString("vi-VN") + " VNĐ";
@@ -451,37 +486,71 @@
             total.toLocaleString("vi-VN") + " VNĐ";
     }
 
-    // ==================== 🔹 NÚT ÁP MÃ & THANH TOÁN ====================
+
+    // ==================== 🧾 ÁP MÃ & THANH TOÁN ====================
     document.getElementById("applyDiscountBtn").addEventListener("click", async () => {
         const code = document.getElementById("discountCode").value.trim();
         await applyDiscountCode(code);
     });
 
-    document.getElementById("nextBtn").addEventListener("click", () => {
+
+    // ==================== ✅ XỬ LÝ XÁC NHẬN VÉ ====================
+    document.getElementById("nextBtn").addEventListener("click", async () => {
         const email = document.getElementById("email").value.trim();
-        if (!email) return alert("Vui lòng nhập email nhận vé!");
+        if (!email) return alert("⚠️ Vui lòng nhập email nhận vé!");
+
 
         const appliedDiscount = JSON.parse(localStorage.getItem("appliedDiscount") || "{}");
 
-        // ✅ Lưu thông tin vé tạm thời (để payment.html dùng)
-        localStorage.setItem("successBookingData", JSON.stringify({
-            ticketId,
-            showtimeId,
-            branchId,
-            seatIds,
-            seatPrice,
-            comboPrice,
-            discountCode: appliedDiscount?.code || null,
-            discountAmount: appliedDiscount?.discountAmount || 0,
-            grandTotal: appliedDiscount?.newTotal || total,
-            email
-        }));
 
-        // ✅ Chuyển hướng sang trang thanh toán (ra khỏi folder user/)
-      window.location.href = "../payment/payment.html";
-      //  window.location.href = "../user/successBooking.html";
+        try {
+            const profileRes = await api.getProfile();
+            const profile = profileRes.result || profileRes;
+
+
+            // ✅ Lấy combo người dùng đã chọn từ comboSelect.html
+            const selectedCombos = JSON.parse(localStorage.getItem("selectedComboList") || "[]");
+
+
+            const ticketReq = {
+                accountId: profile.accountID || profile.accountId || profile.id,
+                showtimeId,
+                seatIds: seatIds.map(id => Number(id)),
+                combos: selectedCombos, // gửi đúng combo người dùng chọn
+                customerEmail: email,
+            };
+
+
+            console.log("📨 Gửi yêu cầu tạo/cập nhật vé:", ticketReq);
+            const createdTicket = await ticketApi.createOrUpdate(ticketReq);
+            console.log("🎫 Vé HOLDING đã tạo:", createdTicket);
+
+
+            localStorage.setItem("successBookingData", JSON.stringify({
+                ticketId: createdTicket?.ticketId || ticketId,
+                showtimeId,
+                branchId,
+                seatIds,
+                seatPrice,
+                comboPrice,
+                combos: selectedCombos,
+                discountCode: appliedDiscount?.code || null,
+                discountAmount: appliedDiscount?.discountAmount || 0,
+                grandTotal: appliedDiscount?.newTotal || total,
+                email
+            }));
+
+
+            // ✅ Xóa combo tạm sau khi xác nhận
+            localStorage.removeItem("selectedComboList");
+
+
+            window.location.href = "../payment/payment.html";
+        } catch (err) {
+            console.error("❌ Lỗi khi tạo vé:", err);
+            alert("Không thể tạo vé. Vui lòng thử lại!");
+        }
     });
-
 
 
     // ==================== 🚀 KHỞI CHẠY ====================
@@ -492,6 +561,12 @@
 </script>
 
 
+
+
+
+
+
+
 <script>
     /* ================= HEADER (fix cứng, đồng bộ avatar + tên) ================= */
     (async function loadHeader() {
@@ -500,6 +575,7 @@
             const res = await fetch("../home/customer-header.html");
             const html = await res.text();
             headerEl.innerHTML = html;
+
 
             // ✅ ép chạy script trong file header
             const scripts = headerEl.querySelectorAll("script");
@@ -514,10 +590,12 @@
         }
     })();
 
+
     // 🧩 Load footer
     fetch("../home/footer.html")
         .then(r => r.text())
         .then(h => document.getElementById("footer").innerHTML = h);
+
 
     // 🔹 Tab filter style (nếu có)
     document.querySelectorAll('.filter-tabs button').forEach(button => {
@@ -533,3 +611,4 @@
 </script>
 </body>
 </html>
+
