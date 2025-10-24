@@ -5,9 +5,11 @@
     <title>CineMaster • Xem Khoảng Thời Gian Chiếu</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
 
     <style>
         /* ========================================= */
@@ -26,11 +28,13 @@
             --muted2:#cfe3ff;
             --light-text: #e6f1ff;
 
+
             /* --- GIẢM NEON ĐỂ BỚT CHÓE (ĐÃ CẬP NHẬT) --- */
             --neon-blue: 0 0 15px rgba(34,193,255,0.3), 0 0 30px rgba(34,193,255,0.15);
             --neon-red: 0 0 15px rgba(229,9,20,0.3), 0 0 30px rgba(229,9,20,0.15);
             --neon-cyan-medium: 0 0 8px rgba(34,193,255,0.5), 0 0 15px rgba(34,193,255,0.2);
         }
+
 
         /* ===== NỀN: VÉ PHIM VÀ HẠT (KHÔI PHỤC SVG & GIẢM CHÓE) ===== */
         .tickets-wall{ position:fixed; inset:0; pointer-events:none; z-index:0; }
@@ -58,6 +62,7 @@
         }
         @keyframes drift{ from{ transform: translate3d(0,0,0) } to{ transform: translate3d(30px,-25px,0) } }
 
+
         /* ===== NỀN TỔNG THỂ (ĐÃ GIẢM CHÓE) ===== */
         html,body{
             margin:0 !important; color:var(--light-text) !important; font-family:'Roboto',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif !important;
@@ -78,9 +83,11 @@
             overflow-x:hidden !important;
         }
 
+
         /* layout chính */
         .shell{max-width:1300px;margin:110px auto 48px;padding:0 24px}
         .layout{ display:block; }
+
 
         /* --- KHỐI CHÍNH (FILM/CARD) - GIẢM NEON CỦA CONTAINER VÀ BOX-SHADOW --- */
         .film{
@@ -105,6 +112,7 @@
         .film:before{ top:12px } .film:after{ bottom:12px }
         .branch-panel{ padding:26px 22px }
 
+
         /* --- KHỐI CARD/TAB (tab-card) - GIẢM NEON --- */
         .tab-card {
             background:linear-gradient(180deg,#0b152a 0%, #0c162c 100%);
@@ -114,6 +122,7 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4), 0 0 15px rgba(34,193,255,0.3);
             transition: all 0.3s ease;
         }
+
 
         /* --- TIÊU ĐỀ KHỐI (H2) - GIẢM NEON --- */
         .header-title {
@@ -137,12 +146,15 @@
         }
 
 
+
+
         /* --- THANH LỌC (FILTER BAR) --- */
         .d-flex.justify-content-between.align-items-center.mb-3 {
             padding-bottom: 15px;
             margin-bottom: 25px !important;
             padding-top: 10px;
         }
+
 
         /* --- FORM CONTROLS (INPUT/SELECT) - GIẢM NEON FOCUS --- */
         .form-control{
@@ -161,6 +173,7 @@
             background:#142647;
             color: #ffffff;
         }
+
 
         /* --- NÚT TẢI LẠI (ĐỒNG BỘ) - GIẢM NEON HOVER --- */
         .btn-secondary{
@@ -181,10 +194,12 @@
             transform: translateY(-1px);
         }
 
+
         /* ========================================= */
         /* CẬP NHẬT STYLE CHO BẢNG & DANH SÁCH */
         /* ========================================= */
         .table-responsive { box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4); border-radius: 12px; overflow: hidden; }
+
 
         .table-branch {
             width: 100%;
@@ -227,6 +242,7 @@
             border-right: 1px solid var(--red) !important;
         }
 
+
         /* --- CẬP NHẬT CSS cho Poster trong Bảng (ĐÃ TĂNG KÍCH THƯỚC) --- */
         .movie-poster-img {
             width: 70px; /* TĂNG CHIỀU RỘNG */
@@ -241,6 +257,7 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.8), 0 0 8px var(--cyan);
         }
 
+
         /* --- CẬP NHẬT CSS cho CÁC CỘT THÔNG TIN --- */
         /* Cột Phim (Tên) */
         .table-branch tbody tr td:nth-child(3) {
@@ -250,6 +267,7 @@
             text-shadow: none;
         }
 
+
         /* Cột Chi Nhánh */
         .table-branch tbody tr td:nth-child(4) {
             font-size: 0.95rem;
@@ -257,6 +275,7 @@
             color: var(--cyan);
             text-shadow: none;
         }
+
 
         /* Cột Ngày Bắt Đầu & Ngày Kết Thúc */
         .table-branch tbody tr td:nth-child(5),
@@ -270,6 +289,7 @@
             border-left: 1px solid var(--cyan);
         }
 
+
         /* Cập nhật lại độ rộng các cột trong TH (ĐỂ CỘT POSTER TO HƠN) */
         .table-branch thead th:nth-child(1) { width: 5%; }    /* ID */
         .table-branch thead th:nth-child(2) { width: 12%; }   /* Poster (Tăng từ 10% lên 12%) */
@@ -278,6 +298,7 @@
         .table-branch thead th:nth-child(5) { width: 20%; }   /* Ngày Bắt Đầu (Giữ nguyên) */
         .table-branch thead th:nth-child(6) { width: 21%; }   /* Ngày Kết Thúc (Giữ nguyên) */
         /* Tổng: 5 + 12 + 21 + 21 + 20 + 21 = 100% */
+
 
         /* CSS cho Phân trang (GIẢM NEON) */
         .pagination .page-item .page-link {
@@ -300,6 +321,7 @@
         }
     </style>
 
+
 </head>
 <body>
 <div class="grain"></div>
@@ -309,12 +331,15 @@
 </div>
 <div id="site-header"></div>
 
+
 <main class="shell">
     <div class="layout">
         <section class="film branch-panel">
 
+
             <div id="period-list-container" class="tab-card">
                 <h2 class="m-0 mb-4"><i class="fa-solid fa-calendar-days me-2"></i> Xem Khoảng Thời Gian Chiếu</h2>
+
 
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <div class="d-flex align-items-center">
@@ -324,6 +349,7 @@
                         <button id="load-periods" class="btn btn-secondary"><i class="fa-solid fa-rotate me-2"></i>Tải Lại</button>
                     </div>
                 </div>
+
 
                 <div class="table-responsive">
                     <table id="period-table" class="table-branch">
@@ -339,6 +365,7 @@
                     </table>
                 </div>
 
+
                 <div class="d-flex justify-content-center mt-4">
                     <nav aria-label="Page navigation">
                         <ul class="pagination pagination-sm" id="pagination-footer">
@@ -347,28 +374,46 @@
                 </div>
             </div>
 
+
         </section>
+
 
     </div>
 </main>
 
+
 <div id="site-footer"></div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // Giữ nguyên chức năng tải header/footer
     (async ()=>{
         try{
             const [h,f] = await Promise.all([
                 fetch('../home/customer-header.html').then(r=>r.text()),
                 fetch('../home/footer.html').then(r=>r.text())
             ]);
-            document.getElementById('site-header').innerHTML = h;
-            document.getElementById('site-footer').innerHTML = f;
-        }catch(e){ console.error('Load header/footer error', e); }
+            const header = document.getElementById('site-header');
+            const footer = document.getElementById('site-footer');
+            header.innerHTML = h;
+            footer.innerHTML = f;
+
+
+            // ✅ Thêm đoạn này để avatar và script trong header hoạt động
+            header.querySelectorAll("script").forEach(oldScript => {
+                const newScript = document.createElement("script");
+                if (oldScript.src) newScript.src = oldScript.src;
+                else newScript.textContent = oldScript.textContent;
+                document.body.appendChild(newScript);
+            });
+        }catch(e){
+            console.error('❌ Load header/footer error', e);
+        }
     })();
 </script>
+
 
 <script src="../js/period-view.js" type="module"></script>
 </body>
 </html>
+

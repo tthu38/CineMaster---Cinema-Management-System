@@ -22,6 +22,7 @@
             --muted2: #cfe3ff;
         }
 
+
         html, body {
             margin: 0;
             color: #fff;
@@ -35,6 +36,7 @@
             background-attachment: fixed;
             min-height: 100vh;
         }
+
 
         /* 🎬 Hero Section */
         .hero {
@@ -50,6 +52,7 @@
             filter: brightness(0.35) blur(3px);
         }
 
+
         /* 🎥 Movie Block */
         .movie-info-block {
             max-width: 1300px;
@@ -58,12 +61,14 @@
             z-index: 10;
         }
 
+
         .movie-details {
             background: linear-gradient(180deg, #0b152a, #0c162c);
             padding: 45px;
             border-radius: 20px;
             box-shadow: 0 12px 35px rgba(0,0,0,.6);
         }
+
 
         .poster-container {
             border: 3px solid var(--cyan);
@@ -75,11 +80,13 @@
             margin: 0 auto 20px auto;
         }
 
+
         .poster-container img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
+
 
         #title {
             font-family: 'Bebas Neue', sans-serif;
@@ -89,6 +96,7 @@
             text-shadow: 0 0 15px rgba(34,193,255,0.7);
         }
 
+
         .badge-info {
             font-size: 0.9rem;
             font-weight: 700;
@@ -97,10 +105,12 @@
             margin-right: 10px;
         }
 
+
         .badge-age { background-color: var(--red); }
         .badge-status-now { background-color: var(--cyan); color: var(--ink); }
         .badge-status-soon { background-color: #ffd700; color: var(--ink); }
         .badge-status-ended { background-color: #6c757d; color: #fff; }
+
 
         #genre-text {
             color: var(--red);
@@ -108,22 +118,26 @@
             text-transform: uppercase;
         }
 
+
         .description-box {
             border-left: 3px solid var(--red);
             padding-left: 15px;
             margin-top: 20px;
         }
 
+
         .metadata-line {
             padding: 8px 0;
             border-bottom: 1px dashed rgba(224,231,255,0.1);
         }
+
 
         .metadata-line strong {
             color: var(--cyan);
             width: 160px;
             display: inline-block;
         }
+
 
         .btn-trailer {
             background: var(--red);
@@ -139,11 +153,15 @@
 
 
 
+
+
+
         .trailer-wrapper iframe {
             width: 100%;
             border-radius: 10px;
             box-shadow: 0 0 25px rgba(34,193,255,0.5);
         }
+
 
         /* ⭐ Feedback Section */
         .feedback-section {
@@ -154,6 +172,7 @@
             border-radius: 20px;
             box-shadow: 0 14px 32px rgba(0,0,0,.5);
         }
+
 
         .btn-booking {
             background: linear-gradient(90deg, var(--cyan), var(--blue));
@@ -170,17 +189,21 @@
         }
 
 
+
+
         .feedback-header h3 {
             color: var(--cyan);
             font-family: 'Bebas Neue', sans-serif;
             text-shadow: 0 0 8px var(--cyan);
         }
 
+
         .feedback-header .avg {
             color: #ffd700;
             font-size: 3rem;
             margin-top: 10px;
         }
+
 
         .feedback-item {
             border-left: 4px solid var(--red);
@@ -190,6 +213,7 @@
             border-radius: 6px;
         }
 
+
         .btn-submit {
             background: var(--red);
             color: #fff;
@@ -198,6 +222,7 @@
             padding: 10px 25px;
             border: none;
         }
+
 
         .btn-back {
             display: block;
@@ -211,10 +236,12 @@
             transition: 0.3s;
         }
 
+
         .btn-back:hover {
             background: #0aa3ff;
             transform: scale(1.05);
         }
+
 
         @media (max-width: 992px) {
             #title { font-size: 2.2rem; text-align: center; }
@@ -226,11 +253,13 @@
 <body>
 <div id="header"></div>
 
+
 <main class="shell">
     <!-- Hero background -->
     <section class="hero">
         <img id="hero-poster" src="../image/default_movie.jpg" alt="Banner Phim">
     </section>
+
 
     <!-- Movie Info -->
     <div class="movie-info-block">
@@ -246,11 +275,14 @@
                         <i class="fa-solid fa-video"></i> XEM TRAILER
                     </a>
 
-                    <a id="btn-booking" href="#" class="btn w-100 mt-3 btn-booking">
+
+                    <a id="btn-booking" href="../user/showtimes-calendar.html" class="btn w-100 mt-3 btn-booking">
                         <i class="fa-solid fa-ticket"></i> ĐẶT VÉ NGAY
                     </a>
 
+
                 </div>
+
 
                 <!-- Right -->
                 <div class="col-lg-8">
@@ -260,10 +292,11 @@
                         <span id="statusBadge" class="badge-info badge-status-now">ĐANG CHIẾU</span>
                         <span id="durationBadge" class="badge-info badge-duration">148 PHÚT</span>
                         <span id="countryBadge" class="badge-info bg-secondary">
-                            <i class="fa-solid fa-globe"></i> VIỆT NAM
-                        </span>
+                           <i class="fa-solid fa-globe"></i> VIỆT NAM
+                       </span>
                     </div>
                     <p id="genre-text" class="lead"><i class="fa-solid fa-tags"></i> Thể loại: Hành động / Kịch tính</p>
+
 
                     <div class="description-box">
                         <h5 class="text-light text-uppercase mb-2">Tóm tắt nội dung</h5>
@@ -271,6 +304,7 @@
                             Đây là phần mô tả nội dung chi tiết của phim, được tải từ cơ sở dữ liệu.
                         </p>
                     </div>
+
 
                     <div class="movie-metadata mt-4">
                         <div class="metadata-line"><strong>Đạo diễn:</strong> <span id="director"></span></div>
@@ -285,6 +319,7 @@
         </section>
     </div>
 
+
     <!-- Feedback -->
     <section class="feedback-section">
         <div class="feedback-header text-center">
@@ -293,9 +328,12 @@
             <div class="count" id="feedback-count">(0 đánh giá đã được ghi nhận)</div>
         </div>
 
+
         <div id="feedback-list"></div>
 
+
         <hr class="border-secondary my-4">
+
 
         <div class="feedback-form">
             <h5 class="text-light mb-3 text-uppercase">
@@ -312,8 +350,8 @@
                 </select>
             </div>
             <div class="mb-3">
-                <textarea id="comment" rows="3" class="form-control"
-                          placeholder="Chia sẻ cảm nghĩ của bạn về bộ phim này..."></textarea>
+               <textarea id="comment" rows="3" class="form-control"
+                         placeholder="Chia sẻ cảm nghĩ của bạn về bộ phim này..."></textarea>
             </div>
             <button id="btn-submit" class="btn btn-submit">
                 <i class="fa-solid fa-paper-plane"></i> Gửi đánh giá
@@ -321,12 +359,15 @@
         </div>
     </section>
 
+
     <button id="btn-back" class="btn btn-back">
         <i class="fa-solid fa-arrow-left"></i> Quay lại danh sách phim
     </button>
 </main>
 
+
 <div id="footer"></div>
+
 
 <script type="module" src="../js/movieDetail.js"></script>
 <script>
@@ -337,6 +378,7 @@
             const html = await res.text();
             headerEl.innerHTML = html;
 
+
             const scripts = headerEl.querySelectorAll("script");
             scripts.forEach(s => {
                 const ns = document.createElement("script");
@@ -346,11 +388,16 @@
         } catch (err) { console.error("Lỗi load header:", err); }
     })();
 
+
     fetch("../home/footer.html")
         .then(res => res.text())
         .then(html => document.getElementById("footer").innerHTML = html)
         .catch(err => console.error("Lỗi load footer:", err));
 </script>
 
+
 </body>
 </html>
+
+
+

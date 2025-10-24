@@ -5,9 +5,11 @@
     <title>CineMaster • Quản Lý Ghế Ngồi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
 
     <style>
         /* CSS NỀN TẢNG GỐC (GIỮ NGUYÊN) */
@@ -53,6 +55,7 @@
         .header-title h2 { font-size: 2rem; font-weight: 900; }
         .action-btns button:first-child { margin-right: 5px; }
 
+
         /* ======================== SƠ ĐỒ GHẾ KIỂU CGV / LOTTE ======================== */
         #seat-diagram {
             padding: 50px 20px;
@@ -62,6 +65,7 @@
             overflow-x: auto;
             text-align: center;
         }
+
 
         /* Màn hình */
         .screen {
@@ -89,6 +93,7 @@
             opacity: 0.5;
         }
 
+
         /* Hàng ghế */
         .seat-row {
             display: flex;
@@ -100,6 +105,7 @@
             transform: perspective(500px) rotateX(10deg); /* vòng cung nhẹ hướng về màn hình */
         }
 
+
         /* Ký hiệu hàng */
         .seat-label {
             width: 28px;
@@ -109,6 +115,7 @@
             color: var(--cyan);
             font-size: 1rem;
         }
+
 
         /* Ghế */
         .seat-box {
@@ -128,29 +135,35 @@
             box-shadow: 0 0 12px rgba(255,255,255,0.4);
         }
 
+
         /* --- TẠO LỐI ĐI GIỮA (KIỂU CGV/Lotte) --- */
         .seat-box:nth-child(6) {
             margin-right: 60px; /* khoảng cách giữa 2 cụm ghế */
         }
+
 
         /* --- MÀU GHẾ --- */
         .seat-type-normal { background-color: #4caf50; }   /* Ghế thường */
         .seat-type-vip { background-color: #007bff; }      /* Ghế VIP */
         .seat-type-couple { background-color: #9c27b0; width: 80px; } /* Ghế đôi */
 
+
         /* --- TRẠNG THÁI GHẾ --- */
         .seat-reserved { background-color: #ff7043 !important; }
         .seat-broken { background-color: #d32f2f !important; }
         .seat-selected { background-color: var(--cyan) !important; color: #000; }
 
+
         /* --- Hiệu ứng sáng dần theo hàng --- */
         .seat-row:nth-child(odd) .seat-box { filter: brightness(0.95); }
         .seat-row:nth-child(even) .seat-box { filter: brightness(1.1); }
+
 
         /* Hiệu ứng hover toàn hàng */
         .seat-row:hover .seat-box:not(.seat-selected) {
             filter: brightness(1.3);
         }
+
 
         /* Animation khi load ghế */
         @keyframes seatFade {
@@ -160,6 +173,7 @@
         .seat-box {
             animation: seatFade 0.25s ease forwards;
         }
+
 
         /* CHÚ THÍCH (LEGEND) */
         .seat-legend {
@@ -191,6 +205,7 @@
             border: 1px solid var(--border) !important; /* Viền màu border */
         }
 
+
         /* Hover/Focus cho nút thường */
         #pagination-controls .page-item:not(.active) .page-link:hover,
         #pagination-controls .page-item:not(.active) .page-link:focus {
@@ -198,6 +213,7 @@
             color: #fff !important;               /* Chữ trắng rõ nét */
             box-shadow: none !important;          /* Loại bỏ box-shadow Bootstrap */
         }
+
 
         /* Nút Active (Trang hiện tại) */
         #pagination-controls .page-item.active .page-link {
@@ -207,12 +223,15 @@
             font-weight: 700;
         }
 
+
         /* Nút Disabled (Previous/Next ở 2 đầu) */
         #pagination-controls .page-item.disabled .page-link {
             opacity: 0.5; /* Làm mờ nút bị disabled */
         }
 
+
     </style>
+
 
 </head>
 <body>
@@ -222,18 +241,23 @@
     <div class="tickets-layer l2"></div>
 </div>
 
+
 <div id="site-header"></div>
+
 
 <main class="shell">
     <div class="layout">
         <section class="film branch-panel">
 
+
             <div class="header-title">
                 <h2 id="page-main-title"><i class="fa-solid fa-chair me-3"></i> Quản Lý Ghế Ngồi</h2>
             </div>
 
+
             <div id="diagram-container" class="tab-card mb-4">
                 <h2 class="m-0 mb-3"><i class="fa-solid fa-map-marked-alt me-2"></i> Sơ Đồ Ghế Phòng Chiếu (Click để Sửa)</h2>
+
 
                 <div class="row">
                     <div class="col-md-6 mb-3">
@@ -253,6 +277,7 @@
                     <p class="text-center" style="color:var(--muted)">Vui lòng chọn Phòng Chiếu để hiển thị sơ đồ.</p>
                 </div>
 
+
                 <div id="seat-legend" class="seat-legend">
                     <div class="legend-item"><div class="legend-color-box seat-type-normal"></div>Ghế Thường</div>
                     <div class="legend-item"><div class="legend-color-box seat-type-vip"></div>Ghế VIP</div>
@@ -262,6 +287,7 @@
                     <div class="legend-item"><div class="legend-color-box seat-selected"></div>Đang chọn (Sửa)</div>
                 </div>
             </div>
+
 
             <div class="tab-card mb-4">
                 <h2 id="form-title" class="m-0 mb-3"><i class="fa-solid fa-plus me-2"></i> Thêm Ghế Ngồi Mới (Đơn Lẻ)</h2>
@@ -297,6 +323,7 @@
                             <input type="number" id="seatNumber" min="1" class="form-control" placeholder="Ví dụ: 5" required>
                         </div>
 
+
                         <div class="col-md-3 mb-3">
                             <label for="status">Trạng Thái</label>
                             <select id="status" class="form-control" required>
@@ -313,6 +340,8 @@
                     </div>
                 </form>
             </div>
+
+
 
 
             <div class="tab-card mb-4">
@@ -363,6 +392,8 @@
             </div>
 
 
+
+
             <div class="tab-card mb-4">
                 <h2 class="m-0 mb-3"><i class="fa-solid fa-arrows-rotate me-2"></i> Cập Nhật Loại/Trạng Thái Ghế theo Dãy</h2>
                 <form id="bulk-update-form">
@@ -402,6 +433,7 @@
                         </div>
                     </div>
 
+
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <div class="form-check pt-2">
@@ -427,6 +459,7 @@
                         </div>
                     </div>
 
+
                     <div class="d-flex justify-content-end mt-4">
                         <button type="submit" class="btn btn-warning text-dark">
                             <i class="fa-solid fa-pencil me-2"></i> Cập Nhật Hàng Loạt Dãy Ghế
@@ -435,11 +468,13 @@
                 </form>
             </div>
 
+
             <div id="seat-list-container" class="tab-card">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h2 class="m-0"><i class="fa-solid fa-list me-2"></i> Danh Sách Ghế Ngồi</h2>
                     <button id="load-seats" class="btn btn-secondary"><i class="fa-solid fa-rotate me-2"></i>Tải Lại</button>
                 </div>
+
 
                 <div class="table-responsive">
                     <table id="seat-table" class="table-branch">
@@ -462,28 +497,50 @@
                 </div>
             </div>
 
+
         </section>
+
 
     </div>
 </main>
 
+
 <div id="site-footer"></div>
 
+
 <script>
-    // Giả định tải header/footer
     (async ()=>{
         try{
             const [h,f] = await Promise.all([
                 fetch('../home/customer-header.html').then(r=>r.text()),
                 fetch('../home/footer.html').then(r=>r.text())
             ]);
-            document.getElementById('site-header').innerHTML = h;
-            document.getElementById('site-footer').innerHTML = f;
-        }catch(e){ console.error('Load header/footer error', e); }
+
+
+            const headerEl = document.getElementById('site-header');
+            const footerEl = document.getElementById('site-footer');
+            headerEl.innerHTML = h;
+            footerEl.innerHTML = f;
+
+
+            // 🔁 Ép thực thi lại toàn bộ <script> trong header (để avatar & menu hoạt động)
+            headerEl.querySelectorAll("script").forEach(oldScript=>{
+                const newScript = document.createElement("script");
+                if (oldScript.src) newScript.src = oldScript.src;
+                else newScript.textContent = oldScript.textContent;
+                document.body.appendChild(newScript);
+            });
+
+
+        }catch(e){
+            console.error('❌ Lỗi load header/footer:', e);
+        }
     })();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="module" src="../js/seatManagement.js"></script>
 
+
 </body>
 </html>
+

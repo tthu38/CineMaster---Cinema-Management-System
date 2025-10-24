@@ -4,8 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -16,7 +15,7 @@ public class TicketHistoryResponse {
     private String oldStatus;
     private String newStatus;
     private String note;
-    private Instant changedAt;
+    private LocalDateTime changedAt; // ✅ đổi Instant → LocalDateTime
     private Integer changedById;
     private String changedByName;
 }

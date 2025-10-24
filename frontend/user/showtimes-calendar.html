@@ -8,12 +8,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 
+
     <style>
         :root{
             --red:#e50914; --cyan:#22c1ff; --blue:#0aa3ff; --ink:#06101f; --bg:#0b162c;
             --card:#0c1324; --border:#1b2b4a; --muted:#9aa7b3; --muted2:#cfe3ff;
             --glow:0 0 20px rgba(34,193,255,.35), 0 0 60px rgba(34,193,255,.15);
         }
+
 
         /* ===== Tickets background ===== */
         .tickets-wall{ position:fixed; inset:0; pointer-events:none; z-index:0; }
@@ -27,6 +29,7 @@
         }
         .tickets-wall .l2{ transform:rotate(3deg) scale(1.06); background-position:160px 80px; opacity:.10; background-image:inherit; }
 
+
         html,body{
             margin:0; color:#fff; font-family:'Roboto',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
             min-height:100vh;
@@ -39,6 +42,7 @@
             overflow-x:hidden;
         }
 
+
         /* Grain noise */
         .grain{
             pointer-events:none; position:fixed; inset:0; opacity:.14; mix-blend-mode:screen;
@@ -49,8 +53,10 @@
         }
         @keyframes drift{ from{transform:translate3d(0,0,0)} to{transform:translate3d(30px,-25px,0)} }
 
+
         /* Container */
         .shell{max-width:1300px;margin:110px auto 48px;padding:0 24px}
+
 
         /* Film frame */
         .film{
@@ -64,14 +70,17 @@
         }
         .film:before{top:12px} .film:after{bottom:12px}
 
+
         /* Schedule panel */
         .schedule-panel{padding:26px 22px;}
         .panel-head{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
         .panel-head h2{margin:0;font-weight:900;letter-spacing:.3px;}
 
+
         /* Toolbar */
         .toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
         .select-branch{background:#0e1c37;border:1px solid #17345f;color:#fff;border-radius:10px;padding:8px 12px;}
+
 
         /* Daybar */
         .daybar-wrapper{display:flex;align-items:center;justify-content:space-between;
@@ -95,6 +104,7 @@
         .nav-week-btn:hover{background:rgba(10,163,255,0.2);box-shadow:0 0 10px rgba(34,193,255,.25);transform:translateY(-1px);}
         .nav-week-btn:disabled{opacity:.35;cursor:not-allowed;filter:grayscale(1);}
         #weekLabel{text-align:center;font-weight:600;margin-bottom:8px;color:#cfe3ff;}
+
 
         /* Movie cards */
         .empty{padding:26px;border:1px dashed #2a3d6a;border-radius:12px;color:#cfe3ff;text-align:center;
@@ -132,13 +142,16 @@
             box-shadow: inset 0 0 0 1px rgba(34,193,255,.12);
         }
 
+
     </style>
 </head>
 <body>
 <div class="grain"></div>
 <div class="tickets-wall"><div class="tickets-layer l1"></div><div class="tickets-layer l2"></div></div>
 
+
 <div id="site-header"></div>
+
 
 <main class="shell">
     <section class="film schedule-panel">
@@ -147,6 +160,7 @@
             <h2>Lịch chiếu</h2>
         </div>
 
+
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="h5 m-0">Lịch chiếu theo tuần</div>
             <button id="btnOpenCreate" class="btn btn-primary">
@@ -154,13 +168,16 @@
             </button>
         </div>
 
+
         <div class="toolbar">
             <select id="branchSelect" class="select-branch">
                 <option value="">Tất cả rạp</option>
             </select>
         </div>
 
+
         <div id="weekLabel">Tuần ...</div>
+
 
         <div class="daybar-wrapper">
             <button id="prevWeekBtn" class="nav-week-btn"><i class="fa-solid fa-chevron-left"></i></button>
@@ -168,13 +185,37 @@
             <button id="nextWeekBtn" class="nav-week-btn"><i class="fa-solid fa-chevron-right"></i></button>
         </div>
 
+
         <div id="contentArea"></div>
+
 
         <div class="footer-note">* Click giờ chiếu để đi tới trang đặt vé.</div>
     </section>
 </main>
 
+
 <div id="site-footer"></div>
+<!-- 🔹 Popup yêu cầu đăng nhập -->
+<div class="modal fade" id="loginPromptModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background:#0e1d38;border:1px solid #2a3d6a;color:#fff;">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">
+                    <i class="fa-solid fa-lock me-2 text-info"></i>Yêu cầu đăng nhập
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Bạn cần đăng nhập để đặt vé.
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                <button id="btnGoLogin" type="button" class="btn btn-primary">Đăng nhập ngay</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -188,12 +229,15 @@
     })();
 </script>
 
+
 <script type="module">
     import {initShowtimeCreate,openShowtimeCreate} from "../js/showtime-create.js";
     import {initShowtimeEdit,openShowtimeEdit } from "../js/showtime-edit.js";
 
+
     const role = localStorage.getItem("role");
     const btnCreate = document.getElementById("btnOpenCreate");
+
 
     if (role === "Admin" || role === "Manager") {
         btnCreate.addEventListener("click", () => {
@@ -205,9 +249,11 @@
         btnCreate.style.display = "none";
     }
 
+
     await initShowtimeCreate({ htmlPath: './showtime-create.html' });
     await initShowtimeEdit({ htmlPath: './showtime-edit.html' });
     window.openShowtimeEdit = openShowtimeEdit;
+
 
     const reload = () => window.reloadCalendar?.(true);
     window.addEventListener('showtime:created', reload);
@@ -215,7 +261,9 @@
     window.addEventListener('showtime:deleted', reload);
 </script>
 
+
 <!-- App lịch chiếu -->
 <script type="module" src="../js/showtimes-calendar.js"></script>
 </body>
 </html>
+

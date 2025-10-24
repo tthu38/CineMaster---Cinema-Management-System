@@ -3,12 +3,15 @@
 // ==============================
 import { staffShiftApi } from './api/staff-shiftApi.js';
 
+
 const el = {};
+
 
 document.addEventListener('DOMContentLoaded', init);
 
+
 /* ============================================================
-   🚀 KHỞI TẠO
+  🚀 KHỞI TẠO
 ============================================================ */
 async function init() {
     el.openForm = document.getElementById('open-shift');
@@ -20,15 +23,18 @@ async function init() {
     el.openLabel = document.getElementById('openAmountLabel');
     el.expectedLabel = document.getElementById('expectedLabel');
 
+
     await loadReport();
 }
 
+
 /* ============================================================
-   🟢 MỞ CA
+  🟢 MỞ CA
 ============================================================ */
 export async function openShift() {
     const openingCash = el.inputOpen.value;
     if (!openingCash) return alert('Vui lòng nhập số tiền đầu ca.');
+
 
     try {
         await staffShiftApi.openShift(openingCash);
@@ -41,8 +47,9 @@ export async function openShift() {
     }
 }
 
+
 /* ============================================================
-   📊 BÁO CÁO DOANH THU CA HIỆN TẠI
+  📊 BÁO CÁO DOANH THU CA HIỆN TẠI
 ============================================================ */
 export async function loadReport() {
     try {
@@ -59,35 +66,42 @@ export async function loadReport() {
     }
 }
 
+
 /* ============================================================
-   🧾 HIỂN THỊ BẢNG DOANH THU
+  🧾 HIỂN THỊ BẢNG DOANH THU
 ============================================================ */
 function renderReport(data) {
     if (!data) return;
 
-    el.reportBody.innerHTML = `
-        <tr><th>Tiền đầu ca</th><td>${formatVND(data.openingCash)}</td></tr>
-        <tr><th>Số ghế đã bán</th><td>${data.soldSeats}</td></tr>
-        <tr><th>Tổng tiền ghế</th><td>${formatVND(data.ticketRevenue)}</td></tr>
-        <tr><th>Số combo đã bán</th><td>${data.soldCombos}</td></tr>
-        <tr><th>Tổng tiền combo</th><td>${formatVND(data.comboRevenue)}</td></tr>
-        <tr><th>Số tiền giảm giá</th><td>${formatVND(data.discountTotal)}</td></tr>
-        <tr><th>Doanh thu tiền mặt</th><td>${formatVND(data.revenueCash)}</td></tr>
-        <tr><th>Doanh thu chuyển khoản</th><td>${formatVND(data.revenueTransfer)}</td></tr>
-        <tr class="fw-bold text-success"><th>Tổng doanh thu</th>
-            <td>${formatVND((data.revenueCash || 0) + (data.revenueTransfer || 0))}</td></tr>
-    `;
+
+    document.getElementById("openingCashLabel").textContent = formatVND(data.openingCash);
+    document.getElementById("soldSeatsLabel").textContent = data.soldSeats;
+    document.getElementById("ticketRevenueLabel").textContent = formatVND(data.ticketRevenue);
+    document.getElementById("soldCombosLabel").textContent = data.soldCombos;
+    document.getElementById("comboRevenueLabel").textContent = formatVND(data.comboRevenue);
+    document.getElementById("discountTotalLabel").textContent = formatVND(data.discountTotal);
+    document.getElementById("revenueCashLabel").textContent = formatVND(data.revenueCash);
+    document.getElementById("revenueTransferLabel").textContent = formatVND(data.revenueTransfer);
+
+
+    const total = (data.revenueCash || 0) + (data.revenueTransfer || 0);
+    document.getElementById("totalRevenueLabel").textContent = formatVND(total);
 }
 
+
+
+
 /* ============================================================
-   🔴 CHUYỂN SANG FORM KẾT CA
+  🔴 CHUYỂN SANG FORM KẾT CA
 ============================================================ */
 export async function showCloseForm() {
     try {
         const data = await staffShiftApi.getReport();
 
+
         el.openLabel.textContent = formatVND(data.openingCash);
         el.expectedLabel.textContent = formatVND((data.revenueCash || 0) + (data.openingCash || 0));
+
 
         el.report.classList.add('d-none');
         el.closeForm.classList.remove('d-none');
@@ -96,12 +110,14 @@ export async function showCloseForm() {
     }
 }
 
+
 /* ============================================================
-   🏁 KẾT CA
+  🏁 KẾT CA
 ============================================================ */
 export async function closeShift() {
     const closingCash = el.inputClose.value;
     if (!closingCash) return alert('Vui lòng nhập tiền mặt thực tế.');
+
 
     try {
         const result = await staffShiftApi.closeShift(closingCash);
@@ -113,8 +129,9 @@ export async function closeShift() {
     }
 }
 
+
 /* ============================================================
-   🧹 RESET FORM SAU KHI KẾT CA
+  🧹 RESET FORM SAU KHI KẾT CA
 ============================================================ */
 function resetForms() {
     el.inputOpen.value = '';
@@ -124,10 +141,12 @@ function resetForms() {
     el.openForm.classList.remove('d-none');
 }
 
+
 /* ============================================================
-   💰 HÀM FORMAT VND
+  💰 HÀM FORMAT VND
 ============================================================ */
 function formatVND(num) {
     if (num == null) return '0 ₫';
     return Number(num).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
 }
+

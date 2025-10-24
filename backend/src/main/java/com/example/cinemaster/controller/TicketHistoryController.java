@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -25,14 +26,14 @@ public class TicketHistoryController {
                         .ticketHistoryID(h.getTicketHistoryID())
                         .oldStatus(h.getOldStatus())
                         .newStatus(h.getNewStatus())
-
                         .note(h.getNote())
-                        .changedAt(Instant.from(h.getChangedAt()))
+                        .changedAt(h.getChangedAt()) // ✅ CHỈ CẦN DÒNG NÀY
                         .changedById(h.getChangedBy() != null ? h.getChangedBy().getAccountID() : null)
                         .changedByName(h.getChangedBy() != null
                                 ? h.getChangedBy().getFullName()
                                 : "Khách hàng")
                         .build())
+
                 .toList();
 
         return ResponseEntity.ok(ApiResponse.<List<TicketHistoryResponse>>builder()

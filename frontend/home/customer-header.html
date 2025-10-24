@@ -130,40 +130,57 @@
     }
 </style>
 
+
+
 <script>
     (function renderFixedHeader() {
         const authArea = document.getElementById("authArea");
         if (!authArea) return;
 
+
         const token = localStorage.getItem("accessToken");
         const name = localStorage.getItem("fullName") || "User";
-        const avatar = localStorage.getItem("avatarUrl") || "../assets/default-avatar.png";
+        const storedAvatar = localStorage.getItem("avatarUrl");
         const accountId = localStorage.getItem("accountId");
+
+
+        // ✅ Tự xử lý đường dẫn avatar
+        let avatar = "../assets/default-avatar.png";
+        if (storedAvatar) {
+            if (storedAvatar.startsWith("/uploads/")) {
+                avatar = "http://localhost:8080" + storedAvatar;
+            } else if (storedAvatar.startsWith("http")) {
+                avatar = storedAvatar;
+            }
+        }
+
 
         if (!token) {
             authArea.innerHTML = `
-            <button class="btn-auth" onclick="location.href='../user/login.html'">Login</button>
-            <button class="btn-auth-outline" onclick="location.href='../user/register.html'">Register</button>
-        `;
+           <button class="btn-auth" onclick="location.href='../user/login.html'">Login</button>
+           <button class="btn-auth-outline" onclick="location.href='../user/register.html'">Register</button>
+       `;
             return;
         }
 
-        // ✅ Nếu đã login thì render luôn avatar + tên
+
+        // ✅ Nếu đã login thì render avatar + tên
         authArea.innerHTML = `
-        <div class="user-info">
-            <div class="user-dropdown">
-                <img src="${avatar}" alt="avatar" class="user-avatar" id="userAvatar">
-                <div class="dropdown-menu" id="dropdownMenu">
-                    <a href="../user/profile.html?id=${accountId || ''}">👤 Profile</a>
-                    <a href="../tickets/myTickets.html">🎟 My Tickets</a>
-                    <a href="../user/membership.html">⭐ Membership</a>
-                    <hr>
-                    <a href="#" id="logoutBtn">🚪 Log out</a>
-                </div>
-            </div>
-            <span class="user-name">${name}</span>
-        </div>
-    `;
+       <div class="user-info">
+           <div class="user-dropdown">
+               <img src="${avatar}" alt="avatar" class="user-avatar" id="userAvatar">
+               <div class="dropdown-menu" id="dropdownMenu">
+                   <a href="../user/profile.html?id=${accountId || ''}">👤 Profile</a>
+                   <a href="../tickets/myTickets.html">🎟 My Tickets</a>
+                   <a href="../user/membership.html">⭐ Membership</a>
+                   <hr>
+                   <a href="#" id="logoutBtn">🚪 Log out</a>
+               </div>
+           </div>
+           <span class="user-name">${name}</span>
+       </div>
+   `;
+
 
         // Toggle dropdown
         const avatarEl = document.getElementById("userAvatar");
@@ -176,6 +193,7 @@
             document.addEventListener("click", () => dropdown.classList.remove("show"));
         }
 
+
         // Logout
         const logoutBtn = document.getElementById("logoutBtn");
         logoutBtn.addEventListener("click", (e) => {
@@ -184,20 +202,36 @@
             location.href = "../user/login.html";
         });
 
+
         // Highlight menu active
         const current = window.location.pathname.split("/").pop();
         document.querySelectorAll(".cm-nav .nav-link").forEach(link => {
             if (link.getAttribute("href").includes(current)) link.classList.add("active");
         });
 
-        // Cập nhật realtime khi đổi avatar hoặc tên
+
+        // ✅ Cập nhật realtime khi đổi avatar hoặc tên
         window.addEventListener("storage", (e) => {
             if (e.key === "avatarUrl" || e.key === "fullName") {
                 const img = document.getElementById("userAvatar");
                 const nameEl = document.querySelector(".user-name");
-                if (e.key === "avatarUrl" && img) img.src = e.newValue || "../assets/default-avatar.png";
-                if (e.key === "fullName" && nameEl) nameEl.textContent = e.newValue || "User";
+
+
+                if (e.key === "avatarUrl" && img) {
+                    let newAvatar = e.newValue || "../assets/default-avatar.png";
+                    if (newAvatar && newAvatar.startsWith("/uploads/")) {
+                        newAvatar = "http://localhost:8080" + newAvatar;
+                    }
+                    img.src = newAvatar;
+                }
+
+
+                if (e.key === "fullName" && nameEl) {
+                    nameEl.textContent = e.newValue || "User";
+                }
             }
         });
     })();
 </script>
+
+

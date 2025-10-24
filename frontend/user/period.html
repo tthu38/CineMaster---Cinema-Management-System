@@ -5,9 +5,11 @@
     <title>CineMaster • Quản Lý Khoảng Thời Gian Chiếu</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
 
     <style>
         /* ========================================= */
@@ -26,11 +28,13 @@
             --muted2:#cfe3ff;
             --light-text: #e6f1ff; /* Sáng hơn một chút */
 
+
             /* --- GIẢM NEON ĐỂ BỚT CHÓE (CẬP NHẬT) --- */
             --neon-blue: 0 0 15px rgba(34,193,255,0.3), 0 0 30px rgba(34,193,255,0.15);
             --neon-red: 0 0 15px rgba(229,9,20,0.3), 0 0 30px rgba(229,9,20,0.15);
             --neon-cyan-medium: 0 0 8px rgba(34,193,255,0.5), 0 0 15px rgba(34,193,255,0.2);
         }
+
 
         /* ===== NỀN: VÉ PHIM VÀ HẠT (ĐÃ ÁP DỤNG CẤU HÌNH GIẢM CHÓE) ===== */
         .tickets-wall{ position:fixed; inset:0; pointer-events:none; z-index:0; }
@@ -59,6 +63,7 @@
         }
         @keyframes drift{ from{ transform: translate3d(0,0,0) } to{ transform: translate3d(30px,-25px,0) } }
 
+
         /* ===== NỀN TỔNG THỂ (ĐÃ GIẢM CHÓE) ===== */
         html,body{
             margin:0 !important; color:var(--light-text) !important; font-family:'Roboto',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif !important;
@@ -79,9 +84,11 @@
             overflow-x:hidden !important;
         }
 
+
         /* layout chính */
         .shell{max-width:1300px;margin:110px auto 48px;padding:0 24px}
         .layout{ display:block; }
+
 
         /* --- KHỐI CHÍNH (FILM/CARD) - GIẢM NEON CỦA CONTAINER VÀ BOX-SHADOW --- */
         .film{
@@ -106,6 +113,7 @@
         .film:before{ top:12px } .film:after{ bottom:12px }
         .branch-panel{ padding:26px 22px }
 
+
         /* --- KHỐI CARD/TAB (tab-card) - CẬP NHẬT THEO PHONG CÁCH GIẢM CHÓE --- */
         .tab-card {
             background:linear-gradient(180deg,#0b152a 0%, #0c162c 100%);
@@ -124,6 +132,7 @@
             border-color: var(--cyan);
             box-shadow: 0 0 15px rgba(34,193,255,0.3); /* Giảm neon xanh */
         }
+
 
         /* --- TIÊU ĐỀ KHỐI (H2) - GIẢM NEON --- */
         .header-title {
@@ -159,6 +168,7 @@
             border-bottom: 1px solid var(--cyan);
         }
 
+
         /* --- FORM CONTROLS (INPUT/SELECT) - GIỮ ĐỒNG BỘ --- */
         label { color: var(--muted2); font-weight: 500; margin-bottom: 6px; }
         .form-control{
@@ -178,6 +188,7 @@
             color: #ffffff;
         }
         select.form-control option { background-color: var(--card); color: #fff; }
+
 
         /* --- NÚT THAO TÁC FORM (ĐỒNG BỘ & GIẢM CHÓE) --- */
         .btn-primary{
@@ -228,6 +239,8 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba(255, 193, 7, 0.7);
         }
+
+
 
 
         /* ========================================= */
@@ -291,6 +304,7 @@
             transform: scale(1.05);
         }
 
+
         /* CSS cho Poster trong Bảng (Giảm shadow) */
         .movie-poster-img {
             width: 50px;
@@ -302,6 +316,7 @@
             transition: transform 0.3s;
         }
         .movie-poster-img:hover { transform: none; }
+
 
         /* CSS cho Phân trang (Đồng bộ) */
         .pagination .page-item .page-link {
@@ -322,6 +337,7 @@
             border-color: var(--cyan) !important;
             color: var(--cyan) !important;
         }
+
 
         /* CSS MỚI CHO CHECKBOX LIST (Đồng bộ) */
         .branch-checkbox-list {
@@ -348,6 +364,7 @@
         }
     </style>
 
+
 </head>
 <body>
 <div class="grain"></div>
@@ -357,6 +374,7 @@
 </div>
 <div id="site-header"></div>
 
+
 <main class="shell">
     <div class="layout">
         <section class="film branch-panel">
@@ -364,10 +382,12 @@
                 <h2 id="page-main-title"><i class="fa-solid fa-calendar-alt me-3"></i> Quản Lý Khoảng Thời Gian Chiếu</h2>
             </div>
 
+
             <div id="period-form-card" class="tab-card mb-4">
                 <h2 id="form-title" class="m-0 mb-3"><i class="fa-solid fa-plus me-2"></i> Thêm Khoảng Thời Gian Chiếu</h2>
                 <form id="period-form">
                     <input type="hidden" id="periodID" value="">
+
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -377,6 +397,7 @@
                             </select>
                         </div>
 
+
                         <div class="col-md-6 mb-3">
                             <label>Chi Nhánh <span class="badge bg-info text-dark ms-2" id="branch-hint" style="font-size: 0.7em;">(Chọn nhiều chi nhánh)</span></label>
                             <div id="branchCheckboxContainer" class="branch-checkbox-list">
@@ -384,6 +405,7 @@
                             </div>
                         </div>
                     </div>
+
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -396,9 +418,11 @@
                         </div>
                     </div>
 
+
                     <div id="movie-poster-preview" class="mb-4 text-center" style="display:none;">
                         <img id="poster-img-preview" src="" alt="Poster Phim" style="max-width: 150px; height: auto; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,.8), 0 0 5px var(--cyan);">
                     </div>
+
 
                     <div class="d-flex justify-content-end mt-4">
                         <button type="button" id="cancel-btn" class="btn btn-secondary me-2" style="display: none;"><i class="fa-solid fa-xmark me-2"></i>Hủy</button>
@@ -408,9 +432,12 @@
             </div>
 
 
+
+
             <div id="period-list-container" class="tab-card">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h2 class="m-0"><i class="fa-solid fa-layer-group me-2"></i> Danh Sách Khoảng Thời Gian Chiếu</h2>
+
 
                     <div class="d-flex align-items-center">
                         <select id="filterBranchID" class="form-control w-auto me-3">
@@ -419,6 +446,7 @@
                         <button id="load-periods" class="btn btn-secondary" onclick="loadPeriods(0, true)"><i class="fa-solid fa-rotate me-2"></i>Tải Lại</button>
                     </div>
                 </div>
+
 
                 <div class="table-responsive">
                     <table id="period-table" class="table-branch">
@@ -439,6 +467,7 @@
                     </table>
                 </div>
 
+
                 <div class="d-flex justify-content-center mt-4">
                     <nav aria-label="Page navigation">
                         <ul class="pagination pagination-sm" id="pagination-footer">
@@ -447,28 +476,52 @@
                 </div>
             </div>
 
+
         </section>
+
 
     </div>
 </main>
 
+
 <div id="site-footer"></div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // Giả định tải header/footer
+
+
     (async ()=>{
-        try{
-            const [h,f] = await Promise.all([
-                fetch('../home/customer-header.html').then(r=>r.text()),
-                fetch('../home/footer.html').then(r=>r.text())
+        try {
+            const [headerHtml, footerHtml] = await Promise.all([
+                fetch("../home/customer-header.html").then(r => r.text()),
+                fetch("../home/footer.html").then(r => r.text())
             ]);
-            document.getElementById('site-header').innerHTML = h;
-            document.getElementById('site-footer').innerHTML = f;
-        }catch(e){ console.error('Load header/footer error', e); }
+
+
+            const headerEl = document.getElementById("site-header");
+            const footerEl = document.getElementById("site-footer");
+            headerEl.innerHTML = headerHtml;
+            footerEl.innerHTML = footerHtml;
+
+
+            // ⚙️ Ép thực thi lại các script trong header (avatar, dropdown, logout, v.v.)
+            headerEl.querySelectorAll("script").forEach(oldScript => {
+                const newScript = document.createElement("script");
+                if (oldScript.src) newScript.src = oldScript.src;
+                else newScript.textContent = oldScript.textContent;
+                document.body.appendChild(newScript);
+            });
+
+
+        } catch (err) {
+            console.error("❌ Lỗi load header/footer:", err);
+        }
     })();
 </script>
+
 
 <script src="../js/period-crud.js" type="module"></script>
 </body>
 </html>
+

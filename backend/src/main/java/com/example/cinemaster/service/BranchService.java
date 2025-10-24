@@ -168,4 +168,17 @@ public class BranchService {
         // 2. Logic Thác Đổ: Chỉ mở Branch, các thực thể liên quan vẫn giữ trạng thái Inactive
         System.out.println("LOG: Branch ID " + id + " activated. Related entities remain inactive for manual setup.");
     }
+
+    //giang
+    // ================================================================
+// 🎬 LẤY DANH SÁCH CHI NHÁNH ĐANG CHIẾU MỘT PHIM
+// ================================================================
+    public List<BranchResponse> getBranchesByMovie(Integer movieId) {
+        List<Branch> branches = branchRepository.findBranchesByMovie(movieId);
+        return branches.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+
 }

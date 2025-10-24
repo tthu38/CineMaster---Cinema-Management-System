@@ -4,15 +4,18 @@
 import { revenueApi } from './api/revenueApi.js';
 import { branchApi } from './api/branchApi.js';
 
+
 const el = {};
 let currentScope = 'shift';
 let role = localStorage.getItem('role');
 let branchId = localStorage.getItem('branchId');
 
+
 document.addEventListener('DOMContentLoaded', init);
 
+
 /* ============================================================
-   🟦 Khởi tạo trang
+  🟦 Khởi tạo trang
 ============================================================ */
 async function init() {
     el.scope = document.getElementById('scope');
@@ -22,10 +25,13 @@ async function init() {
     el.btnLoad = document.getElementById('btnLoad');
     el.branch = document.getElementById('branch');
 
+
     await loadBranches();
     setupScopeOptions();
 
+
     el.btnLoad.addEventListener('click', loadRevenue);
+
 
     // 🟢 Chỉ load khi DOM sẵn sàng
     if (el.date && el.branch && el.scope) {
@@ -33,11 +39,13 @@ async function init() {
     }
 }
 
+
 /* ============================================================
-   🟩 Tùy chọn phạm vi
+  🟩 Tùy chọn phạm vi
 ============================================================ */
 function setupScopeOptions() {
     const opts = [];
+
 
     if (role === 'Admin') {
         opts.push(`<option value="shift">Theo ca</option>`);
@@ -51,24 +59,29 @@ function setupScopeOptions() {
         opts.push(`<option value="shift">Theo ca (trong ngày)</option>`);
     }
 
+
     el.scope.innerHTML = opts.join('');
     el.scope.addEventListener('change', () => {
         currentScope = el.scope.value;
         toggleInputs();
     });
 
+
     toggleInputs();
 }
 
+
 /* ============================================================
-   🧩 Ẩn/hiện input theo phạm vi
+  🧩 Ẩn/hiện input theo phạm vi
 ============================================================ */
 function toggleInputs() {
     const dateGroup = document.getElementById('dateGroup');
     const yearGroup = document.getElementById('yearGroup');
 
+
     dateGroup.classList.add('d-none');
     yearGroup.classList.add('d-none');
+
 
     if (currentScope === 'shift' || currentScope === 'day') {
         dateGroup.classList.remove('d-none');
@@ -79,30 +92,34 @@ function toggleInputs() {
     }
 }
 
+
 /* ============================================================
-   🏢 Load danh sách chi nhánh
+  🏢 Load danh sách chi nhánh
 ============================================================ */
 async function loadBranches() {
     try {
         if (role === 'Manager' && branchId) {
             const branch = await branchApi.getById(branchId);
             el.branch.innerHTML = `<option value="${branch.id || branch.branchID}" selected>
-                ${branch.name || branch.branchName || 'Chi nhánh của tôi'}
-            </option>`;
+               ${branch.name || branch.branchName || 'Chi nhánh của tôi'}
+           </option>`;
             el.branch.disabled = true;
             return;
         }
+
 
         if (role === 'Admin') {
             const branches = await branchApi.getAllActive();
             console.log('📦 Branch list:', branches);
 
+
             el.branch.innerHTML =
                 `<option value="">Tất cả chi nhánh</option>` +
                 branches.map(b => `
-        <option value="${b.branchId}">
-            ${b.branchName}
-        </option>`).join('');
+       <option value="${b.branchId}">
+           ${b.branchName}
+       </option>`).join('');
+
 
         } else {
             el.branch.innerHTML = `<option value="${branchId}">Chi nhánh của tôi</option>`;
@@ -114,8 +131,9 @@ async function loadBranches() {
     }
 }
 
+
 /* ============================================================
-   💰 Load dữ liệu doanh thu
+  💰 Load dữ liệu doanh thu
 ============================================================ */
 async function loadRevenue() {
     try {
@@ -124,20 +142,25 @@ async function loadRevenue() {
             return;
         }
 
+
         const date = el.date.value || null;
         const year = el.year.value || null;
         const bId = (el.branch.value && el.branch.value.trim() !== '' && el.branch.value !== 'undefined')
             ? Number(el.branch.value)
             : null;
 
+
         console.log("📤 Gửi request doanh thu:", { scope: currentScope, date, year, branchId: bId });
 
+
         let data = [];
+
 
         if (currentScope === 'shift') data = await revenueApi.getByShift(date, bId);
         else if (currentScope === 'day') data = await revenueApi.getByDay(date, bId);
         else if (currentScope === 'month') data = await revenueApi.getByMonth(year, bId);
         else if (currentScope === 'year') data = await revenueApi.getByYear(year, year, bId);
+
 
         renderTable(data);
     } catch (err) {
@@ -146,8 +169,9 @@ async function loadRevenue() {
     }
 }
 
+
 /* ============================================================
-   📋 Render bảng doanh thu
+  📋 Render bảng doanh thu
 ============================================================ */
 function renderTable(rows) {
     if (!rows || rows.length === 0) {
@@ -156,31 +180,35 @@ function renderTable(rows) {
         return;
     }
 
+
     el.tableBody.innerHTML = rows.map((r, i) => `
-        <tr>
-            <td>${i + 1}</td>
-            <td>${r.label}</td>
-            <td>${formatNumber(r.ticketsSold)}</td>
-            <td>${formatVND(r.ticketRevenue)}</td>
-            <td>${formatNumber(r.combosSold)}</td>
-            <td>${formatVND(r.comboRevenue)}</td>
-            <td>${formatVND(r.discountTotal)}</td>
-            <td>${formatVND(r.revenueOnline)}</td>
-            <td>${formatVND(r.revenueCash)}</td>
-            <td class="fw-bold text-success">${formatVND(r.totalRevenue)}</td>
-        </tr>
-    `).join('');
+       <tr>
+           <td>${i + 1}</td>
+           <td>${r.label}</td>
+           <td>${formatNumber(r.ticketsSold)}</td>
+           <td>${formatVND(r.ticketRevenue)}</td>
+           <td>${formatNumber(r.combosSold)}</td>
+           <td>${formatVND(r.comboRevenue)}</td>
+           <td>${formatVND(r.discountTotal)}</td>
+           <td>${formatVND(r.revenueOnline)}</td>
+           <td>${formatVND(r.revenueCash)}</td>
+           <td class="fw-bold text-success">${formatVND(r.totalRevenue)}</td>
+       </tr>
+   `).join('');
 }
 
+
 /* ============================================================
-   💸 Helper format
+  💸 Helper format
 ============================================================ */
 function formatVND(num) {
     if (num == null) return '0 ₫';
     return Number(num).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
 }
 
+
 function formatNumber(num) {
     if (num == null) return '0';
     return Number(num).toLocaleString('vi-VN');
 }
+

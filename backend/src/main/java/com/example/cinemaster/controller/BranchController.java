@@ -90,4 +90,12 @@ public class BranchController {
         List<BranchNameResponse> names = branchRepository.findAllBranchNames();
         return ResponseEntity.ok(names);
     }
+
+    //giang
+    @GetMapping("/movie/{movieId}")
+    public ResponseEntity<List<BranchResponse>> getBranchesByMovie(@PathVariable Integer movieId) {
+        return ResponseEntity.ok(branchService.getBranchesByMovie(movieId));
+    }
+
+
 }

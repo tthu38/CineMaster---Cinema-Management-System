@@ -36,7 +36,6 @@
             padding: 80px 20px;
         }
 
-        /* 🎟️ Vé xem phim */
         .ticket {
             display: flex;
             flex-wrap: wrap;
@@ -48,7 +47,6 @@
             position: relative;
         }
 
-        /* Viền chấm bi “xé vé” */
         .ticket::before {
             content: "";
             position: absolute;
@@ -58,7 +56,6 @@
             border-left: 2px dashed rgba(255, 255, 255, 0.15);
         }
 
-        /* Hiệu ứng ánh đỏ */
         .ticket::after {
             content: "";
             position: absolute;
@@ -67,7 +64,6 @@
             pointer-events: none;
         }
 
-        /* Phần trái */
         .ticket-left {
             flex: 2;
             padding: 40px 40px 40px 60px;
@@ -85,7 +81,6 @@
             font-size: 1rem;
         }
 
-        /* Phần phải */
         .ticket-right {
             flex: 1;
             padding: 35px 25px;
@@ -149,7 +144,6 @@
         .timeline-item strong { color: var(--cyan); text-transform: uppercase; }
         .timeline-item small { color: var(--muted); }
 
-        /* Nút yêu cầu hủy */
         .btn-cancel {
             background: var(--red);
             border: none;
@@ -166,9 +160,7 @@
         }
 
         @media (max-width: 768px) {
-            .ticket {
-                flex-direction: column;
-            }
+            .ticket { flex-direction: column; }
             .ticket::before { display: none; }
             .ticket-left { padding: 30px; }
             .ticket-right {
@@ -198,50 +190,73 @@
 
     async function loadDetail() {
         try {
+            // ✅ Ưu tiên dữ liệu từ localStorage (từ trang myTickets)
+            const cached = localStorage.getItem("ticketDetailData");
+            if (cached) {
+                const data = JSON.parse(cached);
+                renderTicketDetail(data);
+                await loadHistory(data.ticketId);
+                return;
+            }
+
+            // 🔹 Fallback nếu mở trực tiếp bằng URL
             const res = await fetch(`${API_BASE_URL}/tickets/${ticketId}`);
             const data = await handleResponse(res);
             if (!data) {
                 Swal.fire("Lỗi!", "Không tìm thấy thông tin vé.", "error");
                 return;
             }
-
-            ticketDetailEl.innerHTML = `
-              <div class="ticket">
-                <div class="ticket-left">
-                  <h2>${data.movieTitle || "Không xác định"}</h2>
-                  <p><i class="fa-solid fa-film"></i> ${data.movieGenre || "Không rõ"} • ${data.movieDuration || "?"} phút</p>
-                  <p><i class="fa-solid fa-location-dot"></i> ${data.branchName || "Không rõ rạp"} - ${data.auditoriumName || "Không rõ phòng"}</p>
-                  <p><i class="fa-regular fa-clock"></i> ${formatDate(data.showtimeStart)} - ${formatDate(data.showtimeEnd)}</p>
-                  <p><i class="fa-solid fa-chair"></i> Ghế: ${data.seatNumbers || "N/A"}</p>
-                  <p><i class="fa-solid fa-burger"></i> Combo: ${data.comboList?.join(", ") || "Không có"}</p>
-                  <p><i class="fa-solid fa-money-bill"></i> Tổng tiền: ${(data.totalPrice || 0).toLocaleString()}đ</p>
-                  <p><i class="fa-solid fa-credit-card"></i> Thanh toán: ${data.paymentMethod || "Không rõ"}</p>
-                  ${renderCancelButton(data)}
-                  <div class="timeline mt-4">
-                    <h5><i class="fa-solid fa-clock-rotate-left"></i> Lịch sử trạng thái</h5>
-                    <div id="historyList" class="small"></div>
-                  </div>
-                </div>
-                <div class="ticket-right">
-                    <div>
-                        <div class="logo">CineMaster</div>
-                        <div class="ticket-id">#${data.ticketId}</div>
-                        <div class="status ${data.ticketStatus}">${translateStatus(data.ticketStatus)}</div>
-                    </div>
-                    <div class="mt-4">
-                        <small class="text-muted">🎬 Cảm ơn bạn đã chọn CineMaster</small>
-                    </div>
-                </div>
-              </div>
-            `;
-
-            const btn = document.getElementById("cancelBtn");
-            if (btn) btn.addEventListener("click", () => handleCancel(data.ticketId));
+            renderTicketDetail(data);
             await loadHistory(data.ticketId);
         } catch (err) {
             Swal.fire("Lỗi!", "Không tải được chi tiết vé.", "error");
             console.error(err);
         }
+    }
+
+    function renderTicketDetail(data) {
+        ticketDetailEl.innerHTML = `
+          <div class="ticket">
+            <div class="ticket-left">
+
+
+<p><i class="fa-solid fa-location-dot"></i>
+   ${data.branchName || "Không rõ rạp"}${data.auditoriumName ? ` - ${data.auditoriumName}` : ""}
+</p>
+
+<p><i class="fa-regular fa-clock"></i>
+   ${formatDate(data.showtimeStart)}${data.showtimeEnd ? ` - ${formatDate(data.showtimeEnd)}` : ""}
+</p>
+
+                <p><i class="fa-solid fa-chair"></i> Ghế: ${data.seatNumbers || "N/A"}</p>
+             <p><i class="fa-solid fa-burger"></i> Combo: ${
+            Array.isArray(data.comboList)
+                ? data.comboList.join(", ")
+                : (data.comboList || "Không có")
+        }</p>
+ <p><i class="fa-solid fa-money-bill"></i> Tổng tiền: ${(data.totalPrice || 0).toLocaleString()}đ</p>
+              <p><i class="fa-solid fa-credit-card"></i> Thanh toán: ${data.paymentMethod || "Không rõ"}</p>
+              ${renderCancelButton(data)}
+              <div class="timeline mt-4">
+                <h5><i class="fa-solid fa-clock-rotate-left"></i> Lịch sử trạng thái</h5>
+                <div id="historyList" class="small"></div>
+              </div>
+            </div>
+            <div class="ticket-right">
+                <div>
+                    <div class="logo">CineMaster</div>
+                    <div class="ticket-id">#${data.ticketId}</div>
+                    <div class="status ${data.ticketStatus}">${translateStatus(data.ticketStatus)}</div>
+                </div>
+                <div class="mt-4">
+                    <small class="text-muted">🎬 Cảm ơn bạn đã chọn CineMaster</small>
+                </div>
+            </div>
+          </div>
+        `;
+
+        const btn = document.getElementById("cancelBtn");
+        if (btn) btn.addEventListener("click", () => handleCancel(data.ticketId));
     }
 
     async function loadHistory(ticketId) {
@@ -268,7 +283,7 @@
     }
 
     function renderCancelButton(data) {
-        if (data.ticketStatus === "Booked") {
+        if (data.ticketStatus === "BOOKED") {
             return `<button id="cancelBtn" class="btn-cancel">
                 <i class="fa-solid fa-xmark"></i> Yêu cầu hủy vé
               </button>`;
@@ -311,16 +326,21 @@
 
     function translateStatus(st) {
         switch (st) {
-            case "Booked": return "Đã đặt";
-            case "Used": return "Đã sử dụng";
-            case "Cancelled": return "Đã hủy";
-            case "Refunded": return "Hoàn tiền";
-            case "CancelRequested": return "Chờ hủy";
+            case "BOOKED": return "Đã đặt";
+            case "USED": return "Đã sử dụng";
+            case "CANCELLED": return "Đã hủy";
+            case "REFUNDED": return "Hoàn tiền";
+            case "CANCEL_REQUESTED": return "Chờ hủy";
             default: return st;
         }
     }
 
     loadDetail();
+
+    // 🔹 Xóa dữ liệu cache khi rời trang
+    window.addEventListener("beforeunload", () => {
+        localStorage.removeItem("ticketDetailData");
+    });
 </script>
 
 <script>

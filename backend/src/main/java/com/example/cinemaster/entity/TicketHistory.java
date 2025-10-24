@@ -1,5 +1,6 @@
 package com.example.cinemaster.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -47,8 +48,9 @@ public class TicketHistory {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     Account changedBy;
 
-    @Column(name = "ChangedAt")
-    LocalDateTime changedAt;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Ho_Chi_Minh")
+    private LocalDateTime changedAt;
+
 
     @Nationalized
     @Lob

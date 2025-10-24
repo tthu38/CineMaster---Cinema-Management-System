@@ -1,5 +1,6 @@
 package com.example.cinemaster.controller;
 
+
 import com.example.cinemaster.dto.request.ChangePasswordRequest;
 import com.example.cinemaster.dto.request.EmailRequest;
 import com.example.cinemaster.dto.request.UpdateProfileRequest;
@@ -19,8 +20,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
+
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -28,9 +31,11 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class ProfileController {
 
+
     private final AccountRepository accountRepository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
+
 
     /* ==============================================================
        ✅ 1. GET PROFILE
@@ -48,6 +53,7 @@ public class ProfileController {
             );
         }
 
+
         ProfileResponse profile = ProfileResponse.builder()
                 .id(principal.getId())
                 .email(principal.getEmail())
@@ -60,6 +66,7 @@ public class ProfileController {
                 .avatarUrl(principal.getAvatarUrl())
                 .build();
 
+
         return ResponseEntity.ok(
                 ApiResponse.<ProfileResponse>builder()
                         .code(200)
@@ -68,6 +75,7 @@ public class ProfileController {
                         .build()
         );
     }
+
 
     /* ==============================================================
        ✅ 2. UPDATE PROFILE (fullName, phone, address, avatar)
@@ -87,8 +95,10 @@ public class ProfileController {
             );
         }
 
+
         var acc = accountRepository.findById(principal.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
 
         if (req.getFullName() != null && !req.getFullName().isBlank())
             acc.setFullName(req.getFullName());
@@ -97,7 +107,9 @@ public class ProfileController {
         if (req.getAddress() != null && !req.getAddress().isBlank())
             acc.setAddress(req.getAddress());
 
+
         accountRepository.save(acc);
+
 
         ProfileResponse updated = ProfileResponse.builder()
                 .id(acc.getAccountID())
@@ -111,6 +123,7 @@ public class ProfileController {
                 .avatarUrl(acc.getAvatarUrl())
                 .build();
 
+
         return ResponseEntity.ok(
                 ApiResponse.<ProfileResponse>builder()
                         .code(1000)
@@ -119,6 +132,7 @@ public class ProfileController {
                         .build()
         );
     }
+
 
     /* ==============================================================
        ✅ 3. CHANGE PASSWORD
@@ -137,8 +151,10 @@ public class ProfileController {
             );
         }
 
+
         var acc = accountRepository.findById(principal.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
 
         if (!passwordEncoder.matches(req.getCurrentPassword(), acc.getPassword())) {
             return ResponseEntity.badRequest().body(
@@ -149,8 +165,10 @@ public class ProfileController {
             );
         }
 
+
         acc.setPassword(passwordEncoder.encode(req.getNewPassword()));
         accountRepository.save(acc);
+
 
         return ResponseEntity.ok(
                 ApiResponse.<String>builder()
@@ -160,6 +178,7 @@ public class ProfileController {
                         .build()
         );
     }
+
 
     /* ==============================================================
        ✅ 4. SEND OTP TO CHANGE EMAIL
@@ -179,8 +198,10 @@ public class ProfileController {
             );
         }
 
+
         var acc = accountRepository.findById(principal.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
 
         if (accountRepository.existsByEmail(req.getEmail())) {
             return ResponseEntity.badRequest().body(
@@ -191,13 +212,16 @@ public class ProfileController {
             );
         }
 
+
         String code = String.valueOf((int) (Math.random() * 900000) + 100000);
         acc.setVerificationCode(code);
         acc.setVerificationExpiry(LocalDateTime.now().plusMinutes(10));
         accountRepository.save(acc);
 
+
         try {
             emailService.sendVerificationEmail(req.getEmail(), code);
+
 
             return ResponseEntity.ok(
                     ApiResponse.<String>builder()
@@ -206,6 +230,7 @@ public class ProfileController {
                             .result("OK")
                             .build()
             );
+
 
         } catch (jakarta.mail.MessagingException e) {
             log.error("Failed to send OTP email: {}", e.getMessage());
@@ -217,6 +242,7 @@ public class ProfileController {
             );
         }
     }
+
 
     /* ==============================================================
        ✅ 5. VERIFY EMAIL CHANGE
@@ -236,8 +262,10 @@ public class ProfileController {
             );
         }
 
+
         var acc = accountRepository.findById(principal.getId())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
 
         if (acc.getVerificationCode() == null ||
                 !acc.getVerificationCode().equals(req.getOtp())) {
@@ -249,6 +277,7 @@ public class ProfileController {
             );
         }
 
+
         if (acc.getVerificationExpiry() == null ||
                 acc.getVerificationExpiry().isBefore(LocalDateTime.now())) {
             return ResponseEntity.badRequest().body(
@@ -259,10 +288,12 @@ public class ProfileController {
             );
         }
 
+
         acc.setEmail(req.getEmail());
         acc.setVerificationCode(null);
         acc.setVerificationExpiry(null);
         accountRepository.save(acc);
+
 
         return ResponseEntity.ok(
                 ApiResponse.<String>builder()
@@ -272,4 +303,71 @@ public class ProfileController {
                         .build()
         );
     }
+    /* ==============================================================
+   ✅ 6. UPLOAD AVATAR
+ ============================================================== */
+    @PostMapping("/avatar")
+    @Transactional
+    public ResponseEntity<ApiResponse<String>> uploadAvatar(
+            @RequestParam("file") MultipartFile file,
+            @AuthenticationPrincipal AccountPrincipal principal
+    ) {
+        if (principal == null) {
+            return ResponseEntity.status(401).body(
+                    ApiResponse.<String>builder()
+                            .code(401)
+                            .message("Unauthorized: No user in context")
+                            .build()
+            );
+        }
+
+
+        var account = accountRepository.findById(principal.getId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+
+        try {
+            // ✅ Đường dẫn thư mục lưu file
+            String uploadDir = "uploads/";
+            java.nio.file.Path dir = java.nio.file.Paths.get(uploadDir);
+            if (!java.nio.file.Files.exists(dir)) {
+                java.nio.file.Files.createDirectories(dir);
+            }
+
+
+            // ✅ Tên file duy nhất (userID + thời gian)
+            String fileName = "avatar_" + account.getAccountID() + "_" + System.currentTimeMillis()
+                    + "_" + file.getOriginalFilename();
+
+
+            java.nio.file.Path path = dir.resolve(fileName);
+            java.nio.file.Files.copy(file.getInputStream(), path, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
+
+            // ✅ Cập nhật đường dẫn avatar trong DB
+            String fileUrl = "/uploads/" + fileName;
+            account.setAvatarUrl(fileUrl);
+            accountRepository.save(account);
+
+
+            return ResponseEntity.ok(
+                    ApiResponse.<String>builder()
+                            .code(1000)
+                            .message("Avatar uploaded successfully")
+                            .result(fileUrl)
+                            .build()
+            );
+        } catch (Exception e) {
+            log.error("Upload avatar error", e);
+            return ResponseEntity.status(500).body(
+                    ApiResponse.<String>builder()
+                            .code(9999)
+                            .message("Upload failed: " + e.getMessage())
+                            .build()
+            );
+        }
+    }
+
+
 }
+

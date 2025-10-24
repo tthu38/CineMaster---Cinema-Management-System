@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -22,6 +23,7 @@
             --red: #e50914;
         }
 
+
         html,body{
             margin:0;
             font-family:'Roboto',sans-serif;
@@ -37,6 +39,7 @@
             background-position:-10% -35%,120% -20%,0 0;
             background-attachment:fixed,fixed,fixed;
         }
+
 
         /* 🎟️ Tickets background */
         .tickets-wall{
@@ -61,6 +64,7 @@
             background-image:inherit;
         }
 
+
         /* 🌌 Grain */
         .grain {
             pointer-events: none;
@@ -79,12 +83,14 @@
             to { transform: translate3d(30px,-25px,0) }
         }
 
+
         .container {
             margin-top: 60px;
             max-width: 1200px;
             position: relative;
             z-index: 10;
         }
+
 
         .header, .film {
             /* Nền thủy tinh bán trong suốt */
@@ -149,6 +155,7 @@
         .btn-danger:hover { background-color: #c82333; transform: translateY(-1px); }
         .btn-warning:hover { background-color: #e0a800; transform: translateY(-1px); }
 
+
         /* Filter buttons */
         .filter-btn {
             border-radius: 10px 0 0 10px;
@@ -164,6 +171,7 @@
             color: #fff;
         }
 
+
         table { color: #fff; }
         .table {
             background-color: rgba(10, 25, 50, 0.5) !important; /* Đổi sang màu bán trong suốt */
@@ -175,6 +183,7 @@
             overflow: hidden;
             border: 1px solid rgba(34, 193, 255, 0.15); /* Thêm viền mờ cho đẹp hơn */
         }
+
 
         /* Thêm quy tắc này ngay bên dưới để đảm bảo các ô trong bảng không có nền trắng */
         .table > tbody > tr > td {
@@ -211,6 +220,7 @@
             transition: all 0.3s ease;
         }
 
+
         /* header + footer trong suốt */
         .modal-content.glass-modal .modal-header,
         .modal-content.glass-modal .modal-footer {
@@ -219,6 +229,7 @@
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
         }
+
 
         /* input field */
         .modal-content.glass-modal .form-control {
@@ -234,11 +245,13 @@
             background: rgba(10, 25, 50, 0.65);
         }
 
+
         /* label */
         .modal-content.glass-modal .form-label {
             color: #cfe3ff;
             font-weight: 500;
         }
+
 
         /* button glow */
         .modal-content.glass-modal .btn-primary {
@@ -259,6 +272,7 @@
             box-shadow: 0 0 14px rgba(34,193,255,0.4);
         }
 
+
         .modal-content {
             background-color: transparent !important;
         }
@@ -268,6 +282,8 @@
             border-radius: 8px;
             border: 1px solid var(--border);
         }
+
+
 
 
         /* Search input */
@@ -284,6 +300,7 @@
             box-shadow: 0 0 10px rgba(34, 193, 255, 0.4);
         }
 
+
         /* 🔧 Làm nền .film trong suốt hơn, tương tự membership-levels */
         .film {
             background: rgba(8, 20, 40, 0.35) !important; /* giảm độ đặc */
@@ -293,12 +310,14 @@
             box-shadow: 0 0 40px rgba(10, 50, 100, 0.35);
         }
 
+
         /* Làm header hòa nền */
         .header {
             background: rgba(12, 22, 44, 0.08) !important;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(34,193,255,0.15);
         }
+
 
         /* Nâng độ hòa trộn cho hiệu ứng */
         .container {
@@ -312,6 +331,7 @@
             color: #fff !important;
         }
 
+
         /* Nếu muốn nhấn tiêu đề cột hơn chút */
         .table thead th {
             color: #58c6ff !important; /* xanh nhạt như trang Membership */
@@ -319,18 +339,23 @@
             text-transform: uppercase;
         }
 
+
         /* Dòng trong bảng khi hover */
         .table tbody tr:hover td {
             color: #e6f1ff !important; /* nhẹ hơn để nổi */
         }
 
 
+
+
         /* ===== Bảng chữ trắng ===== */
         .table, .table th, .table td { color: #e6f1ff !important; }
         .table thead th { color: #58c6ff !important; font-weight: 700; text-transform: uppercase; }
 
+
     </style>
 </head>
+
 
 <body>
 <div class="grain"></div>
@@ -340,6 +365,7 @@
 </div>
 
 
+<div id="header"></div>
 <div class="container">
     <div class="header">
         <h1>Admin Panel - Quản Lý Combo</h1>
@@ -359,6 +385,7 @@
         </div>
     </div>
 
+
     <div class="film">
         <table id="comboTable" class="table table-bordered table-hover align-middle">
             <thead>
@@ -377,7 +404,7 @@
         </table>
     </div>
 </div>
-
+<div id="footer"></div>
 <!-- ✅ Modal xác nhận -->
 <div class="modal fade" id="confirmModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
@@ -395,10 +422,12 @@
     </div>
 </div>
 
+
 <!-- ✅ Toast Container -->
 <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
     <div id="toastContainer"></div>
 </div>
+
 
 <!-- JS -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -406,6 +435,32 @@
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+
 <script type="module" src="../js/listCombo.js"></script>
+<script>
+    (async function loadHeaderFooter(){
+        const headerEl = document.getElementById("header");
+        const footerEl = document.getElementById("footer");
+        try{
+            const headerHtml = await (await fetch("../home/customer-header.html")).text();
+            headerEl.innerHTML = headerHtml;
+
+
+            // Ép chạy script trong header (để avatar và menu user hoạt động)
+            headerEl.querySelectorAll("script").forEach(s=>{
+                const ns=document.createElement("script");
+                if(s.src) ns.src=s.src; else ns.textContent=s.textContent;
+                document.body.appendChild(ns);
+            });
+
+
+            const footerHtml = await (await fetch("../home/footer.html")).text();
+            footerEl.innerHTML = footerHtml;
+        }catch(err){
+            console.error("Lỗi load header/footer:",err);
+        }
+    })();
+</script>
 </body>
 </html>
+

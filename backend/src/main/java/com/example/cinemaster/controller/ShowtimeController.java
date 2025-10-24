@@ -1,5 +1,6 @@
 package com.example.cinemaster.controller;
 
+
 import com.example.cinemaster.dto.request.ShowtimeCreateRequest;
 import com.example.cinemaster.dto.request.ShowtimeUpdateRequest;
 import com.example.cinemaster.dto.response.DayScheduleResponse;
@@ -14,16 +15,20 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+
 
 @RestController
 @RequestMapping("/api/v1/showtimes")
 @RequiredArgsConstructor
 public class ShowtimeController {
 
+
     private final ShowtimeService service;
+
 
     // ================== CREATE ==================
     @PreAuthorize("hasAnyRole('Admin','Manager')")
@@ -37,11 +42,13 @@ public class ShowtimeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+
     // ================== GET BY ID ==================
     @GetMapping("/{id}")
     public ResponseEntity<ShowtimeResponse> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(service.getById(id));
     }
+
 
     // ================== SEARCH ==================
     @GetMapping
@@ -58,7 +65,9 @@ public class ShowtimeController {
                 ? Sort.by(sort.split(",")[0]).descending()
                 : Sort.by(sort.split(",")[0]).ascending();
 
+
         Pageable pageable = PageRequest.of(page, size, sortSpec);
+
 
         LocalDateTime fromTime = null, toTime = null;
         try {
@@ -76,9 +85,11 @@ public class ShowtimeController {
                     "Dùng yyyy-MM-dd hoặc yyyy-MM-ddTHH:mm:ss");
         }
 
+
         Page<ShowtimeResponse> result = service.search(periodId, auditoriumId, fromTime, toTime, pageable);
         return ResponseEntity.ok(result);
     }
+
 
     // ================== UPDATE ==================
     @PreAuthorize("hasAnyRole('Admin','Manager')")
@@ -93,6 +104,7 @@ public class ShowtimeController {
         return ResponseEntity.ok(response);
     }
 
+
     // ================== DELETE ==================
     @PreAuthorize("hasAnyRole('Admin','Manager')")
     @DeleteMapping("/{id}")
@@ -105,6 +117,7 @@ public class ShowtimeController {
         return ResponseEntity.noContent().build();
     }
 
+
     // ================== WEEKLY SCHEDULE ==================
     @GetMapping("/next-week")
     public ResponseEntity<List<DayScheduleResponse>> nextWeek(
@@ -113,12 +126,14 @@ public class ShowtimeController {
         return ResponseEntity.ok(service.getNextWeekSchedule(branchId));
     }
 
+
     // ================== WEEKLY SCHEDULE ==================
     @GetMapping("/week")
     public ResponseEntity<List<DayScheduleResponse>> week(
             @RequestParam(required = false) String anchor,
             @RequestParam(required = false, defaultValue = "0") Integer offset,
             @RequestParam(required = false) Integer branchId,
+            @RequestParam(required = false) Integer movieId, // 🆕 Thêm lọc phim
             Authentication auth
     ) {
         LocalDate anchorDate = null;
@@ -130,10 +145,11 @@ public class ShowtimeController {
             throw new IllegalArgumentException("Định dạng anchor không hợp lệ (yyyy-MM-dd).");
         }
 
-        // ✅ Lấy người dùng hiện tại
+
         AccountPrincipal user = (auth != null && auth.getPrincipal() instanceof AccountPrincipal)
                 ? (AccountPrincipal) auth.getPrincipal()
                 : null;
+
 
         // ✅ Manager chỉ xem được chi nhánh của mình
         Integer effectiveBranchId = branchId;
@@ -141,10 +157,16 @@ public class ShowtimeController {
             effectiveBranchId = user.getBranchId();
         }
 
-        // ✅ Cho phép admin/manager chọn tuần bất kỳ
+
         LocalDate targetWeek = (anchorDate != null ? anchorDate : LocalDate.now()).plusWeeks(offset);
 
-        return ResponseEntity.ok(service.getWeekSchedule(targetWeek, effectiveBranchId));
+
+        // 🆕 Truyền thêm movieId vào service
+        return ResponseEntity.ok(service.getWeekSchedule(targetWeek, effectiveBranchId, movieId));
     }
 
+
+
+
 }
+

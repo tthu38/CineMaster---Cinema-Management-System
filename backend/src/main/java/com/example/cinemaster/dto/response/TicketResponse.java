@@ -1,6 +1,5 @@
 package com.example.cinemaster.dto.response;
 
-import com.example.cinemaster.entity.Ticket;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -18,7 +17,6 @@ public class TicketResponse {
     Integer ticketId;
     Integer accountId;
     Integer showtimeId;
-    Ticket.TicketStatus status;
 
     // 💰 Tổng tiền các loại
     BigDecimal seatTotal;        // 💺 Tổng tiền ghế
@@ -48,7 +46,7 @@ public class TicketResponse {
     String branchName;       // ✅ Tên chi nhánh
     String showtimeStart;    // ✅ Thời gian chiếu dạng string
     String seatNumbers;      // ✅ Danh sách ghế dạng text
-    String ticketStatus;     // ✅ Trạng thái vé dạng chuỗi
+    String ticketStatus;     // ✅ Trạng thái vé dạng chuỗi (BOOKED, CANCELLED, ...)
     String customerName;     // ✅ Tên khách hàng (hiển thị cho staff)
 
     // ================== 🍿 Inner Classes ==================

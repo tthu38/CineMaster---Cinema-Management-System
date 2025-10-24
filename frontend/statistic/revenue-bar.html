@@ -2,25 +2,24 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8" />
-    <title>CineMaster • Check-in OTP Vé</title>
+    <title>CineMaster • Báo cáo doanh thu</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
     <style>
-        :root {
+        :root{
             --red:#e50914;
             --cyan:#22c1ff;
             --blue:#0aa3ff;
             --ink:#06101f;
             --bg:#0b162c;
+            --card:#0c1324;
             --border:#1b2b4a;
             --muted:#9aa7b3;
-            --card:#0c1324;
             --muted2:#cfe3ff;
             --glow:0 0 20px rgba(34,193,255,.35), 0 0 60px rgba(34,193,255,.15);
         }
@@ -76,67 +75,110 @@
         }
 
 
-        /* hạt bụi chiếu phim */
-        .grain{
-            pointer-events:none; position:fixed; inset:0; opacity:.14; mix-blend-mode:screen;
+        .grain{ pointer-events:none; position:fixed; inset:0; opacity:.14; mix-blend-mode:screen;
             background-image:radial-gradient(circle at 20% 30%, rgba(255,255,255,.06) 0 2px, transparent 2px),
             radial-gradient(circle at 70% 60%, rgba(255,255,255,.05) 0 2px, transparent 2px);
             background-size:200px 200px, 260px 260px;
             animation: drift 18s linear infinite alternate;
         }
-        @keyframes drift{
-            from{ transform: translate3d(0,0,0) }
-            to{ transform: translate3d(30px,-25px,0) }
-        }
+        @keyframes drift{from{transform:translate3d(0,0,0)}to{transform:translate3d(30px,-25px,0)}}
 
 
-        main.shell { max-width:700px; margin:100px auto; padding:20px; }
-        .tab-card {
-            background:linear-gradient(180deg,#0b152a 0%, #0c162c 100%);
+        .shell{max-width:1300px;margin:110px auto 50px;padding:0 24px}
+
+
+        /* card kiểu vé */
+        .film{
+            background:linear-gradient(180deg,#0b152a,#0c162c);
             border:1px solid var(--border);
-            border-radius:16px;
-            padding:30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            border-radius:20px; box-shadow:var(--glow);
+            padding:26px 24px; position:relative;
         }
-        h2 {
-            color: var(--cyan);
-            text-shadow: 0 0 8px rgba(34,193,255,0.5);
-            font-weight: 900;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-bottom: 25px;
+        .film::before,.film::after{
+            content:""; position:absolute; left:18px; right:18px;
+            height:10px; background:repeating-linear-gradient(90deg,#142443 0 16px,transparent 16px 32px);
+            filter:drop-shadow(0 0 6px rgba(34,193,255,.2)); opacity:.5;
         }
-        .form-control {
-            background:#112040; border:1px solid #17345f; color:#fff;
+        .film::before{top:12px;} .film::after{bottom:12px;}
+
+
+        h2.title{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.8rem;margin-bottom:24px;}
+        h2.title i{color:var(--cyan);}
+        canvas{margin-bottom:30px;}
+
+
+        #revenueChart{
+            background:#091325;border-radius:16px;padding:14px;
+            box-shadow:inset 0 0 0 1px rgba(34,193,255,.08);
         }
-        .form-control:focus {
-            border-color: var(--cyan);
-            box-shadow: 0 0 10px rgba(34,193,255,0.3);
+
+
+        /* Bảng top phim */
+        table{background:rgba(10,17,30,.9);border-radius:12px;overflow:hidden;margin-top:25px;}
+        table th{color:var(--cyan);background:rgba(34,193,255,.12);}
+        .rank{text-align:center;font-weight:bold;}
+        tr:nth-child(1) .rank{color:gold;font-size:1.3rem;}
+        tr:nth-child(2) .rank{color:silver;}
+        tr:nth-child(3) .rank{color:#cd7f32;}
+        tbody tr:hover{background:rgba(34,193,255,.06);}
+
+
+        /* Bộ lọc đặt dưới */
+        .filters{
+            margin-top:40px;
+            background:#0e1b33;
+            border:1px solid var(--border);
+            border-radius:14px;
+            padding:22px;
         }
-        .btn-primary {
-            background: linear-gradient(90deg, var(--blue), var(--cyan));
-            border: none; color: #06101f;
-            font-weight: 700; text-transform: uppercase;
-            padding: 10px 25px; border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(10,163,255,0.5);
+        .filters h3{
+            font-weight:800;font-size:1.3rem;
+            color:var(--cyan);
+            margin-bottom:18px;
         }
-        #result-card {
-            margin-top: 30px;
-            background-color: #112040;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            padding: 20px;
-            display: none;
+        label{font-weight:500;color:#cfe3ff;}
+        .form-select,.form-control{
+            background:#0c162c;border:1px solid var(--border);
+            color:#e6eefc;border-radius:10px;
         }
-        .info-label { color: var(--muted); font-weight: 600; }
-        .info-value { color: var(--cyan); font-weight: 700; }
+        .form-select:focus,.form-control:focus{
+            border-color:var(--cyan);
+            box-shadow:0 0 6px rgba(34,193,255,.4);
+        }
+        .btn{
+            border-radius:10px;font-weight:600;
+        }
+        .btn-primary{
+            background:linear-gradient(90deg,var(--cyan),var(--blue));
+            border:none;
+        }
+        .btn-outline-info{
+            border-color:var(--cyan);color:var(--cyan);
+        }
+        .btn-outline-info:hover{
+            background:var(--cyan);color:#06101f;
+        }
+        .chart-wrapper {
+            margin-top: -20px;  /* kéo chart cao lên 1 chút */
+        }
+        .filters {
+            margin-top: 10px;   /* dính sát chart */
+        }
+        /* ✅ Đồng bộ màu nền cho các ô bị disable */
+        .form-select:disabled,
+        .form-control:disabled {
+            background-color: #0c162c !important;  /* cùng màu với các ô bình thường */
+            color: #9aa7b3 !important;             /* chữ nhạt hơn */
+            opacity: 1 !important;                 /* tránh bị làm mờ */
+            cursor: not-allowed;                   /* vẫn cho thấy không click được */
+            border: 1px solid var(--border);       /* viền nhất quán */
+        }
+
+
     </style>
 </head>
-
-
 <body>
 <div class="grain"></div>
-<!-- Tickets background (static, no falling) -->
 <div class="tickets-wall" aria-hidden="true">
     <div class="tickets-layer l1"></div>
     <div class="tickets-layer l2"></div>
@@ -147,63 +189,86 @@
 
 
 <main class="shell">
-    <div class="tab-card">
-        <h2><i class="fa-solid fa-ticket me-2"></i>Check-in Vé Bằng Mã OTP</h2>
-        <form id="otp-form">
-            <div class="mb-3">
-                <label for="otpCode" class="form-label">Nhập mã OTP (6 số)</label>
-                <input type="text" id="otpCode" class="form-control" maxlength="6" placeholder="Nhập mã OTP khách hàng cung cấp..." required>
-            </div>
-            <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-check me-2"></i>Xác thực OTP</button>
-        </form>
-
-
-        <div id="result-card">
-            <h5 class="text-center mb-3"><i class="fa-solid fa-film me-2"></i>Thông Tin Vé</h5>
-            <div id="ticket-info"></div>
+    <section class="film">
+        <h2 class="title"><i class="fa-solid fa-chart-line"></i> Báo cáo doanh thu</h2>
+        <div class="chart-wrapper">
+            <canvas id="revenueChart" height="120"></canvas>
         </div>
-    </div>
+
+
+        <!-- 🔽 Bộ lọc nằm sát chart -->
+        <div class="filters mt-3">
+            <h3><i class="fa-solid fa-filter me-2"></i> Bộ lọc doanh thu</h3>
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label>Chi nhánh</label>
+                    <select id="branchSelect" class="form-select"></select>
+                </div>
+                <div class="col-md-3">
+                    <label>Chọn tháng</label>
+                    <input type="month" id="monthInput" class="form-control" value="2025-10">
+                </div>
+                <div class="col-md-3">
+                    <label>Từ ngày</label>
+                    <input type="date" id="fromDate" class="form-control">
+                </div>
+                <div class="col-md-3">
+                    <label>Đến ngày</label>
+                    <input type="date" id="toDate" class="form-control">
+                </div>
+            </div>
+
+
+            <div class="d-flex flex-wrap gap-2 mt-4">
+                <button id="btnLast7Days" class="btn btn-outline-info flex-fill">
+                    <i class="fa-solid fa-calendar-week me-1"></i> 7 ngày gần nhất
+                </button>
+                <button id="btnViewMonthDetail" class="btn btn-primary flex-fill">
+                    <i class="fa-solid fa-chart-column me-1"></i> Xem theo tháng
+                </button>
+                <button id="btnViewCustom" class="btn btn-secondary flex-fill">
+                    <i class="fa-solid fa-magnifying-glass me-1"></i> Lọc tùy chọn
+                </button>
+            </div>
+        </div>
+
+
+        <h2 class="title mt-5"><i class="fa-solid fa-ranking-star"></i> Top 10 phim được mua vé nhiều nhất</h2>
+        <div class="table-responsive">
+            <table class="table table-dark table-striped table-hover align-middle">
+                <thead>
+                <tr>
+                    <th style="width:60px;">#</th>
+                    <th>Tên phim</th>
+                    <th class="text-center">Số vé đã bán</th>
+                </tr>
+                </thead>
+                <tbody id="topMoviesBody">
+                <tr><td colspan="3" class="text-center text-muted">Đang tải...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+
 </main>
 
 
 <div id="site-footer"></div>
 
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script type="module" src="../js/otp-check.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 <script>
-    (async ()=>{
-        try {
-            const [headerHtml, footerHtml] = await Promise.all([
-                fetch("../home/customer-header.html").then(r => r.text()),
-                fetch("../home/footer.html").then(r => r.text())
-            ]);
-
-
-            const headerEl = document.getElementById("site-header");
-            const footerEl = document.getElementById("site-footer");
-
-
-            headerEl.innerHTML = headerHtml;
-            footerEl.innerHTML = footerHtml;
-
-
-            // ⚙️ Bắt buộc chạy lại script bên trong header (để avatar/menu hoạt động)
-            headerEl.querySelectorAll("script").forEach(oldScript => {
-                const newScript = document.createElement("script");
-                if (oldScript.src) newScript.src = oldScript.src;
-                else newScript.textContent = oldScript.textContent;
-                document.body.appendChild(newScript);
-            });
-
-
-        } catch (err) {
-            console.error("❌ Lỗi load header/footer:", err);
-        }
+    (async()=>{
+        try{
+            const header = await fetch("../home/admin-header.html").then(r=>r.text());
+            const footer = await fetch("../home/footer.html").then(r=>r.text());
+            document.getElementById("site-header").innerHTML = header;
+            document.getElementById("site-footer").innerHTML = footer;
+        }catch{}
     })();
 </script>
-
-
+<script type="module" src="../js/revenue-bar.js"></script>
 </body>
 </html>
 

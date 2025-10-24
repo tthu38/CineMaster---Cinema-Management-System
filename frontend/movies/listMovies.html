@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -9,6 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 
     <style>
         :root{
@@ -23,6 +25,7 @@
             --muted2:#cfe3ff;
             --glow:0 0 20px rgba(34,193,255,.35), 0 0 60px rgba(34,193,255,.15);
         }
+
 
         /* ===== Pretty cinema tickets background (static) ===== */
         .tickets-wall{
@@ -47,6 +50,7 @@
             background-image:inherit;
         }
 
+
         /* ===== NỀN động + pattern vé ===== */
         html,body{
             margin:0; color:#fff; font-family:'Roboto',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
@@ -64,6 +68,7 @@
             overflow-x:hidden;
         }
 
+
         /* hạt bụi chiếu phim */
         .grain{
             pointer-events:none; position:fixed; inset:0; opacity:.14; mix-blend-mode:screen; z-index:1;
@@ -77,7 +82,9 @@
             to{ transform: translate3d(30px,-25px,0) }
         }
 
+
         .shell{max-width:1300px;margin:110px auto 48px;padding:0 24px; position:relative; z-index:2;}
+
 
         /* viền filmstrip bo tròn + "lỗ vé" (mask) */
         .film{
@@ -101,7 +108,9 @@
         }
         .film:before{ top:12px } .film:after{ bottom:12px }
 
+
         .movie-panel{padding:26px 22px; position:relative; z-index:2;}
+
 
         h2 {
             font-weight: 900;
@@ -111,6 +120,7 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
+
 
         /* Summary Cards */
         .summary-card, .chart-container {
@@ -126,12 +136,14 @@
             text-align: center;
         }
 
+
         /* Table */
         .table-responsive {
             overflow-x: auto;
             border-radius: 12px;
             border: 1px solid var(--border);
         }
+
 
         .table-movie{
             width:100%;
@@ -150,17 +162,20 @@
             text-overflow: ellipsis;
         }
 
+
         .table-movie tbody tr{
             /* Bỏ màu nền của hàng, để nó trong suốt hoàn toàn */
             background: transparent;
             transition: all .2s ease;
         }
 
+
         .table-movie tbody tr:hover{
             /* Đổi hiệu ứng hover sang màu bán trong suốt */
             background: rgba(34, 193, 255, 0.15);
             box-shadow: inset 0 0 0 1px rgba(34,193,255,.2);
         }
+
 
         .movie-poster{
             width:80px;
@@ -170,6 +185,7 @@
             border:1px solid var(--border);
             box-shadow: 0 4px 12px rgba(0,0,0,.4);
         }
+
 
         .btn-group-action {
             display: flex;
@@ -185,6 +201,7 @@
             transition: all .2s ease;
         }
 
+
         .btn-primary{
             background:linear-gradient(90deg,var(--blue),var(--cyan));
             border:none;
@@ -199,6 +216,7 @@
             box-shadow: 0 6px 20px rgba(34,193,255,.4);
         }
 
+
         .btn-warning{
             border:none;
             background:#ffc107;
@@ -209,6 +227,7 @@
             background:#ffca2c;
             box-shadow: 0 4px 12px rgba(255,193,7,.4);
         }
+
 
         .btn-danger{
             border:none;
@@ -221,6 +240,7 @@
             box-shadow: 0 4px 12px rgba(229,9,20,.5);
         }
 
+
         .btn-success{
             border:none;
             background:#28a745;
@@ -232,9 +252,11 @@
             box-shadow: 0 4px 12px rgba(40,167,69,.4);
         }
 
+
         .btn-create{
             margin-bottom:15px;
         }
+
 
         /* Pagination */
         #page-numbers {
@@ -273,7 +295,9 @@
     <div class="tickets-layer l2"></div>
 </div>
 
+
 <div id="header"></div>
+
 
 <main class="shell">
     <section class="film movie-panel">
@@ -304,6 +328,7 @@
             </div>
         </div>
 
+
         <!-- Bảng phim -->
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2 class="fw-bold">Danh Sách Phim</h2>
@@ -311,6 +336,7 @@
                 <i class="fa fa-plus me-2"></i> Thêm Phim
             </button>
         </div>
+
 
         <div class="table-responsive">
             <table class="table-movie">
@@ -330,19 +356,47 @@
             </table>
         </div>
 
+
         <!-- Phân trang -->
         <div id="page-numbers"></div>
     </section>
 </main>
 
+
 <div id="footer"></div>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="module" src="../js/listMovies.js"></script>
 <script>
-    fetch("../home/customer-header.html")
-        .then(r => r.text())
-        .then(t => document.getElementById("header").innerHTML = t);
-    fetch("../home/footer.html").then(r=>r.text()).then(h=>document.getElementById("footer").innerHTML=h);
+    (async ()=>{
+        try {
+            const [headerHtml, footerHtml] = await Promise.all([
+                fetch("../home/customer-header.html").then(r => r.text()),
+                fetch("../home/footer.html").then(r => r.text())
+            ]);
+
+
+            const headerEl = document.getElementById("header");
+            const footerEl = document.getElementById("footer");
+
+
+            headerEl.innerHTML = headerHtml;
+            footerEl.innerHTML = footerHtml;
+
+
+            // ⚙️ Kích hoạt lại toàn bộ script trong header (avatar, menu user, logout,...)
+            headerEl.querySelectorAll("script").forEach(oldScript => {
+                const newScript = document.createElement("script");
+                if (oldScript.src) newScript.src = oldScript.src;
+                else newScript.textContent = oldScript.textContent;
+                document.body.appendChild(newScript);
+            });
+
+
+        } catch (err) {
+            console.error("❌ Lỗi load header/footer:", err);
+        }
+    })();
 </script>
 </body>
 </html>
+

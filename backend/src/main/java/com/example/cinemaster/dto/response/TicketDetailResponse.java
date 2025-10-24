@@ -9,6 +9,9 @@ import lombok.*;
 public class TicketDetailResponse {
     private Integer ticketId;
 
+    // 🧩 Thông tin khách hàng (THÊM DÒNG NÀY)
+    private String customerName;
+
     // Thông tin phim
     private String movieTitle;
     private String movieGenre;

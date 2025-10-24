@@ -113,4 +113,12 @@ export const branchApi = {
         });
         return handleResponse(res);
     },
+
+    async getBranchesByMovie(movieId) {
+        const res = await fetch(`${API_BASE_URL}/branches/movie/${movieId}`);
+        if (!res.ok) throw new Error("Không thể tải chi nhánh theo phim");
+        return await res.json();
+    },
+
+
 };

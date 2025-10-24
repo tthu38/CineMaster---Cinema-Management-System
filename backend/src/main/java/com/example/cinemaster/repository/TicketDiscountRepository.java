@@ -40,7 +40,7 @@ public interface TicketDiscountRepository extends JpaRepository<TicketDiscount, 
         SELECT COALESCE(SUM(td.amount), 0)
         FROM TicketDiscount td
         WHERE td.ticket.account.accountID = :staffId
-          AND td.ticket.ticketStatus = 'Booked'
+          AND td.ticket.ticketStatus = 'BOOKED'
           AND td.ticket.bookingTime BETWEEN :from AND :to
     """)
     BigDecimal sumDiscountByStaffAndTime(@Param("staffId") Integer staffId,

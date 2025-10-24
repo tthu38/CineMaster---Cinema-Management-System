@@ -50,7 +50,7 @@
 //                }
 //            }
 //
-//            ticket.setTicketStatus("Cancelled");
+//            ticket.setTicketStatus("CANCELLED");
 //            ticketRepo.save(ticket);
 //            log.info("[Scheduler] 🕐 Vé #{} bị hủy (Pending quá hạn {} phút)", ticket.getTicketID(), pendingTimeoutMinutes);
 //        }

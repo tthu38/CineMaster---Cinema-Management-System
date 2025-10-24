@@ -6,6 +6,7 @@
     <title>CineMaster • Lịch làm việc</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
 
+
     <style>
         #branchId {
             display: none !important;
@@ -19,6 +20,7 @@
             --border:#1b2b4a;
             --muted:#9aa7b3;
         }
+
 
         /* ===== Background (glows + ticket pattern like profile) ===== */
         html,body{
@@ -53,6 +55,7 @@
         }
         @keyframes drift{ to{ transform: translate3d(30px,-25px,0) } }
 
+
         /* static ticket wall under content */
         .tickets-wall{ position:fixed; inset:0; pointer-events:none; z-index:0; }
         .tickets-layer{
@@ -66,8 +69,10 @@
         .tickets-wall .l1{ transform:rotate(-3deg) scale(1.04) }
         .tickets-wall .l2{ transform:rotate(3deg) scale(1.06); background-position:160px 80px; opacity:.12 }
 
+
         /* content spacing above background */
         .shell{ max-width:1300px; margin:110px auto 48px; padding:0 24px; position:relative; z-index:1 }
+
 
         /* toolbar */
         .toolbar{
@@ -89,8 +94,10 @@
         .btn-primary:hover{ filter:brightness(1.1) }
         .muted{ color:var(--muted) }
 
+
         /* cards (no film/perforation) */
         .card{ background:linear-gradient(180deg,#0b152a 0%, #0c162c 100%); border:1px solid var(--border); border-radius:18px; box-shadow:0 14px 32px rgba(0,0,0,.5) }
+
 
         /* table */
         .table thead th{
@@ -100,11 +107,13 @@
         .table th.sticky-col{ position:sticky; left:0; z-index:3; background:#0d1b34 }
         .table-bordered>:not(caption)>*{ border-color:var(--border) }
 
+
         .schedule-cell{
             cursor:pointer; min-width:160px; min-height:64px; vertical-align:top; text-align:left; padding:10px;
             background:rgba(14,28,55,.35); border-radius:10px; transition: background .2s, transform .15s;
         }
         .schedule-cell:hover{ outline:1px dashed var(--cyan); background:rgba(34,193,255,.10); transform: translateY(-1px) }
+
 
         /* legend chip & staff pills (NO ticket perforation) */
         #legend{ display:flex; flex-wrap:wrap; gap:.35rem; }
@@ -120,6 +129,7 @@
             display:block; width:fit-content;white-space:nowrap; padding:.25rem .6rem; border-radius:999px; font-size:.9rem;
             color:#fff; background:#142243; border:1px solid rgba(255,255,255,.12);
         }
+
 
         /* modal tone */
         .modal-content{
@@ -155,9 +165,11 @@
             background-color: rgba(255,255,255,0.05);
         }
 
+
     </style>
 </head>
 <body>
+
 
 <!-- Background layers (ONLY ONCE) -->
 <div class="grain" aria-hidden="true"></div>
@@ -166,8 +178,10 @@
     <div class="tickets-layer l2"></div>
 </div>
 
+
 <!-- Header placeholder -->
 <div id="site-header" style="position:fixed; inset-inline:0; top:0; z-index:10;"></div>
+
 
 <main class="shell">
     <!-- Toolbar -->
@@ -181,10 +195,12 @@
         </div>
     </div>
 
+
     <!-- Legend -->
     <div class="card mb-3">
         <div id="legend" class="p-3">—</div>
     </div>
+
 
     <!-- Table -->
     <div class="card">
@@ -200,8 +216,10 @@
     </div>
 </main>
 
+
 <!-- Footer placeholder -->
 <div id="site-footer"></div>
+
 
 <!-- Assign Modal -->
 <div class="modal fade" id="assignModal" tabindex="-1" aria-hidden="true">
@@ -215,6 +233,7 @@
                 <div class="small muted mb-1" id="m-hint">—</div>
                 <div class="text-danger small mb-2" id="m-error"></div>
                 <input type="hidden" id="m-date"><input type="hidden" id="m-shift">
+
 
                 <div class="input-group mb-2">
                     <span class="input-group-text">Tìm</span>
@@ -231,6 +250,7 @@
         </form>
     </div>
 </div>
+
 
 <!-- Shift Hours Modal -->
 <div class="modal fade" id="shiftHoursModal" tabindex="-1" aria-hidden="true">
@@ -278,23 +298,46 @@
     </div>
 </div>
 
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
 
 <!-- Load header/footer -->
 <script>
     (async ()=>{
-        try{
-            const [h,f] = await Promise.all([
-                fetch('../home/customer-header.html').then(r=>r.text()),
-                fetch('../home/footer.html').then(r=>r.text())
+        try {
+            const [headerHtml, footerHtml] = await Promise.all([
+                fetch("../home/customer-header.html").then(r => r.text()),
+                fetch("../home/footer.html").then(r => r.text())
             ]);
-            document.getElementById('site-header').innerHTML = h;
-            document.getElementById('site-footer').innerHTML = f;
-        }catch(e){ console.error('Load header/footer error', e); }
+
+
+            const headerEl = document.getElementById("site-header");
+            const footerEl = document.getElementById("site-footer");
+
+
+            headerEl.innerHTML = headerHtml;
+            footerEl.innerHTML = footerHtml;
+
+
+            // ⚙️ Thực thi lại các <script> trong header (để avatar, menu user hoạt động)
+            headerEl.querySelectorAll("script").forEach(oldScript => {
+                const newScript = document.createElement("script");
+                if (oldScript.src) newScript.src = oldScript.src;
+                else newScript.textContent = oldScript.textContent;
+                document.body.appendChild(newScript);
+            });
+
+
+        } catch (err) {
+            console.error("❌ Lỗi load header/footer:", err);
+        }
     })();
 </script>
+
 
 <!-- Your JS (unchanged) -->
 <script type="module" src="../js/work-schedule-matrix.js?v=with-header"></script>
 </body>
 </html>
+

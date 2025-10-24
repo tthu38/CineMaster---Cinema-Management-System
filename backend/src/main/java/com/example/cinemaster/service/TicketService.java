@@ -545,11 +545,14 @@ public class TicketService {
     }
 
     //CUSTOMER: Lấy danh sách vé của người dùng
+    // CUSTOMER: Lấy danh sách vé của người dùng
     public List<TicketResponse> getTicketsByAccount(Integer accountID) {
         return ticketRepository.findByAccount_AccountID(accountID).stream()
-                .map(ticketMapper::toResponse)
+                .map(ticketMapper::toShortResponse)
                 .collect(Collectors.toList());
     }
+
+
 
     // STAFF: Lấy danh sách vé theo chi nhánh
     public List<TicketResponse> getTicketsByBranch(Integer branchId) {

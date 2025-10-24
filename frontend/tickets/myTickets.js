@@ -22,6 +22,10 @@ async function loadTickets() {
 
         renderTickets(tickets);
         setupFilter(tickets);
+
+        console.log("📡 Fetch:", `${API_BASE_URL}/tickets/account/${accountId}`);
+        console.log("📨 Token:", getValidToken());
+        console.log("🎬 Data nhận được:", tickets);
     } catch (err) {
         console.error("❌ Lỗi tải vé:", err);
         ticketList.innerHTML = `<p style="text-align:center;color:#f66;">Không thể tải danh sách vé.</p>`;
@@ -43,27 +47,27 @@ function renderTickets(data) {
     }
 
     ticketList.innerHTML = data.map(t => `
-    <div class="ticket-card" data-id="${t.ticketId}" data-status="${t.ticketStatus}">
-        <div class="ticket-info" style="cursor:pointer;">
-            <h5 class="movie-title">${t.movieTitle || "Không xác định"}</h5>
-            <p><i class="fa-regular fa-clock"></i> ${formatDate(t.showtimeStart)}</p>
-            <p><i class="fa-solid fa-location-dot"></i> ${t.branchName || "Không rõ rạp"}</p>
-            <p><i class="fa-solid fa-chair"></i> Ghế: ${t.seatNumbers || "N/A"}</p>
-            <p><i class="fa-solid fa-money-bill"></i> ${t.totalPrice?.toLocaleString()} đ</p>
+        <div class="ticket-card" data-id="${t.ticketId}" data-status="${t.ticketStatus}">
+            <div class="ticket-info" style="cursor:pointer;">
+                <h5 class="movie-title">${t.movieTitle || "Không xác định"}</h5>
+                <p><i class="fa-regular fa-clock"></i> ${formatDate(t.showtimeStart)}</p>
+                <p><i class="fa-solid fa-location-dot"></i> ${t.branchName || "Không rõ rạp"}</p>
+                <p><i class="fa-solid fa-chair"></i> Ghế: ${t.seatNumbers || "N/A"}</p>
+                <p><i class="fa-solid fa-money-bill"></i> ${t.totalPrice?.toLocaleString()} đ</p>
+            </div>
+            <div class="d-flex flex-column align-items-center gap-2">
+                <span class="ticket-status ${t.ticketStatus}">
+                    ${translateStatus(t.ticketStatus)}
+                </span>
+                ${t.ticketStatus === "BOOKED" ? `
+                    <button class="btn btn-sm btn-outline-danger cancel-btn" data-id="${t.ticketId}">
+                        <i class="fa-solid fa-xmark"></i> Hủy vé
+                    </button>` : ""}
+            </div>
         </div>
-        <div class="d-flex flex-column align-items-center gap-2">
-            <span class="ticket-status ${t.ticketStatus}">
-                ${translateStatus(t.ticketStatus)}
-            </span>
-            ${t.ticketStatus === "Booked" ? `
-                <button class="btn btn-sm btn-outline-danger cancel-btn" data-id="${t.ticketId}">
-                    <i class="fa-solid fa-xmark"></i> Hủy vé
-                </button>
-            ` : ""}
-        </div>
-    </div>
-`).join("");
+    `).join("");
 
+    /* === Nút Hủy vé === */
     document.querySelectorAll(".cancel-btn").forEach(btn => {
         btn.addEventListener("click", async e => {
             e.stopPropagation(); // tránh mở chi tiết vé
@@ -94,11 +98,30 @@ function renderTickets(data) {
         });
     });
 
-
-    // ✅ Gắn sự kiện click để mở ticketDetail.html
+    /* === Mở chi tiết vé + truyền dữ liệu sang trang detail === */
     document.querySelectorAll(".ticket-card").forEach(card => {
         card.addEventListener("click", () => {
             const id = card.dataset.id;
+            const t = data.find(x => x.ticketId == id);
+
+            // 🔹 Lưu đầy đủ thông tin để ticketDetail.html dùng
+            const detailData = {
+                ticketId: t.ticketId,
+                movieTitle: t.movieTitle,
+                movieGenre: t.movieGenre || "Không rõ",
+                movieDuration: t.movieDuration || "?",
+                branchName: t.branchName,
+                auditoriumName: t.auditoriumName,
+                showtimeStart: t.showtimeStart,
+                showtimeEnd: t.showtimeEnd,
+                seatNumbers: t.seatNumbers,
+                comboList: t.comboList || [],
+                totalPrice: t.totalPrice,
+                paymentMethod: t.paymentMethod,
+                ticketStatus: t.ticketStatus
+            };
+
+            localStorage.setItem("ticketDetailData", JSON.stringify(detailData));
             window.location.href = `ticketDetail.html?ticketId=${id}`;
         });
     });
@@ -126,11 +149,11 @@ function setupFilter(tickets) {
    ============================================================ */
 function translateStatus(st) {
     switch (st) {
-        case "Booked": return "Đã đặt";
-        case "Used": return "Đã sử dụng";
-        case "Cancelled": return "Đã hủy";
-        case "Refunded": return "Đã hoàn tiền";
-        case "CancelRequested": return "Chờ hủy";
+        case "BOOKED": return "Đã đặt";
+        case "USED": return "Đã sử dụng";
+        case "CANCELLED": return "Đã hủy";
+        case "REFUNDED": return "Đã hoàn tiền";
+        case "CANCEL_REQUESTED": return "Chờ hủy";
         default: return st;
     }
 }

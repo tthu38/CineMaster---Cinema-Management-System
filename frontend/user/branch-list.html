@@ -19,6 +19,7 @@
             --red: #e50914;
         }
 
+
         html,body{
             margin:0;
             font-family:'Roboto',sans-serif;
@@ -34,6 +35,7 @@
             background-position:-10% -35%,120% -20%,0 0;
             background-attachment:fixed,fixed,fixed;
         }
+
 
         /* 🎟️ Tickets background */
         .tickets-wall{
@@ -58,6 +60,7 @@
             background-image:inherit;
         }
 
+
         /* 🌌 Grain */
         .grain {
             pointer-events: none;
@@ -76,12 +79,14 @@
             to { transform: translate3d(30px,-25px,0) }
         }
 
+
         .container {
             margin-top: 60px;
             max-width: 1200px;
             position: relative;
             z-index: 10;
         }
+
 
         .header, .film {
             /* Nền thủy tinh bán trong suốt */
@@ -154,6 +159,7 @@
         .btn-danger:hover { background-color: #c82333; transform: translateY(-1px); }
         .btn-warning:hover { background-color: #e0a800; transform: translateY(-1px); }
 
+
         /* Filter buttons */
         .filter-btn {
             border-radius: 10px 0 0 10px;
@@ -169,6 +175,7 @@
             color: #fff;
         }
 
+
         table { color: #fff; }
         .table {
             background-color: rgba(10, 25, 50, 0.5) !important; /* Đổi sang màu bán trong suốt */
@@ -180,6 +187,7 @@
             overflow: hidden;
             border: 1px solid rgba(34, 193, 255, 0.15); /* Thêm viền mờ cho đẹp hơn */
         }
+
 
         /* Thêm quy tắc này ngay bên dưới để đảm bảo các ô trong bảng không có nền trắng */
         .table > tbody > tr > td {
@@ -216,6 +224,7 @@
             transition: all 0.3s ease;
         }
 
+
         /* header + footer trong suốt */
         .modal-content.glass-modal .modal-header,
         .modal-content.glass-modal .modal-footer {
@@ -224,6 +233,7 @@
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
         }
+
 
         /* input field */
         .modal-content.glass-modal .form-control {
@@ -239,11 +249,13 @@
             background: rgba(10, 25, 50, 0.65);
         }
 
+
         /* label */
         .modal-content.glass-modal .form-label {
             color: #cfe3ff;
             font-weight: 500;
         }
+
 
         /* button glow */
         .modal-content.glass-modal .btn-primary {
@@ -264,6 +276,7 @@
             box-shadow: 0 0 14px rgba(34,193,255,0.4);
         }
 
+
         .modal-content {
             background-color: transparent !important;
         }
@@ -273,6 +286,8 @@
             border-radius: 8px;
             border: 1px solid var(--border);
         }
+
+
 
 
         /* Search input */
@@ -289,6 +304,7 @@
             box-shadow: 0 0 10px rgba(34, 193, 255, 0.4);
         }
 
+
         /* 🔧 Làm nền .film trong suốt hơn, tương tự membership-levels */
         .film {
             background: rgba(8, 20, 40, 0.35) !important; /* giảm độ đặc */
@@ -298,12 +314,14 @@
             box-shadow: 0 0 40px rgba(10, 50, 100, 0.35);
         }
 
+
         /* Làm header hòa nền */
         .header {
             background: rgba(12, 22, 44, 0.08) !important;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(34,193,255,0.15);
         }
+
 
         /* Nâng độ hòa trộn cho hiệu ứng */
         .container {
@@ -317,6 +335,7 @@
             color: #fff !important;
         }
 
+
         /* Nếu muốn nhấn tiêu đề cột hơn chút */
         .table thead th {
             color: #58c6ff !important; /* xanh nhạt như trang Membership */
@@ -324,33 +343,41 @@
             text-transform: uppercase;
         }
 
+
         /* Dòng trong bảng khi hover */
         .table tbody tr:hover td {
             color: #e6f1ff !important; /* nhẹ hơn để nổi */
         }
 
 
+
+
         /* ===== Bảng chữ trắng ===== */
         .table, .table th, .table td { color: #e6f1ff !important; }
         .table thead th { color: #58c6ff !important; font-weight: 700; text-transform: uppercase; }
+
 
         .form-label {
             color: #cfe3ff;
             font-weight: 500;
         }
 
+
         .form-check-label {
             color: #fff;
         }
+
 
         .form-check-input:checked {
             background-color: var(--cyan);
             border-color: var(--cyan);
         }
 
+
         #result {
             color: #e6f1ff;
         }
+
 
         .header-title {
             display: flex;
@@ -362,6 +389,7 @@
         .header-title button {
             background: linear-gradient(90deg, var(--red), #ff4d4d);
         }
+
 
         /* --- CSS TÙY CHỈNH CHO PHÂN TRANG (PAGINATION) --- */
         #pagination-controls .page-link {
@@ -385,12 +413,14 @@
             opacity: 0.5;
         }
 
+
         .tab-card {
             background: rgba(8, 20, 40, 0.35) !important;
             border: 1px solid rgba(34, 193, 255, 0.28) !important;
             border-radius: 12px;
             padding: 18px;
         }
+
 
         .btn-secondary{ background:transparent; border:1px solid var(--red); color:#fff }
         .btn-secondary:hover{ background:var(--red); }
@@ -403,20 +433,26 @@
     <div class="tickets-layer l2"></div>
 </div>
 
+
+
+
 <div id="site-header"></div>
+
 
 <div class="container">
     <div class="header">
         <h2>Danh Sách Chi Nhánh</h2>
     </div>
 
+
     <div class="film p-4">
         <div id="branch-list-container" class="tab-card">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2 class="m-0">Danh Sách Chi Nhánh</h2>
-<!--                <a href="branch-management.html" class="btn btn-primary"><i class="fa-solid fa-screwdriver-wrench me-2"></i>Chuyển đến Quản lý</a>-->
+                <!--                <a href="branch-management.html" class="btn btn-primary"><i class="fa-solid fa-screwdriver-wrench me-2"></i>Chuyển đến Quản lý</a>-->
                 <button id="load-branches" class="btn btn-secondary"><i class="fa-solid fa-rotate me-2"></i>Tải Lại</button>
             </div>
+
 
             <div class="table-responsive">
                 <table id="branch-table" class="table table-branch">
@@ -436,27 +472,46 @@
                 </table>
             </div>
 
+
             <div id="pagination-controls" class="d-flex justify-content-center mt-3">
             </div>
         </div>
     </div>
 </div>
 
+
 <div id="site-footer"></div>
 
-<!--<script>-->
-<!--    (async ()=>{-->
-<!--        try{-->
-<!--            const [h,f] = await Promise.all([-->
-<!--                fetch('../home/customer-header.html').then(r=>r.text()),-->
-<!--                fetch('../home/footer.html').then(r=>r.text())-->
-<!--            ]);-->
-<!--            document.getElementById('site-header').innerHTML = h;-->
-<!--            document.getElementById('site-footer').innerHTML = f;-->
-<!--        }catch(e){ console.error('Load header/footer error', e); }-->
-<!--    })();-->
-<!--</script>-->
+
+<script>
+    (async ()=>{
+        try {
+            const [headerHtml, footerHtml] = await Promise.all([
+                fetch("../home/customer-header.html").then(r => r.text()),  // đổi thành admin-header.html nếu có
+                fetch("../home/footer.html").then(r => r.text())
+            ]);
+
+
+            const headerEl = document.getElementById("site-header");
+            const footerEl = document.getElementById("site-footer");
+            headerEl.innerHTML = headerHtml;
+            footerEl.innerHTML = footerHtml;
+
+
+            // ⚙️ Kích hoạt script trong header để avatar/menu user hoạt động
+            headerEl.querySelectorAll("script").forEach(oldScript => {
+                const newScript = document.createElement("script");
+                if (oldScript.src) newScript.src = oldScript.src;
+                else newScript.textContent = oldScript.textContent;
+                document.body.appendChild(newScript);
+            });
+        } catch (e) {
+            console.error("❌ Lỗi load header/footer:", e);
+        }
+    })();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="module" src="../js/branchList.js"></script>
 </body>
 </html>
+

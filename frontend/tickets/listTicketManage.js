@@ -7,6 +7,9 @@ const refreshBtn = document.getElementById("refreshBtn");
 
 let allTickets = [];
 
+/* ============================================================
+   🔹 1️⃣ Tải danh sách vé + tự động bổ sung thông tin còn thiếu
+   ============================================================ */
 async function loadTickets() {
     try {
         const token = getValidToken();
@@ -15,8 +18,27 @@ async function loadTickets() {
         const res = await fetch(`${API_BASE_URL}/tickets/branch/${branchId}`, {
             headers: { "Authorization": `Bearer ${token}` }
         });
-        const json = await handleResponse(res);
-        allTickets = json.data || json.result || json;
+        let data = await handleResponse(res);
+        data = data.data || data.result || data;
+
+        // 🟦 Nếu vé thiếu thông tin, tự động gọi thêm API chi tiết
+        const enriched = await Promise.all(data.map(async (t) => {
+            if (!t.movieTitle || !t.showtimeStart || !t.seatNumbers) {
+                try {
+                    const resDetail = await fetch(`${API_BASE_URL}/tickets/${t.ticketId}`, {
+                        headers: { "Authorization": `Bearer ${token}` }
+                    });
+                    const detail = await handleResponse(resDetail);
+                    return { ...t, ...detail };
+                } catch (err) {
+                    console.warn("⚠️ Không thể lấy chi tiết vé:", t.ticketId, err);
+                    return t;
+                }
+            }
+            return t;
+        }));
+
+        allTickets = enriched;
         renderTickets(allTickets);
     } catch (err) {
         console.error("❌ Lỗi tải vé:", err);
@@ -24,41 +46,61 @@ async function loadTickets() {
     }
 }
 
+/* ============================================================
+   🔹 2️⃣ Hiển thị danh sách vé trong bảng
+   ============================================================ */
+
 function renderTickets(data) {
     if (!data || data.length === 0) {
         ticketBody.innerHTML = `<tr><td colspan="9" class="text-muted">Không có vé nào.</td></tr>`;
         return;
     }
 
-    ticketBody.innerHTML = data.map((t, i) => `
+    ticketBody.innerHTML = data.map((t, i) => {
+        // 🎬 Phim
+        const movieTitle = t.movieTitle || "Không rõ";
+
+        // 🕒 Suất chiếu
+        const showtime = t.startTime || t.showtimeStart || "-";
+
+        // 🏢 Rạp
+        const branchName = t.branchName || "-";
+
+        // 💺 Ghế
+        const seatNums = t.seatNames || "-";
+
+        // 👤 Khách hàng
+        // 👤 Khách hàng
+        const customer = t.account?.fullName || t.account?.username || t.customerName || t.customer?.fullName || "Khách vãng lai";
+
+        return `
         <tr>
             <td>${i + 1}</td>
-            <td>${t.movieTitle}</td>
-            <td>${formatDate(t.showtimeStart)}</td>
-            <td>${t.branchName}</td>
-            <td>${t.seatNumbers || "-"}</td>
-            <td>${t.customerName || "Khách vãng lai"}</td>
+            <td>${movieTitle}</td>
+            <td>${formatDate(showtime)}</td>
+            <td>${branchName}</td>
+            <td>${seatNums}</td>
+            <td>${customer}</td>
             <td>${(t.totalPrice || 0).toLocaleString()} đ</td>
             <td><span class="badge ${t.ticketStatus}">${translateStatus(t.ticketStatus)}</span></td>
             <td>${renderActionButtons(t)}</td>
-        </tr>
-    `).join("");
+        </tr>`;
+    }).join("");
 }
 
-/* ✅ Chỉ cho phép hành động khi phù hợp trạng thái:
-   - CancelRequested → hiển thị “Duyệt hủy vé”
-   - Cancelled → hiển thị “Hoàn tiền”
-   - Các trạng thái khác (Booked, Used, Refunded) → chỉ nút “Xem”
-*/
+
+/* ============================================================
+   🔹 3️⃣ Nút hành động
+   ============================================================ */
 function renderActionButtons(t) {
     const id = t.ticketId;
     switch (t.ticketStatus) {
-        case "CancelRequested":
+        case "CANCEL_REQUESTED":
             return `
                 <button class="btn btn-sm btn-outline-warning me-1" onclick="approveCancel(${id})">
                     <i class="fa-solid fa-check"></i> Duyệt hủy
                 </button>`;
-        case "Cancelled":
+        case "CANCELLED":
             return `
                 <button class="btn btn-sm btn-outline-info me-1" onclick="approveRefund(${id})">
                     <i class="fa-solid fa-money-bill-transfer"></i> Hoàn tiền
@@ -71,15 +113,59 @@ function renderActionButtons(t) {
     }
 }
 
-// ====== Các thao tác ======
-window.viewTicket = function(id) {
-    window.open(`../tickets/ticketDetail.html?ticketId=${id}`, "_blank");
+/* ============================================================
+   🔹 4️⃣ Xem chi tiết vé
+   ============================================================ */
+window.viewTicket = async function (id) {
+    const token = getValidToken();
+
+    try {
+        // Dữ liệu sơ bộ trong bảng
+        let ticket = allTickets.find(t => t.ticketId == id) || {};
+
+        // Nếu dữ liệu thiếu thì fetch thêm chi tiết
+        const needMore = !ticket.movieTitle || !ticket.showtimeStart || !ticket.seatNumbers;
+        if (needMore) {
+            const res = await fetch(`${API_BASE_URL}/tickets/${id}`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            const detail = await handleResponse(res);
+            ticket = { ...ticket, ...detail };
+        }
+
+        const detailData = {
+            ticketId: ticket.ticketId,
+            movieTitle: ticket.movieTitle,
+            movieGenre: ticket.movieGenre || "Không rõ",
+            movieDuration: ticket.movieDuration || "?",
+            branchName: ticket.branchName,
+            auditoriumName: ticket.auditoriumName,
+            showtimeStart: ticket.startTime || ticket.showtimeStart,
+            showtimeEnd: ticket.showtimeEnd,
+            // ✅ fix 2 dòng này:
+            seatNumbers: ticket.seatNames || ticket.seatNumbers || "N/A",
+            comboList: ticket.combos?.map(c => c.comboName).join(", ") || "Không có",
+
+            totalPrice: ticket.totalPrice,
+            paymentMethod: ticket.paymentMethod || "CASH",
+            ticketStatus: ticket.ticketStatus
+        };
+
+        localStorage.setItem("ticketDetailData", JSON.stringify(detailData));
+        window.open(`../tickets/ticketDetail.html?ticketId=${id}`, "_blank");
+    } catch (err) {
+        console.error("❌ Lỗi mở chi tiết vé:", err);
+        Swal.fire("Lỗi", "Không thể mở chi tiết vé.", "error");
+    }
 };
 
-// ✅ Duyệt hủy vé
-window.approveCancel = async function(ticketId) {
+/* ============================================================
+   🔹 5️⃣ Duyệt hủy vé
+   ============================================================ */
+window.approveCancel = async function (ticketId) {
     const token = getValidToken();
     const staffId = localStorage.getItem("accountId");
+
     const ok = await Swal.fire({
         title: "Xác nhận duyệt hủy vé?",
         text: "Vé sẽ chuyển sang trạng thái 'Đã hủy'.",
@@ -92,7 +178,7 @@ window.approveCancel = async function(ticketId) {
     try {
         const res = await fetch(`${API_BASE_URL}/tickets/${ticketId}/approve-cancel?accountId=${staffId}`, {
             method: "PUT",
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { "Authorization": `Bearer ${token}` }
         });
         await handleResponse(res);
         Swal.fire("✅ Đã duyệt", "Vé đã được hủy.", "success");
@@ -102,10 +188,13 @@ window.approveCancel = async function(ticketId) {
     }
 };
 
-// 💰 Duyệt hoàn tiền
-window.approveRefund = async function(ticketId) {
+/* ============================================================
+   🔹 6️⃣ Duyệt hoàn tiền
+   ============================================================ */
+window.approveRefund = async function (ticketId) {
     const token = getValidToken();
     const staffId = localStorage.getItem("accountId");
+
     const confirm = await Swal.fire({
         title: "Xác nhận hoàn tiền?",
         text: "Sau khi duyệt, vé sẽ chuyển sang trạng thái 'Hoàn tiền'.",
@@ -118,7 +207,7 @@ window.approveRefund = async function(ticketId) {
     try {
         const res = await fetch(`${API_BASE_URL}/tickets/${ticketId}/approve-refund?accountId=${staffId}`, {
             method: "PUT",
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { "Authorization": `Bearer ${token}` }
         });
         await handleResponse(res);
         Swal.fire("✅ Thành công", "Đã hoàn tiền cho vé.", "success");
@@ -129,7 +218,9 @@ window.approveRefund = async function(ticketId) {
     }
 };
 
-// ====== Lọc / Tìm kiếm ======
+/* ============================================================
+   🔹 7️⃣ Lọc + tìm kiếm vé
+   ============================================================ */
 statusFilter.addEventListener("change", applyFilters);
 searchBox.addEventListener("input", applyFilters);
 refreshBtn.addEventListener("click", loadTickets);
@@ -141,25 +232,31 @@ function applyFilters() {
 
     if (st) filtered = filtered.filter(t => t.ticketStatus === st);
     if (kw) filtered = filtered.filter(t =>
-        t.movieTitle.toLowerCase().includes(kw) ||
-        t.branchName.toLowerCase().includes(kw) ||
-        (t.customerName?.toLowerCase().includes(kw))
+        t.movieTitle?.toLowerCase().includes(kw) ||
+        t.branchName?.toLowerCase().includes(kw) ||
+        t.customerName?.toLowerCase().includes(kw)
     );
+
     renderTickets(filtered);
 }
 
-// ====== Helpers ======
+/* ============================================================
+   🔹 8️⃣ Hàm tiện ích
+   ============================================================ */
 function formatDate(d) {
-    return new Date(d).toLocaleString("vi-VN", { dateStyle: "short", timeStyle: "short" });
+    if (!d) return "-";
+    const date = new Date(d);
+    if (isNaN(date)) return "-";
+    return date.toLocaleString("vi-VN", { dateStyle: "short", timeStyle: "short" });
 }
 
 function translateStatus(st) {
     switch (st) {
-        case "Booked": return "Đã đặt";
-        case "Used": return "Đã sử dụng";
-        case "Cancelled": return "Đã hủy";
-        case "Refunded": return "Hoàn tiền";
-        case "CancelRequested": return "Chờ hủy";
+        case "BOOKED": return "Đã đặt";
+        case "USED": return "Đã sử dụng";
+        case "CANCELLED": return "Đã hủy";
+        case "REFUNDED": return "Hoàn tiền";
+        case "CANCEL_REQUESTED": return "Chờ hủy";
         default: return st;
     }
 }

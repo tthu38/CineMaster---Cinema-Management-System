@@ -960,17 +960,17 @@
         const typeName = seatType?.typeName?.toLowerCase() || "normal";
         div.classList.add(typeName === "vip" ? "vip" : typeName === "couple" ? "couple" : "normal");
 
-        if (seat.status === "BOOKED") div.classList.add("booked");
-        if (seat.status === "HOLDING") div.classList.add("holding");
-        if (seat.status === "SELECTED") div.classList.add("selected");
+        if (seat.status === "BOOKED") div.classList.add("BOOKED");
+        if (seat.status === "HOLDING") div.classList.add("HOLDING");
+        if (seat.status === "SELECTED") div.classList.add("SELECTED");
 
         div.addEventListener("click", () => {
-            if (div.classList.contains("booked") || (div.classList.contains("holding") && !div.classList.contains("selected")))
+            if (div.classList.contains("BOOKED") || (div.classList.contains("HOLDING") && !div.classList.contains("selected")))
                 return;
 
             const seatId = seat.seatID;
-            const wasSelected = div.classList.contains("selected");
-            div.classList.toggle("selected");
+            const wasSelected = div.classList.contains("SELECTED");
+            div.classList.toggle("SELECTED");
 
             if (wasSelected) {
                 selectedSeats = selectedSeats.filter(id => id !== seatId);

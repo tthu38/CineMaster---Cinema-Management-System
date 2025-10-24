@@ -1,12 +1,15 @@
 package com.example.cinemaster.security;
 
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+
 import java.time.LocalDate;
 import java.util.Collection;
+
 
 @Getter
 @Setter
@@ -16,21 +19,26 @@ import java.util.Collection;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AccountPrincipal implements UserDetails {
 
+
     Integer id;
     String email;
     String fullName;
     String phoneNumber;   // ✅ Thêm mới
     String address;       // ✅ Thêm mới
 
+
     String role;
     Integer branchId;
     String branchName;
+
 
     String avatarUrl;
     Integer loyaltyPoints;
     LocalDate createdAt;
 
+
     Collection<? extends GrantedAuthority> authorities;
+
 
     public boolean hasRole(String r) {
         return authorities != null && authorities.stream()
@@ -40,9 +48,14 @@ public class AccountPrincipal implements UserDetails {
         return hasRole("Admin");
     }
 
+
     public boolean isManager() {
         return hasRole("Manager");
     }
+    public boolean isStaff() {
+        return hasRole("Staff");
+    }
+
 
     @Override public Collection<? extends GrantedAuthority> getAuthorities() { return authorities; }
     @Override public String getPassword() { return null; }
@@ -52,3 +65,4 @@ public class AccountPrincipal implements UserDetails {
     @Override public boolean isCredentialsNonExpired() { return true; }
     @Override public boolean isEnabled() { return true; }
 }
+

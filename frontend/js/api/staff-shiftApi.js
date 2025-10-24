@@ -1,5 +1,6 @@
 import { API_BASE_URL, getValidToken, handleResponse } from './config.js';
 
+
 export const staffShiftApi = {
     async openShift(openingCash) {
         const token = getValidToken();
@@ -10,6 +11,7 @@ export const staffShiftApi = {
         return handleResponse(res);
     },
 
+
     async getReport() {
         const token = getValidToken();
         const res = await fetch(`${API_BASE_URL}/staff/shift/report`, {
@@ -19,17 +21,16 @@ export const staffShiftApi = {
         return handleResponse(res);
     },
 
+
     async closeShift(closingCash) {
         const token = getValidToken();
-        const res = await fetch(`${API_BASE_URL}/staff/shift/close`, {
+        const res = await fetch(`${API_BASE_URL}/staff/shift/close?closingCash=${closingCash}`, {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ closingCash })
+            headers: { 'Authorization': `Bearer ${token}` }
         });
-
         return handleResponse(res);
     }
+
+
 };
+
