@@ -1,0 +1,46 @@
+Functions to test:
+
+1. createMovie(movie)
+   - Main: Create a new movie and add it to the list
+   - Inputs: movie (Object) with properties id, title, duration
+   - Returns: Object (the created movie)
+   - Edge cases: 
+     - title is empty or longer than 100 characters
+     - duration is less than or equal to 0
+     - movie with the same id already exists
+   - Dependencies: Movie validation (id, title, duration)
+
+2. getMovieById(id)
+   - Main: Retrieve a movie by its id
+   - Inputs: id (Number)
+   - Returns: Object (the movie if found, or throws an error)
+   - Edge cases: 
+     - id is not a valid number
+     - movie with the given id does not exist
+   - Dependencies: none
+
+3. updateMovie(id, updated)
+   - Main: Update a movie by its id
+   - Inputs: id (Number), updated (Object) with properties to update
+   - Returns: Object (the updated movie)
+   - Edge cases: 
+     - id is not a valid number
+     - movie with the given id does not exist
+     - updated object is null or empty
+   - Dependencies: Movie validation (id, updated)
+
+4. deleteMovie(id)
+   - Main: Delete a movie by its id
+   - Inputs: id (Number)
+   - Returns: void
+   - Edge cases: 
+     - id is not a valid number
+     - movie with the given id does not exist
+   - Dependencies: none
+
+5. getAllMovies()
+   - Main: Retrieve all movies in the list
+   - Inputs: none
+   - Returns: Array (the list of movies)
+   - Edge cases: none
+   - Dependencies: none
