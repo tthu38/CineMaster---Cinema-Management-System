@@ -35,6 +35,7 @@ public class SecurityConfig {
             "/api/v1/vnpay/**",
             "/api/v1/momo/**",
             "/api/v1/sepay/**",
+            "/api/v1/trailers/**",
             "/api/v1/payments/**"
     };
 
