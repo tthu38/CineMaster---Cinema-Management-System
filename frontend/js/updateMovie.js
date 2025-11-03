@@ -1,9 +1,41 @@
-// /js/updateMovie.js
 import { movieApi } from "./api/movieApi.js";
+const API_BASE_URL = "http://localhost:8080/api/v1";
 
 const form = document.getElementById("movie-form");
 const params = new URLSearchParams(window.location.search);
 const id = params.get("id");
+
+// ☁️ Upload trailer lên Cloudinary
+document.getElementById("trailerFile").addEventListener("change", async function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    const status = document.getElementById("uploadStatus");
+    status.textContent = "⏳ Đang tải trailer lên Cloudinary...";
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/trailers/upload`, {
+            method: "POST",
+            body: formData
+        });
+
+        if (!res.ok) {
+            status.textContent = "❌ Upload thất bại!";
+            return;
+        }
+
+        const url = await res.text();
+        document.getElementById("trailerUrl").value = url;
+        previewTrailer(url);
+        status.textContent = "✅ Upload thành công! Link đã được thêm tự động.";
+    } catch (err) {
+        console.error(err);
+        status.textContent = "⚠️ Lỗi khi upload trailer!";
+    }
+});
 
 // ========================== CHECK ID ==========================
 if (!id || id === "undefined" || isNaN(Number(id))) {
@@ -12,19 +44,6 @@ if (!id || id === "undefined" || isNaN(Number(id))) {
 } else {
     console.log("🎬 Đang load phim ID:", id);
     loadMovie();
-}
-
-// ========================== YOUTUBE EMBED ==========================
-function getEmbedUrl(url, unmute = false) {
-    if (!url) return "";
-    const reg = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#&?]*).*/;
-    const m = url.match(reg);
-    if (m && m[2].length === 11) {
-        const videoId = m[2];
-        const muteParam = unmute ? "0" : "1";
-        return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=${muteParam}&controls=0&modestbranding=1&rel=0&loop=1&playlist=${videoId}`;
-    }
-    return "";
 }
 
 // ========================== LOAD MOVIE ==========================
@@ -61,16 +80,37 @@ async function loadMovie() {
 }
 
 // ========================== PREVIEW TRAILER ==========================
-window.previewTrailer = function (url, unmute = false) {
-    const embedUrl = getEmbedUrl(url, unmute);
-    document.getElementById("trailer-preview").src = embedUrl;
-};
+window.previewTrailer = function (url) {
+    if (!url) return;
+    const container = document.getElementById("trailer-container");
+    if (!container) return;
 
-window.toggleSound = function () {
-    const url = document.getElementById("trailerUrl").value;
-    const iframe = document.getElementById("trailer-preview");
-    const isMuted = iframe.src.includes("mute=1");
-    previewTrailer(url, isMuted);
+    // Nếu là YouTube
+    if (url.includes("youtube.com") || url.includes("youtu.be")) {
+        const reg = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#&?]*).*/;
+        const m = url.match(reg);
+        if (m && m[2].length === 11) {
+            const videoId = m[2];
+            container.innerHTML = `
+                <iframe id="trailer-preview" width="100%" height="315"
+                    src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&controls=1"
+                    allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen>
+                </iframe>`;
+            return;
+        }
+    }
+
+    // Nếu là Cloudinary video
+    if (url.endsWith(".mp4") || url.includes("cloudinary")) {
+        container.innerHTML = `
+            <video id="trailer-preview" controls autoplay style="width:100%; border-radius:12px;">
+                <source src="${url}" type="video/mp4">
+                Trình duyệt của bạn không hỗ trợ video.
+            </video>`;
+        return;
+    }
+
+    container.innerHTML = "<p>Không thể preview trailer.</p>";
 };
 
 // ========================== PREVIEW POSTER ==========================

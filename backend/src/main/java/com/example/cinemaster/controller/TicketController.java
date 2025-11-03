@@ -70,17 +70,22 @@ public class TicketController {
     @GetMapping("/occupied/{showtimeId}")
     public ResponseEntity<List<Integer>> getOccupiedSeats(
             @PathVariable Integer showtimeId,
-            @RequestParam(required = false) Integer ticketId) {
+            @RequestParam(required = false) Integer ticketId,
+            @RequestParam(required = false) Integer accountId) {
 
+        List<Integer> occupiedSeatIds;
 
-        // ✅ Nếu có ticketId → loại trừ vé đó
-        List<Integer> occupiedSeatIds = (ticketId != null)
-                ? ticketRepository.findOccupiedSeatIdsByShowtimeExcludeTicket(showtimeId, ticketId)
-                : ticketRepository.findOccupiedSeatIdsByShowtime(showtimeId);
-
+        if (ticketId != null) {
+            occupiedSeatIds = ticketRepository.findOccupiedSeatIdsByShowtimeExcludeTicket(showtimeId, ticketId);
+        } else if (accountId != null) {
+            occupiedSeatIds = ticketRepository.findOccupiedSeatIdsByShowtimeExcludeAccount(showtimeId, accountId);
+        } else {
+            occupiedSeatIds = ticketRepository.findOccupiedSeatIdsByShowtime(showtimeId);
+        }
 
         return ResponseEntity.ok(occupiedSeatIds);
     }
+
 
 
 

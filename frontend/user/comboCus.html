@@ -298,7 +298,6 @@
     import { comboApi } from "../js/api/comboApi.js";
     import { API_BASE_URL } from "../js/api/config.js";
 
-
     (async () => {
         const params = new URLSearchParams(window.location.search);
         const showtimeId = params.get("showtimeId");
@@ -308,16 +307,16 @@
         const ticketIdParam = params.get("ticketId");
         const tempTicketIdLocal = localStorage.getItem("tempTicketId");
 
-
         const ticketId = ticketIdParam && ticketIdParam !== "undefined"
             ? Number(ticketIdParam)
             : tempTicketIdLocal
                 ? Number(tempTicketIdLocal)
                 : null;
 
-
         // 🧩 Đồng bộ vé tạm
         let tempTicket = JSON.parse(localStorage.getItem("tempTicket") || "null");
+
+        // ✅ Nếu chưa có vé tạm, tạo mới
         if (!tempTicket && ticketId && seatIds.length > 0) {
             tempTicket = {
                 ticketId,
@@ -329,23 +328,32 @@
             localStorage.setItem("tempTicket", JSON.stringify(tempTicket));
         }
 
+        // ✅ Đảm bảo vé tạm luôn chứa danh sách ghế mới nhất
+        if (seatIds.length > 0) {
+            tempTicket = {
+                ...(tempTicket || {}),
+                ticketId,
+                ticketSeats: seatIds.map(id => ({ seat: { seatID: id } })),
+                status: "HOLDING",
+                totalPrice: Number(localStorage.getItem("ticketPriceTotal") || 0)
+            };
+            localStorage.setItem("tempTicket", JSON.stringify(tempTicket));
+        }
 
+        // ❌ Nếu không có vé tạm hoặc ticketId → quay lại chọn ghế
         if (!tempTicket || !ticketId) {
             await Swal.fire("Không có vé tạm!", "Vui lòng chọn ghế trước.", "info");
             window.location.href = `seat-diagram.html?branchId=${branchId}&showtimeId=${showtimeId}&accountId=${accountId}`;
             return;
         }
 
-
         let comboList = [];
         let selectedCombos = JSON.parse(localStorage.getItem("selectedCombos") || "{}");
         let comboTotal = Number(localStorage.getItem("comboTotal") || 0);
         let ticketTotal = Number(localStorage.getItem("ticketPriceTotal") || tempTicket.totalPrice || 0);
 
-
         const comboListEl = document.getElementById("comboList");
         const selectedComboEl = document.getElementById("selectedCombos");
-
 
         // ================= LOAD COMBOS =================
         async function loadCombos() {
@@ -356,7 +364,6 @@
                     return;
                 }
 
-
                 comboListEl.innerHTML = comboList.map(c => {
                     const imgSrc = (() => {
                         if (!c.imageURL) return "https://via.placeholder.com/80x80?text=Combo";
@@ -365,7 +372,6 @@
                         if (!path.startsWith("/")) path = "/" + path;
                         return `http://localhost:8080${path}`;
                     })();
-
 
                     const currentQty = selectedCombos[String(c.id)] || 0;
                     return `
@@ -384,21 +390,17 @@
                        </div>`;
                 }).join("");
 
-
                 document.querySelectorAll(".qty-btn").forEach(btn => {
                     btn.addEventListener("click", () => {
                         const id = String(btn.dataset.id);
                         if (!selectedCombos[id]) selectedCombos[id] = 0;
 
-
                         if (btn.dataset.action === "plus") selectedCombos[id]++;
                         else if (btn.dataset.action === "minus" && selectedCombos[id] > 0) selectedCombos[id]--;
-
 
                         document.getElementById(`qty-${id}`).textContent = selectedCombos[id];
                         const minusBtn = btn.closest(".combo-actions").querySelector("[data-action='minus']");
                         minusBtn.disabled = selectedCombos[id] <= 0;
-
 
                         updateSummary();
                     });
@@ -409,12 +411,10 @@
             }
         }
 
-
         // ================= UPDATE SUMMARY =================
         function updateSummary() {
             comboTotal = 0;
             selectedComboEl.innerHTML = "";
-
 
             for (const [id, qty] of Object.entries(selectedCombos)) {
                 const combo = comboList.find(c => c.id == id);
@@ -429,31 +429,25 @@
                 }
             }
 
-
             const total = ticketTotal + comboTotal;
             document.getElementById("ticketPriceDisplay").textContent = `${ticketTotal.toLocaleString("vi-VN")} VNĐ`;
             document.getElementById("snackTotalDisplay").textContent = `${comboTotal.toLocaleString("vi-VN")} VNĐ`;
             document.getElementById("grandTotalDisplay").textContent = `${total.toLocaleString("vi-VN")} VNĐ`;
 
-
-            // ✅ Lưu tổng tạm để confirmBooking đọc được
             localStorage.setItem("comboTotal", String(comboTotal));
             localStorage.setItem("ticketGrandTotal", String(total));
         }
 
-
+        // ================= NÚT XÁC NHẬN =================
         document.getElementById("comboConfirmBtn").addEventListener("click", async () => {
             const token = localStorage.getItem("accessToken");
 
-
-            // Gửi combo về backend
             const comboBody = Object.entries(selectedCombos)
                 .filter(([_, qty]) => qty > 0)
                 .map(([id, qty]) => ({
                     comboId: Number(id),
                     quantity: qty
                 }));
-
 
             try {
                 await fetch(`${API_BASE_URL}/tickets/${ticketId}/add-combos`, {
@@ -469,12 +463,8 @@
                 console.error("❌ Lỗi khi gửi combo lên backend:", err);
             }
 
-
-            // ✅ Lưu combo đã chọn cho confirmBooking đọc lại
             localStorage.setItem("selectedComboList", JSON.stringify(comboBody));
 
-
-            // Cập nhật vé tạm trong localStorage
             const finalTemp = {
                 ...(tempTicket || {}),
                 ticketId: tempTicket.ticketId || ticketId,
@@ -486,7 +476,6 @@
             };
             localStorage.setItem("tempTicket", JSON.stringify(finalTemp));
 
-
             await Swal.fire({
                 title: "Đã lưu combo!",
                 text: "Chuyển đến trang xác nhận thanh toán...",
@@ -495,11 +484,9 @@
                 showConfirmButton: false
             });
 
-
             window.location.href =
                 `confirmBooking.html?showtimeId=${showtimeId}&accountId=${accountId}&branchId=${branchId}&seatIds=${seatIds.join(",")}&ticketId=${ticketId}`;
         });
-
 
         // ================= QUAY LẠI CHỌN GHẾ =================
         document.getElementById("backToSeatBtn").addEventListener("click", async () => {
@@ -513,17 +500,16 @@
             });
             if (!confirm.isConfirmed) return;
 
-
             window.location.href =
-                `seat-diagram.html?branchId=${branchId}&showtimeId=${showtimeId}&accountId=${accountId}&ticketId=${ticketId}`;
+                `seat-diagram.html?branchId=${branchId}&showtimeId=${showtimeId}&accountId=${accountId}&ticketId=${ticketId}&seatIds=${seatIds.join(",")}`;
         });
-
 
         // ================= INIT =================
         await loadCombos();
         updateSummary();
     })();
 </script>
+
 
 
 

@@ -214,7 +214,12 @@
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3"><label>Poster File</label><input type="file" id="posterFile" class="form-control" accept="image/*" onchange="previewPosterFile(this)"></div>
-                        <div class="col-md-6 mb-3"><label>Trailer URL (YouTube)</label><input id="trailerUrl" class="form-control" required oninput="previewTrailer(this.value)"></div>
+                        <div class="col-md-6 mb-3">
+                            <label>Trailer</label>
+                            <input id="trailerUrl" class="form-control mb-2" placeholder="Nhập link hoặc chọn file" oninput="previewTrailer(this.value)">
+                            <input type="file" id="trailerFile" class="form-control" accept="video/*">
+                            <div id="uploadStatus" class="small text-info mt-1"></div>
+                        </div>
                     </div>
                     <div class="mb-3"><label>Trạng thái</label>
                         <select id="status" class="form-select" required>
@@ -232,11 +237,11 @@
                     <h5 class="text-center text-secondary mb-2">Poster Preview</h5>
                     <img id="poster-preview" class="poster-preview"/>
                     <h5 class="text-center text-secondary mb-2">Trailer Preview</h5>
-                    <div class="ratio ratio-16x9">
-                        <iframe id="trailer-preview" class="trailer-preview"
-                                allow="autoplay; encrypted-media; picture-in-picture"
-                                allowfullscreen></iframe>
+                    <!-- 🔹 Container hiển thị trailer -->
+                    <div id="trailer-container" class="ratio ratio-16x9" style="border-radius:12px; overflow:hidden;">
+                        <p class="text-center text-muted mt-2">🎬 Trailer preview sẽ hiển thị ở đây.</p>
                     </div>
+
 
                 </div>
             </div>

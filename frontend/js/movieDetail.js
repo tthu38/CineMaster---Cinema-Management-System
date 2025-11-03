@@ -112,18 +112,42 @@ async function loadMovie() {
 
 
         if (m.trailerUrl) {
-            const embedUrl = getEmbedUrl(m.trailerUrl);
-            trailerWrapper.innerHTML = `
-               <iframe
-                   src="${embedUrl}"
-                   class="trailer-embed"
-                   allow="autoplay; encrypted-media"
-                   allowfullscreen
-                   style="width:100%;aspect-ratio:16/9;border:none;border-radius:10px;pointer-events:none;">
-               </iframe>`;
+            let trailerHTML = "";
+
+            if (m.trailerUrl.includes("youtu")) {
+                // 🎬 YouTube
+                const embedUrl = getEmbedUrl(m.trailerUrl);
+                trailerHTML = `
+            <iframe
+                src="${embedUrl}"
+                class="trailer-embed"
+                allow="autoplay; encrypted-media"
+                allowfullscreen
+                style="width:100%;aspect-ratio:16/9;border:none;border-radius:10px;box-shadow:0 0 25px rgba(34,193,255,0.5);">
+            </iframe>`;
+            } else if (m.trailerUrl.includes("cloudinary.com")) {
+                // 🎥 Cloudinary video (mp4)
+                trailerHTML = `
+            <video 
+                src="${m.trailerUrl}" 
+                controls 
+                autoplay
+                style="width:100%;border-radius:10px;box-shadow:0 0 25px rgba(34,193,255,0.5);">
+                Trình duyệt của bạn không hỗ trợ video.
+            </video>`;
+            } else {
+                trailerHTML = `<p class="text-center text-muted fst-italic mt-3">
+            Không thể phát trailer — đường dẫn không hợp lệ.
+        </p>`;
+            }
+
+            trailerWrapper.innerHTML = trailerHTML;
         } else {
-            trailerWrapper.innerHTML = `<p class="text-center text-muted fst-italic mt-3">Không có trailer khả dụng.</p>`;
+            trailerWrapper.innerHTML = `<p class="text-center text-muted fst-italic mt-3">
+        Không có trailer khả dụng.
+    </p>`;
         }
+
     } catch (err) {
         console.error("Lỗi tải phim:", err);
         title.textContent = "Không tìm thấy phim hoặc lỗi API.";

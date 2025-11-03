@@ -158,26 +158,25 @@ window.restoreMovie = async function (id) {
 };
 
 // 🔹 Hiển thị trailer YouTube (đã FIX lỗi X-Frame-Options)
+// 🔹 Hiển thị trailer (hỗ trợ cả YouTube và Cloudinary)
 window.showTrailer = function (url) {
-    if (!url || !url.includes("youtu")) {
-        Swal.fire("Lỗi", "Trailer không hợp lệ hoặc chưa được thêm!", "error");
+    if (!url || url.trim() === "") {
+        Swal.fire("Thông báo", "Phim này chưa có trailer!", "info");
         return;
     }
 
-    // 🎯 Lấy video ID chính xác (dạng watch?v= hoặc youtu.be/)
-    const match = url.match(/(?:v=|youtu\.be\/)([^#&?]*)/);
-    const videoId = match ? match[1] : null;
+    let htmlContent = "";
 
-    if (!videoId) {
-        Swal.fire("Lỗi", "Không thể nhận dạng video YouTube hợp lệ!", "error");
-        return;
-    }
-
-    // 🎬 Tạo link embed hợp lệ
-    const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&controls=0&modestbranding=1&rel=0&loop=1&playlist=${videoId}`;
-
-    Swal.fire({
-        html: `
+    if (url.includes("youtu")) {
+        // 🎬 YouTube trailer
+        const match = url.match(/(?:v=|youtu\.be\/)([^#&?]*)/);
+        const videoId = match ? match[1] : null;
+        if (!videoId) {
+            Swal.fire("Lỗi", "Không thể nhận dạng video YouTube hợp lệ!", "error");
+            return;
+        }
+        const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&controls=1&modestbranding=1&rel=0&loop=1&playlist=${videoId}`;
+        htmlContent = `
             <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;">
                 <iframe 
                     src="${embedUrl}" 
@@ -186,13 +185,34 @@ window.showTrailer = function (url) {
                     allowfullscreen 
                     style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
             </div>
-        `,
+        `;
+    }
+    else if (url.includes("cloudinary.com")) {
+        // 🎥 Cloudinary trailer (.mp4)
+        htmlContent = `
+            <video 
+                src="${url}" 
+                controls 
+                autoplay 
+                style="width:100%;border-radius:12px;outline:none;box-shadow:0 0 20px rgba(34,193,255,.3)">
+                Trình duyệt của bạn không hỗ trợ video.
+            </video>
+        `;
+    }
+    else {
+        Swal.fire("Lỗi", "Trailer không hợp lệ!", "error");
+        return;
+    }
+
+    Swal.fire({
+        html: htmlContent,
         width: 900,
-        background: "transparent",
+        background: "rgba(10,20,40,0.95)",
         showConfirmButton: false,
         showCloseButton: true,
     });
 };
+
 
 // 🔹 Nút sửa phim
 window.editMovie = function (id) {
