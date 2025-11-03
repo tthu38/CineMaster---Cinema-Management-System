@@ -359,11 +359,11 @@
         }
 
         .seat.booked, .seat.reserved, .seat.broken {
-            background-color: #333 !important;
-            color: #777;
+            background-color: #770d0d !important;
+            color: #e70606;
             cursor: not-allowed;
-            border-color: #555;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+            border-color: #ef1111;
+            box-shadow: 0 2px 4px rgba(227, 14, 14, 0.5), inset 0 1px 0 rgba(248, 28, 28, 0.05);
             transform: perspective(500px) rotateX(10deg) scale(0.95);
         }
         .seat.booked::after {
@@ -403,16 +403,16 @@
 
         /* 💜 GHẾ ĐANG GIỮ (người khác đang giữ) */
         .seat.HOLDING {
-            background-color: #8000FF !important;
-            border-color: #a366ff !important;
+            background-color: #f10934 !important;
+            border-color: #cc071e !important;
             color: #fff !important;
             cursor: not-allowed;
-            box-shadow: 0 0 10px rgba(128,0,255,0.6);
+            box-shadow: 0 0 10px rgba(245, 3, 31, 0.6);
         }
 
         /* 🔹 GHẾ ĐANG ĐƯỢC CHỌN */
         .seat.SELECTED {
-            background-color: #E50914 !important;
+            background-color: #8000FF !important;
             border-color: #ffdddd !important;
             transform: scale(1.05);
             animation: pulse 0.3s ease;
@@ -668,25 +668,31 @@
             color: #22c1ff;
         }
 
-        .seat.holding {
-            background: linear-gradient(135deg, #ff5555, #cc0000) !important;
-            border-color: #ff5555;
-            color: #fff;
-            cursor: not-allowed;
-            box-shadow: 0 0 10px rgba(255,0,0,0.6);
-        }
+        /*.seat.holding {*/
+        /*    background: linear-gradient(135deg, #ff5555, #cc0000) !important;*/
+        /*    border-color: #ff5555;*/
+        /*    color: #fff;*/
+        /*    cursor: not-allowed;*/
+        /*    box-shadow: 0 0 10px rgba(255,0,0,0.6);*/
+        /*}*/
 
-        .seat.vip { background-color: #8000ff; }  /* tím */
-        .seat.selected { background-color: #e50914; }  /* đỏ */
+        /*.seat.vip { background-color: #8000ff; }  !* tím *!*/
+        /*.seat.selected { background-color: #e50914; }  !* đỏ *!*/
 
 
+        /* 💜 Khi người dùng chọn ghế (chưa thanh toán) */
+        /* ⚙️ override style khi chọn */
         .seat.selected,
         .seat.vip.selected,
         .seat.couple.selected {
-            background-color: #e50914 !important;
-            border-color: #ffdddd !important;
+            background-color: #8000ff !important;
+            border-color: #a366ff !important;
+            color: #fff !important;
+            box-shadow: 0 0 15px rgba(128, 0, 255, 0.6);
             transform: scale(1.05);
         }
+
+
 
         .seat.selected {
             animation: pulse 0.3s ease;
@@ -901,44 +907,47 @@
     }
 
     /* ================= LOAD GHẾ ================= */
+    /* ================= LOAD GHẾ ================= */
     async function loadSeats(isRefresh = false) {
         try {
+            // 🔹 Lấy danh sách ghế trong phòng
             allSeats = await seatApi.getByAuditorium(auditoriumId);
 
-            // 🔹 Lấy danh sách ghế đã giữ hoặc đã đặt (HOLDING/BOOKED)
-            let occupiedSeatIds = [];
-            try {
-                const occupiedRes = await fetch(
-                    `${API_BASE_URL}/tickets/occupied/${showtimeId}?accountId=${accountId}`
-                );
+            // 🔹 Lấy danh sách ghế BOOKED và HOLDING riêng biệt
+            let bookedSeatIds = [];
+            let holdingSeatIds = [];
 
-                if (occupiedRes.ok) {
-                    occupiedSeatIds = await occupiedRes.json();
+            try {
+                // ⚙️ Ghế đã đặt (BOOKED)
+                const bookedRes = await fetch(`${API_BASE_URL}/tickets/booked/${showtimeId}`);
+                if (bookedRes.ok) {
+                    bookedSeatIds = await bookedRes.json();
+                }
+
+                // ⚙️ Ghế đang giữ (HOLDING)
+                const holdingRes = await fetch(`${API_BASE_URL}/tickets/occupied/${showtimeId}?accountId=${accountId}`);
+                if (holdingRes.ok) {
+                    holdingSeatIds = await holdingRes.json();
                 }
             } catch (err) {
-                console.warn("⚠️ Không thể load ghế đang giữ từ server:", err);
+                console.warn("⚠️ Không thể load danh sách ghế BOOKED/HOLDING:", err);
             }
 
-            let mySeatIds = [];
+            // 🔹 Khôi phục vé tạm (local)
+            const localTemp = JSON.parse(localStorage.getItem("tempTicket") || "null");
             const restoreId = ticketId || localStorage.getItem("tempTicketId");
+            let mySeatIds = [];
+            let myTicketStatus = null;
 
-            // ✅ Khôi phục từ localStorage trước
-            if (!isRefresh) {
-                const localTempStr = localStorage.getItem("tempTicket");
-                if (localTempStr) {
-                    const localTemp = JSON.parse(localTempStr);
-                    if (localTemp?.ticketId && localTemp.ticketStatus === "HOLDING") {
-                        const hu = new Date(localTemp.holdUntil);
-                        if (!localTemp.holdUntil || hu > new Date()) {
-                            mySeatIds = localTemp.ticketSeats?.map(s => s.seat?.seatID) || [];
-                            localStorage.setItem("tempTicketId", localTemp.ticketId);
-                            console.log("🔁 Restore từ localStorage:", mySeatIds);
-                        }
-                    }
+            if (localTemp?.ticketId && Array.isArray(localTemp.ticketSeats)) {
+                const hu = new Date(localTemp.holdUntil);
+                if (!localTemp.holdUntil || hu > new Date()) {
+                    mySeatIds = localTemp.ticketSeats.map(s => s.seat?.seatID).filter(Boolean);
+                    myTicketStatus = localTemp.ticketStatus;
                 }
             }
 
-            // 🔹 Nếu vẫn chưa có, gọi server để lấy
+            // 🔹 Nếu chưa có — lấy từ server
             if (mySeatIds.length === 0 && restoreId) {
                 const token = localStorage.getItem("accessToken");
                 try {
@@ -947,8 +956,9 @@
                     });
                     if (res.ok) {
                         const t = await res.json();
-                        if (t.status === "HOLDING") {
+                        if (["HOLDING", "BOOKED"].includes(t.status)) {
                             mySeatIds = t.seatIds || [];
+                            myTicketStatus = t.status;
                             localStorage.setItem("tempTicketId", t.ticketId);
                             localStorage.setItem("tempTicket", JSON.stringify(t));
                         }
@@ -958,29 +968,35 @@
                 }
             }
 
-            // ✅ Nếu refresh nhẹ, giữ nguyên ghế đã chọn
+            // 🔹 Refresh nhẹ → giữ nguyên ghế đang chọn
             if (isRefresh && selectedSeats.length > 0) {
                 mySeatIds = selectedSeats;
             }
 
-            // ✅ Hợp nhất
+            // ✅ Cập nhật danh sách ghế của mình
             selectedSeats = [...new Set(mySeatIds)];
 
-            // ✅ Loại bỏ ghế của chính mình khỏi occupied
-            const myTicketId = Number(localStorage.getItem("tempTicketId"));
-            if (myTicketId && Array.isArray(occupiedSeatIds)) {
-                const mySeats = selectedSeats.length ? selectedSeats : mySeatIds;
-                occupiedSeatIds = occupiedSeatIds.filter(id => !mySeats.includes(id));
+            // ✅ Loại bỏ ghế của chính mình khỏi danh sách đang giữ
+            if (Array.isArray(holdingSeatIds) && selectedSeats.length > 0) {
+                holdingSeatIds = holdingSeatIds.filter(id => !selectedSeats.includes(id));
             }
 
-            // ✅ Cập nhật trạng thái ghế
+            // ✅ Cập nhật trạng thái từng ghế
             allSeats.forEach(seat => {
-                if (selectedSeats.includes(seat.seatID)) seat.status = "SELECTED";
-                else if (occupiedSeatIds.includes(seat.seatID)) seat.status = "HOLDING";
-                else seat.status = "AVAILABLE";
+                if (myTicketStatus === "BOOKED" && selectedSeats.includes(seat.seatID)) {
+                    seat.status = "BOOKED"; // 🔴 Ghế của mình, đã thanh toán
+                } else if (selectedSeats.includes(seat.seatID)) {
+                    seat.status = "SELECTED"; // 💜 Ghế mình đang chọn
+                } else if (bookedSeatIds.includes(seat.seatID)) {
+                    seat.status = "BOOKED"; // 🔴 Ghế người khác đã mua
+                } else if (holdingSeatIds.includes(seat.seatID)) {
+                    seat.status = "HOLDING"; // 🟣 Ghế người khác đang giữ
+                } else {
+                    seat.status = "AVAILABLE"; // ⚪ Ghế trống
+                }
             });
 
-            // ✅ Tính lại tổng tiền
+            // ✅ Tính tổng tiền
             const basePrice = window.currentShowtime?.price || 0;
             let total = 0;
             selectedSeats.forEach(id => {
@@ -989,12 +1005,17 @@
             });
             localStorage.setItem("ticketPriceTotal", String(total));
 
+            // ✅ Render lại UI
             renderSeatMap();
             renderSelectedList();
+
         } catch (err) {
             console.error("❌ loadSeats:", err);
         }
     }
+
+
+
 
 
 

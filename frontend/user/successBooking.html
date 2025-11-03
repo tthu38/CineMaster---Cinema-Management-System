@@ -147,6 +147,7 @@
     import { showtimeApi } from "../js/api/showtimeApi.js";
     import { movieApi } from "../js/api/movieApi.js";
     import { branchApi } from "../js/api/branchApi.js";
+    import { ticketApi } from "../js/api/ticketApi.js";
 
     // 🔹 Lấy dữ liệu lưu từ payment.html
     const bookingData = JSON.parse(localStorage.getItem("successBookingData") || "{}");
@@ -158,6 +159,27 @@
         throw new Error("Thiếu dữ liệu booking");
     }
 
+    // ====================== 🧾 GỌI API XÁC NHẬN THANH TOÁN ======================
+    async function confirmTicketPayment() {
+        try {
+            if (!bookingData?.ticketId) {
+                console.warn("⚠️ Không có ticketId để xác nhận!");
+                return;
+            }
+
+            const body = {
+                email: bookingData.email,
+                combos: bookingData.combos || []
+            };
+
+            await ticketApi.confirmPayment(bookingData.ticketId, body);
+            console.log("🎫 Vé đã xác nhận BOOKED thành công!");
+        } catch (err) {
+            console.error("❌ Lỗi khi xác nhận vé:", err);
+        }
+    }
+
+    // ====================== 🎬 HIỂN THỊ THÔNG TIN VÉ ======================
     async function loadTicketInfo() {
         try {
             const showtimeRes = await showtimeApi.getPublicById(bookingData.showtimeId);
@@ -176,38 +198,36 @@
                 month: "2-digit",
                 year: "numeric"
             });
-            const timeStr = date.toLocaleTimeString("vi-VN", {hour: "2-digit", minute: "2-digit"});
+            const timeStr = date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
 
             const discountText = bookingData.discountCode
                 ? `Mã: <b>${bookingData.discountCode}</b> (-${bookingData.discountAmount?.toLocaleString("vi-VN")}đ)`
                 : "Không có";
 
             document.getElementById("ticketDetail").innerHTML = `
-       <div><b>🎬 Phim:</b> ${movie.title}</div>
-       <div><b>🏠 Chi nhánh:</b> ${branch.name}</div>
-       <div><b>🕓 Suất chiếu:</b> ${dateStr} - ${timeStr}</div>
-       <div><b>💺 Ghế:</b> ${bookingData.seatIds?.join(", ") || "Không rõ"}</div>
-       <div><b>🎁 Ưu đãi:</b> ${discountText}</div>
-       <hr>
-       <div><b>🎟️ Vé:</b> ${(bookingData.seatPrice || 0).toLocaleString("vi-VN")}đ</div>
-       <div><b>🥤 Combo:</b> ${(bookingData.comboPrice || 0).toLocaleString("vi-VN")}đ</div>
-       <div class="fw-bold text-info mt-2"><b>Tổng cộng:</b> ${(bookingData.grandTotal || 0).toLocaleString("vi-VN")}đ</div>
-       <div class="mt-3"><b>📧 Vé gửi đến:</b> ${bookingData.email}</div>
-     `;
+                <div><b>🎬 Phim:</b> ${movie.title}</div>
+                <div><b>🏠 Chi nhánh:</b> ${branch.name}</div>
+                <div><b>🕓 Suất chiếu:</b> ${dateStr} - ${timeStr}</div>
+                <div><b>💺 Ghế:</b> ${bookingData.seatIds?.join(", ") || "Không rõ"}</div>
+                <div><b>🎁 Ưu đãi:</b> ${discountText}</div>
+                <hr>
+                <div><b>🎟️ Vé:</b> ${(bookingData.seatPrice || 0).toLocaleString("vi-VN")}đ</div>
+                <div><b>🥤 Combo:</b> ${(bookingData.comboPrice || 0).toLocaleString("vi-VN")}đ</div>
+                <div class="fw-bold text-info mt-2"><b>Tổng cộng:</b> ${(bookingData.grandTotal || 0).toLocaleString("vi-VN")}đ</div>
+                <div class="mt-3"><b>📧 Vé gửi đến:</b> ${bookingData.email}</div>
+            `;
 
-            // 🔹 Hiển thị trạng thái mail đã gửi
             if (lastPayment?.status === "success") {
                 document.getElementById("ticketDetail").innerHTML += `
-         <div class="mt-3 text-success fw-bold">
-           ✅ Vé đã được xác nhận & email xác nhận đã gửi thành công!
-         </div>`;
+                    <div class="mt-3 text-success fw-bold">
+                        ✅ Vé đã được xác nhận & email xác nhận đã gửi thành công!
+                    </div>`;
             } else {
                 document.getElementById("ticketDetail").innerHTML += `
-         <div class="mt-3 text-warning">
-           ⚠️ Hệ thống chưa xác nhận thanh toán. Vui lòng kiểm tra lại hoặc liên hệ hỗ trợ.
-         </div>`;
+                    <div class="mt-3 text-warning">
+                        ⚠️ Hệ thống chưa xác nhận thanh toán. Vui lòng kiểm tra lại hoặc liên hệ hỗ trợ.
+                    </div>`;
             }
-
         } catch (err) {
             console.error("❌ Lỗi load vé:", err);
             document.getElementById("ticketDetail").innerHTML =
@@ -215,8 +235,20 @@
         }
     }
 
+    // ====================== 🚀 KHỞI CHẠY ======================
+    // ====================== 🚀 KHỞI CHẠY ======================
+    await confirmTicketPayment();
+
+    // ✅ Đánh dấu vé BOOKED để seatCus.html hiển thị đúng màu
+    const temp = JSON.parse(localStorage.getItem("tempTicket") || "{}");
+    if (temp.ticketId === bookingData.ticketId) {
+        temp.ticketStatus = "BOOKED";
+        localStorage.setItem("tempTicket", JSON.stringify(temp));
+    }
+
     await loadTicketInfo();
 </script>
+
 
 <script>
     /* ================= HEADER (fix cứng, đồng bộ avatar + tên) ================= */

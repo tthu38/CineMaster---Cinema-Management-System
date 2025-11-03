@@ -76,36 +76,37 @@ export const ticketApi = {
     },
 
 
+    // ✅ Xác nhận thanh toán và đổi vé sang BOOKED
     async confirmPayment(ticketId, body = {}) {
         const token = getValidToken();
 
-
-        // ✅ Đảm bảo email được gửi cùng nếu người dùng có nhập
-        const email = body.email ||
+        const email =
+            body.email ||
             document.getElementById("email")?.value?.trim() ||
-            localStorage.getItem("userEmail");
+            localStorage.getItem("userEmail") || null;
 
+        const dataToSend = { ...body, email };
 
-        const dataToSend = {
-            ...body,
-            email
-        };
-
-
-        console.log("💳 [ticketApi.confirmPayment] Xác nhận thanh toán:", dataToSend);
-
+        console.log("💳 [ticketApi.confirmPayment] Xác nhận thanh toán vé:", dataToSend);
 
         const res = await fetch(`${API_BASE_URL}/tickets/${ticketId}/confirm`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
+                ...(token && { Authorization: `Bearer ${token}` }),
             },
             body: JSON.stringify(dataToSend),
         });
 
+        const json = await res.json().catch(() => ({}));
 
-        return handleResponse(res);
+        if (!res.ok) {
+            console.error("❌ Lỗi xác nhận vé:", json);
+            throw new Error(json?.message || `Lỗi HTTP ${res.status}`);
+        }
+
+        // Unwrap ApiResponse (nếu có)
+        return json.result || json;
     },
 
     async cancel(ticketId) {
