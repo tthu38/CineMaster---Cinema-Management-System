@@ -354,23 +354,25 @@ async function onSubmitUpdate() {
     }
 }
 
+// ================= SUBMIT & DELETE =================
 async function onDeleteClick() {
     if (!state.editingId) return;
-    const ok = confirm('Xóa lịch chiếu này? Hành động không thể hoàn tác.');
+    const ok = confirm('❗Bạn có chắc muốn ẩn suất chiếu này? Dữ liệu vẫn được lưu (xóa mềm).');
     if (!ok) return;
 
     try {
         setSubmitting(true, 'delete');
-        await showtimeApi.remove(state.editingId);
+        await showtimeApi.remove(state.editingId);   // 🟢 gọi DELETE API (soft delete backend)
         window.dispatchEvent(new Event('showtime:deleted'));
         document.activeElement?.blur();
         modal.hide();
     } catch (e) {
-        showError(e?.message || 'Xóa lịch chiếu thất bại');
+        showError(e?.message || 'Ẩn lịch chiếu thất bại');
     } finally {
         setSubmitting(false);
     }
 }
+
 
 // ================= HELPERS =================
 function showError(msg) {

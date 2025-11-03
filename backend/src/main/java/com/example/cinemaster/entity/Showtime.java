@@ -1,3 +1,4 @@
+// src/main/java/com/example/cinemaster/entity/Showtime.java
 package com.example.cinemaster.entity;
 
 import jakarta.persistence.*;
@@ -5,7 +6,6 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.Nationalized;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -46,10 +46,16 @@ public class Showtime {
     @Column(name = "Price", precision = 10, scale = 2)
     BigDecimal price;
 
+    @Column(name = "Status", length = 20)
+    String status = "ACTIVE"; // ✅ mặc định ACTIVE
+
     // honghanh
     @Transient
     public Movie getMovie() {
         return period != null ? period.getMovie() : null;
     }
-}
 
+    public boolean isActive() {
+        return "ACTIVE".equalsIgnoreCase(status);
+    }
+}

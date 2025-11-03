@@ -51,31 +51,44 @@ public class ShowtimeService {
     }
 
 
-    public Page<ShowtimeResponse> search(Integer periodId, Integer auditoriumId,
-                                         LocalDateTime from, LocalDateTime to,
-                                         Pageable pageable) {
-
+    /* ============================================================
+   🔎 TÌM KIẾM SUẤT CHIẾU (lọc & phân trang)
+============================================================ */
+    public Page<ShowtimeResponse> search(
+            Integer periodId,
+            Integer auditoriumId,
+            LocalDateTime from,
+            LocalDateTime to,
+            Pageable pageable) {
 
         Specification<Showtime> spec = (root, query, cb) -> cb.conjunction();
 
+        // 🔹 Chỉ lấy showtime ACTIVE (không bị xóa mềm)
+        spec = spec.and((r, q, cb) -> cb.equal(r.get("status"), "ACTIVE"));
 
-        if (periodId != null)
-            spec = spec.and((r, q, cb) -> cb.equal(r.get("period").get("periodID"), periodId));
+        // 🔹 Lọc theo ScreeningPeriod
+        if (periodId != null) {
+            spec = spec.and((r, q, cb) ->
+                    cb.equal(r.get("period").get("periodID"), periodId));
+        }
 
+        // 🔹 Lọc theo phòng chiếu
+        if (auditoriumId != null) {
+            spec = spec.and((r, q, cb) ->
+                    cb.equal(r.get("auditorium").get("auditoriumID"), auditoriumId));
+        }
 
-        if (auditoriumId != null)
-            spec = spec.and((r, q, cb) -> cb.equal(r.get("auditorium").get("auditoriumID"), auditoriumId));
-
-
-        if (from != null)
+        // 🔹 Lọc theo khoảng thời gian (from → to)
+        if (from != null) {
             spec = spec.and((r, q, cb) -> cb.greaterThanOrEqualTo(r.get("startTime"), from));
-
-
-        if (to != null)
+        }
+        if (to != null) {
             spec = spec.and((r, q, cb) -> cb.lessThan(r.get("startTime"), to));
+        }
 
-
-        return showtimeRepo.findAll(spec, pageable).map(mapper::toResponse);
+        // ✅ Trả về Page<ShowtimeResponse>
+        Page<Showtime> result = showtimeRepo.findAll(spec, pageable);
+        return result.map(mapper::toResponse);
     }
 
 
@@ -157,7 +170,6 @@ public class ShowtimeService {
         var entity = showtimeRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Showtime not found"));
 
-
         if (user != null && user.isManager()) {
             Integer managerBranch = user.getBranchId();
             Integer showtimeBranch = entity.getAuditorium().getBranch().getId();
@@ -165,8 +177,12 @@ public class ShowtimeService {
                 throw new SecurityException("Manager không thể xóa showtime của chi nhánh khác");
             }
         }
-        showtimeRepo.delete(entity);
+
+        // ✅ Soft delete
+        entity.setStatus("INACTIVE");
+        showtimeRepo.saveAndFlush(entity);
     }
+
 
 
     /* ============================================================
@@ -244,7 +260,7 @@ public class ShowtimeService {
         List<Showtime> list;
         try {
             if (branchId == null && movieId == null) {
-                list = showtimeRepo.findAllByStartTimeGreaterThanEqualAndStartTimeLessThan(from, to);
+                list = showtimeRepo.findAllByStartTimeGreaterThanEqualAndStartTimeLessThanAndStatus(from, to, "ACTIVE");
             } else if (branchId != null && movieId == null) {
                 list = showtimeRepo.findWeekByBranch(from, to, branchId);
             } else if (branchId != null) {
