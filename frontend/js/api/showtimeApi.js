@@ -1,106 +1,117 @@
-// ==================== CONFIG IMPORT ====================
+// 📁 /js/api/showtimeApi.js
 import { API_BASE_URL, getValidToken, handleResponse } from './config.js';
 
-// ==================== SHOWTIME API ====================
 export const showtimeApi = {
-    // 🟢 CREATE (Admin/Manager)
+
+    // 🟢 CREATE
     async create(data) {
         const token = getValidToken();
-        if (!token) throw new Error("Vui lòng đăng nhập để tạo lịch chiếu.");
+
+        if (!token) {
+            console.warn("🚫 Không có token trong localStorage, huỷ gửi request (CREATE).");
+            alert("⚠️ Bạn chưa đăng nhập. Vui lòng đăng nhập lại trước khi tạo lịch chiếu.");
+            return Promise.reject("Token missing");
+        }
 
         const res = await fetch(`${API_BASE_URL}/showtimes`, {
-            method: 'POST',
+            method: "POST",
             headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json",
             },
             body: JSON.stringify(data),
         });
         return handleResponse(res);
     },
 
-    // 🟡 UPDATE (Admin/Manager)
+    // 🟡 UPDATE
     async update(id, data) {
+        if (!id) throw new Error("Thiếu ID lịch chiếu cần cập nhật.");
+
         const token = getValidToken();
-        if (!token) throw new Error("Vui lòng đăng nhập để cập nhật.");
+        if (!token) {
+            console.warn("🚫 Không có token trong localStorage, huỷ gửi request (UPDATE).");
+            alert("⚠️ Bạn chưa đăng nhập. Vui lòng đăng nhập lại trước khi cập nhật lịch chiếu.");
+            return Promise.reject("Token missing");
+        }
 
         const res = await fetch(`${API_BASE_URL}/showtimes/${id}`, {
-            method: 'PUT',
+            method: "PUT",
             headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json',
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json",
             },
             body: JSON.stringify(data),
         });
         return handleResponse(res);
     },
 
-    // 🔴 DELETE (Soft Delete)
+    // 🔴 DELETE
     async remove(id) {
+        if (!id) throw new Error("Thiếu ID lịch chiếu cần xoá.");
+
         const token = getValidToken();
-        if (!token) throw new Error("Vui lòng đăng nhập để xóa.");
+        if (!token) {
+            console.warn("🚫 Không có token trong localStorage, huỷ gửi request (DELETE).");
+            alert("⚠️ Bạn chưa đăng nhập. Vui lòng đăng nhập lại trước khi xoá lịch chiếu.");
+            return Promise.reject("Token missing");
+        }
 
         const res = await fetch(`${API_BASE_URL}/showtimes/${id}`, {
-            method: 'DELETE',
-            headers: { Authorization: `Bearer ${token}` },
+            method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+            },
         });
         return handleResponse(res);
     },
 
-    // 🔍 SEARCH (lọc theo period, auditorium, from, to...)
+    // 🔍 SEARCH
     async search(params = {}) {
         const token = getValidToken();
-        const headers = { 'Content-Type': 'application/json' };
+        const headers = { "Content-Type": "application/json" };
         if (token) headers.Authorization = `Bearer ${token}`;
 
         const query = new URLSearchParams(params).toString();
         const res = await fetch(`${API_BASE_URL}/showtimes?${query}`, {
-            method: 'GET',
+            method: "GET",
             headers,
         });
         return handleResponse(res);
     },
 
-    // 🔹 GET BY ID (Public)
+    // 🔹 GET BY ID
     async getById(id) {
+        if (!id) throw new Error("Thiếu ID lịch chiếu.");
+
         const res = await fetch(`${API_BASE_URL}/showtimes/${id}`, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
         });
         return handleResponse(res);
     },
 
-    // 📆 GET WEEK SCHEDULE (hỗ trợ movieId + branchId)
+    // 📅 GET WEEK
     async getWeek({ anchor = null, offset = 0, branchId = null, movieId = null } = {}) {
-        let url = `${API_BASE_URL}/showtimes/week?offset=${offset}`;
-        const params = [];
+        const params = new URLSearchParams();
+        if (anchor) params.append("anchor", anchor);
+        if (offset) params.append("offset", offset);
+        if (branchId) params.append("branchId", branchId);
+        if (movieId) params.append("movieId", movieId);
 
-        if (anchor) params.push(`anchor=${encodeURIComponent(anchor)}`);
-        if (branchId && branchId !== 'undefined' && branchId !== '') {
-            params.push(`branchId=${encodeURIComponent(branchId)}`);
-        }
-        if (movieId && movieId !== 'undefined' && movieId !== '') {
-            params.push(`movieId=${encodeURIComponent(movieId)}`);
-        }
-
-        if (params.length > 0) url += `&${params.join('&')}`;
-
-        const token = getValidToken?.();
-        const headers = {
-            'Content-Type': 'application/json',
-            ...(token && { Authorization: `Bearer ${token}` }),
-        };
-
-        const res = await fetch(url, { method: 'GET', headers });
+        const res = await fetch(`${API_BASE_URL}/showtimes/week?${params.toString()}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+        });
         return handleResponse(res);
     },
 
-    // 📅 NEXT WEEK (Public)
+    // 📆 NEXT WEEK (optional helper)
     async getNextWeek(branchId = null) {
-        const url = `${API_BASE_URL}/showtimes/next-week${branchId ? `?branchId=${branchId}` : ''}`;
+        const url = `${API_BASE_URL}/showtimes/next-week${branchId ? `?branchId=${branchId}` : ""}`;
         const res = await fetch(url, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
         });
         return handleResponse(res);
     },

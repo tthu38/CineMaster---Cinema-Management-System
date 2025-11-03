@@ -7,6 +7,7 @@ import com.example.cinemaster.entity.Auditorium;
 import com.example.cinemaster.entity.ScreeningPeriod;
 import com.example.cinemaster.entity.Showtime;
 import org.mapstruct.*;
+
 import java.util.List;
 
 @Mapper(componentModel = "spring")
@@ -19,7 +20,6 @@ public interface ShowtimeMapper {
     @Mapping(target = "posterUrl", source = "period.movie.posterUrl")
     @Mapping(target = "auditoriumName", source = "auditorium.name")
     @Mapping(target = "branchId", source = "auditorium.branch.id")
-
     ShowtimeResponse toResponse(Showtime entity);
 
     List<ShowtimeResponse> toResponseList(List<Showtime> entities);
@@ -32,4 +32,12 @@ public interface ShowtimeMapper {
                                  @MappingTarget Showtime entity,
                                  @Context ScreeningPeriod period,
                                  @Context Auditorium auditorium);
+
+    // ✅ Thêm đoạn này — đảm bảo mọi suất chiếu mới đều ACTIVE
+    @AfterMapping
+    default void setDefaultStatus(@MappingTarget Showtime entity) {
+        if (entity.getStatus() == null) {
+            entity.setStatus("ACTIVE");
+        }
+    }
 }

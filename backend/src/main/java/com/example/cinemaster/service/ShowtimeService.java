@@ -119,10 +119,11 @@ public class ShowtimeService {
         var entity = mapper.toEntity(req, period, auditorium);
         entity.setStartTime(start);
         entity.setEndTime(end);
-
+        entity.setStatus("ACTIVE");
 
         showtimeRepo.saveAndFlush(entity);
         return mapper.toResponse(entity);
+
     }
 
 
@@ -335,4 +336,3 @@ public class ShowtimeService {
         return showtimeRepo.findByBranchIdAndDate(branchId, date);
     }
 }
-
