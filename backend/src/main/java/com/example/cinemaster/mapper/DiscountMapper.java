@@ -22,6 +22,7 @@ public interface DiscountMapper {
     DiscountResponse toResponse(Discount entity);
 
     // 🧩 Map cập nhật từ request sang entity (update case)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "requiredLevel", expression = "java(toLevel(request.getRequiredLevelId()))")
     void updateDiscountFromRequest(DiscountRequest request, @MappingTarget Discount discount);
 

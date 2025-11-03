@@ -1,0 +1,151 @@
+@startuml
+' ==========================================================
+' 🎨 CONFIGURATION
+' ==========================================================
+left to right direction
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+
+skinparam class {
+  BackgroundColor<<Controller>> #f8e6e0
+  BackgroundColor<<Service>> #e0f8e6
+  BackgroundColor<<Repository>> #e0f0f8
+  BackgroundColor<<Mapper>> #f0e0f8
+  BackgroundColor<<Entity>> #fff8e1
+  BackgroundColor<<DTO>> #ffffff
+}
+
+' ==========================================================
+' 🎮 CONTROLLER
+' ==========================================================
+class MovieController <<Controller>> {
+    - MovieRepository movieRepository
+    - MovieService movieService
+    - FileStorageService fileStorageService
+    + ResponseEntity<ApiResponse<List<Movie>>> getAllMovies()
+    + ResponseEntity<ApiResponse<List<Movie>>> getNowShowing()
+    + ResponseEntity<ApiResponse<List<Movie>>> getComingSoon()
+    + ResponseEntity<ApiResponse<MovieResponse>> getMovieById(Integer)
+    + ResponseEntity<ApiResponse<MovieResponse>> createMovie(MovieRequest, MultipartFile)
+    + ResponseEntity<ApiResponse<MovieResponse>> updateMovie(Integer, MovieRequest, MultipartFile)
+    + ResponseEntity<ApiResponse<Void>> deleteMovie(Integer)
+    + ResponseEntity<ApiResponse<List<MovieResponse>>> searchMovies(String, String, String, String, String)
+}
+
+' ==========================================================
+' ⚙️ SERVICE
+' ==========================================================
+class MovieService <<Service>> {
+    - MovieRepository movieRepository
+    - MovieMapper movieMapper
+    - {static} String DEFAULT_POSTER
+    + MovieResponse create(MovieRequest)
+    + MovieResponse update(Integer, MovieRequest)
+    + void delete(Integer)
+    + MovieResponse getById(Integer)
+    + List<MovieResponse> getAll(String)
+    + List<MovieResponse> filterMovies(MovieFilterRequest)
+    - String normalizeFilterParam(String)
+}
+
+' ==========================================================
+' 🗂️ REPOSITORY
+' ==========================================================
+interface JpaRepository
+
+interface MovieRepository <<Repository>> {
+    + List<Movie> findByStatusIgnoreCase(String)
+    + List<Movie> findMoviesByCriteria(String title, String genre, String director, String cast, String language)
+}
+
+JpaRepository <|-- MovieRepository : extends
+MovieRepository --> Movie : manages
+
+' ==========================================================
+' 🧩 MAPPER
+' ==========================================================
+interface MovieMapper <<Mapper>> {
+    ~ Movie toEntity(MovieRequest)
+    ~ void updateEntity(Movie, MovieRequest)
+    ~ MovieResponse toMovieResponse(Movie)
+    ~ List<MovieResponse> toMovieResponseList(List<Movie>)
+}
+
+' ==========================================================
+' 🧱 ENTITY
+' ==========================================================
+class Movie <<Entity>> {
+    ~ Integer movieID
+    ~ String title
+    ~ String genre
+    ~ Integer duration
+    ~ LocalDate releaseDate
+    ~ String director
+    ~ String cast
+    ~ String language
+    ~ String ageRestriction
+    ~ String description
+    ~ String trailerUrl
+    ~ String posterUrl
+    ~ String country
+    ~ String status
+}
+
+' ==========================================================
+' 📨 DTO
+' ==========================================================
+class MovieRequest <<DTO>> {
+    ~ String title
+    ~ String genre
+    ~ Integer duration
+    ~ LocalDate releaseDate
+    ~ String director
+    ~ String cast
+    ~ String description
+    ~ String language
+    ~ String ageRestriction
+    ~ String country
+    ~ String trailerUrl
+    ~ String posterUrl
+    ~ String status
+}
+
+class MovieResponse <<DTO>> {
+    ~ Integer movieId
+    ~ String title
+    ~ String genre
+    ~ Integer duration
+    ~ LocalDate releaseDate
+    ~ String director
+    ~ String cast
+    ~ String description
+    ~ String language
+    ~ String ageRestriction
+    ~ String country
+    ~ String trailerUrl
+    ~ String posterUrl
+    ~ String status
+}
+
+class FileStorageService <<Service>>
+class ApiResponse <<DTO>>
+
+' ==========================================================
+' 🔗 RELATIONSHIPS – UML chuẩn
+' ==========================================================
+MovieController --> MovieService : uses
+MovieController --> MovieRepository : uses
+MovieController --> FileStorageService : uses
+
+MovieService --> MovieRepository : uses
+MovieService --> MovieMapper : uses
+
+MovieMapper ..> Movie : maps
+MovieMapper ..> MovieRequest : from
+MovieMapper ..> MovieResponse : to
+
+MovieService ..> MovieRequest : uses
+MovieService ..> MovieResponse : returns
+
+@enduml

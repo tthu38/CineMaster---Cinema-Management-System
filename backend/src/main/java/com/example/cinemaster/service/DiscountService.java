@@ -35,9 +35,7 @@ public class DiscountService {
     private final TicketComboRepository ticketComboRepository;
 
 
-    // ==========================================
-    // 🟩 CREATE
-    // ==========================================
+    @Transactional
     public DiscountResponse create(DiscountRequest request) {
         if (discountRepository.existsByCode(request.getCode())) {
             throw new AppException(ErrorCode.DISCOUNT_CODE_EXISTS);
@@ -48,9 +46,8 @@ public class DiscountService {
         return discountMapper.toResponse(discount);
     }
 
-    // ==========================================
-    // 🟨 READ
-    // ==========================================
+
+    @Transactional(readOnly = true)
     public List<DiscountResponse> getAll() {
         List<Discount> discounts = discountRepository.findAll();
         discounts.forEach(this::autoUpdateStatus);
@@ -61,6 +58,7 @@ public class DiscountService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<DiscountResponse> getByStatus(DiscountStatus status) {
         List<Discount> discounts = discountRepository.findAll();
         discounts.forEach(this::autoUpdateStatus);
@@ -71,6 +69,7 @@ public class DiscountService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public DiscountResponse getById(Integer id) {
         Discount discount = discountRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.DISCOUNT_NOT_FOUND));
@@ -79,9 +78,7 @@ public class DiscountService {
         return discountMapper.toResponse(discount);
     }
 
-    // ==========================================
-    // 🟧 UPDATE
-    // ==========================================
+    @Transactional(readOnly = true)
     public DiscountResponse update(Integer id, DiscountRequest request) {
         Discount existing = discountRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.DISCOUNT_NOT_FOUND));
@@ -98,9 +95,8 @@ public class DiscountService {
         return discountMapper.toResponse(existing);
     }
 
-    // ==========================================
-    // 🟥 DELETE (SOFT / HARD)
-    // ==========================================
+
+    @Transactional
     public void softDelete(Integer id) {
         Discount discount = discountRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.DISCOUNT_NOT_FOUND));
@@ -109,6 +105,7 @@ public class DiscountService {
         discountRepository.save(discount);
     }
 
+    @Transactional
     public void restore(Integer id) {
         Discount discount = discountRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.DISCOUNT_NOT_FOUND));
@@ -127,6 +124,7 @@ public class DiscountService {
         discountRepository.save(discount);
     }
 
+    @Transactional
     public void hardDelete(Integer id) {
         Discount discount = discountRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.DISCOUNT_NOT_FOUND));
@@ -135,9 +133,8 @@ public class DiscountService {
         discountRepository.save(discount);
     }
 
-    // ==========================================
-    // ♻️ AUTO STATUS CHECK
-    // ==========================================
+
+    @Transactional
     private void autoUpdateStatus(Discount discount) {
         if (discount.getExpiryDate() == null) return;
 

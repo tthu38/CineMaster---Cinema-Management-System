@@ -21,6 +21,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -292,52 +293,51 @@ public class TicketService {
 
     private String createOtpForTicket(Ticket ticket) {
         try {
-            // ✅ Xóa OTP cũ của vé này trước (nếu có)
+            if (ticket == null) {
+                throw new IllegalArgumentException("Ticket không được null khi tạo OTP");
+            }
+
+            // ✅ Xóa OTP cũ của vé này (nếu có)
             List<Otp> existingOtps = otpRepository.findByTicket(ticket);
-            if (!existingOtps.isEmpty()) {
+            if (existingOtps != null && !existingOtps.isEmpty()) {
                 otpRepository.deleteAll(existingOtps);
                 otpRepository.flush();
                 log.info("🧹 Đã xóa {} OTP cũ của vé {}", existingOtps.size(), ticket.getTicketId());
             }
 
+            // ✅ Sinh OTP ngẫu nhiên 6 chữ số an toàn bằng SecureRandom
+            SecureRandom random = new SecureRandom();
+            String otpValue = String.format("%06d", random.nextInt(1_000_000)); // → 000001–999999
 
-            // ✅ Sinh OTP ngẫu nhiên 6 chữ số
-            java.security.SecureRandom random = new java.security.SecureRandom();
-            int otpValue = 100000 + random.nextInt(900000); // Random 6 chữ số
-
-
-            // ✅ Thời gian hết hạn = khi hết suất chiếu
-            LocalDateTime expiryTime = ticket.getShowtime().getEndTime();
-            if (expiryTime == null) {
-                expiryTime = ticket.getShowtime().getStartTime().plusHours(2); // Mặc định +2 giờ
-            }
-
+            // ✅ Xác định thời gian hết hạn: dùng endTime nếu có, fallback = startTime + 2h
+            LocalDateTime expiryTime = (ticket.getShowtime() != null && ticket.getShowtime().getEndTime() != null)
+                    ? ticket.getShowtime().getEndTime()
+                    : (ticket.getShowtime() != null ? ticket.getShowtime().getStartTime().plusHours(2)
+                    : LocalDateTime.now().plusHours(2));
 
             // ✅ Tạo entity OTP
             Otp otp = Otp.builder()
                     .accountID(ticket.getAccount())
                     .ticket(ticket)
-                    .code(String.valueOf(otpValue))
+                    .code(otpValue)
                     .expiry(expiryTime)
                     .build();
-
 
             // ✅ Lưu vào DB
             otpRepository.saveAndFlush(otp);
 
-
             log.info("🔑 Đã tạo OTP {} cho vé {} (hết hạn lúc {})",
                     otpValue, ticket.getTicketId(), expiryTime);
 
-
-            return String.valueOf(otpValue); // ✅ Trả về code để gửi mail
-
+            return otpValue;
 
         } catch (Exception e) {
-            log.error("❌ Lỗi khi tạo OTP cho vé {}: {}", ticket.getTicketId(), e.getMessage(), e);
+            log.error("❌ Lỗi khi tạo OTP cho vé {}: {}",
+                    (ticket != null ? ticket.getTicketId() : "NULL"), e.getMessage(), e);
             throw new RuntimeException("Không thể tạo OTP", e);
         }
     }
+
 
 
 
@@ -907,38 +907,35 @@ public class TicketService {
         ticket.getTicketDiscounts().size();
     }
 
-    private void sendBookingEmail(Ticket ticket,
-                                  List<TicketComboRequest> combos,
-                                  String customEmail,
-                                  Showtime showtime) {
+    private void sendBookingEmail(
+            Ticket ticket,
+            List<TicketComboRequest> combos,
+            String customEmail,
+            Showtime showtime
+    ) {
         try {
             // ✅ TỔNG TIỀN THẬT (đã thanh toán, đã lưu trong DB)
-            BigDecimal totalPrice = ticket.getTotalPrice(); // 87,500 VND
+            BigDecimal totalPrice = ticket.getTotalPrice();
 
-
-            // ✅ Tính tổng tiền combo (từ DB)
+            // ✅ Tính tổng combo
             BigDecimal comboTotal = ticket.getTicketCombos().stream()
                     .map(tc -> tc.getCombo().getPrice().multiply(BigDecimal.valueOf(tc.getQuantity())))
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-
-            // ✅ Tính tổng giảm giá (từ DB)
+            // ✅ Tổng giảm giá
             BigDecimal discountTotal = ticket.getTicketDiscounts().stream()
                     .map(TicketDiscount::getAmount)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-
-            // ✅ Tính tổng tiền ghế
+            // ✅ Tổng tiền ghế
             BigDecimal seatTotal = ticket.getTicketSeats().stream()
                     .map(ts -> showtime.getPrice().multiply(ts.getSeat().getSeatType().getPriceMultiplier()))
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-
-            // ✅ Giá gốc (chưa trừ giảm giá)
+            // ✅ Giá gốc
             BigDecimal originalPrice = seatTotal.add(comboTotal);
 
-
-            // ✅ Lấy danh sách combo chi tiết
+            // ✅ Chi tiết combo
             List<String> comboDetails = ticket.getTicketCombos().stream()
                     .map(tc -> String.format("%s x%d = %,.0f VND",
                             tc.getCombo().getNameCombo(),
@@ -946,35 +943,29 @@ public class TicketService {
                             tc.getCombo().getPrice().multiply(BigDecimal.valueOf(tc.getQuantity())).doubleValue()))
                     .collect(Collectors.toList());
 
-
-            // ✅ Lấy tên ghế
+            // ✅ Tên ghế
             String seatNames = ticket.getTicketSeats().stream()
                     .map(ts -> ts.getSeat().getSeatNumber())
                     .collect(Collectors.joining(", "));
 
+            // ✅ Lấy OTP từ DB (nếu không có thì tạo mới)
+            String otpCode = getOrCreateOtpCode(ticket);
 
-            // ✅ Lấy OTP từ DB (đã được tạo bởi createOtpForTicket)
-            String otpCode = getOtpCode(ticket);
-
-
-            // ✅ Lấy QR Code URL
+            // ✅ QR Code URL
             String qrCodeUrl = getQrCodeUrl(ticket);
 
-
-            // ✅ Địa chỉ email
-            String recipientEmail = customEmail != null && !customEmail.trim().isEmpty()
+            // ✅ Email người nhận
+            String recipientEmail = (customEmail != null && !customEmail.trim().isEmpty())
                     ? customEmail
                     : ticket.getAccount().getEmail();
 
-
-            // ✅ Mã vé (dùng ticketId)
+            // ✅ Mã vé
             String ticketCode = "#" + ticket.getTicketId();
-
 
             // ✅ Gửi email
             emailService.sendBookingConfirmationEmail(
                     recipientEmail,
-                    ticketCode, // ← "#166"
+                    ticketCode,
                     showtime.getMovie().getTitle(),
                     showtime.getAuditorium().getName(),
                     seatNames,
@@ -982,23 +973,40 @@ public class TicketService {
                     comboTotal,
                     originalPrice,
                     discountTotal,
-                    totalPrice, // ← 87,500 VND (GIÁ THẬT ĐÃ THANH TOÁN)
+                    totalPrice,
                     showtime.getAuditorium().getBranch().getAddress(),
                     qrCodeUrl,
-                    otpCode, // ← OTP 6 số đã sinh
+                    otpCode,
                     comboDetails
             );
 
-
             log.info("📧 Đã gửi email xác nhận vé {} cho {} (Tổng: {} VND, OTP: {})",
                     ticket.getTicketId(), recipientEmail, totalPrice, otpCode);
-
 
         } catch (Exception e) {
             log.error("❌ Lỗi khi gửi email cho vé {}: {}", ticket.getTicketId(), e.getMessage(), e);
             throw new RuntimeException("Không thể gửi email xác nhận", e);
         }
     }
+    private String getOrCreateOtpCode(Ticket ticket) {
+        // ✅ Kiểm tra xem DB đã có OTP cho vé này chưa
+        List<Otp> otps = otpRepository.findByTicket(ticket);
+
+        if (otps != null && !otps.isEmpty()) {
+            String existingOtp = otps.get(0).getCode();
+            if (existingOtp != null && !existingOtp.trim().isEmpty()) {
+                log.info("🔑 OTP hiện có cho vé {} là {}", ticket.getTicketId(), existingOtp);
+                return existingOtp;
+            }
+        }
+
+        // ✅ Nếu chưa có thì tạo mới OTP
+        String newOtp = createOtpForTicket(ticket);
+        log.info("🆕 Tạo mới OTP {} cho vé {}", newOtp, ticket.getTicketId());
+        return newOtp;
+    }
+
+
     /**
      * Lấy OTP code mới nhất từ DB
      */

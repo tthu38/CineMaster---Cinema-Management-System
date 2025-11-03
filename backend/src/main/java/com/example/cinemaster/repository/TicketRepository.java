@@ -17,6 +17,20 @@ import java.util.Optional;
 @Repository
 public interface TicketRepository extends JpaRepository<Ticket, Integer> {
 
+    @Query("""
+    SELECT ts.seat.seatID
+    FROM Ticket t
+    JOIN t.ticketSeats ts
+    WHERE t.showtime.showtimeID = :showtimeId
+      AND t.ticketStatus IN ('HOLDING', 'BOOKED')
+      AND t.account.accountID <> :accountId
+""")
+    List<Integer> findOccupiedSeatIdsByShowtimeExcludeAccount(
+            @Param("showtimeId") Integer showtimeId,
+            @Param("accountId") Integer accountId
+    );
+
+
     /* ======================================================
        🔹 Danh sách ghế đã được BOOKED hoặc HOLDING (chưa hết hạn)
     ====================================================== */
