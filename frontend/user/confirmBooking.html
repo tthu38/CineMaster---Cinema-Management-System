@@ -534,7 +534,7 @@
             <div><strong>🏢 Phòng chiếu:</strong> ${room?.name || "Đang cập nhật"}</div>
             <div><strong>💺 Ghế:</strong> ${seatIds.join(", ")}</div>
         `;
-        } catch (err) {
+        } catch (err) {p
             console.error("❌ Không thể tải thông tin suất chiếu:", err);
             document.getElementById("movieInfo").innerHTML =
                 `<p class="text-danger">Không thể tải thông tin phim.</p>`;

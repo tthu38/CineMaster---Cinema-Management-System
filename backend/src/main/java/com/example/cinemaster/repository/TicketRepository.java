@@ -19,16 +19,20 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
 
     @Query("""
     SELECT ts.seat.seatID
-    FROM Ticket t
-    JOIN t.ticketSeats ts
-    WHERE t.showtime.showtimeID = :showtimeId
-      AND t.ticketStatus IN ('HOLDING', 'BOOKED')
-      AND t.account.accountID <> :accountId
+    FROM TicketSeat ts
+    WHERE ts.ticket.showtime.showtimeID = :showtimeId
+      AND ts.ticket.account.accountID <> :accountId
+      AND (
+          ts.ticket.ticketStatus = com.example.cinemaster.entity.Ticket.TicketStatus.BOOKED
+          OR (ts.ticket.ticketStatus = com.example.cinemaster.entity.Ticket.TicketStatus.HOLDING
+              AND ts.ticket.holdUntil > CURRENT_TIMESTAMP)
+      )
 """)
     List<Integer> findOccupiedSeatIdsByShowtimeExcludeAccount(
             @Param("showtimeId") Integer showtimeId,
             @Param("accountId") Integer accountId
     );
+
 
 
     /* ======================================================
@@ -43,7 +47,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
           OR (ts.ticket.ticketStatus = com.example.cinemaster.entity.Ticket.TicketStatus.HOLDING
               AND ts.ticket.holdUntil > CURRENT_TIMESTAMP)
       )
-    """)
+""")
     List<Integer> findOccupiedSeatIdsByShowtime(@Param("showtimeId") Integer showtimeId);
 
     // ✅ THÊM từ bài bạn: phương thức loại trừ một vé cụ thể
@@ -51,13 +55,18 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
     SELECT ts.seat.seatID
     FROM TicketSeat ts
     WHERE ts.ticket.showtime.showtimeID = :showtimeId
-      AND ts.ticket.ticketStatus IN ('HOLDING', 'BOOKED')
-      AND (:ticketId IS NULL OR ts.ticket.ticketId <> :ticketId)
-    """)
+      AND ts.ticket.ticketId <> :ticketId
+      AND (
+          ts.ticket.ticketStatus = com.example.cinemaster.entity.Ticket.TicketStatus.BOOKED
+          OR (ts.ticket.ticketStatus = com.example.cinemaster.entity.Ticket.TicketStatus.HOLDING
+              AND ts.ticket.holdUntil > CURRENT_TIMESTAMP)
+      )
+""")
     List<Integer> findOccupiedSeatIdsByShowtimeExcludeTicket(
             @Param("showtimeId") Integer showtimeId,
             @Param("ticketId") Integer ticketId
     );
+
 
     /* ======================================================
        🔹 Danh sách ghế đã BOOKED (dùng cho thống kê hoặc check)
