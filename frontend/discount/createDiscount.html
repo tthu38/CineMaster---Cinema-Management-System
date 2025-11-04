@@ -445,42 +445,7 @@
 </script>
 
 
-<script>
-    (async ()=>{
-        try {
-            const [headerHtml, footerHtml] = await Promise.all([
-                fetch("../home/customer-header.html").then(r => r.text()),
-                fetch("../home/footer.html").then(r => r.text())
-            ]);
 
-
-            // Chèn vào trang
-            const headerEl = document.createElement("div");
-            headerEl.id = "site-header";
-            headerEl.innerHTML = headerHtml;
-            document.body.prepend(headerEl);
-
-
-            const footerEl = document.createElement("div");
-            footerEl.id = "site-footer";
-            footerEl.innerHTML = footerHtml;
-            document.body.appendChild(footerEl);
-
-
-            // ⚙️ Ép trình duyệt thực thi lại script trong header (để avatar/menu hoạt động)
-            headerEl.querySelectorAll("script").forEach(oldScript=>{
-                const newScript=document.createElement("script");
-                if(oldScript.src) newScript.src=oldScript.src;
-                else newScript.textContent=oldScript.textContent;
-                document.body.appendChild(newScript);
-            });
-
-
-        } catch(err) {
-            console.error("❌ Lỗi load header/footer:", err);
-        }
-    })();
-</script>
 </body>
 </html>
 

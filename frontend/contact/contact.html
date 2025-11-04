@@ -136,21 +136,34 @@
 
 <!-- ✅ Load header/footer trước -->
 <script>
-    (async function loadHeaderFooter(){
+    (async function loadHeaderFooter() {
         const headerEl = document.getElementById("header");
         const footerEl = document.getElementById("footer");
-        try{
+
+        try {
+            // --- Nạp header ---
             const headerHtml = await (await fetch("../home/customer-header.html")).text();
             headerEl.innerHTML = headerHtml;
-            headerEl.querySelectorAll("script").forEach(s=>{
-                const ns=document.createElement("script");
-                if(s.src) ns.src=s.src; else ns.textContent=s.textContent;
-                document.body.appendChild(ns);
-            });
+
+            // ✅ Tạo DOM tạm để trích xuất script
+            const temp = document.createElement("div");
+            temp.innerHTML = headerHtml;
+
+            // ✅ Chạy lại tất cả <script> trong header
+            const scripts = temp.querySelectorAll("script");
+            for (const oldScript of scripts) {
+                const newScript = document.createElement("script");
+                if (oldScript.src) newScript.src = oldScript.src;
+                else newScript.textContent = oldScript.textContent;
+                document.body.appendChild(newScript);
+            }
+
+            // --- Nạp footer ---
             const footerHtml = await (await fetch("../home/footer.html")).text();
             footerEl.innerHTML = footerHtml;
-        }catch(err){
-            console.error("Lỗi load header/footer:",err);
+
+        } catch (err) {
+            console.error("❌ Lỗi load header/footer:", err);
         }
     })();
 </script>

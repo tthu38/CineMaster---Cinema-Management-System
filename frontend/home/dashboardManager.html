@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CineMaster • Manager Dashboard</title>
 
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
 
     <style>
         :root {
@@ -22,37 +20,46 @@
             --theme-border: #2d3748;
         }
 
-
         body {
             font-family: 'Be Vietnam Pro', sans-serif;
             background-color: var(--theme-bg);
             color: var(--theme-text);
-            overflow: hidden;
+            transition: margin-left 0.3s ease;
+            overflow-x: hidden;   /* ✅ chỉ ẩn cuộn ngang */
+            overflow-y: auto;
         }
 
+        #wrapper {
+            display: flex;
+            min-height: 100vh;
+        }
 
-        #wrapper { display: flex; min-height: 100vh; }
-
-
-        /* Sidebar */
         #sidebar {
             width: 260px;
             background-color: var(--theme-sidebar);
             box-shadow: 2px 0 15px rgba(0,0,0,0.2);
             position: fixed;
-            left: 0; top: 0; bottom: 0; z-index: 1000;
-            display: flex; flex-direction: column;
+            left: 0;
+            top: 80px;
+            bottom: 0;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
         }
 
+        #sidebar .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+        }
 
         .sidebar-heading {
             padding: 1.5rem 1.25rem;
             font-size: 1.5rem;
             font-weight: 700;
+            color: var(--theme-text);
             border-bottom: 1px solid var(--theme-border);
             text-align: center;
         }
-
 
         .sidebar-user-info {
             padding: 1rem 1.25rem;
@@ -70,51 +77,69 @@
             color: var(--theme-primary);
             font-weight: 500;
         }
-        .sidebar-user-info .branch-name i {
-            margin-right: 5px;
-        }
-
-
-        #sidebar .sidebar-content {
-            flex: 1;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: var(--theme-primary) #0c1325;
-        }
-        #sidebar .sidebar-content::-webkit-scrollbar { width: 8px; }
-        #sidebar .sidebar-content::-webkit-scrollbar-thumb { background-color: var(--theme-primary); border-radius: 10px; }
-
 
         .list-group-item {
-            background-color: transparent; border: none; padding: 1rem 1.5rem;
-            font-size: 1rem; color: var(--theme-text-secondary);
+            background-color: transparent;
+            border: none;
+            padding: 1rem 1.5rem;
+            color: var(--theme-text-secondary);
             transition: all 0.2s ease-in-out;
         }
-        .list-group-item i { width: 25px; text-align: center; margin-right: 15px; }
-        .list-group-item:hover, .list-group-item.active {
-            background-color: var(--theme-hover-bg); color: var(--theme-primary);
-            border-left: 4px solid var(--theme-primary); font-weight: 600;
+
+        .list-group-item i {
+            width: 25px;
+            margin-right: 15px;
         }
-        .list-group-item:hover i, .list-group-item.active i { color: var(--theme-primary); }
 
+        .list-group-item:hover,
+        .list-group-item.active {
+            background-color: var(--theme-hover-bg);
+            color: var(--theme-primary);
+            border-left: 4px solid var(--theme-primary);
+            font-weight: 600;
+        }
 
-        /* Main content */
         #main-content {
-            flex-grow: 1; margin-left: 260px; height: 100vh;
-            overflow-y: auto;
+            flex-grow: 1;
+            margin-left: 260px;
+            margin-top: 80px;
+            min-height: calc(100vh - 80px);
+            overflow: visible;
         }
-        iframe { width: 100%; min-height: 100vh; border: none; }
+
+        iframe {
+            width: 100%;
+            min-height: 100vh;
+            border: none;
+            display: block;
+        }
+
+        footer {
+            position: relative;
+            margin-left: 260px;
+            background-color: #090e26;
+            color: #a0aec0;
+            text-align: center;
+            padding: 14px 0;
+            font-size: 0.9rem;
+            border-top: 1px solid #2d3748;
+        }
+
+        @media (max-width: 992px) {
+            #sidebar { left: -260px; top: 70px; }
+            #main-content { margin-left: 0; margin-top: 70px; }
+            body.sidebar-toggled #sidebar { left: 0; }
+        }
     </style>
 </head>
 
-
 <body>
+<!-- Header chung -->
+<div id="header-placeholder"></div>
+
 <div id="wrapper">
     <aside id="sidebar">
-        <div class="sidebar-heading">
-            <i class="fas fa-film"></i> CineMaster
-        </div>
-
+        <div class="sidebar-heading"><i class="fas fa-film"></i> CineMaster</div>
 
         <!-- ✅ Thông tin Manager -->
         <div class="sidebar-user-info">
@@ -124,8 +149,6 @@
             </div>
         </div>
 
-
-        <!-- ✅ Sidebar menu -->
         <div class="sidebar-content">
             <div class="list-group list-group-flush my-3">
                 <a href="#" class="list-group-item list-group-item-action active"
@@ -142,7 +165,7 @@
                 </a>
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('../user/work-schedule-matrix.html', this); return false;">
-                    <i class="fas fa-users-cog"></i> Quản lý ca làm
+                    <i class="fas fa-calendar-alt"></i> Quản lý ca làm
                 </a>
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('../movies/listMovies.html', this); return false;">
@@ -154,13 +177,12 @@
                 </a>
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('../user/reportAccount.html', this); return false;">
-                    <i class="fas fa-box-open"></i> Báo cáo vi phạm
+                    <i class="fas fa-exclamation-circle"></i> Báo cáo vi phạm
                 </a>
                 <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('manager/revenue.html', this); return false;">
+                   onclick="loadIframe('../statistic/revenue.html', this); return false;">
                     <i class="fas fa-coins"></i> Báo cáo doanh thu
                 </a>
-                <!-- ✅ Giữ nguyên các mục từ file đầu -->
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('../user/branch-list.html', this); return false;">
                     <i class="fas fa-code-branch"></i> Thông tin chi nhánh
@@ -175,30 +197,61 @@
                 </a>
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('../user/seatManagementStaff.html', this); return false;">
-                    <i class="fas fa-store"></i> Quản lý ghế chi nhánh
+                    <i class="fas fa-chair"></i> Quản lý ghế chi nhánh
                 </a>
-                <!-- ✅ Thêm mục thiếu từ file thứ hai -->
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('../contact/contactManagement.html', this); return false;">
                     <i class="fas fa-envelope"></i> Liên hệ khách hàng
                 </a>
 
-
-                <a href="../user/login.html" class="list-group-item list-group-item-action text-danger mt-auto" id="logoutBtn">
+                <a href="#" class="list-group-item list-group-item-action text-danger" onclick="logoutUser()">
                     <i class="fas fa-sign-out-alt"></i> Đăng xuất
                 </a>
             </div>
         </div>
     </aside>
 
-
     <div id="main-content">
         <iframe id="main-frame" src="../statistic/revenue-bar.html"></iframe>
     </div>
 </div>
 
+<!-- ✅ Footer chung -->
+<div id="footer-placeholder"></div>
 
 <script>
+    // ✅ Load Header
+    (async function loadHeader() {
+        const headerEl = document.getElementById("header-placeholder");
+        try {
+            const res = await fetch("header-no-logout.html");
+            const html = await res.text();
+            headerEl.innerHTML = html;
+
+            // chạy script trong header
+            headerEl.querySelectorAll("script").forEach(oldScript => {
+                const newScript = document.createElement("script");
+                if (oldScript.src) newScript.src = oldScript.src;
+                else newScript.textContent = oldScript.textContent;
+                document.body.appendChild(newScript);
+            });
+        } catch (err) {
+            console.error("❌ Lỗi load header:", err);
+        }
+    })();
+
+    // ✅ Load Footer
+    (async function loadFooter() {
+        const footerEl = document.getElementById("footer-placeholder");
+        try {
+            const res = await fetch("../home/footer.html");
+            footerEl.innerHTML = await res.text();
+        } catch (err) {
+            console.error("❌ Lỗi load footer:", err);
+        }
+    })();
+
+    // ✅ Load thông tin Manager
     document.addEventListener("DOMContentLoaded", () => {
         const token = localStorage.getItem("accessToken");
         const role = localStorage.getItem("role");
@@ -206,38 +259,34 @@
         const branchName = localStorage.getItem("branchName") || "(Không xác định)";
         const branchId = localStorage.getItem("branchId");
 
-
-        // Nếu chưa login hoặc không phải Manager → quay về login
         if (!token || role !== "Manager") {
             window.location.href = "../user/login.html";
             return;
         }
 
-
-        // ✅ Hiển thị thông tin Manager từ localStorage
         document.getElementById("managerName").textContent = fullName;
         document.getElementById("branchName").innerHTML =
             `<i class="fas fa-store"></i> Chi nhánh: ${branchName}`;
-
-
-        // Nếu cần, giữ lại branchId cho API khác sử dụng
         if (branchId) localStorage.setItem("branchId", branchId);
     });
 
-
-    // ✅ Đổi trang iframe
+    // ✅ Chuyển iframe
     function loadIframe(url, element) {
-        document.getElementById('main-frame').src = url;
+        const frame = document.getElementById('main-frame');
+        frame.src = url;
         document.querySelectorAll('.list-group-item').forEach(el => el.classList.remove('active'));
         if (element) element.classList.add('active');
     }
 
-
     // ✅ Đăng xuất
-    document.getElementById("logoutBtn").addEventListener("click", () => {
+    function logoutUser() {
         localStorage.clear();
-    });
+        sessionStorage.clear();
+        if (window.google?.accounts?.id) {
+            google.accounts.id.disableAutoSelect();
+        }
+        window.location.href = "../user/login.html";
+    }
 </script>
 </body>
 </html>
-

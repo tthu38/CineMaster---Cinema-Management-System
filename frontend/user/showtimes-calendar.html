@@ -218,49 +218,68 @@
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-<script>
-    (async function loadHeaderFooter(){
-        try{
-            const headerEl=document.getElementById("site-header");
-            const footerEl=document.getElementById("site-footer");
-            headerEl.innerHTML=await (await fetch("../home/customer-header.html")).text();
-            footerEl.innerHTML=await (await fetch("../home/footer.html")).text();
-        }catch(e){console.error("Load header/footer error:",e);}
-    })();
-</script>
+
 
 
 <script type="module">
-    import {initShowtimeCreate,openShowtimeCreate} from "../js/showtime-create.js";
-    import {initShowtimeEdit,openShowtimeEdit } from "../js/showtime-edit.js";
+/* ================== HEADER & FOOTER ================== */
+(async function loadHeader() {
+const headerEl = document.getElementById("site-header");
+try {
+const res = await fetch("../home/customer-header.html");
+const html = await res.text();
+headerEl.innerHTML = html;
 
+// ép chạy script trong file header
+const scripts = headerEl.querySelectorAll("script");
+scripts.forEach(s => {
+const ns = document.createElement("script");
+if (s.src) ns.src = s.src;
+else ns.textContent = s.textContent;
+document.body.appendChild(ns);
+});
+} catch (err) {
+console.error("❌ Lỗi load header:", err);
+}
+})();
 
-    const role = localStorage.getItem("role");
-    const btnCreate = document.getElementById("btnOpenCreate");
+(async function loadFooter() {
+const footerEl = document.getElementById("site-footer");
+try {
+const res = await fetch("../home/footer.html");
+footerEl.innerHTML = await res.text();
+} catch (err) {
+console.error("❌ Lỗi load footer:", err);
+}
+})();
 
+/* ================== IMPORT MODULES ================== */
+import { initShowtimeCreate, openShowtimeCreate } from "../js/showtime-create.js";
+import { initShowtimeEdit, openShowtimeEdit } from "../js/showtime-edit.js";
 
-    if (role === "Admin" || role === "Manager") {
-        btnCreate.addEventListener("click", () => {
-            const selectedDay = window.__calendarSelectedYMD || null;
-            const currentBranch = document.getElementById("branchSelect")?.value || "";
-            openShowtimeCreate({ defaultDate: selectedDay, branchId: currentBranch || null });
-        });
-    } else {
-        btnCreate.style.display = "none";
-    }
+const role = localStorage.getItem("role");
+const btnCreate = document.getElementById("btnOpenCreate");
 
+if (role === "Admin" || role === "Manager") {
+btnCreate.addEventListener("click", () => {
+const selectedDay = window.__calendarSelectedYMD || null;
+const currentBranch = document.getElementById("branchSelect")?.value || "";
+openShowtimeCreate({ defaultDate: selectedDay, branchId: currentBranch || null });
+});
+} else {
+btnCreate.style.display = "none";
+}
 
-    await initShowtimeCreate({ htmlPath: './showtime-create.html' });
-    await initShowtimeEdit({ htmlPath: './showtime-edit.html' });
-    window.openShowtimeEdit = openShowtimeEdit;
+await initShowtimeCreate({ htmlPath: './showtime-create.html' });
+await initShowtimeEdit({ htmlPath: './showtime-edit.html' });
+window.openShowtimeEdit = openShowtimeEdit;
 
-
-    const reload = () => window.reloadCalendar?.(true);
-    window.addEventListener('showtime:created', reload);
-    window.addEventListener('showtime:updated', reload);
-    window.addEventListener('showtime:deleted', reload);
+// Reload lịch chiếu khi có thay đổi
+const reload = () => window.reloadCalendar?.(true);
+window.addEventListener('showtime:created', reload);
+window.addEventListener('showtime:updated', reload);
+window.addEventListener('showtime:deleted', reload);
 </script>
-
 
 <!-- App lịch chiếu -->
 <script type="module" src="../js/showtimes-calendar.js"></script>

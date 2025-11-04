@@ -392,31 +392,7 @@
 <div id="site-footer"></div>
 
 
-<script>
-    (async ()=>{
-        try{
-            const [h,f] = await Promise.all([
-                fetch('../home/customer-header.html').then(r=>r.text()),
-                fetch('../home/footer.html').then(r=>r.text())
-            ]);
-            const header = document.getElementById('site-header');
-            const footer = document.getElementById('site-footer');
-            header.innerHTML = h;
-            footer.innerHTML = f;
 
-
-            // ✅ Thêm đoạn này để avatar và script trong header hoạt động
-            header.querySelectorAll("script").forEach(oldScript => {
-                const newScript = document.createElement("script");
-                if (oldScript.src) newScript.src = oldScript.src;
-                else newScript.textContent = oldScript.textContent;
-                document.body.appendChild(newScript);
-            });
-        }catch(e){
-            console.error('❌ Load header/footer error', e);
-        }
-    })();
-</script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="../js/auditorium-list.js" type="module"></script>
 </body>

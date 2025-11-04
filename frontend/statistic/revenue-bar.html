@@ -258,16 +258,7 @@
 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-<script>
-    (async()=>{
-        try{
-            const header = await fetch("../home/admin-header.html").then(r=>r.text());
-            const footer = await fetch("../home/footer.html").then(r=>r.text());
-            document.getElementById("site-header").innerHTML = header;
-            document.getElementById("site-footer").innerHTML = footer;
-        }catch{}
-    })();
-</script>
+
 <script type="module" src="../js/revenue-bar.js"></script>
 </body>
 </html>

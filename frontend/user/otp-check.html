@@ -171,37 +171,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="module" src="../js/otp-check.js"></script>
-<script>
-    (async ()=>{
-        try {
-            const [headerHtml, footerHtml] = await Promise.all([
-                fetch("../home/customer-header.html").then(r => r.text()),
-                fetch("../home/footer.html").then(r => r.text())
-            ]);
 
 
-            const headerEl = document.getElementById("site-header");
-            const footerEl = document.getElementById("site-footer");
-
-
-            headerEl.innerHTML = headerHtml;
-            footerEl.innerHTML = footerHtml;
-
-
-            // ⚙️ Bắt buộc chạy lại script bên trong header (để avatar/menu hoạt động)
-            headerEl.querySelectorAll("script").forEach(oldScript => {
-                const newScript = document.createElement("script");
-                if (oldScript.src) newScript.src = oldScript.src;
-                else newScript.textContent = oldScript.textContent;
-                document.body.appendChild(newScript);
-            });
-
-
-        } catch (err) {
-            console.error("❌ Lỗi load header/footer:", err);
-        }
-    })();
-</script>
 
 
 </body>

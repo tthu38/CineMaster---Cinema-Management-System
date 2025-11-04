@@ -312,12 +312,7 @@
 
 
     // Load header/footer CineMaster
-    (async()=>{
-        try{
-            document.getElementById("site-header").innerHTML = await (await fetch("../home/customer-header.html")).text();
-            document.getElementById("site-footer").innerHTML = await (await fetch("../home/footer.html")).text();
-        }catch(e){console.error("Lỗi load header/footer:",e);}
-    })();
+
 </script>
 </body>
 </html>
