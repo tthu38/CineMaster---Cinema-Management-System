@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -26,7 +28,7 @@ public class ContextRetrieverService {
     private final ComboService comboService;
     private final ChatSessionHistory sessionHistory;
     private final VectorStoreService vectorStoreService;
-    private final MembershipLevelService  membershipLevelService;
+    private final MembershipLevelService membershipLevelService;
     private final NewsService newsService;
 
     // ✅ Cache 5 phút cho dữ liệu ít thay đổi
@@ -138,59 +140,131 @@ public class ContextRetrieverService {
     // ==========================================
     // 🔹 PHIM ĐANG CHIẾU
     // ==========================================
-    private String getMoviesNowShowingContext(BranchResponse targetBranch) {
-        if (targetBranch == null)
-            return "Vui lòng chỉ rõ chi nhánh để tôi kiểm tra phim đang chiếu.";
+    private String getMoviesNowShowingContext(BranchResponse branch) {
+        if (branch == null) {
+            String storedBranchName = sessionHistory.getSessionContext("target_branch");
+            if (storedBranchName != null) {
+                branch = branchService.getAllActiveBranches().stream()
+                        .filter(b -> b.getBranchName().equalsIgnoreCase(storedBranchName))
+                        .findFirst()
+                        .orElse(null);
+            }
+        }
 
-        List<Movie> movies = screeningPeriodService.getMoviesNowShowingByBranchId(targetBranch.getBranchId());
+        if (branch == null)
+            return emoji("📍", "Vui lòng nói rõ chi nhánh bạn muốn xem suất chiếu.");
+        List<Movie> movies = screeningPeriodService.getMoviesNowShowingByBranchId(branch.getBranchId());
         if (movies == null || movies.isEmpty())
-            return emoji("🎥", "Hiện tại không có phim nào đang chiếu ở chi nhánh " + targetBranch.getBranchName() + ".");
+            return emoji("🎥", "Hiện tại không có phim nào đang chiếu ở chi nhánh " + branch.getBranchName() + ".");
 
         String detail = movies.stream()
-                .map(m -> mdTitle("🎬 " + safeGet(m.getTitle()))
-                        + kv("Đạo diễn", m.getDirector())
-                        + kv("Diễn viên", m.getCast())
-                        + kv("Thể loại", m.getGenre())
-                        + kv("Thời lượng", safeGet(m.getDuration()) + " phút")
-                        + kv("Tóm tắt", m.getDescription()))
+                .map(m -> {
+                    // 🧠 Ghi nhớ phim cuối cùng mà user vừa xem để dùng lại ở context khác
+                    sessionHistory.setSessionContext("last_movie_name", m.getTitle());
+
+                    // 🎬 Render thông tin từng phim
+                    return mdTitle("🎬 " + safeGet(m.getTitle()))
+                            + kv("Đạo diễn", m.getDirector())
+                            + kv("Diễn viên", m.getCast())
+                            + kv("Thể loại", m.getGenre())
+                            + kv("Thời lượng", safeGet(m.getDuration()) + " phút")
+                            + kv("Tóm tắt", m.getDescription())
+                            // 🔗 Sửa đường dẫn thành tuyệt đối /user/... để tránh lỗi 404
+                            + ChatFormatter.link("📖 Xem chi tiết", "../movies/movieDetail.html?id=" + m.getMovieID()) + " "
+                            + ChatFormatter.link("🎫 Xem suất chiếu", "../user/showtimes-calendar.html?movieId=" + m.getMovieID());
+                })
                 .collect(Collectors.joining(divider()));
 
-        return mdTitle("📅 Phim đang chiếu tại " + targetBranch.getBranchName()) + detail;
+        return mdTitle("📅 Phim đang chiếu tại " + branch.getBranchName()) + detail;
     }
 
     // ==========================================
     // 🔹 PHIM SẮP CHIẾU
     // ==========================================
     private String getUpcomingMoviesContext() {
+        // 🧠 Lấy danh sách phim sắp chiếu từ cache (hoặc DB)
         List<Movie> coming = comingCache.get("comingSoon", () -> screeningPeriodService.getComingSoonMovies());
-        if (coming.isEmpty())
+        if (coming == null || coming.isEmpty())
             return emoji("🎬", "Hiện chưa có phim sắp chiếu được công bố.");
-        String list = coming.stream()
-                .map(m -> "🎞 " + safeGet(m.getTitle()) + " (Đạo diễn: " + safeGet(m.getDirector()) + ")")
-                .collect(Collectors.joining("\n"));
-        return "🎉 Phim sắp chiếu:\n" + list;
+
+        // 📝 Xây dựng danh sách phim chi tiết (giống phần 'phim đang chiếu')
+        String detail = coming.stream()
+                .map(m -> mdTitle("🎞 " + safeGet(m.getTitle()))
+                        + kv("Đạo diễn", safeGet(m.getDirector()))
+                        + kv("Diễn viên", safeGet(m.getCast()))
+                        + kv("Thể loại", safeGet(m.getGenre()))
+                        + kv("Thời lượng", safeGet(m.getDuration()) + " phút")
+                        + kv("Tóm tắt", safeGet(m.getDescription()))
+                        // 🔗 Thêm link đến trang chi tiết phim
+                        + ChatFormatter.link("📖 Xem chi tiết", "../movies/movieDetail.html?id=" + m.getMovieID()))
+                .collect(Collectors.joining(divider()));
+
+        return mdTitle("🎉 Phim sắp chiếu tại CineMaster") + detail;
     }
 
     // ==========================================
     // 🔹 KỲ CHIẾU / SUẤT CHIẾU
     // ==========================================
     private String getScreeningOrShowtimeContext(String userInput, BranchResponse branch) {
-        if (branch == null)
-            return emoji("📅", "Vui lòng nói rõ chi nhánh bạn muốn xem suất chiếu.");
+        // 🧠 Nếu user không nói chi nhánh → thử lấy từ session (dạng String)
+        if (branch == null) {
+            String storedBranchName = sessionHistory.getSessionContext("target_branch");
+            if (storedBranchName != null) {
+                branch = branchService.getAllActiveBranches().stream()
+                        .filter(b -> b.getBranchName().equalsIgnoreCase(storedBranchName))
+                        .findFirst()
+                        .orElse(null);
+            }
+        }
 
+        if (branch == null)
+            return emoji("📍", "Vui lòng nói rõ chi nhánh bạn muốn xem suất chiếu.");
+
+        // 🔍 Nếu người dùng có nhắc tới tên phim → lấy phim trực tiếp
+        List<Movie> allMovies = screeningPeriodService.getAllMoviesWithPeriods();
+        Movie targetMovie = allMovies.stream()
+                .filter(m -> userInput.toLowerCase().contains(m.getTitle().toLowerCase()))
+                .findFirst()
+                .orElse(null);
+
+        // 🧠 Nếu không tìm thấy phim trong input → lấy phim gần nhất mà user đã hỏi
+        if (targetMovie == null) {
+            String lastMovieName = sessionHistory.getSessionContext("last_movie_name");
+            if (lastMovieName != null) {
+                targetMovie = allMovies.stream()
+                        .filter(m -> m.getTitle().equalsIgnoreCase(lastMovieName))
+                        .findFirst()
+                        .orElse(null);
+            }
+        }
+
+        // ✅ Nếu xác định được phim → tạo link lịch chiếu trực tiếp
+        if (targetMovie != null) {
+            String link = "../user/showtimes-calendar.html?branchId=" + branch.getBranchId()
+                    + "&movieId=" + targetMovie.getMovieID();
+            return mdTitle("🎟 " + targetMovie.getTitle() + " tại " + branch.getBranchName())
+                    + "🎫 [Xem lịch chiếu ngay](" + link + ")";
+        }
+
+        // 🗓 Nếu không có tên phim nào → hiển thị danh sách suất chiếu chung của rạp
         LocalDate date = extractDateFromInput(userInput);
-        String dateText = (date != null ? date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "hôm nay");
+        String dateText = (date != null
+                ? date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                : "hôm nay");
 
         List<Showtime> showtimes = showtimeService.getShowtimesByBranchAndDate(branch.getBranchId(), date);
         if (showtimes.isEmpty())
-            return emoji("🎟", "Không có suất chiếu nào trong " + dateText + " tại chi nhánh " + branch.getBranchName() + ".");
+            return emoji("🎟", "Không có suất chiếu nào trong " + dateText
+                    + " tại chi nhánh " + branch.getBranchName() + ".");
 
         String showList = showtimes.stream()
-                .map(s -> "• " + s.getMovie().getTitle() + " — " + s.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")))
+                .map(s -> "• " + s.getMovie().getTitle()
+                        + " — " + s.getStartTime().format(DateTimeFormatter.ofPattern("HH:mm")))
                 .collect(Collectors.joining("\n"));
 
         return mdTitle("🎟 Suất chiếu " + dateText + " tại " + branch.getBranchName()) + showList;
     }
+
 
     // ==========================================
     // 🔹 CHI TIẾT PHIM
@@ -299,29 +373,31 @@ public class ContextRetrieverService {
     }
 
     private String getNewsContext(String userInput) {
-        // Nếu người dùng có nói về "khuyến mãi" → lọc category tương ứng
+        // 🎯 Nhận diện category theo từ khóa người dùng
         String category = null;
-        if (userInput.toLowerCase().contains("khuyến mãi") || userInput.toLowerCase().contains("ưu đãi")) {
-            category = "Promotion";
-        } else if (userInput.toLowerCase().contains("phim") || userInput.toLowerCase().contains("ra mắt")) {
-            category = "Movie";
-        }
+        String lower = userInput.toLowerCase();
+        if (lower.contains("khuyến mãi") || lower.contains("ưu đãi")) category = "Promotion";
+        else if (lower.contains("phim") || lower.contains("ra mắt")) category = "Movie";
+        else if (lower.contains("sự kiện")) category = "Event";
 
-        // Lấy tin tức (nếu có category thì lọc, không thì lấy tất cả)
         List<NewsResponse> newsList = newsService.getAll(category);
         if (newsList == null || newsList.isEmpty()) {
             return emoji("📰", "Hiện chưa có tin tức mới được đăng tải.");
         }
 
-        StringBuilder sb = new StringBuilder(mdTitle("📰 Tin tức CineMaster mới nhất"));
-        for (NewsResponse n : newsList.stream().limit(5).toList()) { // chỉ hiển thị 5 tin đầu
-            sb.append(mdTitle("📢 " + safeGet(n.getTitle())))
-                    .append(kv("Thể loại", safeGet(n.getCategory())))
-                    .append(kv("Ngày đăng", n.getPublishDate() != null ? n.getPublishDate().toString() : "N/A"))
+        // 🎨 Hiển thị 5 tin mới nhất
+        String detail = newsList.stream()
+                .limit(5)
+                .map(n -> mdTitle("🗞 " + safeGet(n.getTitle()))
+                        + kv("Thể loại", safeGet(n.getCategory()))
+                        + kv("Ngày đăng", n.getPublishDate() != null
+                        ? n.getPublishDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+                        : "Chưa xác định")
 
-                    .append(divider());
-        }
-        return sb.toString();
+                        + ChatFormatter.link("📖 Đọc chi tiết", "../news/listNewsCus.html?id=" + n.getNewsID()))
+                .collect(Collectors.joining(divider()));
+
+        return mdTitle("📰 Tin tức CineMaster mới nhất") + detail;
     }
 
     private LocalDate extractDateFromInput(String input) {

@@ -222,67 +222,48 @@
 
 
 <script type="module">
-/* ================== HEADER & FOOTER ================== */
-(async function loadHeader() {
-const headerEl = document.getElementById("site-header");
-try {
-const res = await fetch("../home/customer-header.html");
-const html = await res.text();
-headerEl.innerHTML = html;
+    /* ================== HEADER & FOOTER (Conditional) ================== */
+    const role = localStorage.getItem("role");
 
-// ép chạy script trong file header
-const scripts = headerEl.querySelectorAll("script");
-scripts.forEach(s => {
-const ns = document.createElement("script");
-if (s.src) ns.src = s.src;
-else ns.textContent = s.textContent;
-document.body.appendChild(ns);
-});
-} catch (err) {
-console.error("❌ Lỗi load header:", err);
-}
-})();
+    if (role === "Customer" || !role) {
+        // ✅ Chỉ load khi là Customer hoặc Guest
+        (async function loadHeader() {
+            const headerEl = document.getElementById("site-header");
+            try {
+                const res = await fetch("../home/customer-header.html");
+                const html = await res.text();
+                headerEl.innerHTML = html;
 
-(async function loadFooter() {
-const footerEl = document.getElementById("site-footer");
-try {
-const res = await fetch("../home/footer.html");
-footerEl.innerHTML = await res.text();
-} catch (err) {
-console.error("❌ Lỗi load footer:", err);
-}
-})();
+                // ép chạy script trong file header
+                const scripts = headerEl.querySelectorAll("script");
+                scripts.forEach(s => {
+                    const ns = document.createElement("script");
+                    if (s.src) ns.src = s.src;
+                    else ns.textContent = s.textContent;
+                    document.body.appendChild(ns);
+                });
+            } catch (err) {
+                console.error("❌ Lỗi load header:", err);
+            }
+        })();
 
-/* ================== IMPORT MODULES ================== */
-import { initShowtimeCreate, openShowtimeCreate } from "../js/showtime-create.js";
-import { initShowtimeEdit, openShowtimeEdit } from "../js/showtime-edit.js";
-
-const role = localStorage.getItem("role");
-const btnCreate = document.getElementById("btnOpenCreate");
-
-if (role === "Admin" || role === "Manager") {
-btnCreate.addEventListener("click", () => {
-const selectedDay = window.__calendarSelectedYMD || null;
-const currentBranch = document.getElementById("branchSelect")?.value || "";
-openShowtimeCreate({ defaultDate: selectedDay, branchId: currentBranch || null });
-});
-} else {
-btnCreate.style.display = "none";
-}
-
-await initShowtimeCreate({ htmlPath: './showtime-create.html' });
-await initShowtimeEdit({ htmlPath: './showtime-edit.html' });
-window.openShowtimeEdit = openShowtimeEdit;
-
-// Reload lịch chiếu khi có thay đổi
-const reload = () => window.reloadCalendar?.(true);
-window.addEventListener('showtime:created', reload);
-window.addEventListener('showtime:updated', reload);
-window.addEventListener('showtime:deleted', reload);
+        (async function loadFooter() {
+            const footerEl = document.getElementById("site-footer");
+            try {
+                const res = await fetch("../home/footer.html");
+                footerEl.innerHTML = await res.text();
+            } catch (err) {
+                console.error("❌ Lỗi load footer:", err);
+            }
+        })();
+    } else {
+        // ❌ Nếu là admin/manager/staff => ẩn header/footer (đã fit cứng trong dashboard)
+        document.getElementById("site-header").remove();
+        document.getElementById("site-footer").remove();
+    }
 </script>
 
-<!-- App lịch chiếu -->
+<!-- ✅ Đóng script xong mới gọi file JS khác -->
 <script type="module" src="../js/showtimes-calendar.js"></script>
 </body>
 </html>
-

@@ -31,4 +31,8 @@ public final class ChatFormatter {
     public static String emoji(String e, String text) {
         return e + " " + text + "\n";
     }
+
+    public static String link(String text, String url) {
+        return "[" + text.trim() + "](" + url.trim() + ")";
+    }
 }
