@@ -1,0 +1,200 @@
+<!-- ✅ frontend/home/header-no-logout.html -->
+<header class="header cm-header">
+    <div class="header-container">
+        <!-- Logo -->
+        <a href="../home/home.html" class="logo-text">CineMaster</a>
+
+        <!-- Navigation -->
+        <nav class="cm-nav">
+            <a href="../home/home.html" class="nav-link">Home</a>
+            <a href="../movies/listMovieCus.html" class="nav-link">Movies</a>
+            <a href="../user/showtimes-calendar.html" class="nav-link">Showtimes</a>
+            <a href="../discount/listDiscount.html" class="nav-link">Promotions</a>
+            <a href="../news/listNewsCus.html" class="nav-link">News</a>
+            <a href="../contact/contact.html" class="nav-link">Contact</a>
+        </nav>
+
+        <!-- Auth Area (avatar + dropdown) -->
+        <div class="auth-wrap" id="authArea"></div>
+    </div>
+</header>
+
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Bebas+Neue&display=swap');
+    :root {
+        --primary: #e50914;
+        --text: #ffffff;
+        --muted: #cfd8e3;
+    }
+
+    .cm-header {
+        position: fixed;
+        top: 0; left: 0; right: 0;
+        z-index: 2000;
+        background: rgba(10, 19, 38, 0.94);
+        backdrop-filter: saturate(120%) blur(8px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+    }
+
+    .cm-header::after {
+        content: "";
+        position: absolute;
+        left: 0; right: 0; bottom: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, rgba(229,9,20,.65), rgba(34,193,255,.35), transparent);
+    }
+
+    .header-container {
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 18px 48px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+    }
+
+    .logo-text {
+        font-family: 'Bebas Neue', sans-serif;
+        letter-spacing: 2.5px;
+        font-size: 2.4rem;
+        color: var(--primary);
+        text-decoration: none;
+        text-shadow: 0 0 10px rgba(229,9,20,.25);
+    }
+
+    .cm-nav {
+        display: flex;
+        gap: 28px;
+        align-items: center;
+    }
+    .nav-link {
+        position: relative;
+        color: var(--muted);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.05rem;
+        transition: color .2s ease;
+        padding: 8px 2px;
+    }
+    .nav-link:hover,
+    .nav-link.active { color: #fff; }
+    .nav-link::after {
+        content: "";
+        position: absolute;
+        left: 0; right: 0; bottom: -6px;
+        height: 2px;
+        background: linear-gradient(90deg, rgba(229,9,20,.9), rgba(34,193,255,.6));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform .2s ease;
+    }
+    .nav-link:hover::after,
+    .nav-link.active::after { transform: scaleX(1); }
+
+    .auth-wrap { display: flex; align-items: center; gap: 14px; }
+    .user-info { display: flex; align-items: center; gap: 12px; position: relative; cursor: pointer; }
+    .user-avatar {
+        width: 40px; height: 40px;
+        border-radius: 50%; object-fit: cover;
+        border: 2px solid rgba(255,255,255,.15);
+        background: #fff;
+    }
+    .user-name { color: #eef3ff; font-weight: 700; }
+
+    /* Dropdown */
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        right: 0; top: 55px;
+        background: rgba(15,22,40,.95);
+        border: 1px solid rgba(255,255,255,.1);
+        border-radius: 12px;
+        min-width: 180px;
+        box-shadow: 0 6px 20px rgba(0,0,0,.6);
+        padding: 10px 0;
+        z-index: 2100;
+    }
+    .dropdown-menu.show {
+        display: block;
+        animation: fadeIn .2s ease;
+    }
+    .dropdown-menu a {
+        display: block;
+        padding: 10px 18px;
+        color: #cfd8e3;
+        text-decoration: none;
+        font-weight: 500;
+        transition: background .25s ease,color .25s ease;
+    }
+    .dropdown-menu a:hover {
+        background: rgba(255,255,255,.08);
+        color: #fff;
+    }
+    .dropdown-menu hr {
+        border: none;
+        border-top: 1px solid rgba(255,255,255,.1);
+        margin: 6px 0;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width:960px) {
+        .cm-nav { display: none; }
+        .header-container { padding: 14px 20px; }
+    }
+</style>
+
+<script>
+    (function renderAdminHeader() {
+        const authArea = document.getElementById("authArea");
+        if (!authArea) return;
+
+        const name = localStorage.getItem("fullName") || "System User";
+        const storedAvatar = localStorage.getItem("avatarUrl");
+        const accountId = localStorage.getItem("accountId");
+
+        // ✅ Xử lý đường dẫn avatar chính xác
+        let avatar = "../assets/default-avatar.png";
+        if (storedAvatar) {
+            if (storedAvatar.startsWith("/uploads/")) {
+                avatar = "http://localhost:8080" + storedAvatar;
+            } else if (storedAvatar.startsWith("http")) {
+                avatar = storedAvatar;
+            }
+        }
+
+        // ✅ Hiển thị avatar + dropdown Profile
+        authArea.innerHTML = `
+    <div class="user-info" id="userInfo">
+      <img src="${avatar}" alt="avatar" class="user-avatar" id="userAvatar">
+      <span class="user-name">${name}</span>
+      <div class="dropdown-menu" id="dropdownMenu">
+        <a href="../user/profile.html?id=${accountId || ''}">👤 Profile</a>
+
+      </div>
+    </div>
+  `;
+
+        // Dropdown toggle
+        const userInfo = document.getElementById("userInfo");
+        const dropdown = document.getElementById("dropdownMenu");
+
+        userInfo.addEventListener("click", (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle("show");
+        });
+        document.addEventListener("click", () => dropdown.classList.remove("show"));
+
+        // Highlight menu active
+        const current = window.location.pathname.split("/").pop();
+        document.querySelectorAll(".cm-nav .nav-link").forEach(link => {
+            if (link.getAttribute("href").includes(current)) {
+                link.classList.add("active");
+            }
+        });
+    })();
+</script>

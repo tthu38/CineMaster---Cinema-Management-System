@@ -474,30 +474,7 @@
 <div id="footer"></div>
 <!-- JS -->
 <script type="module" src="../js/auditorium-management.js"></script>
-<script>
-    (async function loadHeaderFooter(){
-        const headerEl = document.getElementById("header");
-        const footerEl = document.getElementById("footer");
-        try{
-            const headerHtml = await (await fetch("../home/customer-header.html")).text();
-            headerEl.innerHTML = headerHtml;
 
-
-            // Ép chạy script trong header (để avatar và menu user hoạt động)
-            headerEl.querySelectorAll("script").forEach(s=>{
-                const ns=document.createElement("script");
-                if(s.src) ns.src=s.src; else ns.textContent=s.textContent;
-                document.body.appendChild(ns);
-            });
-
-
-            const footerHtml = await (await fetch("../home/footer.html")).text();
-            footerEl.innerHTML = footerHtml;
-        }catch(err){
-            console.error("Lỗi load header/footer:",err);
-        }
-    })();
-</script>
 </body>
 </html>
 

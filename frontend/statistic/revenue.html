@@ -224,16 +224,7 @@
 <div id="site-footer"></div>
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-<script>
-    // Load header/footer
-    (async()=>{
-        try{
-            document.getElementById("site-header").innerHTML = await (await fetch("../home/customer-header.html")).text();
-            document.getElementById("site-footer").innerHTML = await (await fetch("../home/footer.html")).text();
-        }catch(e){console.error("Lỗi load header/footer:",e);}
-    })();
-</script>
+
 </body>
 </html>
 

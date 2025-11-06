@@ -4,12 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CineMaster • Admin Dashboard</title>
-
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
 
     <style>
         :root {
@@ -20,67 +17,39 @@
             --theme-text-secondary: #a0aec0;
             --theme-hover-bg: rgba(0, 191, 255, 0.1);
             --theme-border: #2d3748;
-
-
-            --primary-color: var(--theme-primary);
-            --secondary-color: var(--theme-text-secondary);
-            --background-color: var(--theme-bg);
-            --sidebar-bg: var(--theme-sidebar);
-            --text-color: var(--theme-text);
-            --card-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            --border-radius: 0.5rem;
         }
-
 
         body {
             font-family: 'Be Vietnam Pro', sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color);
+            background-color: var(--theme-bg);
+            color: var(--theme-text);
             transition: margin-left 0.3s ease;
-            overflow: hidden;
+            overflow-x: hidden;   /* ✅ chỉ ẩn cuộn ngang */
+            overflow-y: auto;
         }
-
 
         #wrapper {
             display: flex;
             min-height: 100vh;
         }
 
-
-        /* Sidebar */
         #sidebar {
             width: 260px;
-            background-color: var(--sidebar-bg);
+            background-color: var(--theme-sidebar);
             box-shadow: 2px 0 15px rgba(0,0,0,0.2);
             position: fixed;
             left: 0;
-            top: 0;
+            top: 80px;
             bottom: 0;
             z-index: 1000;
             display: flex;
             flex-direction: column;
         }
 
-
-        /* ✅ Thanh trượt cho sidebar */
         #sidebar .sidebar-content {
             flex: 1;
             overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: var(--theme-primary) #0c1325;
         }
-
-
-        #sidebar .sidebar-content::-webkit-scrollbar {
-            width: 8px;
-        }
-
-
-        #sidebar .sidebar-content::-webkit-scrollbar-thumb {
-            background-color: var(--theme-primary);
-            border-radius: 10px;
-        }
-
 
         .sidebar-heading {
             padding: 1.5rem 1.25rem;
@@ -91,24 +60,18 @@
             text-align: center;
         }
 
-
         .list-group-item {
             background-color: transparent;
             border: none;
             padding: 1rem 1.5rem;
-            font-size: 1rem;
             color: var(--theme-text-secondary);
             transition: all 0.2s ease-in-out;
         }
 
-
         .list-group-item i {
             width: 25px;
-            text-align: center;
             margin-right: 15px;
-            color: var(--secondary-color);
         }
-
 
         .list-group-item:hover,
         .list-group-item.active {
@@ -118,187 +81,213 @@
             font-weight: 600;
         }
 
-
-        .list-group-item:hover i,
-        .list-group-item.active i {
-            color: var(--theme-primary);
-        }
-
-
-        /* Main content */
         #main-content {
             flex-grow: 1;
             margin-left: 260px;
-            transition: margin-left 0.3s ease;
-            height: 100vh;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: var(--theme-primary) #0c1325;
+            margin-top: 80px;
+            min-height: calc(100vh - 80px); /* ✅ dùng min-height thay vì height */
+            overflow: visible; /* ✅ bỏ cuộn nội bộ để cuộn toàn trang */
         }
 
-
-        #main-content::-webkit-scrollbar {
-            width: 8px;
-        }
-
-
-        #main-content::-webkit-scrollbar-thumb {
-            background-color: var(--theme-primary);
-            border-radius: 10px;
-        }
 
 
         iframe {
             width: 100%;
-            min-height: 100vh;
+            min-height: 100vh;   /* ✅ cho phép cao hơn 1 màn hình */
             border: none;
+            display: block;
         }
 
+        footer {
+            position: relative;   /* ✅ không fixed nữa */
+            margin-left: 260px;   /* để thẳng hàng với content */
+            background-color: #090e26;
+            color: #a0aec0;
+            text-align: center;
+            padding: 14px 0;
+            font-size: 0.9rem;
+            border-top: 1px solid #2d3748;
+        }
 
         @media (max-width: 992px) {
-            #sidebar { left: -260px; }
-            #main-content { margin-left: 0; }
+            #sidebar { left: -260px; top: 70px; }
+            #main-content { margin-left: 0; margin-top: 70px; }
             body.sidebar-toggled #sidebar { left: 0; }
         }
     </style>
 </head>
 
-
 <body>
+<!-- Header chung -->
+<div id="header-placeholder"></div>
+
 <div id="wrapper">
     <aside id="sidebar">
-        <div class="sidebar-heading">
-            <i class="fas fa-film"></i> CineMaster
-        </div>
-
-
+        <div class="sidebar-heading"><i class="fas fa-film"></i> CineMaster</div>
         <div class="sidebar-content">
             <div class="list-group list-group-flush my-3">
-                <a href="#" class="list-group-item list-group-item-action active"
-                   onclick="loadIframe('../statistic/revenue-bar.html', this); return false;">
-                    <i class="fas fa-chart-line"></i> Tổng quan
-                </a>
-                <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('../statistic/revenue.html', this); return false;">
-                    <i class="fas fa-chart-line"></i> Thống kê doanh thu
-                </a>
-                <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('../user/viewUser.html', this); return false;">
-                    <i class="fas fa-users-cog"></i> Quản lý nhân viên
-                </a>
+                <div class="sidebar-content">
+                    <div class="list-group list-group-flush my-3">
+                        <a href="#" class="list-group-item list-group-item-action active"
+                           onclick="loadIframe('../statistic/revenue-bar.html', this); return false;">
+                            <i class="fas fa-chart-line"></i> Tổng quan
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action"
+                           onclick="loadIframe('../statistic/revenue.html', this); return false;">
+                            <i class="fas fa-chart-line"></i> Thống kê doanh thu
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action"
+                           onclick="loadIframe('../user/viewUser.html', this); return false;">
+                            <i class="fas fa-users-cog"></i> Quản lý nhân viên
+                        </a>
 
 
-                <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('../combo/listCombo.html', this); return false;">
-                    <i class="fas fa-box-open"></i> Quản lý combo
-                </a>
+                        <a href="#" class="list-group-item list-group-item-action"
+                           onclick="loadIframe('../combo/listCombo.html', this); return false;">
+                            <i class="fas fa-box-open"></i> Quản lý combo
+                        </a>
 
 
-                <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('../user/manage-auditorium.html', this); return false;">
-                    <i class="fas fa-store"></i> Quản lý phòng chiếu
-                </a>
+                        <a href="#" class="list-group-item list-group-item-action"
+                           onclick="loadIframe('../user/manage-auditorium.html', this); return false;">
+                            <i class="fas fa-store"></i> Quản lý phòng chiếu
+                        </a>
 
 
-                <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('../user/seat-management.html', this); return false;">
-                    <i class="fas fa-chair"></i> Quản lý ghế
-                </a>
+                        <a href="#" class="list-group-item list-group-item-action"
+                           onclick="loadIframe('../user/seat-management.html', this); return false;">
+                            <i class="fas fa-chair"></i> Quản lý ghế
+                        </a>
 
 
-                <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('../user/showtimes-calendar.html', this); return false;">
-                    <i class="fas fa-clock"></i> Quản lý lịch chiếu
-                </a>
+                        <a href="#" class="list-group-item list-group-item-action"
+                           onclick="loadIframe('../user/showtimes-calendar.html', this); return false;">
+                            <i class="fas fa-clock"></i> Quản lý lịch chiếu
+                        </a>
 
 
-                <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('../user/branch-management.html', this); return false;">
-                    <i class="fas fa-code-branch"></i> Quản lý chi nhánh
-                </a>
+                        <a href="#" class="list-group-item list-group-item-action"
+                           onclick="loadIframe('../user/branch-management.html', this); return false;">
+                            <i class="fas fa-code-branch"></i> Quản lý chi nhánh
+                        </a>
 
 
-                <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('../movies/listMovies.html', this); return false;">
-                    <i class="fas fa-film"></i> Quản lý phim
-                </a>
+                        <a href="#" class="list-group-item list-group-item-action"
+                           onclick="loadIframe('../movies/listMovies.html', this); return false;">
+                            <i class="fas fa-film"></i> Quản lý phim
+                        </a>
 
 
-                <!-- ✅ Mục mới: Quản lý kỳ chiếu -->
-                <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('../user/period.html', this); return false;">
-                    <i class="fas fa-clock"></i> Quản lý kỳ chiếu
-                </a>
+                        <!-- ✅ Mục mới: Quản lý kỳ chiếu -->
+                        <a href="#" class="list-group-item list-group-item-action"
+                           onclick="loadIframe('../user/period.html', this); return false;">
+                            <i class="fas fa-clock"></i> Quản lý kỳ chiếu
+                        </a>
 
 
-                <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('../discount/createDiscount.html', this); return false;">
-                    <i class="fas fa-ticket-alt"></i> Mã Giảm Giá
-                </a>
+                        <a href="#" class="list-group-item list-group-item-action"
+                           onclick="loadIframe('../discount/createDiscount.html', this); return false;">
+                            <i class="fas fa-ticket-alt"></i> Mã Giảm Giá
+                        </a>
 
 
-                <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('../user/membership-levels.html', this); return false;">
-                    <i class="fas fa-crown"></i> Quản lý hạng thành viên
-                </a>
+                        <a href="#" class="list-group-item list-group-item-action"
+                           onclick="loadIframe('../user/membership-levels.html', this); return false;">
+                            <i class="fas fa-crown"></i> Quản lý hạng thành viên
+                        </a>
 
 
-                <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('../news/listNews.html', this); return false;">
-                    <i class="fas fa-newspaper"></i> Quản lý tin tức
-                </a>
+                        <a href="#" class="list-group-item list-group-item-action"
+                           onclick="loadIframe('../news/listNews.html', this); return false;">
+                            <i class="fas fa-newspaper"></i> Quản lý tin tức
+                        </a>
 
 
-                <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('../feedback/viewFeedback.html', this); return false;">
-                    <i class="fas fa-comments"></i> Phản hồi
-                </a>
-                <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('../contact/contactManagement.html', this); return false;">
-                    <i class="fas fa-envelope"></i> Liên hệ khách hàng
-                </a>
+                        <a href="#" class="list-group-item list-group-item-action"
+                           onclick="loadIframe('../feedback/viewFeedback.html', this); return false;">
+                            <i class="fas fa-comments"></i> Phản hồi
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action"
+                           onclick="loadIframe('../contact/contactManagement.html', this); return false;">
+                            <i class="fas fa-envelope"></i> Liên hệ khách hàng
+                        </a>
 
 
 
 
-                <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('../settings/viewSettings.html', this); return false;">
-                    <i class="fas fa-cog"></i> Cài đặt
-                </a>
+                        <a href="#" class="list-group-item list-group-item-action"
+                           onclick="loadIframe('../settings/viewSettings.html', this); return false;">
+                            <i class="fas fa-cog"></i> Cài đặt
+                        </a>
 
-
-                <a href="../user/login.html" class="list-group-item list-group-item-action text-danger">
-                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                </a>
+                        <!-- 🔹 Đăng xuất -->
+                        <a href="#" class="list-group-item list-group-item-action text-danger" onclick="logoutUser()">
+                            <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                        </a>
             </div>
         </div>
     </aside>
 
-
     <div id="main-content">
-        <iframe
-                id="main-frame"
-                src="../statistic/revenue-bar.html"
-        <!--                sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals">-->
-        </iframe>
+        <iframe id="main-frame" src="../statistic/revenue-bar.html"></iframe>
     </div>
 </div>
 
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
+<!-- ✅ Footer chung -->
+<div id="footer-placeholder"></div>
 
 <script>
+    // Header
+    (async function loadHeader() {
+        const headerEl = document.getElementById("header-placeholder");
+        try {
+            const res = await fetch("header-no-logout.html");
+            const html = await res.text();
+            headerEl.innerHTML = html;
+
+            // ✅ Sau khi load, tìm và chạy lại script trong header
+            headerEl.querySelectorAll("script").forEach(oldScript => {
+                const newScript = document.createElement("script");
+                if (oldScript.src) {
+                    newScript.src = oldScript.src;
+                } else {
+                    newScript.textContent = oldScript.textContent;
+                }
+                document.body.appendChild(newScript);
+            });
+        } catch (err) {
+            console.error("❌ Lỗi load header:", err);
+        }
+    })();
+
+    // Footer
+    (async function loadFooter() {
+        const footerEl = document.getElementById("footer-placeholder");
+        try {
+            const res = await fetch("../home/footer.html");
+            footerEl.innerHTML = await res.text();
+        } catch (err) {
+            console.error("❌ Lỗi load footer:", err);
+        }
+    })();
+
+    // Chuyển iframe
     function loadIframe(url, element) {
         const frame = document.getElementById('main-frame');
         frame.src = url;
-
-
         document.querySelectorAll('.list-group-item').forEach(el => el.classList.remove('active'));
         if (element) element.classList.add('active');
+    }
+
+    // Đăng xuất
+    function logoutUser() {
+        localStorage.clear();
+        sessionStorage.clear();
+        if (window.google?.accounts?.id) {
+            google.accounts.id.disableAutoSelect();
+        }
+        window.location.href = "../user/login.html";
     }
 </script>
 </body>
 </html>
-
-

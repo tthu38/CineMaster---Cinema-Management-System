@@ -23,6 +23,7 @@ async function sendMessage() {
     try {
         // 🚀 Gọi API backend
         const answer = await chatApi.ask(question);
+        console.log("BOT RESPONSE:", answer);
 
         // ✅ Xóa loading, thêm tin nhắn bot (markdown)
         removeLoading(loading);
@@ -39,9 +40,26 @@ function addMessage(text, type) {
     msg.classList.add("bubble", type);
 
     if (type === "bot") {
-        // ✅ Dùng thư viện marked để parse Markdown
+        // ⚙️ Cấu hình Marked để hiển thị markdown đúng chuẩn
+        marked.setOptions({
+            breaks: true,        // Cho phép xuống dòng
+            mangle: false,       // Giữ nguyên ký tự trong link
+            headerIds: false     // Không tạo id tự động cho tiêu đề
+        });
+
+        // ✅ Parse markdown (in đậm, link, v.v.)
         msg.innerHTML = marked.parse(text);
+
+        // 🎨 Biến tất cả link thành nút đẹp
+        msg.querySelectorAll("a").forEach(a => {
+            a.classList.add("btn", "btn-sm", "btn-primary", "mt-2");
+            a.target = "_blank"; // mở tab mới
+            a.style.textDecoration = "none";
+            a.style.color = "#fff";
+            a.style.fontWeight = "600";
+        });
     } else {
+        // 🧍 Tin nhắn người dùng: chỉ là text bình thường
         msg.textContent = text;
     }
 

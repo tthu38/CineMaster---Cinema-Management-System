@@ -483,33 +483,7 @@
 <div id="site-footer"></div>
 
 
-<script>
-    (async ()=>{
-        try {
-            const [headerHtml, footerHtml] = await Promise.all([
-                fetch("../home/customer-header.html").then(r => r.text()),  // đổi thành admin-header.html nếu có
-                fetch("../home/footer.html").then(r => r.text())
-            ]);
 
-
-            const headerEl = document.getElementById("site-header");
-            const footerEl = document.getElementById("site-footer");
-            headerEl.innerHTML = headerHtml;
-            footerEl.innerHTML = footerHtml;
-
-
-            // ⚙️ Kích hoạt script trong header để avatar/menu user hoạt động
-            headerEl.querySelectorAll("script").forEach(oldScript => {
-                const newScript = document.createElement("script");
-                if (oldScript.src) newScript.src = oldScript.src;
-                else newScript.textContent = oldScript.textContent;
-                document.body.appendChild(newScript);
-            });
-        } catch (e) {
-            console.error("❌ Lỗi load header/footer:", e);
-        }
-    })();
-</script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="module" src="../js/branchList.js"></script>
 </body>

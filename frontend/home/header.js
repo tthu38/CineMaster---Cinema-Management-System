@@ -33,6 +33,27 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function logoutUser() {
-    localStorage.clear();
-    location.href = "../user/login.html";
+    try {
+        // 1️⃣ Xóa dữ liệu local & session
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("fullName");
+        localStorage.removeItem("avatarUrl");
+        localStorage.removeItem("userRole");
+        sessionStorage.clear();
+
+        // 2️⃣ Nếu có dùng Google Identity (GSI)
+        if (window.google && google.accounts && google.accounts.id) {
+            google.accounts.id.disableAutoSelect();
+
+            const email = localStorage.getItem("userEmail");
+            if (email) {
+                google.accounts.id.revoke(email, done => console.log("Revoked GSI:", done));
+            }
+        }
+
+        // 3️⃣ Chuyển hướng về login
+        window.location.href = "../user/login.html";
+    } catch (err) {
+        console.error("Logout failed:", err);
+    }
 }

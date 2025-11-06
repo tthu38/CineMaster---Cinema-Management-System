@@ -3,31 +3,46 @@ import { branchApi } from "../js/api/branchApi.js";
 
 document.addEventListener("DOMContentLoaded", async () => {
     // ===== Load header/footer =====
-    const headerHTML = await (await fetch("../home/header.html")).text();
-    const footerHTML = await (await fetch("../home/footer.html")).text();
-    document.getElementById("header").innerHTML = headerHTML;
-    document.getElementById("footer").innerHTML = footerHTML;
+    const headerEl = document.getElementById("header");
+    const footerEl = document.getElementById("footer");
 
-    const headerScript = document.createElement("script");
-    headerScript.src = "../home/header.js";
-    document.body.appendChild(headerScript);
+    try {
+        // Load HTML
+        const headerHTML = await (await fetch("../home/customer-header.html")).text();
+        const footerHTML = await (await fetch("../home/footer.html")).text();
+
+        headerEl.innerHTML = headerHTML;
+        footerEl.innerHTML = footerHTML;
+
+        // ✅ Ép chạy lại <script> trong customer-header.html>
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = headerHTML;
+        const scripts = tempDiv.querySelectorAll("script");
+        scripts.forEach(oldScript => {
+            const newScript = document.createElement("script");
+            if (oldScript.src) newScript.src = oldScript.src;
+            else newScript.textContent = oldScript.textContent;
+            document.body.appendChild(newScript);
+        });
+
+    } catch (err) {
+        console.error("❌ Lỗi khi load header/footer:", err);
+    }
 
     // ===== Load danh sách chi nhánh =====
     try {
-        const branches = await branchApi.getNames(); // ✅ dùng /names thay vì getAll()
+        const branches = await branchApi.getNames();
         console.log("📡 Branches:", branches);
         const select = document.getElementById("branchSelect");
-
         branches.forEach(b => {
             const opt = document.createElement("option");
-            opt.value = b.id || b.branchID; // xử lý cả 2 dạng
+            opt.value = b.id || b.branchID;
             opt.textContent = b.branchName;
             select.appendChild(opt);
         });
     } catch (e) {
         console.error("❌ Không tải được danh sách chi nhánh:", e);
     }
-
 
     // ===== Submit form =====
     const form = document.getElementById("contactForm");
