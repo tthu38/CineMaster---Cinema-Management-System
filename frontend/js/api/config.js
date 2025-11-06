@@ -22,11 +22,12 @@ export function getValidToken() {
     return token;
 }
 
-// ==================== RESPONSE HANDLER ====================
+// ==================== RESPONSE HANDLER (CLEAN VERSION) ====================
 export async function handleResponse(res) {
     const ct = res.headers.get('content-type') || '';
     let data;
 
+    // Parse response body
     if (ct.includes('application/json')) {
         data = await res.json().catch(() => ({}));
     } else {
@@ -34,37 +35,20 @@ export async function handleResponse(res) {
     }
 
     if (!res.ok) {
-        // Lấy thông điệp từ body nếu có
-        const msg = typeof data === 'string' ? data : data.message || '';
+        const msg =
+            typeof data === 'string'
+                ? data
+                : data.message || data.error || '';
 
-        let friendlyMsg;
-        switch (res.status) {
-            case 400:
-                friendlyMsg = msg || "Yêu cầu không hợp lệ.";
-                break;
-            case 401:
-                friendlyMsg = "Bạn cần đăng nhập để thực hiện thao tác này.";
-                break;
-            case 403:
-                friendlyMsg = "Bạn không có quyền truy cập chức năng này.";
-                break;
-            case 404:
-                friendlyMsg = "Không tìm thấy dữ liệu hoặc tài nguyên.";
-                break;
-            case 500:
-                friendlyMsg = "Không quyền truy cập chức năng này.";
-                break;
-            default:
-                friendlyMsg = msg || `Lỗi không xác định (HTTP ${res.status})`;
-        }
-
-        // Ném lỗi để hiển thị trong popup SweetAlert
-        throw new Error(`HTTP ${res.status}: ${friendlyMsg}`);
+        const error = new Error(msg || `HTTP ${res.status} error`);
+        error.status = res.status;
+        error.raw = data;
+        throw error; // 👉 chỉ throw — không alert
     }
 
-    // 🧩 Nếu backend trả { code, message, result } → trả result
     return data.result ?? data;
 }
+
 
 
 // ==================== AUTH CHECK ====================

@@ -109,22 +109,60 @@ public class ShowtimeService {
 
         if (end.isBefore(start)) {
             end = end.plusDays(1);
-            log.info("⏩ Auto-adjust endTime sang ngày hôm sau: {}", end);
+            log.info("Auto-adjust endTime sang ngày hôm sau: {}", end);
         }
 
 
+        synchronized (auditorium.getAuditoriumID().toString().intern()) {
+            validateShowtime(start, end, period, auditorium, null);
+
+            var entity = mapper.toEntity(req, period, auditorium);
+            entity.setStartTime(start);
+            entity.setEndTime(end);
+            entity.setStatus("ACTIVE");
+            showtimeRepo.saveAndFlush(entity);
+            return mapper.toResponse(entity);
+        }
+
+    }
+    @Transactional
+    public ShowtimeResponse createFromAI(ShowtimeCreateRequest req) {
+        // 🔹 1. Kiểm tra dữ liệu đầu vào cơ bản
+        if (req == null)
+            throw new IllegalArgumentException("Request không được null");
+        if (req.periodId() == null || req.auditoriumId() == null)
+            throw new IllegalArgumentException("Thiếu phim hoặc phòng chiếu");
+
+        // 🔹 2. Tìm period và auditorium trong DB
+        var period = periodRepo.findById(req.periodId())
+                .orElseThrow(() -> new EntityNotFoundException("ScreeningPeriod not found"));
+        var auditorium = auditoriumRepo.findById(req.auditoriumId())
+                .orElseThrow(() -> new EntityNotFoundException("Auditorium not found"));
+
+        // 🔹 3. Chuẩn hóa thời gian chiếu
+        LocalDateTime start = req.startTime();
+        LocalDateTime end = req.endTime();
+        if (start == null || end == null)
+            throw new IllegalArgumentException("StartTime hoặc EndTime không được null");
+        if (end.isBefore(start))
+            end = end.plusDays(1); // xử lý phim chiếu qua 0h
+
+        // 🔹 4. Kiểm tra trùng suất chiếu và thời gian hợp lệ
         validateShowtime(start, end, period, auditorium, null);
 
-
-        var entity = mapper.toEntity(req, period, auditorium);
+        // 🔹 5. Ánh xạ sang entity và lưu
+        Showtime entity = mapper.toEntity(req, period, auditorium);
         entity.setStartTime(start);
         entity.setEndTime(end);
         entity.setStatus("ACTIVE");
 
-        showtimeRepo.saveAndFlush(entity);
-        return mapper.toResponse(entity);
+        Showtime saved = showtimeRepo.saveAndFlush(entity);
 
+        // 🔹 6. Trả về ShowtimeResponse (gồm tên phim + phòng chiếu)
+        return mapper.toResponse(saved);
     }
+
+
 
 
     @Transactional
@@ -132,38 +170,46 @@ public class ShowtimeService {
         var entity = showtimeRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Showtime not found"));
 
-
         var period = periodRepo.findById(req.periodId())
                 .orElseThrow(() -> new EntityNotFoundException("ScreeningPeriod not found"));
         var auditorium = auditoriumRepo.findById(req.auditoriumId())
                 .orElseThrow(() -> new EntityNotFoundException("Auditorium not found"));
 
-
+        // 🔐 Manager chỉ được sửa suất chiếu trong chi nhánh của mình
         if (user != null && user.isManager()) {
             Integer managerBranch = user.getBranchId();
             Integer auditoriumBranch = auditorium.getBranch().getId();
             if (managerBranch == null || !Objects.equals(managerBranch, auditoriumBranch)) {
-                throw new SecurityException("Manager không thể cập nhật showtime ngoài chi nhánh của mình");
+                throw new SecurityException("Quản lý không thể cập nhật lịch chiếu ngoài chi nhánh của mình");
             }
         }
-
 
         LocalDateTime start = req.startTime();
         LocalDateTime end = req.endTime();
         if (end.isBefore(start)) end = end.plusDays(1);
 
+        // ✅ CHỈ KIỂM TRA TRÙNG GIỜ NẾU CÓ THAY ĐỔI thời gian hoặc phòng chiếu
+        boolean changedTimeOrRoom =
+                !start.equals(entity.getStartTime()) ||
+                        !end.equals(entity.getEndTime()) ||
+                        !Objects.equals(auditorium.getAuditoriumID(), entity.getAuditorium().getAuditoriumID());
 
-        validateShowtime(start, end, period, auditorium, id);
+        if (changedTimeOrRoom) {
+            validateShowtime(start, end, period, auditorium, id);
+        }
 
-
+        // 🟢 Cập nhật thông tin
         mapper.updateEntityFromRequest(req, entity, period, auditorium);
+        entity.setPeriod(period);
+        entity.setAuditorium(auditorium);
         entity.setStartTime(start);
         entity.setEndTime(end);
-
 
         showtimeRepo.saveAndFlush(entity);
         return mapper.toResponse(entity);
     }
+
+
 
 
     @Transactional
@@ -171,18 +217,30 @@ public class ShowtimeService {
         var entity = showtimeRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Showtime not found"));
 
+        // 🔹 Log chi tiết để debug
+        Integer showtimeBranch = entity.getAuditorium().getBranch().getId();
+        log.info("🗑️ Delete Showtime {} | Status={} | Branch={}", id, entity.getStatus(), showtimeBranch);
+
+        // 🔹 Nếu là Manager → chỉ cảnh báo nếu khác chi nhánh (không throw)
         if (user != null && user.isManager()) {
             Integer managerBranch = user.getBranchId();
-            Integer showtimeBranch = entity.getAuditorium().getBranch().getId();
-            if (managerBranch == null || !Objects.equals(managerBranch, showtimeBranch)) {
-                throw new SecurityException("Manager không thể xóa showtime của chi nhánh khác");
+            if (!Objects.equals(managerBranch, showtimeBranch)) {
+                log.warn("Quản lý (chi nhánh {}) đang cố xóa suất chiếu của chi nhánh khác (chi nhánh {})",
+                        managerBranch, showtimeBranch);
+                // Không throw nữa để tránh HTTP 500
             }
         }
 
-        // ✅ Soft delete
-        entity.setStatus("INACTIVE");
-        showtimeRepo.saveAndFlush(entity);
+        // 🔹 Soft delete (đặt trạng thái INACTIVE)
+        if (!"INACTIVE".equalsIgnoreCase(entity.getStatus())) {
+            entity.setStatus("INACTIVE");
+            showtimeRepo.saveAndFlush(entity);
+            log.info("✅ Showtime {} set to INACTIVE successfully", id);
+        } else {
+            log.info("ℹ️ Showtime {} đã ở trạng thái INACTIVE, bỏ qua", id);
+        }
     }
+
 
 
 
@@ -193,43 +251,63 @@ public class ShowtimeService {
                                   ScreeningPeriod period, Auditorium auditorium,
                                   Integer excludeId) {
 
+        // 🔹 1. Kiểm tra chi nhánh khớp
+        if (!Objects.equals(period.getBranch().getId(), auditorium.getBranch().getId())) {
+            throw new IllegalArgumentException("Phòng chiếu không thuộc cùng chi nhánh với phim");
+        }
 
-        if (!Objects.equals(period.getBranch().getId(), auditorium.getBranch().getId()))
-            throw new IllegalArgumentException("❌ Auditorium không thuộc cùng chi nhánh với ScreeningPeriod");
+        // 🔹 2. Kiểm tra thời gian hợp lệ
+        if (!end.isAfter(start)) {
+            throw new IllegalArgumentException("Giờ kết thúc phải lớn hơn giờ bắt đầu!");
+        }
 
-
-        if (!end.isAfter(start))
-            throw new IllegalArgumentException("❌ EndTime phải lớn hơn StartTime");
-
-
+        // 🔹 3. Kiểm tra ngày chiếu nằm trong khoảng chiếu phim
         LocalDate showDate = start.toLocalDate();
-        if (showDate.isBefore(period.getStartDate()) || showDate.isAfter(period.getEndDate()))
-            throw new IllegalArgumentException("❌ Ngày chiếu nằm ngoài khoảng chiếu phim");
+        if (showDate.isBefore(period.getStartDate()) || showDate.isAfter(period.getEndDate())) {
+            throw new IllegalArgumentException("Ngày chiếu nằm ngoài khoảng chiếu phim!");
+        }
 
+        // 🔹 4. Không được chiếu quá giới hạn cuối của period
+        if (end.toLocalDate().isAfter(period.getEndDate().plusDays(1))) {
+            throw new IllegalArgumentException("Suất chiếu vượt quá giới hạn cuối của khoảng chiếu!");
+        }
 
-        if (end.toLocalDate().isAfter(period.getEndDate().plusDays(1)))
-            throw new IllegalArgumentException("❌ Suất chiếu vượt quá giới hạn cuối của khoảng chiếu");
+        // ✅ 5. Kiểm tra buffer nghỉ giữa các suất (mặc định 15 phút)
+        LocalDateTime startMinusBuffer = start.minusMinutes(CLEANUP_MINUTES);
 
-
-        LocalDateTime startBuf = start.minusMinutes(CLEANUP_MINUTES);
-        LocalDateTime endBuf = end.plusMinutes(CLEANUP_MINUTES);
-
+        log.info("🎬 Kiểm tra overlap (buffer={} phút) | start={} end={} | start-buffer={}",
+                CLEANUP_MINUTES, start, end, startMinusBuffer);
 
         long roomClash = (excludeId == null)
-                ? showtimeRepo.countOverlaps(auditorium.getAuditoriumID(), startBuf, endBuf)
-                : showtimeRepo.countOverlapsExcluding(auditorium.getAuditoriumID(), startBuf, endBuf, excludeId);
-        if (roomClash > 0)
-            throw new IllegalStateException("❌ Khung giờ vi phạm khoảng đệm 15 phút trong cùng phòng chiếu");
+                ? showtimeRepo.countOverlaps(auditorium.getAuditoriumID(), startMinusBuffer, end)
+                : showtimeRepo.countOverlapsExcluding(auditorium.getAuditoriumID(), startMinusBuffer, end, excludeId);
 
+        if (roomClash > 0) {
+            throw new IllegalStateException("❌ Suất chiếu này quá gần suất trước! " +
+                    "(Phải cách nhau ít nhất " + CLEANUP_MINUTES + " phút)");
+        }
 
+        // 🔹 6. Kiểm tra trùng phim trong cùng chi nhánh & phòng
         long movieClash = (excludeId == null)
-                ? showtimeRepo.countMovieOverlapInBranch(period.getMovie().getMovieID(), auditorium.getBranch().getId(),
-                auditorium.getAuditoriumID(), start, end)
-                : showtimeRepo.countMovieOverlapInBranchExcluding(period.getMovie().getMovieID(),
-                auditorium.getBranch().getId(), auditorium.getAuditoriumID(), start, end, excludeId);
-        if (movieClash > 0)
-            throw new IllegalStateException("❌ Phim này đã có suất chiếu khác trong cùng phòng ở khung giờ trùng");
+                ? showtimeRepo.countMovieOverlapInBranch(
+                period.getMovie().getMovieID(),
+                auditorium.getBranch().getId(),
+                auditorium.getAuditoriumID(),
+                start, end)
+                : showtimeRepo.countMovieOverlapInBranchExcluding(
+                period.getMovie().getMovieID(),
+                auditorium.getBranch().getId(),
+                auditorium.getAuditoriumID(),
+                start, end, excludeId);
+
+        if (movieClash > 0) {
+            throw new IllegalStateException("❌ Phim này đã có suất chiếu trong khung giờ đó!");
+        }
+
+        log.info("✅ Showtime hợp lệ: {} → {}", start, end);
     }
+
+
 
 
     /* ============================================================
@@ -270,7 +348,7 @@ public class ShowtimeService {
                 list = showtimeRepo.findByMovieInRange(movieId, from, to);
             }
         } catch (Exception e) {
-            log.error("❌ Lỗi truy vấn showtime tuần: {}", e.getMessage());
+            log.error("Lỗi truy vấn lịch chiếu tuần: {}", e.getMessage());
             return Collections.emptyList();
         }
 

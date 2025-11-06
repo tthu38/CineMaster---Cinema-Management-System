@@ -3,7 +3,6 @@ import { screeningPeriodApi } from './api/screeningPeriodApi.js';
 import { auditoriumApi } from './api/auditoriumApi.js';
 import { branchApi } from './api/branchApi.js';
 
-const ADS_MINUTES = 5;      // Phút quảng cáo đầu phim
 const CLEANUP_MINUTES = 15; // Phút dọn rạp sau phim
 
 let modal, el = {}, state = {
@@ -206,7 +205,7 @@ async function refreshBranchData() {
 
     } catch (e) {
         console.error(e);
-        showError(e?.message || 'Không tải được dữ liệu period/phòng chiếu.');
+        showError(e?.message || 'Không tải được dữ liệu tên phim/phòng chiếu.');
     }
 }
 
@@ -234,10 +233,10 @@ function onPeriodChange() {
 
     const durAttr = opt?.getAttribute('data-duration');
     const dur = durAttr ? Number(durAttr) : null;
-    state.movieDurationMin = dur ? dur + ADS_MINUTES : null;
+    state.movieDurationMin = dur ? dur : null;
 
     if (dur) {
-        el.periodHint.textContent += `${el.periodHint.textContent ? ' • ' : ''}Thời lượng: ${dur} phút (+${ADS_MINUTES}p QC)`;
+        el.periodHint.textContent += `${el.periodHint.textContent ? ' • ' : ''}Thời lượng: ${dur} phút `;
     }
 
     recalcEnd();
@@ -307,24 +306,40 @@ async function onSubmit() {
         const price = Number(el.price.value || 0);
         const date = el.date.value;
         const start = el.start.value;
-
         if (!el.end.value) recalcEnd();
         const end = el.end.value;
 
         if (!branchId) throw new Error('Vui lòng chọn chi nhánh');
-        if (!periodId) throw new Error('Vui lòng chọn Screening Period');
+        if (!periodId) throw new Error('Vui lòng chọn tên phim');
         if (!auditoriumId) throw new Error('Vui lòng chọn Phòng chiếu');
         if (!date) throw new Error('Vui lòng chọn Ngày');
         if (!start) throw new Error('Vui lòng chọn giờ bắt đầu');
         if (!end) throw new Error('Thiếu giờ kết thúc');
 
+        // 🧭 Kiểm tra trùng giờ tại FE (thêm đoạn này)
         await loadDaySlotsForAuditoriumDay();
         const startTime = toISO(date, start);
         const endDateForIso = end > start ? date : addDaysYMD(date, 1);
         const endTime = toISO(endDateForIso, end);
 
-        const payload = { periodId, auditoriumId, startTime, endTime, language, price, branchId };
+        const startT = new Date(startTime);
+        const endT = new Date(endTime);
 
+        for (const s of state.daySlots) {
+            const existStart = new Date(s.startTime);
+            const existEnd = new Date(s.endTime);
+            const existEndWithBuffer = new Date(existEnd.getTime() + CLEANUP_MINUTES * 60000);
+
+            // Nếu suất mới bắt đầu trước khi suất cũ kết thúc + buffer → lỗi
+            if (startT < existEndWithBuffer && endT > existStart) {
+                throw new Error(
+                    `❌ Suất này trùng hoặc chưa đủ đệm ${CLEANUP_MINUTES} phút với suất lúc ${existStart.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}`
+                );
+            }
+        }
+
+        // ✅ Không trùng → gửi request
+        const payload = { periodId, auditoriumId, startTime, endTime, language, price, branchId };
         setSubmitting(true);
         await showtimeApi.create(payload);
 
@@ -339,6 +354,7 @@ async function onSubmit() {
         setSubmitting(false);
     }
 }
+
 
 /* ============================================================
    🔹 NÚT SUBMIT LOADING

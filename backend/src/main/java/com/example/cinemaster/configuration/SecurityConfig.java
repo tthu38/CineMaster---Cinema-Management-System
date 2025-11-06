@@ -36,8 +36,7 @@ public class SecurityConfig {
             "/api/v1/momo/**",
             "/api/v1/sepay/**",
             "/api/v1/trailers/**",
-            "/api/v1/payments/**",
-            "/api/ai/scheduler/**"
+            "/api/v1/payments/**"
     };
 
     @Bean

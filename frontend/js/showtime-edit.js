@@ -5,7 +5,6 @@ import { auditoriumApi } from './api/auditoriumApi.js';
 import { branchApi } from './api/branchApi.js';
 
 // ================= CONSTANTS =================
-const ADS_MINUTES = 5;      // phút quảng cáo đầu phim
 const CLEANUP_MINUTES = 15; // đệm dọn rạp
 
 // ================= STATE =================
@@ -246,14 +245,22 @@ function violatesBuffer(startStr, endStr) {
 
     const startMin = toMinutes(startStr);
     const endMin = toMinutes(endStr);
+
     for (const s of state.daySlots) {
         const sStart = toMinutes(s.startTime.split('T')[1].slice(0, 5));
         const sEnd = toMinutes(s.endTime.split('T')[1].slice(0, 5));
-        if (sStart < endMin + CLEANUP_MINUTES && sEnd > startMin - CLEANUP_MINUTES)
+
+        // 🔹 CHỈ kiểm tra buffer sau khi phim trước kết thúc
+        const sEndWithBuffer = sEnd + CLEANUP_MINUTES;
+
+        // Nếu phim mới bắt đầu trước khi phim cũ dọn xong → conflict
+        if (startMin < sEndWithBuffer && endMin > sStart)
             return true;
     }
+
     return false;
 }
+
 
 // ================= PERIOD CHANGE =================
 function onPeriodChange() {
@@ -272,10 +279,10 @@ function onPeriodChange() {
 
     const durAttr = opt?.getAttribute('data-duration');
     const dur = durAttr ? Number(durAttr) : null;
-    state.movieDurationMin = dur ? dur + ADS_MINUTES : null;
+    state.movieDurationMin = dur ? dur : null;
 
     if (dur) {
-        el.periodHint.textContent += `${el.periodHint.textContent ? ' • ' : ''}Thời lượng: ${dur} phút (+${ADS_MINUTES}p QC)`;
+        el.periodHint.textContent += `${el.periodHint.textContent ? ' • ' : ''}Thời lượng: ${dur} phút `;
     }
 
     recalcEnd();

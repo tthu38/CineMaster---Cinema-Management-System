@@ -19,7 +19,7 @@ const isAdmin = role === "Admin";
 const isManager = role === "Manager";
 const isCustomer = role === "Customer";
 const isStaff = role === "Staff";
-const isGuest = !role;
+const isGuest = !role || role === "null" || role === "undefined";
 
 /* ====================== CONSTANTS ====================== */
 const STAFF_BOOK_GRACE_MINUTES = 15; // 🕒 Staff có thể đặt ≤15 phút sau khi phim bắt đầu
@@ -88,61 +88,89 @@ function renderDay(i) {
     }
 
     contentArea.innerHTML = visibleMovies.map(m => `
-     <div class="movie-card">
-       <div class="movie-head">
-         <div class="poster"><img src="${m.posterUrl || '/uploads/no-poster.png'}" alt=""></div>
-         <div class="flex-grow-1"><div class="movie-title h5 mb-1">${m.movieTitle}</div></div>
-       </div>
-       <div class="slots">
-         ${m.slots.map(s => {
+      <div class="movie-card">
+        <!-- Poster + Tên phim -->
+        <div class="movie-poster">
+          <img src="${m.posterUrl || '/uploads/no-poster.png'}" alt="${m.movieTitle}">
+          <h5>${m.movieTitle}</h5>
+        </div>
+
+        <!-- Các suất chiếu -->
+        <div class="movie-showtimes">
+          ${m.slots.map(s => {
         const st = new Date(s.startTime);
         const et = new Date(s.endTime);
         const now = new Date();
 
-        // ====== LOGIC CHÍNH: PHÂN TÍCH THỜI GIAN ======
         const isPast = et.getTime() <= now.getTime();
         const isOngoing = st <= now && et > now;
         const diffMinSinceStart = (now - st) / 60000;
 
         const id = s.showtimeId || s.id;
-        const label = `<span>${formatHm(s.startTime)}–${formatHm(s.endTime)}</span>
-                      <span>• Phòng ${s.auditoriumName || '#?'} </span>`;
+        const startLabel = formatHm(s.startTime);
+        const endLabel = formatHm(s.endTime);
+        const roomName = s.auditoriumName || '#?';
 
-        // ====== PHÂN QUYỀN BẤM SLOT ======
+        // 🔐 Quyền
         const canBook =
             (["Customer", "Staff"].includes(role)) &&
             !isPast &&
             (
-                now < st || // trước khi chiếu
-                (isOngoing && isStaff && diffMinSinceStart <= STAFF_BOOK_GRACE_MINUTES) // staff được bán ≤15p sau khi bắt đầu
+                now < st ||
+                (isOngoing && isStaff && diffMinSinceStart <= STAFF_BOOK_GRACE_MINUTES)
             );
 
         const canEdit = (["Admin", "Manager"].includes(role)) && !isPast && !isOngoing;
 
-        // ====== NÚT GIAO DIỆN ======
-        let main;
+        // 🎨 Style riêng cho đang chiếu
+        const extraClass = isOngoing ? "ongoing" : "";
+
+        // 🔘 Slot template
         if (isGuest) {
-            main = `<a class="slot guest-slot" href="#" data-id="${id}" title="Đăng nhập để đặt vé">${label}</a>`;
-        } else if (canBook) {
-            main = `<a class="slot" href="seat-diagram.html?showtimeId=${id}" title="Đặt vé">${label}</a>`;
-        } else {
-            main = `<span class="slot disabled">${label}</span>`;
+            return `
+                  <a href="#" class="showtime-slot guest-slot ${extraClass}" data-id="${id}" title="Đăng nhập để đặt vé">
+                    <span class="time">${startLabel} – ${endLabel}</span>
+                    <span class="room">Phòng ${roomName}</span>
+                  </a>`;
+        }
+
+        if (canBook) {
+            return `
+                  <a href="seat-diagram.html?showtimeId=${id}" class="showtime-slot ${extraClass}" title="Đặt vé">
+                    <span class="time">${startLabel} – ${endLabel}</span>
+                    <span class="room">Phòng ${roomName}</span>
+                  </a>`;
+        }
+
+        if (canEdit) {
+            return `
+                  <a href="#" class="showtime-slot editable ${extraClass}" data-id="${id}" title="Chỉnh sửa">
+                    <span class="time">${startLabel} – ${endLabel}</span>
+                    <span class="room">Phòng ${roomName}</span>
+                  </a>`;
         }
 
         return `
-         <div class="slot-wrap">
-           ${main}
-           ${canEdit
-            ? `<button type="button" class="slot-edit" data-id="${id}" title="Chỉnh sửa">
-                    <i class="fa-solid fa-pen-to-square"></i>
-                  </button>`
-            : ""}
-         </div>`;
+              <span class="showtime-slot disabled ${extraClass}">
+                <span class="time">${startLabel} – ${endLabel}</span>
+                <span class="room">Phòng ${roomName}</span>
+              </span>`;
     }).join('')}
-       </div>
-     </div>
-   `).join('');
+        </div>
+      </div>
+    `).join('');
+
+    // 🎯 Sự kiện click cho Admin/Manager (edit)
+    contentArea.querySelectorAll('.showtime-slot.editable').forEach(slot => {
+        slot.addEventListener('click', e => {
+            e.preventDefault();
+            const id = slot.dataset.id;
+            if (id) window.openShowtimeEdit?.(id);
+        });
+    });
 }
+
+
 
 /* ====================== LOAD DATA ====================== */
 async function load(keepSelectedDay = false) {
@@ -207,11 +235,15 @@ function updateWeekLabel(monday) {
 
 /* ====================== CREATE BUTTON ====================== */
 function updateCreateButton() {
-    const btn = document.getElementById("btnOpenCreate");
-    if (!btn || !["Admin", "Manager"].includes(role)) return;
+    const canManage = ["Admin", "Manager"].includes(role);
+    if (!canManage) return;
 
     const selectedDay = data?.[activeIndex]?.date;
     if (!selectedDay) return;
+
+    const btnCreate = document.getElementById("btnOpenCreate");
+    const btnBatch = document.getElementById("btnOpenBatch");
+    const btnAI = document.getElementById("btnOpenAI");
 
     const now = new Date();
     const selected = toDateLocal(selectedDay);
@@ -220,33 +252,37 @@ function updateCreateButton() {
     const isPast = ymd(selected) < ymd(now);
     const isToday = ymd(selected) === ymd(now);
 
-    if (isPast || isToday) {
-        btn.disabled = true;
-        btn.style.opacity = 0.5;
-        btn.title = isPast
-            ? "Không thể tạo lịch chiếu trong quá khứ"
-            : "Không thể tạo lịch chiếu trong ngày hôm nay";
-    } else {
-        btn.disabled = false;
-        btn.style.opacity = 1;
-        btn.title = "Tạo lịch chiếu mới";
-    }
+    // 🔒 Disable 3 nút nếu là hôm nay hoặc quá khứ
+    const disableAll = (isPast || isToday);
+
+    [btnCreate, btnBatch, btnAI].forEach(btn => {
+        if (!btn) return;
+        btn.disabled = disableAll;
+        btn.style.opacity = disableAll ? 0.5 : 1;
+        btn.title = disableAll
+            ? (isPast
+                ? "Không thể tạo lịch chiếu trong quá khứ"
+                : "Không thể tạo lịch chiếu trong ngày hôm nay")
+            : "Tạo lịch chiếu mới";
+    });
 }
+
 
 /* ====================== WEEK NAVIGATION ====================== */
 document.addEventListener("click", async (e) => {
     const id = e.target.id;
-    if (isGuest || isCustomer) return;
+
+    if (isGuest || isCustomer || isStaff) return;
 
     if (id === "prevWeekBtn") {
         currentOffset -= 1;
         await load();
-    }
-    else if (id === "nextWeekBtn") {
+    } else if (id === "nextWeekBtn") {
         currentOffset += 1;
         await load();
     }
 });
+
 
 /* ====================== BRANCH ====================== */
 async function loadBranches() {
@@ -325,6 +361,14 @@ document.getElementById('btnGoLogin')?.addEventListener('click', () => {
 
 /* ====================== INIT ====================== */
 (async function init() {
+    // Ẩn các nút tạo lịch cho Guest & Customer & Staff
+    if (isGuest || isCustomer || isStaff) {
+        document.getElementById("btnOpenCreate")?.remove();
+        document.getElementById("btnOpenBatch")?.remove();
+        document.getElementById("btnOpenAI")?.remove();
+    }
+
+    // Manager chỉ xem chi nhánh của mình
     if (isManager) {
         const branchId = localStorage.getItem("branchId");
         branchSelect.innerHTML = `<option value="${branchId}" selected>Chi nhánh của tôi (#${branchId})</option>`;
@@ -333,6 +377,7 @@ document.getElementById('btnGoLogin')?.addEventListener('click', () => {
         await loadBranches();
     }
 
+    // Guest & Customer không được chuyển tuần
     if (isGuest || isCustomer) {
         document.getElementById("prevWeekBtn").style.display = "none";
         document.getElementById("nextWeekBtn").style.display = "none";
@@ -340,5 +385,6 @@ document.getElementById('btnGoLogin')?.addEventListener('click', () => {
 
     await load();
 })();
+
 
 window.reloadCalendar = (keepSelectedDay = false) => load(keepSelectedDay);

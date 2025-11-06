@@ -13,6 +13,8 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface ShowtimeMapper {
 
+    // ========== ENTITY → RESPONSE ==========
+    @Mapping(target = "showtimeId", source = "showtimeID")
     @Mapping(target = "periodId", source = "period.id")
     @Mapping(target = "auditoriumId", source = "auditorium.auditoriumID")
     @Mapping(target = "movieId", source = "period.movie.movieID")
@@ -24,16 +26,26 @@ public interface ShowtimeMapper {
 
     List<ShowtimeResponse> toResponseList(List<Showtime> entities);
 
+    // ========== REQUEST → ENTITY ==========
     @Mapping(target = "showtimeID", ignore = true)
-    Showtime toEntity(ShowtimeCreateRequest dto, ScreeningPeriod period, Auditorium auditorium);
+    @Mapping(target = "period", expression = "java(period)")
+    @Mapping(target = "auditorium", expression = "java(auditorium)")
+    @Mapping(target = "price", source = "price")
+    @Mapping(target = "language", source = "language")
+    Showtime toEntity(ShowtimeCreateRequest dto,
+                      @Context ScreeningPeriod period,
+                      @Context Auditorium auditorium);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "period", expression = "java(period)")
+    @Mapping(target = "auditorium", expression = "java(auditorium)")
     void updateEntityFromRequest(ShowtimeUpdateRequest dto,
                                  @MappingTarget Showtime entity,
                                  @Context ScreeningPeriod period,
                                  @Context Auditorium auditorium);
 
-    // ✅ Thêm đoạn này — đảm bảo mọi suất chiếu mới đều ACTIVE
+
+    // ========== AFTER MAPPING ==========
     @AfterMapping
     default void setDefaultStatus(@MappingTarget Showtime entity) {
         if (entity.getStatus() == null) {

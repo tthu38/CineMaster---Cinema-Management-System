@@ -46,33 +46,40 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Integer>, Jp
                                     @Param("branchId") Integer branchId);
 
     /* ============================================================
-       ⚙️ KIỂM TRA TRÙNG SUẤT CHIẾU
-    ============================================================ */
+   ⚙️ KIỂM TRA TRÙNG SUẤT CHIẾU (tính cả buffer nghỉ giữa phim)
+============================================================ */
     @Query("""
-      SELECT COUNT(s) FROM Showtime s
-      WHERE s.auditorium.auditoriumID = :auditoriumId
-        AND s.status = 'ACTIVE'
-        AND NOT ( s.endTime <= :startWithBuffer OR s.startTime >= :endWithBuffer )
-   """)
+    SELECT COUNT(s)
+    FROM Showtime s
+    WHERE s.auditorium.auditoriumID = :auditoriumId
+      AND s.status = 'ACTIVE'
+      AND (
+           s.endTime > :startMinusBuffer
+           AND s.startTime < :end
+      )
+""")
     long countOverlaps(@Param("auditoriumId") Integer auditoriumId,
-                       @Param("startWithBuffer") LocalDateTime startWithBuffer,
-                       @Param("endWithBuffer") LocalDateTime endWithBuffer);
+                       @Param("startMinusBuffer") LocalDateTime startMinusBuffer,
+                       @Param("end") LocalDateTime end);
 
     @Query("""
-      SELECT COUNT(s) FROM Showtime s
-      WHERE s.auditorium.auditoriumID = :auditoriumId
-        AND s.status = 'ACTIVE'
-        AND NOT ( s.endTime <= :startWithBuffer OR s.startTime >= :endWithBuffer )
-        AND s.showtimeID <> :excludeId
-   """)
+    SELECT COUNT(s)
+    FROM Showtime s
+    WHERE s.auditorium.auditoriumID = :auditoriumId
+      AND s.status = 'ACTIVE'
+      AND s.showtimeID <> :excludeId
+      AND (
+           s.endTime > :startMinusBuffer
+           AND s.startTime < :end
+      )
+""")
     long countOverlapsExcluding(@Param("auditoriumId") Integer auditoriumId,
-                                @Param("startWithBuffer") LocalDateTime startWithBuffer,
-                                @Param("endWithBuffer") LocalDateTime endWithBuffer,
+                                @Param("startMinusBuffer") LocalDateTime startMinusBuffer,
+                                @Param("end") LocalDateTime end,
                                 @Param("excludeId") Integer excludeId);
-
     /* ============================================================
-       🎬 TRÙNG PHIM TRONG CÙNG PHÒNG (CHI NHÁNH)
-    ============================================================ */
+           🎬 TRÙNG PHIM TRONG CÙNG PHÒNG (CHI NHÁNH)
+        ============================================================ */
     @Query("""
    SELECT COUNT(s) FROM Showtime s
    WHERE s.period.movie.movieID = :movieId
@@ -166,4 +173,5 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Integer>, Jp
     List<Showtime> findByMovieInRange(@Param("movieId") Integer movieId,
                                       @Param("from") LocalDateTime from,
                                       @Param("to") LocalDateTime to);
+
 }
