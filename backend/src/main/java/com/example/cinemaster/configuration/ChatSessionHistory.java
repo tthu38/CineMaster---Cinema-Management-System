@@ -60,4 +60,18 @@ public class ChatSessionHistory {
         Object value = context.get(key);
         return (value != null) ? value.toString() : null;
     }
+
+    public void setSessionUserId(Integer userId) {
+        context.put("session_user_id", userId);
+    }
+
+    public Integer getSessionUserId() {
+        Object value = context.get("session_user_id");
+        if (value instanceof Integer i) return i;
+        try {
+            return Integer.parseInt(value.toString());
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

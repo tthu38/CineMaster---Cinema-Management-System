@@ -89,4 +89,8 @@ public class MovieFeedbackService {
                 .createdAt(feedback.getCreatedAt())
                 .build();
     }
+
+    public List<MovieFeedback> getAllFeedbacksByUser(Integer accountId) {
+        return feedbackRepo.findByAccount_AccountID(accountId);
+    }
 }

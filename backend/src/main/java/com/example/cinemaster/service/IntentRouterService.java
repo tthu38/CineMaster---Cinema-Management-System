@@ -22,7 +22,7 @@ public class IntentRouterService {
     public enum ChatIntent {
         BRANCH_INFO, AUDITORIUM_INFO, SCREENING_NOW, SCREENING_SOON,
         SCREENING_DETAIL, GENERAL_INFO, MOVIE_DETAIL,
-        FAQ_OR_POLICY,COMBO_INFO, PROMOTION_INFO,MEMBERSHIP_INFO,NEWS_INFO, // Chính sách, giá vé, hoàn tiền
+        FAQ_OR_POLICY,COMBO_INFO, PROMOTION_INFO,MEMBERSHIP_INFO,NEWS_INFO,RECOMMEND_MOVIE, // Chính sách, giá vé, hoàn tiền
         UNKNOWN
     }
 
@@ -80,6 +80,8 @@ public class IntentRouterService {
             return ChatIntent.MEMBERSHIP_INFO;
         if (normalizedInput.matches(".*(tin tức|news|sự kiện|khuyến mãi mới|bài viết|blog|thông báo|ra mắt phim).*"))
             return ChatIntent.NEWS_INFO;
+        if (normalizedInput.matches(".*(gợi ý phim|phim giống|tương tự|phim hợp với tôi|nên xem gì|recommend).*"))
+            return ChatIntent.RECOMMEND_MOVIE;
 
         return ChatIntent.UNKNOWN;
     }
