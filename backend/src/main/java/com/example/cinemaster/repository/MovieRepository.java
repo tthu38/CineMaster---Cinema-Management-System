@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface MovieRepository extends JpaRepository<Movie, Integer> {
     List<Movie> findByStatusIgnoreCase(String status);
@@ -26,6 +27,8 @@ public interface MovieRepository extends JpaRepository<Movie, Integer> {
             @Param("cast") String cast,
             @Param("language") String language
     );
+    List<Movie> findByGenreIgnoreCase(String genre);
 
+    Optional<Movie> findByTitleIgnoreCase(String title);
 
 }

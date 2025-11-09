@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface MovieFeedbackRepository extends JpaRepository<MovieFeedback, Integer> {
     List<MovieFeedback> findByMovie_MovieID(Integer movieId);
+    List<MovieFeedback> findByAccount_AccountID(Integer accountId);
 }

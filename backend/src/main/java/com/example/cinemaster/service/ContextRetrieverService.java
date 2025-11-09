@@ -7,6 +7,7 @@ import com.example.cinemaster.util.ChatFormatter;
 import com.example.cinemaster.util.SimpleCache;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import com.example.cinemaster.dto.response.MovieRecommendResponse;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -30,6 +31,8 @@ public class ContextRetrieverService {
     private final VectorStoreService vectorStoreService;
     private final MembershipLevelService membershipLevelService;
     private final NewsService newsService;
+    private final MovieRecommendationService movieRecommendationService;
+    private final AuthService authService;
 
     // ✅ Cache 5 phút cho dữ liệu ít thay đổi
     private final SimpleCache<List<BranchResponse>> branchCache = new SimpleCache<>(5 * 60 * 1000);
@@ -44,7 +47,9 @@ public class ContextRetrieverService {
             ChatSessionHistory sessionHistory,
             VectorStoreService vectorStoreService,
             MembershipLevelService membershipLevelService,
-            NewsService newsService // 👈 thêm
+            NewsService newsService,
+            MovieRecommendationService movieRecommendationService,
+            AuthService authService// 👈 thêm
     ) {
         this.branchService = branchService;
         this.auditoriumService = auditoriumService;
@@ -54,7 +59,9 @@ public class ContextRetrieverService {
         this.sessionHistory = sessionHistory;
         this.vectorStoreService = vectorStoreService;
         this.membershipLevelService = membershipLevelService;
-        this.newsService = newsService; // 👈 gán
+        this.newsService = newsService;
+        this.movieRecommendationService = movieRecommendationService;
+        this.authService = authService;// 👈 gán
     }
 
     /**
@@ -78,6 +85,7 @@ public class ContextRetrieverService {
                 case FAQ_OR_POLICY, UNKNOWN -> retrieveVectorContext(userInput, 3);
                 case MEMBERSHIP_INFO -> getMembershipLevelContext(userInput);
                 case NEWS_INFO -> getNewsContext(userInput);
+                case RECOMMEND_MOVIE -> getRecommendationContext(userInput);
             };
         } catch (Exception e) {
             System.err.println("⚠️ [Fallback] Lỗi SQL hoặc xử lý: " + e.getMessage());
@@ -169,8 +177,9 @@ public class ContextRetrieverService {
                             + kv("Thể loại", m.getGenre())
                             + kv("Thời lượng", safeGet(m.getDuration()) + " phút")
                             + kv("Tóm tắt", m.getDescription())
+                            + "\n"
                             // 🔗 Sửa đường dẫn thành tuyệt đối /user/... để tránh lỗi 404
-                            + ChatFormatter.link("📖 Xem chi tiết", "../movies/movieDetail.html?id=" + m.getMovieID()) + " "
+                            + ChatFormatter.link("📖 Xem chi tiết", "../movies/movieDetail.html?id=" + m.getMovieID()) + "\n"
                             + ChatFormatter.link("🎫 Xem suất chiếu", "../user/showtimes-calendar.html?movieId=" + m.getMovieID());
                 })
                 .collect(Collectors.joining(divider()));
@@ -196,6 +205,7 @@ public class ContextRetrieverService {
                         + kv("Thời lượng", safeGet(m.getDuration()) + " phút")
                         + kv("Tóm tắt", safeGet(m.getDescription()))
                         // 🔗 Thêm link đến trang chi tiết phim
+                        + "\n"
                         + ChatFormatter.link("📖 Xem chi tiết", "../movies/movieDetail.html?id=" + m.getMovieID()))
                 .collect(Collectors.joining(divider()));
 
@@ -408,5 +418,32 @@ public class ContextRetrieverService {
         if (Pattern.compile("cuối tuần|thứ 7|chủ nhật").matcher(lower).find()) return today.plusDays(2);
         if (Pattern.compile("tuần sau").matcher(lower).find()) return today.plusWeeks(1);
         return null;
+    }
+
+    private String getRecommendationContext(String userInput) {
+        Integer accountId = sessionHistory.getSessionUserId(); // lấy user đăng nhập từ session
+
+        // ❌ Chưa đăng nhập → gợi ý phim hot hoặc theo thể loại trong câu hỏi
+        if (accountId == null) {
+            var list = movieRecommendationService.recommendTopRatedByGenre(userInput);
+            if (list.isEmpty()) return emoji("🎬", "Hiện chưa có phim nào phù hợp với yêu cầu.");
+            return mdTitle("🔥 Phim nổi bật mà bạn có thể thích") +
+                    list.stream()
+                            .map(r -> "- **" + r.getTitle() + "** (" + r.getGenre() + ") ⭐" +
+                                    String.format("%.1f", r.getRating() == null ? 0.0 : r.getRating().doubleValue()))
+                            .collect(Collectors.joining("\n"));
+        }
+
+        // ✅ Đã đăng nhập → cá nhân hóa
+        var personalized = movieRecommendationService.recommendForUser(accountId, userInput);
+        if (personalized.isEmpty())
+            return emoji("🎞", "Hiện chưa có gợi ý phù hợp, mình sẽ đề xuất các phim hot nhất nhé!")
+                    + movieRecommendationService.recommendTopRatedGlobal();
+
+        return mdTitle("🍿 Phim bạn có thể thích") +
+                personalized.stream()
+                        .map(r -> "- **" + r.getTitle() + "** (" + r.getGenre() + ") ⭐" +
+                                String.format("%.1f", r.getRating() == null ? 0.0 : r.getRating().doubleValue()))
+                        .collect(Collectors.joining("\n"));
     }
 }
