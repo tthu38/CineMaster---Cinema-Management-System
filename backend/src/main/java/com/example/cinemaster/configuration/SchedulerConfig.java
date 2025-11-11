@@ -5,7 +5,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
- * ⚙️ Cấu hình Scheduler cho các tác vụ tự động
+ *   Cấu hình Scheduler cho các tác vụ tự động
  * - Bật @EnableScheduling để Spring Boot chạy các job định kỳ
  * - Bật @EnableAsync để hỗ trợ chạy đa luồng (nếu cần trong tương lai)
  */

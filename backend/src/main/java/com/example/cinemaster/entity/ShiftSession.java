@@ -33,17 +33,17 @@ public class ShiftSession {
     LocalDateTime endTime;
 
     @Column(name = "OpeningCash", precision = 12, scale = 2)
-    BigDecimal openingCash; // tiền đầu ca
+    BigDecimal openingCash;
 
     @Column(name = "ClosingCash", precision = 12, scale = 2)
-    BigDecimal closingCash; // tiền mặt thực tế khi kết ca
+    BigDecimal closingCash;
 
     @Column(name = "ExpectedCash", precision = 12, scale = 2)
-    BigDecimal expectedCash; // tiền mặt trên app tính ra
+    BigDecimal expectedCash;
 
     @Column(name = "Difference", precision = 12, scale = 2)
-    BigDecimal difference; // chênh lệch
+    BigDecimal difference;
 
     @Column(name = "Status", length = 20)
-    String status; // OPEN / CLOSED
+    String status;
 }

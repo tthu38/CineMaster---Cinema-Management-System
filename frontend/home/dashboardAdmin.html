@@ -30,7 +30,7 @@
 
         #wrapper {
             display: flex;
-            min-height: 100vh;
+            /*min-height: 100vh;*/
         }
 
         #sidebar {
@@ -93,7 +93,8 @@
 
         iframe {
             width: 100%;
-            min-height: 100vh;   /* ✅ cho phép cao hơn 1 màn hình */
+            height: auto;         /* ✅ Cho iframe co giãn tự nhiên */
+            min-height: 0;        /* ✅ Bỏ ép full màn hình */
             border: none;
             display: block;
         }
@@ -123,7 +124,6 @@
 
 <div id="wrapper">
     <aside id="sidebar">
-        <div class="sidebar-heading"><i class="fas fa-film"></i> CineMaster</div>
         <div class="sidebar-content">
             <div class="list-group list-group-flush my-3">
                 <div class="sidebar-content">
@@ -161,7 +161,7 @@
 
 
                         <a href="#" class="list-group-item list-group-item-action"
-                           onclick="loadIframe('../user/showtimes-calendar.html', this); return false;">
+                           onclick="loadIframe('../user/showtimes-calendar-admin.html', this); return false;">
                             <i class="fas fa-clock"></i> Quản lý lịch chiếu
                         </a>
 
@@ -289,5 +289,36 @@
         window.location.href = "../user/login.html";
     }
 </script>
+<script>
+    const frame = document.getElementById('main-frame');
+
+    // ⏳ Lắng nghe khi iframe load xong
+    frame.addEventListener('load', () => {
+        try {
+            const innerDoc = frame.contentDocument || frame.contentWindow.document;
+
+            const resizeObserver = new ResizeObserver(() => {
+                const scrollHeight = Math.max(
+                    innerDoc.body.scrollHeight,
+                    innerDoc.documentElement.scrollHeight
+                );
+                frame.style.height = scrollHeight + 'px';
+
+// 🩵 ép bỏ khoảng trống thừa của file con (nếu có)
+                innerDoc.body.style.minHeight = 'unset';
+                innerDoc.documentElement.style.minHeight = 'unset';
+                innerDoc.body.style.marginBottom = '0';
+                innerDoc.documentElement.style.marginBottom = '0';
+
+                frame.style.height = scrollHeight + 'px';
+            });
+
+            resizeObserver.observe(innerDoc.body);
+        } catch (err) {
+            console.warn('Không thể truy cập nội dung iframe:', err);
+        }
+    });
+</script>
+
 </body>
 </html>

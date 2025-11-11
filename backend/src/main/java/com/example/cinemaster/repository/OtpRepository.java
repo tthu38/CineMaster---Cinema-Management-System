@@ -16,15 +16,12 @@ import java.util.Optional;
 
 public interface OtpRepository extends JpaRepository<Otp, Integer> {
 
-
     @Query("""
        SELECT o FROM Otp o
        WHERE o.code = :code
        AND o.expiry > :now
    """)
     Optional<Otp> findValidOtp(@Param("code") String code, @Param("now") LocalDateTime now);
-
-
     List<Otp> findByTicket(Ticket ticket);
 }
 

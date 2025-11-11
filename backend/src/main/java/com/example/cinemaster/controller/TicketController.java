@@ -1,6 +1,8 @@
 package com.example.cinemaster.controller;
 
 
+
+
 import com.example.cinemaster.dto.request.TicketComboRequest;
 import com.example.cinemaster.dto.request.TicketCreateRequest;
 import com.example.cinemaster.dto.response.*;
@@ -16,14 +18,20 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 
+
+
 import java.util.List;
 import java.util.Map;
+
+
 
 
 @RestController
 @RequestMapping("/api/v1/tickets")
 @RequiredArgsConstructor
 public class TicketController {
+
+
 
 
     private final TicketRepository ticketRepository;
@@ -34,10 +42,16 @@ public class TicketController {
 
 
 
+
+
+
+
     @PostMapping
     public ResponseEntity<TicketResponse> createOrUpdateTicket(@RequestBody TicketCreateRequest req) {
         return ResponseEntity.ok(ticketService.createOrUpdateTicket(req));
     }
+
+
 
 
     @GetMapping("/{ticketId}")
@@ -46,10 +60,14 @@ public class TicketController {
     }
 
 
+
+
     @GetMapping("/{ticketId}/seats")
     public ResponseEntity<List<Integer>> getHeldSeats(@PathVariable Integer ticketId) {
         return ResponseEntity.ok(ticketService.getHeldSeats(ticketId));
     }
+
+
 
 
     @PutMapping("/{ticketId}/seats")
@@ -60,11 +78,15 @@ public class TicketController {
     }
 
 
+
+
     @PostMapping("/{ticketId}/cancel")
     public ResponseEntity<String> cancelTicket(@PathVariable Integer ticketId) {
         ticketService.cancelTicket(ticketId);
         return ResponseEntity.ok("Hủy vé thành công!");
     }
+
+
 
 
     @GetMapping("/occupied/{showtimeId}")
@@ -73,7 +95,9 @@ public class TicketController {
             @RequestParam(required = false) Integer ticketId,
             @RequestParam(required = false) Integer accountId) {
 
+
         List<Integer> occupiedSeatIds;
+
 
         if (ticketId != null) {
             occupiedSeatIds = ticketRepository.findOccupiedSeatIdsByShowtimeExcludeTicket(showtimeId, ticketId);
@@ -83,8 +107,14 @@ public class TicketController {
             occupiedSeatIds = ticketRepository.findOccupiedSeatIdsByShowtime(showtimeId);
         }
 
+
         return ResponseEntity.ok(occupiedSeatIds);
     }
+
+
+
+
+
 
 
 
@@ -97,7 +127,11 @@ public class TicketController {
             @PathVariable String code) {
 
 
+
+
         TicketDiscountResponse result = discountService.applyDiscount(ticketId, code);
+
+
 
 
         ApiResponse<TicketDiscountResponse> api = ApiResponse.<TicketDiscountResponse>builder()
@@ -106,8 +140,12 @@ public class TicketController {
                 .build();
 
 
+
+
         return ResponseEntity.ok(api);
     }
+
+
 
 
     @PostMapping("/{ticketId}/confirm")
@@ -116,10 +154,14 @@ public class TicketController {
             @RequestBody(required = false) Map<String, Object> body) {
 
 
+
+
         String customEmail = null;
         if (body != null && body.get("email") != null) {
             customEmail = body.get("email").toString();
         }
+
+
 
 
         List<TicketComboRequest> combos = null;
@@ -136,13 +178,19 @@ public class TicketController {
         }
 
 
+
+
         ticketService.confirmPayment(ticketId, combos, customEmail);
+
+
 
 
         return ResponseEntity.ok(ApiResponse.<String>builder()
                 .message("Thanh toán thành công — Vé đã được xác nhận và gửi email cho khách hàng.")
                 .build());
     }
+
+
 
 
     @PostMapping("/{ticketId}/add-combos")
@@ -153,12 +201,15 @@ public class TicketController {
         return ResponseEntity.ok(Map.of("message", "Đã thêm combo vào vé"));
     }
 
+
     // 🔸 CUSTOMER gửi yêu cầu hủy vé
     @PutMapping("/{ticketId}/cancel-request")
     @PreAuthorize("hasRole('Customer')")
     public ResponseEntity<ApiResponse<TicketResponse>> requestCancel(
             @PathVariable Integer ticketId,
             @AuthenticationPrincipal Account account) {
+
+
 
 
         return ResponseEntity.ok(ApiResponse.<TicketResponse>builder()
@@ -169,6 +220,8 @@ public class TicketController {
     }
 
 
+
+
     // 🔸 STAFF duyệt hủy vé
     @PutMapping("/{ticketId}/approve-cancel")
     @PreAuthorize("hasAnyRole('Staff','Manager','Admin')")
@@ -177,8 +230,12 @@ public class TicketController {
             @RequestParam Integer accountId) {
 
 
+
+
         Account staff = new Account();
         staff.setAccountID(accountId);
+
+
 
 
         return ResponseEntity.ok(ApiResponse.<TicketResponse>builder()
@@ -189,6 +246,8 @@ public class TicketController {
     }
 
 
+
+
     // 🔸 STAFF duyệt hoàn tiền
     @PutMapping("/{ticketId}/approve-refund")
     @PreAuthorize("hasAnyRole('Staff','Manager','Admin')")
@@ -197,8 +256,12 @@ public class TicketController {
             @RequestParam Integer accountId) {
 
 
+
+
         Account staff = new Account();
         staff.setAccountID(accountId);
+
+
 
 
         return ResponseEntity.ok(ApiResponse.<TicketResponse>builder()
@@ -209,11 +272,15 @@ public class TicketController {
     }
 
 
+
+
     // 🔸 STAFF xem danh sách vé chờ hủy theo chi nhánh
     @GetMapping("/branch/{branchId}/pending-cancel")
     @PreAuthorize("hasRole('Staff')")
     public ResponseEntity<ApiResponse<List<TicketResponse>>> getPendingCancelTickets(
             @PathVariable Integer branchId) {
+
+
 
 
         return ResponseEntity.ok(ApiResponse.<List<TicketResponse>>builder()
@@ -224,12 +291,16 @@ public class TicketController {
     }
 
 
+
+
     // 🔸 CUSTOMER xem vé theo tài khoản
     @GetMapping("/account/{accountID}")
     @PreAuthorize("hasRole('Customer')")
     public ResponseEntity<List<TicketResponse>> getTicketsByAccount(@PathVariable Integer accountID) {
         return ResponseEntity.ok(ticketService.getTicketsByAccount(accountID));
     }
+
+
 
 
     // 🔸 STAFF xem vé theo chi nhánh
@@ -239,12 +310,16 @@ public class TicketController {
             @PathVariable Integer branchId) {
 
 
+
+
         return ResponseEntity.ok(ApiResponse.<List<TicketResponse>>builder()
                 .code(1000)
                 .message("Danh sách vé theo chi nhánh")
                 .result(ticketService.getTicketsByBranch(branchId))
                 .build());
     }
+
+
 
 
     // 🔸 STAFF cập nhật trạng thái thủ công
@@ -256,8 +331,12 @@ public class TicketController {
             @RequestParam Integer accountId) {
 
 
+
+
         Account staff = new Account();
         staff.setAccountID(accountId);
+
+
 
 
         return ResponseEntity.ok(ApiResponse.<TicketResponse>builder()
@@ -266,6 +345,8 @@ public class TicketController {
                 .result(ticketService.updateTicketStatus(ticketId, status, staff))
                 .build());
     }
+
+
 
 
     // 🔸 Chi tiết vé (dạng chi tiết mở rộng)
@@ -279,6 +360,8 @@ public class TicketController {
     }
 
 
+
+
     // 🟢 Kiểm tra thanh toán online bằng Google Sheets
     @GetMapping("/{ticketId}/verify-payment")
     public ResponseEntity<?> verifyOnlinePayment(@PathVariable Integer ticketId) {
@@ -289,6 +372,8 @@ public class TicketController {
             return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
         }
     }
+
+
 
 
 }

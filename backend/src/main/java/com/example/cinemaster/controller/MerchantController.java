@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/v1/merchant") // ✅ đổi theo REST chuẩn
+@RequestMapping("/api/v1/merchant")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class MerchantController {

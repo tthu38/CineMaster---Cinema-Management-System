@@ -7,11 +7,9 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.auth.oauth2.ServiceAccountCredentials;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
-import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.Map;
 
@@ -19,7 +17,6 @@ import java.util.Map;
 public class GoogleSheetsService {
 
     private final Sheets sheetsService;
-    // thay bằng spreadsheetId của bạn (từ URL)
     private final String spreadsheetId = "1SogFx3pztZTmUroh9ra0zst08l_0AksbrK-RekXuKdM";
 
     public GoogleSheetsService() throws Exception {
@@ -31,7 +28,7 @@ public class GoogleSheetsService {
         var httpTransport = GoogleNetHttpTransport.newTrustedTransport();
         InputStream in = getClass().getResourceAsStream("/credentials/service-account.json");
         if (in == null)
-            throw new RuntimeException("⚠️ Không tìm thấy file service-account.json trong resources/credentials/");
+            throw new RuntimeException("️ Không tìm thấy file service-account.json trong resources/credentials/");
 
         GoogleCredentials credentials = GoogleCredentials.fromStream(in)
                 .createScoped(List.of("https://www.googleapis.com/auth/spreadsheets.readonly"));
@@ -53,7 +50,7 @@ public class GoogleSheetsService {
         if (rows == null || rows.isEmpty()) return Map.of("found", "false");
 
         String normalizedCode = normalize(code);
-        System.out.println("🔍 Đang tìm code: " + normalizedCode);
+        System.out.println(" Đang tìm code: " + normalizedCode);
 
         for (int i = 1; i < rows.size(); i++) {
             List<Object> r = rows.get(i);
@@ -62,10 +59,10 @@ public class GoogleSheetsService {
             String amount = r.size() > 7 ? r.get(7).toString() : "";
 
             // debug log
-            System.out.printf("🧾 Dòng %d | CodeTT=[%s] | Note=[%s]%n", i + 1, codeTT, note);
+            System.out.printf(" Dòng %d | CodeTT=[%s] | Note=[%s]%n", i + 1, codeTT, note);
 
             if (codeTT.contains(normalizedCode) || note.contains(normalizedCode)) {
-                System.out.println("✅ Tìm thấy giao dịch tại dòng " + (i + 1));
+                System.out.println(" Tìm thấy giao dịch tại dòng " + (i + 1));
                 return Map.of(
                         "found", "true",
                         "rowIndex", String.valueOf(i + 1),
@@ -75,17 +72,16 @@ public class GoogleSheetsService {
                 );
             }
         }
-        System.out.println("❌ Không tìm thấy giao dịch cho code: " + normalizedCode);
+        System.out.println(" Không tìm thấy giao dịch cho code: " + normalizedCode);
 
         return Map.of("found", "false");
 
     }
 
-    /** 🔹 Hàm normalize loại bỏ ký tự lạ, khoảng trắng, chuyển về lowercase */
     private String normalize(String s) {
         if (s == null) return "";
         return s
-                .replaceAll("[^a-zA-Z0-9]", "") // chỉ giữ lại chữ & số
+                .replaceAll("[^a-zA-Z0-9]", "")
                 .toLowerCase()
                 .trim();
     }

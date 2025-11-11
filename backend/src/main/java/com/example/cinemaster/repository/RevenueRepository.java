@@ -17,8 +17,6 @@ import java.util.Optional;
 
 public interface RevenueRepository extends JpaRepository<Payment, Integer> {
 
-
-    // ✅ Admin: tất cả chi nhánh trong khoảng thời gian
     @Query("""
        SELECT p FROM Payment p
        WHERE p.status = 'SUCCESS'
@@ -26,8 +24,6 @@ public interface RevenueRepository extends JpaRepository<Payment, Integer> {
    """)
     List<Payment> findAllInRange(@Param("from") Instant from, @Param("to") Instant to);
 
-
-    // ✅ Manager: theo chi nhánh
     @Query("""
        SELECT p FROM Payment p
        JOIN p.ticketID t
@@ -43,8 +39,6 @@ public interface RevenueRepository extends JpaRepository<Payment, Integer> {
             @Param("to") Instant to
     );
 
-
-    // ✅ Staff: trong ngày cụ thể
     @Query("""
        SELECT p FROM Payment p
        JOIN p.ticketID t
@@ -59,8 +53,6 @@ public interface RevenueRepository extends JpaRepository<Payment, Integer> {
             @Param("date") LocalDate date
     );
 
-
-    // ✅ Thống kê doanh thu chi tiết (theo công thức mới)
     @Query(value = """
        SELECT
            ISNULL(SUM(seatData.seatCount), 0) AS ticketsSold,

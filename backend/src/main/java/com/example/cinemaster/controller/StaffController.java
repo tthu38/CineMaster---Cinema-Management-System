@@ -15,8 +15,6 @@ import java.util.List;
 @RequestMapping("/api/v1/staffs")
 public class StaffController {
     private final AccountRepository accountRepo;
-
-    // StaffController.java
     @GetMapping
     public ResponseEntity<List<StaffSimpleResponse>> listByBranch(@RequestParam Integer branchId) {
         if (branchId == null) {

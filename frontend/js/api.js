@@ -130,19 +130,17 @@ const userApi = {
         });
         return handleResponse(res);
     },
-
     async uploadAvatar(file) {
         const token = getValidToken();
         if (!token) return null;
 
         const formData = new FormData();
-        formData.append('avatarFile', file);
+        formData.append('file', file); // ✅ trùng với @RequestParam("file")
 
         const res = await fetch(`${API_BASE_URL}/users/avatar`, {
-            method: 'PUT',
+            method: 'POST', // ✅ backend dùng POST
             headers: {
                 Authorization: `Bearer ${token}`,
-                // không set Content-Type khi dùng FormData
             },
             body: formData,
         });
@@ -408,29 +406,6 @@ const _newsApi = {
         });
         return handleResponse(res);
     },
-    async uploadAvatar(file) {
-        const token = getValidToken();
-        if (!token) return null;
-
-
-        const formData = new FormData();
-        formData.append('file', file); // ✅ trùng với @RequestParam("file")
-
-
-        const res = await fetch(`${API_BASE_URL}/users/avatar`, {
-            method: 'POST', // ✅ backend dùng POST
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            body: formData,
-        });
-
-
-        return handleResponse(res);
-    },
-
-
-
 
 };
 
@@ -448,6 +423,7 @@ export function requireAuth() {
 export const api = {
     ...authApi,
     ...userApi,
+    uploadAvatar: userApi.uploadAvatar,
 };
 
 export const accountApi = _accountApi;

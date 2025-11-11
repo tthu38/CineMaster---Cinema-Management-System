@@ -23,12 +23,10 @@ public interface WorkScheduleRepository
                     @Param("date") LocalDate date,
                     @Param("shiftType") String shiftType);
 
-    // Lấy tất cả record trong 1 ô
     List<WorkSchedule> findByBranch_IdAndShiftDateAndShiftType(Integer branchId,
                                                                LocalDate date,
                                                                String shiftType);
 
-    // ---- Specifications dùng cho search ----
     static Specification<WorkSchedule> hasAccount(Integer accountId) {
         return (root, q, cb) -> accountId == null ? cb.conjunction()
                 : cb.equal(root.get("account").get("accountID"), accountId);
@@ -49,7 +47,6 @@ public interface WorkScheduleRepository
         };
     }
 
-    // Kiểm tra overlap
     boolean existsByAccount_AccountIDAndShiftDateAndStartTimeLessThanAndEndTimeGreaterThan(
             Integer accountId, LocalDate shiftDate, LocalTime newEnd, LocalTime newStart);
 

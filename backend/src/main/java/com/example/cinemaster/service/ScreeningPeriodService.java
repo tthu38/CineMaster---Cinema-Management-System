@@ -122,14 +122,11 @@ public class ScreeningPeriodService {
     }
     @Transactional(readOnly = true)
     public List<Movie> getMoviesNowShowingByBranchId(Integer branchId) {
-        // 1️⃣ Gọi trực tiếp repository
         List<Movie> movies = screeningPeriodRepository.findNowShowingMoviesByBranchId(branchId);
 
-        // 2️⃣ Ghi log để debug
-        System.out.println("🎬 [DEBUG] Số lượng phim đang chiếu tìm thấy tại BranchID = "
+        System.out.println(" [DEBUG] Số lượng phim đang chiếu tìm thấy tại BranchID = "
                 + branchId + " → " + movies.size());
 
-        // 3️⃣ Trả về kết quả
         return movies;
     }
 
@@ -141,7 +138,6 @@ public class ScreeningPeriodService {
                 .collect(Collectors.toList());
     }
 
-    // 🔹 Lấy tất cả phim có kỳ chiếu
     public List<Movie> getAllMoviesWithPeriods() {
         return screeningPeriodRepository.findAll()
                 .stream()
@@ -149,8 +145,6 @@ public class ScreeningPeriodService {
                 .distinct()
                 .collect(Collectors.toList());
     }
-
-    // 🔹 Lấy kỳ chiếu hiện tại của một phim
     public ScreeningPeriod getCurrentPeriodByMovie(Integer movieId) {
         return screeningPeriodRepository.findByMovie_MovieID(movieId)
                 .stream()

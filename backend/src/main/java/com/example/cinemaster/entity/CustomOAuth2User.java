@@ -9,8 +9,8 @@ import java.util.Map;
 
 public class CustomOAuth2User implements OAuth2User {
 
-    private final OAuth2User oauth2User; // thông tin gốc từ Google
-    private final Account account;        // account trong DB
+    private final OAuth2User oauth2User;
+    private final Account account;
 
     public CustomOAuth2User(OAuth2User oauth2User, Account account) {
         this.oauth2User = oauth2User;
@@ -29,15 +29,13 @@ public class CustomOAuth2User implements OAuth2User {
 
     @Override
     public String getName() {
-        return account.getFullName(); // lấy từ DB
+        return account.getFullName();
     }
 
-    // Lấy email từ DB
     public String getEmail() {
         return account.getEmail();
     }
 
-    // Lấy luôn Account nếu cần
     public Account getAccount() {
         return account;
     }

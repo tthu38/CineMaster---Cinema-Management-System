@@ -139,7 +139,7 @@ public class EmailService {
             List<String> comboDetails
     ) throws MessagingException {
 
-        String subject = "🎬 Vé xem phim của bạn tại CineMaster";
+        String subject = " Vé xem phim của bạn tại CineMaster";
 
         // ✅ Bảo vệ null cho toàn bộ tham số
         String safeReservation = reservationCode != null ? reservationCode : "N/A";
@@ -161,7 +161,7 @@ public class EmailService {
         // 🔹 Tạo danh sách combo chi tiết
         String comboSection;
         if (comboDetails != null && !comboDetails.isEmpty()) {
-            comboSection = "<h4 style='margin-top:20px;color:#0aa3ff;'>🍿 Combo đã chọn:</h4><ul style='padding-left:18px;'>";
+            comboSection = "<h4 style='margin-top:20px;color:#0aa3ff;'> Combo đã chọn:</h4><ul style='padding-left:18px;'>";
             for (String c : comboDetails) {
                 comboSection += "<li>" + c + "</li>";
             }
@@ -245,8 +245,8 @@ public class EmailService {
             mailSender.send(message);
             log.info("📩 Đã gửi email xác nhận vé cho {} (OTP={}, ComboTotal={})", to, safeOtp, safeCombo);
         } catch (Exception e) {
-            e.printStackTrace(); // 👈 Bắt buộc để thấy lỗi thật trong IntelliJ
-            log.error("❌ Lỗi khi gửi email xác nhận vé cho {}: {}", to, e.getMessage(), e);
+            e.printStackTrace();
+            log.error(" Lỗi khi gửi email xác nhận vé cho {}: {}", to, e.getMessage(), e);
             throw new RuntimeException("Lỗi gửi email xác nhận vé", e);
         }
 

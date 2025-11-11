@@ -13,7 +13,7 @@ import org.hibernate.annotations.Nationalized;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "Roles") // trùng với table trong SQL Server
+@Table(name = "Roles")
 public class Role {
 
     @Id

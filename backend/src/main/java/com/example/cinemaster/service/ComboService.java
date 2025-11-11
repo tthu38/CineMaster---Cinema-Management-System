@@ -25,7 +25,6 @@ public class ComboService {
     private final ComboMapper comboMapper;
     private final FileStorageService fileStorageService;
 
-    // ===== CREATE =====
     public ComboResponse create(ComboRequest request, MultipartFile imageFile) {
         if (request.getBranchId() == null) {
             throw new IllegalArgumentException("Chi nhánh không được để trống.");
@@ -45,39 +44,34 @@ public class ComboService {
         }
 
         comboRepository.save(combo);
-        log.info("✅ Created combo: {} (Branch: {})", combo.getNameCombo(), branch.getBranchName());
+        log.info(" Created combo: {} (Branch: {})", combo.getNameCombo(), branch.getBranchName());
         return comboMapper.toResponse(combo);
     }
 
-    // ===== READ ALL =====
     public List<ComboResponse> getAll() {
-        log.info("🔍 Loading all combos (sorted by available)");
+        log.info(" Loading all combos (sorted by available)");
         List<Combo> combos = comboRepository.findAllOrderByAvailable();
         return comboMapper.toResponseList(combos);
     }
 
-    // ===== READ BY ID =====
     public ComboResponse getById(Integer id) {
         Combo combo = comboRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy combo ID: " + id));
         return comboMapper.toResponse(combo);
     }
 
-    // ===== READ BY BRANCH =====
     public List<ComboResponse> getByBranch(Integer branchId) {
         log.info("🔍 Loading combos for branch ID: {}", branchId);
         List<Combo> combos = comboRepository.findByBranchId(branchId);
         return comboMapper.toResponseList(combos);
     }
 
-    // ===== READ AVAILABLE ONLY =====
     public List<ComboResponse> getAvailable() {
         log.info("🔍 Loading available combos for frontend display");
         List<Combo> combos = comboRepository.findAvailableCombos();
         return comboMapper.toResponseList(combos);
     }
 
-    // ===== UPDATE =====
     public ComboResponse update(Integer id, ComboRequest request, MultipartFile imageFile) {
         Combo combo = comboRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy combo ID: " + id));
@@ -98,11 +92,10 @@ public class ComboService {
         }
 
         comboRepository.save(combo);
-        log.info("🟢 Updated combo ID {} (Branch: {})", id, branch.getBranchName());
+        log.info(" Updated combo ID {} (Branch: {})", id, branch.getBranchName());
         return comboMapper.toResponse(combo);
     }
 
-    // ===== SOFT DELETE =====
     public void delete(Integer id) {
         Combo combo = comboRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy combo ID: " + id));
@@ -113,7 +106,7 @@ public class ComboService {
 
         combo.setAvailable(false);
         comboRepository.save(combo);
-        log.warn("🟠 Combo ID {} has been deactivated.", id);
+        log.warn(" Combo ID {} has been deactivated.", id);
     }
 
     // ===== RESTORE =====
@@ -127,13 +120,13 @@ public class ComboService {
 
         combo.setAvailable(true);
         comboRepository.save(combo);
-        log.info("🟢 Restored combo ID {}", id);
+        log.info(" Restored combo ID {}", id);
         return comboMapper.toResponse(combo);
     }
     // Hong hanh
     public List<ComboResponse> getAvailableCombosByBranchId(Integer branchId) {
         var combos = comboRepository.findAvailableByBranchIncludingGlobal(branchId);
-        log.info("📦 Found {} combos for branchId={}", combos.size(), branchId);
+        log.info(" Found {} combos for branchId={}", combos.size(), branchId);
         return comboMapper.toResponseList(combos);
     }
 }

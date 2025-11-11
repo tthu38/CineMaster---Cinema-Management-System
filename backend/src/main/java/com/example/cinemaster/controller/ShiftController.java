@@ -32,9 +32,6 @@ public class ShiftController {
 
     private final ShiftService shiftService;
 
-    /* ============================================================
-       🟢 MỞ CA
-    ============================================================ */
     @PreAuthorize("hasRole('Staff')")
     @PostMapping("/open")
     public ResponseEntity<ShiftSession> openShift(
@@ -46,9 +43,6 @@ public class ShiftController {
         return ResponseEntity.ok(session);
     }
 
-    /* ============================================================
-       📊 BÁO CÁO DOANH THU CA HIỆN TẠI
-    ============================================================ */
     @PreAuthorize("hasRole('Staff')")
     @GetMapping("/report")
     public ResponseEntity<ShiftReportResponse> getReport(
@@ -59,9 +53,6 @@ public class ShiftController {
         return ResponseEntity.ok(report);
     }
 
-    /* ============================================================
-       🔴 KẾT CA
-    ============================================================ */
     @PreAuthorize("hasRole('Staff')")
     @PostMapping("/close")
     public ResponseEntity<ShiftSessionResponse> closeShift(

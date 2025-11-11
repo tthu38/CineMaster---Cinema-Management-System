@@ -45,11 +45,9 @@ public class Discount {
     @Column(name = "PointCost")
     Integer pointCost;
 
-    // 🔹 Mức hóa đơn tối thiểu để được áp mã
     @Column(name = "MinOrderAmount", precision = 10, scale = 2)
     BigDecimal minOrderAmount;
 
-    // 🔹 Hạng thành viên tối thiểu được áp dụng mã
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "RequiredLevelID", nullable = true)
     private MembershipLevel requiredLevel;
@@ -69,16 +67,10 @@ public class Discount {
     @Column(name = "MaxUsagePerDay")
     Integer maxUsagePerDay;
 
-
-    // 🔹 Trạng thái mã giảm giá (Enum nằm ngay trong Discount)
     @Enumerated(EnumType.STRING)
     @Column(name = "DiscountStatus", length = 20, nullable = false)
     @Builder.Default
     DiscountStatus discountStatus = DiscountStatus.ACTIVE;
-
-    // ==============================
-    // 🔹 Logic nội bộ
-    // ==============================
 
     @Transient
     public DiscountType getDiscountType() {
@@ -96,19 +88,16 @@ public class Discount {
 
         BigDecimal discountValue = BigDecimal.ZERO;
 
-        // 🔹 Trường hợp giảm theo %
         if (percentOff != null && percentOff.compareTo(BigDecimal.ZERO) > 0) {
             discountValue = basePrice
                     .multiply(percentOff)
                     .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
         }
 
-        // 🔹 Trường hợp giảm cố định
         else if (fixedAmount != null && fixedAmount.compareTo(BigDecimal.ZERO) > 0) {
             discountValue = fixedAmount;
         }
 
-        // 🔹 Không được để giảm vượt quá tổng tiền
         if (discountValue.compareTo(basePrice) > 0) {
             discountValue = basePrice;
         }
@@ -127,14 +116,10 @@ public class Discount {
         }
         return "Không áp dụng giảm giá";
     }
-
-    // ==============================
-    // 🏷️ Enum trạng thái giảm giá
-    // ==============================
     public enum DiscountStatus {
-        ACTIVE,      // Mã đang hoạt động
-        INACTIVE,    // Tạm ngưng sử dụng
-        EXPIRED,     // Đã hết hạn
-        DELETED      // Đã xóa vĩnh viễn
+        ACTIVE,
+        INACTIVE,
+        EXPIRED,
+        DELETED
     }
 }

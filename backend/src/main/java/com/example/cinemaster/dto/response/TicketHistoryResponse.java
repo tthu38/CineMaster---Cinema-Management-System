@@ -15,7 +15,7 @@ public class TicketHistoryResponse {
     private String oldStatus;
     private String newStatus;
     private String note;
-    private LocalDateTime changedAt; // ✅ đổi Instant → LocalDateTime
+    private LocalDateTime changedAt;
     private Integer changedById;
     private String changedByName;
 }

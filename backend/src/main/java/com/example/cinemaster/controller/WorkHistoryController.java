@@ -51,7 +51,6 @@ public class WorkHistoryController {
     @PutMapping("/{id}")
     public ResponseEntity<WorkHistoryResponse> update(@PathVariable Integer id,
                                                       @Valid @RequestBody WorkHistoryUpdateRequest req) {
-        // ép id path vào request để validator có thể loại trừ chính nó
         req = new WorkHistoryUpdateRequest(id, req.affectedAccountId(), req.action(), req.actionTime(), req.description());
         return ResponseEntity.ok(service.update(id, req));
     }

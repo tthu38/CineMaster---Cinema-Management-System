@@ -7,6 +7,6 @@ import lombok.*;
 public class NewsDetailRequest {
     private String sectionTitle;
     private String sectionContent;
-    private String imageUrl;     // 👈 cho phép nhập URL ảnh section
+    private String imageUrl;
     private Integer displayOrder;
 }

@@ -24,14 +24,12 @@ public class ContactRequestService {
     private final BranchRepository branchRepo;
     private final AccountRepository accountRepo;
 
-    // 🟢 Khách gửi yêu cầu
     public ContactRequestResponse create(ContactRequestRequest dto) {
-        log.info("📥 Creating contact: {}", dto);
+        log.info(" Creating contact: {}", dto);
 
         ContactRequest entity = mapper.toEntity(dto);
         entity.setStatus("Pending");
 
-        // Gán chi nhánh
         if (dto.getBranchId() != null) {
             var branch = branchRepo.findByIdAndIsActiveTrue(dto.getBranchId())
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy chi nhánh hoạt động!"));
@@ -42,7 +40,7 @@ public class ContactRequestService {
         return mapper.toResponse(entity);
     }
 
-    // 🟢 Lấy danh sách theo chi nhánh (cho Staff)
+    // Lấy danh sách theo chi nhánh (cho Staff)
     public List<ContactRequestResponse> getByBranch(Integer branchId) {
         return contactRepo.findByBranch_Id(branchId)
                 .stream()
@@ -50,7 +48,7 @@ public class ContactRequestService {
                 .toList();
     }
 
-    // 🟢 Nhân viên xử lý liên hệ
+    //  Nhân viên xử lý liên hệ
     public ContactRequestResponse updateStatus(Integer contactId, ContactUpdateRequest dto, Integer staffId) {
         ContactRequest contact = contactRepo.findById(contactId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy liên hệ #" + contactId));
@@ -58,7 +56,7 @@ public class ContactRequestService {
         Account staff = accountRepo.findById(staffId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy nhân viên #" + staffId));
 
-        // 🔒 Chỉ xử lý liên hệ cùng chi nhánh
+        //  Chỉ xử lý liên hệ cùng chi nhánh
         if (contact.getBranch() == null ||
                 !staff.getBranch().getId().equals(contact.getBranch().getId())) {
             throw new RuntimeException("Bạn không thể xử lý liên hệ của chi nhánh khác!");

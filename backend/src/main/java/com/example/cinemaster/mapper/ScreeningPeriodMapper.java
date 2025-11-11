@@ -25,7 +25,6 @@ public interface ScreeningPeriodMapper {
 
     List<ScreeningPeriodResponse> toLiteList(List<ScreeningPeriod> list);
 
-    // ⚡ Dùng để cập nhật entity từ request
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(ScreeningPeriodRequest dto, @MappingTarget ScreeningPeriod entity);
 }

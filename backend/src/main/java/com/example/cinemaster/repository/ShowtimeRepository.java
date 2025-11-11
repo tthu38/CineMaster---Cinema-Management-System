@@ -13,9 +13,6 @@ import java.util.List;
 @Repository
 public interface ShowtimeRepository extends JpaRepository<Showtime, Integer>, JpaSpecificationExecutor<Showtime> {
 
-    /* ============================================================
-       📅 LỊCH CHIẾU THEO NGÀY / TUẦN
-    ============================================================ */
     @Query("""
           SELECT s FROM Showtime s
             JOIN s.period p
@@ -45,9 +42,7 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Integer>, Jp
                                     @Param("end") LocalDateTime end,
                                     @Param("branchId") Integer branchId);
 
-    /* ============================================================
-   ⚙️ KIỂM TRA TRÙNG SUẤT CHIẾU (tính cả buffer nghỉ giữa phim)
-============================================================ */
+
     @Query("""
     SELECT COUNT(s)
     FROM Showtime s
@@ -77,9 +72,7 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Integer>, Jp
                                 @Param("startMinusBuffer") LocalDateTime startMinusBuffer,
                                 @Param("end") LocalDateTime end,
                                 @Param("excludeId") Integer excludeId);
-    /* ============================================================
-           🎬 TRÙNG PHIM TRONG CÙNG PHÒNG (CHI NHÁNH)
-        ============================================================ */
+
     @Query("""
    SELECT COUNT(s) FROM Showtime s
    WHERE s.period.movie.movieID = :movieId
@@ -112,9 +105,7 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Integer>, Jp
                                             @Param("end") LocalDateTime end,
                                             @Param("excludeId") Integer excludeId);
 
-    /* ============================================================
-       🔐 KHÓA PESSIMISTIC (TRÁNH RACE CONDITION)
-    ============================================================ */
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("""
       SELECT s FROM Showtime s
@@ -127,9 +118,7 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Integer>, Jp
                                          @Param("startTime") LocalDateTime startTime,
                                          @Param("endTime") LocalDateTime endTime);
 
-    /* ============================================================
-       🔍 KHÁC
-    ============================================================ */
+
     @Query("""
           SELECT s FROM Showtime s
           JOIN s.period p

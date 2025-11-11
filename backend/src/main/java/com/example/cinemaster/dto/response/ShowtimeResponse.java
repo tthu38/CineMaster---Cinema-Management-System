@@ -5,7 +5,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record ShowtimeResponse(
-        // ===== Thông tin suất chiếu =====
         Integer showtimeId,
         Integer periodId,
         Integer auditoriumId,
@@ -14,12 +13,10 @@ public record ShowtimeResponse(
         String language,
         BigDecimal price,
 
-        // ===== Thông tin phim =====
         Integer movieId,
         String movieTitle,
         String posterUrl,
 
-        // ===== Thông tin phòng & chi nhánh =====
         String auditoriumName,
         Integer branchId
 

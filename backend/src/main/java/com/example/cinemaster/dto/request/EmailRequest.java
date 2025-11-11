@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class EmailRequest {
     private String email;
-    private String otp; // dùng cho verify
+    private String otp;
 }

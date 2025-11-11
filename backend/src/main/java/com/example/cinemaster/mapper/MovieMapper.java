@@ -12,18 +12,12 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface MovieMapper {
 
-    // Request -> Entity (khi tạo mới)
     Movie toEntity(MovieRequest request);
 
-    // Cập nhật Entity từ Request (dùng cho update)
     void updateEntity(@MappingTarget Movie movie, MovieRequest request);
 
-    // Entity -> Response (Chỉ giữ lại toMovieResponse và map các trường khác tên)
-    // MapStruct tự động map các trường trùng tên (title, genre, cast, description, v.v.)
     @Mapping(source = "movieID", target = "movieId")
     MovieResponse toMovieResponse(Movie movie);
 
-    // List Entity -> List Response
-    // MapStruct tự động sử dụng toMovieResponse() để triển khai
     List<MovieResponse> toMovieResponseList(List<Movie> movies);
 }

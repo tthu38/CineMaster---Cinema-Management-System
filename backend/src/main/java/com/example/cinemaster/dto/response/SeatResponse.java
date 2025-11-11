@@ -17,15 +17,12 @@ public class SeatResponse {
     Integer columnNumber;
     String status;
 
-    // Auditorium
     Integer auditoriumID;
     String auditoriumName;
 
-    // SeatType
     Integer typeID;
     String typeName;
 
-    // Branch
     Integer branchID;
     String branchName;
 

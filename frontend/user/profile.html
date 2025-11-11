@@ -475,6 +475,12 @@
         try{
             const url = await api.uploadAvatar(file); // server trả /uploads/xxx
             avatarImg.src = (url.startsWith('http') ? url : url) + `?t=${Date.now()}`; // chống cache
+            localStorage.setItem("avatarUrl", url);                 // ✅ Cập nhật localStorage
+            window.dispatchEvent(new Event("avatarUpdated"));
+            // ✅ Cập nhật avatar trong header nếu có
+            const headerAvatar = document.getElementById("headerAvatar");
+            if (headerAvatar) headerAvatar.src = (url.startsWith('http') ? url : '/' + url) + `?t=${Date.now()}`;
+
             if (typeof window.loadProfile === 'function') window.loadProfile();
             alert('Đổi ảnh đại diện thành công!');
         }catch(err){

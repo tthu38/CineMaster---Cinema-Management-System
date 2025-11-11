@@ -224,6 +224,7 @@ async function load(keepSelectedDay = false) {
     updateCreateButton();
 
     window.__calendarSelectedYMD = data?.[activeIndex]?.date || null;
+
 }
 
 /* ====================== WEEK LABEL ====================== */

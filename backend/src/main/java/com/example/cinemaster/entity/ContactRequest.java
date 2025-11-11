@@ -38,7 +38,7 @@ public class ContactRequest {
     LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(nullable = false, length = 20)
-    String status = "Pending"; // Pending / Processing / Resolved / Rejected
+    String status = "Pending";
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "HandledBy")

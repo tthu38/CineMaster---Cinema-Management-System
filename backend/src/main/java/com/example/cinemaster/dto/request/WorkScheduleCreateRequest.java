@@ -15,24 +15,24 @@ import java.time.LocalTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class WorkScheduleCreateRequest {
 
-    @NotNull(message = "Account ID is required")
+    @NotNull(message = "ID tài khoản là bắt buộc")
     Integer accountId;
 
-    @NotNull(message = "Branch ID is required")
+    @NotNull(message = "Cần phải có ID chi nhánh")
     Integer branchId;
 
-    @NotNull(message = "Shift date is required")
+    @NotNull(message = "Ngày mở ca làm là bắt buộc")
     LocalDate shiftDate;
 
-    @NotNull(message = "Start time is required")
+    @NotNull(message = "Thời gian bắt đầu là bắt buộc")
     LocalTime startTime;
 
-    @NotNull(message = "End time is required")
+    @NotNull(message = "Thời gian kết thúc là bắt buộc")
     LocalTime endTime;
 
-    @Size(max = 50, message = "Shift type must be at most 50 characters")
+    @Size(max = 50, message = "Loại ca phải dài tối đa 50 ký tự")
     String shiftType;
 
-    @Size(max = 255, message = "Note must be at most 255 characters")
+    @Size(max = 255, message = "Ghi chú phải có tối đa 255 ký tự")
     String note;
 }

@@ -27,9 +27,6 @@ public class ChatbotController {
      */
     @PostMapping("/ask")
     public ResponseEntity<ChatResponse> askChatbot(@RequestBody ChatRequest request, HttpSession session) {
-
-        // Mục đích của dòng này chỉ là để đảm bảo Session được khởi tạo và gửi Cookie JSESSIONID
-        // Bạn không cần phải làm gì với đối tượng 'session' ở đây.
         System.out.println("Session ID: " + session.getId());
 
         String question = request.getQuestion();
@@ -39,7 +36,6 @@ public class ChatbotController {
         }
 
         try {
-            // Gọi Service để xử lý RAG và gọi API Gemini
             String answer = chatbotService.getChatbotResponse(question.trim());
 
             return ResponseEntity.ok(new ChatResponse(answer));

@@ -30,9 +30,9 @@ public class VectorDataSeeder {
             ingestDiscounts();
             ingestBranches();
             ingestMembershipLevels();
-            System.out.println("✅ VectorDataSeeder: Seed thành công vào VectorStore.");
+            System.out.println("VectorDataSeeder: Seed thành công vào VectorStore.");
         } catch (Exception e) {
-            System.err.println("❌ VectorDataSeeder lỗi: " + e.getMessage());
+            System.err.println("VectorDataSeeder lỗi: " + e.getMessage());
         }
     }
 

@@ -17,8 +17,8 @@ public class NewsMapper {
                 .category(news.getCategory())
                 .imageUrl(news.getImageUrl())
                 .publishDate(news.getPublishDate())
-                .createdDate(news.getCreatedDate())   // 👈 thêm
-                .updatedDate(news.getUpdatedDate())   // 👈 thêm
+                .createdDate(news.getCreatedDate())
+                .updatedDate(news.getUpdatedDate())
                 .views(news.getViews())
                 .active(news.getActive())
                 .build();

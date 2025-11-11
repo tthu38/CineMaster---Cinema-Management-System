@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <title>Admin - Quản lý lịch chiếu • CineMaster</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/user.css">
+</head>
+<style>
+    /* ============================================================
+🎬 SHOWTIME PAGE STYLE — CINE MASTER (Final Merged Version)
+============================================================ */
+
+    /* Schedule panel */
+    .schedule-panel {
+        position: relative;
+        background: rgba(11,20,40,0.55);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(34,193,255,0.28);
+        border-radius: 22px;
+        box-shadow: 0 0 30px rgba(34,193,255,0.2),
+        0 0 60px rgba(255,0,128,0.05),
+        inset 0 0 60px rgba(34,193,255,0.06);
+        animation: fadeInUp .7s ease both;
+        padding: 26px 22px;
+    }
+    @keyframes fadeInUp {
+        from { opacity:0; transform:translateY(24px); }
+        to { opacity:1; transform:translateY(0); }
+    }
+
+    /* Panel header */
+    .panel-head {
+        display:flex;
+        align-items:center;
+        gap:12px;
+        margin-bottom:16px;
+    }
+    .panel-head h2 {
+        margin:0;
+        font-weight:900;
+        letter-spacing:.3px;
+        text-transform:uppercase;
+        background: linear-gradient(90deg,#22c1ff 0%,#ff0055 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 20px rgba(34,193,255,0.35);
+        animation: glowShift 4s infinite alternate ease-in-out;
+    }
+    @keyframes glowShift {
+        0% { text-shadow: 0 0 14px rgba(34,193,255,0.5); }
+        100% { text-shadow: 0 0 24px rgba(255,0,128,0.45); }
+    }
+
+    /* Toolbar */
+    .toolbar {
+        display:flex;
+        gap:12px;
+        flex-wrap:wrap;
+        align-items:center;
+        margin-bottom:14px;
+    }
+
+    /* Select branch */
+    .select-branch {
+        background: rgba(15,25,45,0.75);
+        border: 1px solid rgba(34,193,255,0.3);
+        border-radius: 10px;
+        padding: 10px 14px;
+        color: #e8f2ff;
+        transition: all .25s ease;
+    }
+    .select-branch:hover {
+        border-color: #22c1ff;
+        box-shadow: 0 0 16px rgba(34,193,255,.35);
+    }
+
+    /* Buttons */
+    .btn {
+        border: none;
+        border-radius: 10px!important;
+        padding: 8px 16px!important;
+        font-weight: 600;
+        display:flex;
+        align-items:center;
+        gap:6px;
+        background: linear-gradient(135deg,#0aa3ff 0%,#22c1ff 40%,#b54aff 100%);
+        background-size: 200% auto;
+        color: #fff;
+        text-transform: uppercase;
+        transition: all .3s ease;
+        box-shadow: 0 0 20px rgba(34,193,255,.25);
+    }
+    .btn:hover {
+        background-position: right center;
+        transform: translateY(-3px);
+        box-shadow: 0 0 30px rgba(34,193,255,.4);
+    }
+    .btn-warning {
+        background: linear-gradient(135deg,#ff0055,#ff8c00,#ff0055);
+        color:#fff;
+    }
+
+    /* Daybar */
+    .daybar-wrapper {
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        background:linear-gradient(180deg,#0d1a33,#0a1427);
+        border:1px solid var(--border);
+        border-radius:14px;
+        padding:8px 14px;
+        margin-bottom:16px;
+        box-shadow: inset 0 0 14px rgba(34,193,255,0.1),0 0 20px rgba(0,0,0,.4);
+        backdrop-filter: blur(6px);
+    }
+    .daybar {
+        display:flex;
+        gap:8px;
+        overflow-x:auto;
+        flex:1;
+        justify-content:center;
+    }
+    .daybar .btn {
+        background:linear-gradient(180deg,#0d1a33,#0a1427);
+        border:1px solid var(--border);
+        color:#e6f1ff;
+        border-radius:999px;
+        padding:9px 14px;
+        transition:.15s;
+    }
+    .daybar .btn.active {
+        color:#fff;
+        border-color:var(--blue);
+        box-shadow:0 0 0 2px rgba(34,193,255,.18) inset,0 0 24px rgba(34,193,255,.18);
+    }
+    .nav-week-btn {
+        background:rgba(10,163,255,0.1);
+        border:1px solid rgba(10,163,255,0.3);
+        color:var(--cyan);
+        border-radius:50%;
+        width:38px; height:38px;
+        display:flex; align-items:center; justify-content:center;
+        transition:all .2s ease;
+        flex-shrink:0;
+    }
+    .nav-week-btn:hover {
+        background:rgba(10,163,255,0.2);
+        box-shadow:0 0 10px rgba(34,193,255,.25);
+        transform:translateY(-1px);
+    }
+    #weekLabel {
+        text-align:center;
+        font-weight:600;
+        margin-bottom:8px;
+        color:#cfe3ff;
+    }
+
+    /* Empty state */
+    .empty {
+        padding:26px;
+        border:1px dashed #2a3d6a;
+        border-radius:12px;
+        color:#cfe3ff;
+        text-align:center;
+        background:linear-gradient(180deg,#0b152a 0,#0c162c 100%);
+    }
+
+    /* Movie card */
+    .movie-card {
+        display:flex;
+        align-items:flex-start;
+        gap:20px;
+        padding:18px;
+        margin-bottom:16px;
+        border-radius:16px;
+        border:1px solid var(--border);
+        background:linear-gradient(180deg,#0e1d38,#0a1427);
+        box-shadow:0 10px 24px rgba(0,0,0,.35);
+        transition:all .25s ease;
+    }
+    .movie-card:hover {
+        transform:translateY(-3px);
+    }
+
+    /* Poster */
+    .movie-poster {
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        width:130px;
+        flex-shrink:0;
+        gap:10px;
+    }
+    .movie-poster img {
+        width:120px;
+        height:170px;
+        object-fit:cover;
+        border-radius:10px;
+        border:1px solid #1b2b4a;
+        background:#071021;
+    }
+    .movie-poster h5 {
+        font-weight:700;
+        font-size:1rem;
+        text-align:center;
+        color:#cfe3ff;
+        margin:0;
+    }
+
+    /* Showtime container */
+    .movie-showtimes {
+        display:flex;
+        flex-wrap:wrap;
+        justify-content:flex-start;
+        align-items:stretch;
+        gap:12px;
+    }
+
+    /* Showtime slot */
+    .showtime-slot {
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+        align-items:center;
+        text-align:center;
+        width:130px;
+        height:70px;
+        padding:10px 8px;
+        border-radius:10px;
+        border:1px solid #1b3a6b;
+        background:linear-gradient(180deg,#161a2a,#10182e);
+        color:#e6f1ff;
+        text-decoration:none;
+        transition:all .2s ease;
+        box-sizing:border-box;
+    }
+    .showtime-slot:hover {
+        border-color:var(--blue);
+        box-shadow:0 0 16px rgba(34,193,255,.25);
+        text-decoration:none;
+    }
+    .showtime-slot.disabled {
+        opacity:.45;
+        pointer-events:none;
+    }
+    .showtime-slot.ongoing {
+        border-color:gold;
+        box-shadow:0 0 14px rgba(255,215,0,.3);
+        animation:glowPulse 1.4s ease-in-out infinite;
+    }
+    @keyframes glowPulse {
+        0%,100% { box-shadow:0 0 14px rgba(255,215,0,.2); }
+        50% { box-shadow:0 0 28px rgba(255,215,0,.45); }
+    }
+    .showtime-slot .time {
+        font-weight:700;
+        font-size:1rem;
+        color:#cfe3ff;
+        margin-bottom:4px;
+        line-height:1;
+    }
+    .showtime-slot .room {
+        font-size:.85rem;
+        color:var(--muted);
+        line-height:1;
+    }
+
+    /* Footer note */
+    .footer-note {
+        text-align:center;
+        margin-top:28px;
+        color:rgba(207,227,255,0.75);
+        font-size:.95rem;
+        letter-spacing:.3px;
+    }
+    .footer-note::before {
+        content:"🎬 ";
+        color:#22c1ff;
+    }
+
+
+</style>
+<body>
+<div class="grain"></div>
+<div class="tickets-wall"><div class="tickets-layer l1"></div><div class="tickets-layer l2"></div></div>
+
+<div id="header"></div>
+
+<main class="shell">
+    <section class="film schedule-panel">
+        <div class="panel-head">
+            <i class="fa-solid fa-clapperboard"></i>
+            <h2>QUẢN LÝ LỊCH CHIẾU</h2>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div class="h5 m-0">Lịch chiếu theo tuần</div>
+            <div class="d-flex gap-2">
+                <button id="btnOpenCreate" class="btn btn-primary">
+                    <i class="fa-solid fa-plus me-2"></i>Tạo lịch chiếu
+                </button>
+                <button id="btnOpenBatch" class="btn btn-info">
+                    <i class="fa-solid fa-layer-group me-2"></i>Tạo đồng loạt
+                </button>
+                <button id="btnOpenAI" class="btn btn-warning">
+                    <i class="fa-solid fa-robot me-2"></i>Tạo bởi AI
+                </button>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <select id="branchSelect" class="select-branch">
+                <option value="">Tất cả rạp</option>
+            </select>
+        </div>
+
+        <div id="weekLabel">Tuần ...</div>
+
+        <div class="daybar-wrapper">
+            <button id="prevWeekBtn" class="nav-week-btn"><i class="fa-solid fa-chevron-left"></i></button>
+            <div id="dayButtons" class="daybar"></div>
+            <button id="nextWeekBtn" class="nav-week-btn"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+
+        <div id="contentArea"></div>
+
+        <div class="footer-note">* Click giờ chiếu để chỉnh sửa hoặc xóa.</div>
+    </section>
+</main>
+
+<div id="footer"></div>
+
+<!-- Modal AI Scheduler -->
+<div class="modal fade" id="aiSchedulerModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" style="background:#0e1d38;border:1px solid #2a3d6a;color:#fff;">
+            <div class="modal-header border-0">
+                <h5 class="modal-title">
+                    <i class="fa-solid fa-robot me-2 text-warning"></i>
+                    AI Scheduler – Gợi ý lịch chiếu thông minh
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0" style="height:80vh;overflow:hidden;">
+                <iframe id="aiSchedulerFrame"
+                        src="../user/ai-scheduler.html"
+                        style="width:100%;height:100%;border:none;"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+<script type="module">
+    import { initShowtimeCreate, openShowtimeCreate } from "../js/showtime-create.js";
+    import { initShowtimeEdit, openShowtimeEdit } from "../js/showtime-edit.js";
+    import { initShowtimeBatch, openShowtimeBatch } from "../js/showtime-batch.js";
+
+    const btnCreate = document.getElementById("btnOpenCreate");
+    const btnBatch = document.getElementById("btnOpenBatch");
+    const btnAI = document.getElementById("btnOpenAI");
+
+    btnCreate.addEventListener("click", () => {
+        const selectedDay = window.__calendarSelectedYMD || null;
+        const currentBranch = document.getElementById("branchSelect")?.value || "";
+        openShowtimeCreate({ defaultDate: selectedDay, branchId: currentBranch || null });
+    });
+
+    btnBatch.addEventListener("click", () => {
+        const selectedDay = window.__calendarSelectedYMD || null;
+        const currentBranch = document.getElementById("branchSelect")?.value || "";
+        openShowtimeBatch({ defaultDate: selectedDay, branchId: currentBranch || null });
+    });
+
+    btnAI.addEventListener("click", () => {
+        new bootstrap.Modal(document.getElementById("aiSchedulerModal")).show();
+    });
+
+    await initShowtimeCreate({ htmlPath: '../user/showtime-create.html' });
+    await initShowtimeEdit({ htmlPath: '../user/showtime-edit.html' });
+    await initShowtimeBatch({ htmlPath: '../user/showtime-batch.html' });
+    window.openShowtimeEdit = openShowtimeEdit;
+
+    const reload = () => window.reloadCalendar?.(true);
+    window.addEventListener('showtime:created', reload);
+    window.addEventListener('showtime:updated', reload);
+    window.addEventListener('showtime:deleted', reload);
+</script>
+
+
+
+<!-- ✅ Dùng chung file lịch chiếu -->
+<script type="module" src="../js/showtimes-calendar.js"></script>
+</body>
+</html>

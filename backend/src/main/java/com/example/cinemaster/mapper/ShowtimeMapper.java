@@ -13,7 +13,6 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface ShowtimeMapper {
 
-    // ========== ENTITY → RESPONSE ==========
     @Mapping(target = "showtimeId", source = "showtimeID")
     @Mapping(target = "periodId", source = "period.id")
     @Mapping(target = "auditoriumId", source = "auditorium.auditoriumID")
@@ -26,7 +25,6 @@ public interface ShowtimeMapper {
 
     List<ShowtimeResponse> toResponseList(List<Showtime> entities);
 
-    // ========== REQUEST → ENTITY ==========
     @Mapping(target = "showtimeID", ignore = true)
     @Mapping(target = "period", expression = "java(period)")
     @Mapping(target = "auditorium", expression = "java(auditorium)")
@@ -44,8 +42,6 @@ public interface ShowtimeMapper {
                                  @Context ScreeningPeriod period,
                                  @Context Auditorium auditorium);
 
-
-    // ========== AFTER MAPPING ==========
     @AfterMapping
     default void setDefaultStatus(@MappingTarget Showtime entity) {
         if (entity.getStatus() == null) {

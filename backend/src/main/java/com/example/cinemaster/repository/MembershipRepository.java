@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface MembershipRepository extends JpaRepository<Membership, Integer> {
 
-    // 🔹 Fetch đầy đủ cả Level + Account để tránh lazy-load lỗi
+    // Fetch đầy đủ cả Level + Account để tránh lazy-load lỗi
     @Query("""
     SELECT m FROM Membership m
     JOIN FETCH m.account a

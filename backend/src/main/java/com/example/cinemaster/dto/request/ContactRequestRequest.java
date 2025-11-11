@@ -30,5 +30,5 @@ public class ContactRequestRequest {
     String message;
 
     @Positive(message = "Chi nhánh không hợp lệ")
-    Integer branchId; // 🟢 chi nhánh khách chọn
+    Integer branchId;
 }

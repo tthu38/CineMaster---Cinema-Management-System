@@ -6,5 +6,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SeatTypeRepository extends JpaRepository<SeatType, Integer> {
-    // Tự động kế thừa các phương thức CRUD cho SeatType
 }

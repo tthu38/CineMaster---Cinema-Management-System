@@ -17,8 +17,8 @@ public class BranchResponse {
     String address;
     String phone;
     String email;
-    Integer managerId; // Trả về ManagerID (Integer)
-    String managerName; // Thêm tên Manager để tiện theo dõi
+    Integer managerId;
+    String managerName;
     LocalTime openTime;
     LocalTime closeTime;
     Boolean isActive;

@@ -16,7 +16,7 @@ import java.time.LocalDate;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-@Table(name = "Movie") // match đúng tên table
+@Table(name = "Movie")
 public class Movie {
 
     @Id

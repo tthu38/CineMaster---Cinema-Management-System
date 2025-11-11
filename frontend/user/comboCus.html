@@ -65,6 +65,8 @@
         }
 
 
+
+
         /* Combo Grid */
         .combo-grid {
             display: grid;
@@ -135,6 +137,8 @@
         }
 
 
+
+
         /* Right Panel */
         .order-panel {
             background: rgba(8, 20, 40, 0.45);
@@ -192,6 +196,8 @@
         }
 
 
+
+
         /* Ticket Pattern Overlay */
         .tickets-wall {
             position: fixed;
@@ -220,6 +226,8 @@
         }
 
 
+
+
         /* Grain Effect */
         .grain {
             pointer-events: none;
@@ -244,11 +252,19 @@
 <div id="header"></div>
 
 
+
+
 <div class="grain"></div>
 <div class="tickets-wall" aria-hidden="true">
     <div class="tickets-layer l1"></div>
     <div class="tickets-layer l2"></div>
 </div>
+
+
+
+
+
+
 
 
 
@@ -261,8 +277,12 @@
 </div>
 
 
+
+
 <div class="main-container">
     <div id="comboList" class="combo-grid"></div>
+
+
 
 
     <div class="order-panel">
@@ -290,13 +310,18 @@
     </div>
 
 
+
+
 </div>
 <div id="footer" style="position: relative; z-index: 20;"></div>
+
+
 
 
 <script type="module">
     import { comboApi } from "../js/api/comboApi.js";
     import { API_BASE_URL } from "../js/api/config.js";
+
 
     (async () => {
         const params = new URLSearchParams(window.location.search);
@@ -307,14 +332,17 @@
         const ticketIdParam = params.get("ticketId");
         const tempTicketIdLocal = localStorage.getItem("tempTicketId");
 
+
         const ticketId = ticketIdParam && ticketIdParam !== "undefined"
             ? Number(ticketIdParam)
             : tempTicketIdLocal
                 ? Number(tempTicketIdLocal)
                 : null;
 
+
         // 🧩 Đồng bộ vé tạm
         let tempTicket = JSON.parse(localStorage.getItem("tempTicket") || "null");
+
 
         // ✅ Nếu chưa có vé tạm, tạo mới
         if (!tempTicket && ticketId && seatIds.length > 0) {
@@ -328,6 +356,7 @@
             localStorage.setItem("tempTicket", JSON.stringify(tempTicket));
         }
 
+
         // ✅ Đảm bảo vé tạm luôn chứa danh sách ghế mới nhất
         if (seatIds.length > 0) {
             tempTicket = {
@@ -340,6 +369,7 @@
             localStorage.setItem("tempTicket", JSON.stringify(tempTicket));
         }
 
+
         // ❌ Nếu không có vé tạm hoặc ticketId → quay lại chọn ghế
         if (!tempTicket || !ticketId) {
             await Swal.fire("Không có vé tạm!", "Vui lòng chọn ghế trước.", "info");
@@ -347,13 +377,16 @@
             return;
         }
 
+
         let comboList = [];
         let selectedCombos = JSON.parse(localStorage.getItem("selectedCombos") || "{}");
         let comboTotal = Number(localStorage.getItem("comboTotal") || 0);
         let ticketTotal = Number(localStorage.getItem("ticketPriceTotal") || tempTicket.totalPrice || 0);
 
+
         const comboListEl = document.getElementById("comboList");
         const selectedComboEl = document.getElementById("selectedCombos");
+
 
         // ================= LOAD COMBOS =================
         async function loadCombos() {
@@ -364,6 +397,7 @@
                     return;
                 }
 
+
                 comboListEl.innerHTML = comboList.map(c => {
                     const imgSrc = (() => {
                         if (!c.imageURL) return "https://via.placeholder.com/80x80?text=Combo";
@@ -373,34 +407,39 @@
                         return `http://localhost:8080${path}`;
                     })();
 
+
                     const currentQty = selectedCombos[String(c.id)] || 0;
                     return `
-                       <div class="combo-card">
-                           <img src="${imgSrc}" class="combo-img" alt="${c.nameCombo}">
-                           <div class="combo-info">
-                               <div class="name">${c.nameCombo}</div>
-                               <div class="desc">${c.descriptionCombo || ""}</div>
-                               <div class="combo-price">${(c.price || 0).toLocaleString("vi-VN")} VNĐ</div>
-                           </div>
-                           <div class="combo-actions">
-                               <button class="qty-btn" data-action="minus" data-id="${c.id}" ${currentQty === 0 ? "disabled" : ""}>−</button>
-                               <span class="qty" id="qty-${c.id}">${currentQty}</span>
-                               <button class="qty-btn" data-action="plus" data-id="${c.id}">+</button>
-                           </div>
-                       </div>`;
+                      <div class="combo-card">
+                          <img src="${imgSrc}" class="combo-img" alt="${c.nameCombo}">
+                          <div class="combo-info">
+                              <div class="name">${c.nameCombo}</div>
+                              <div class="desc">${c.descriptionCombo || ""}</div>
+                              <div class="combo-price">${(c.price || 0).toLocaleString("vi-VN")} VNĐ</div>
+                          </div>
+                          <div class="combo-actions">
+                              <button class="qty-btn" data-action="minus" data-id="${c.id}" ${currentQty === 0 ? "disabled" : ""}>−</button>
+                              <span class="qty" id="qty-${c.id}">${currentQty}</span>
+                              <button class="qty-btn" data-action="plus" data-id="${c.id}">+</button>
+                          </div>
+                      </div>`;
                 }).join("");
+
 
                 document.querySelectorAll(".qty-btn").forEach(btn => {
                     btn.addEventListener("click", () => {
                         const id = String(btn.dataset.id);
                         if (!selectedCombos[id]) selectedCombos[id] = 0;
 
+
                         if (btn.dataset.action === "plus") selectedCombos[id]++;
                         else if (btn.dataset.action === "minus" && selectedCombos[id] > 0) selectedCombos[id]--;
+
 
                         document.getElementById(`qty-${id}`).textContent = selectedCombos[id];
                         const minusBtn = btn.closest(".combo-actions").querySelector("[data-action='minus']");
                         minusBtn.disabled = selectedCombos[id] <= 0;
+
 
                         updateSummary();
                     });
@@ -411,10 +450,12 @@
             }
         }
 
+
         // ================= UPDATE SUMMARY =================
         function updateSummary() {
             comboTotal = 0;
             selectedComboEl.innerHTML = "";
+
 
             for (const [id, qty] of Object.entries(selectedCombos)) {
                 const combo = comboList.find(c => c.id == id);
@@ -422,25 +463,29 @@
                     const subtotal = (combo.price || 0) * qty;
                     comboTotal += subtotal;
                     selectedComboEl.innerHTML += `
-                       <div class="order-item">
-                           <span>${combo.nameCombo} × ${qty}</span>
-                           <span>${subtotal.toLocaleString("vi-VN")} VNĐ</span>
-                       </div>`;
+                      <div class="order-item">
+                          <span>${combo.nameCombo} × ${qty}</span>
+                          <span>${subtotal.toLocaleString("vi-VN")} VNĐ</span>
+                      </div>`;
                 }
             }
+
 
             const total = ticketTotal + comboTotal;
             document.getElementById("ticketPriceDisplay").textContent = `${ticketTotal.toLocaleString("vi-VN")} VNĐ`;
             document.getElementById("snackTotalDisplay").textContent = `${comboTotal.toLocaleString("vi-VN")} VNĐ`;
             document.getElementById("grandTotalDisplay").textContent = `${total.toLocaleString("vi-VN")} VNĐ`;
 
+
             localStorage.setItem("comboTotal", String(comboTotal));
             localStorage.setItem("ticketGrandTotal", String(total));
         }
 
+
         // ================= NÚT XÁC NHẬN =================
         document.getElementById("comboConfirmBtn").addEventListener("click", async () => {
             const token = localStorage.getItem("accessToken");
+
 
             const comboBody = Object.entries(selectedCombos)
                 .filter(([_, qty]) => qty > 0)
@@ -448,6 +493,7 @@
                     comboId: Number(id),
                     quantity: qty
                 }));
+
 
             try {
                 await fetch(`${API_BASE_URL}/tickets/${ticketId}/add-combos`, {
@@ -463,7 +509,9 @@
                 console.error("❌ Lỗi khi gửi combo lên backend:", err);
             }
 
+
             localStorage.setItem("selectedComboList", JSON.stringify(comboBody));
+
 
             const finalTemp = {
                 ...(tempTicket || {}),
@@ -476,6 +524,7 @@
             };
             localStorage.setItem("tempTicket", JSON.stringify(finalTemp));
 
+
             await Swal.fire({
                 title: "Đã lưu combo!",
                 text: "Chuyển đến trang xác nhận thanh toán...",
@@ -484,9 +533,11 @@
                 showConfirmButton: false
             });
 
+
             window.location.href =
                 `confirmBooking.html?showtimeId=${showtimeId}&accountId=${accountId}&branchId=${branchId}&seatIds=${seatIds.join(",")}&ticketId=${ticketId}`;
         });
+
 
         // ================= QUAY LẠI CHỌN GHẾ =================
         document.getElementById("backToSeatBtn").addEventListener("click", async () => {
@@ -500,15 +551,22 @@
             });
             if (!confirm.isConfirmed) return;
 
+
             window.location.href =
                 `seat-diagram.html?branchId=${branchId}&showtimeId=${showtimeId}&accountId=${accountId}&ticketId=${ticketId}&seatIds=${seatIds.join(",")}`;
         });
+
 
         // ================= INIT =================
         await loadCombos();
         updateSummary();
     })();
 </script>
+
+
+
+
+
 
 
 
@@ -522,6 +580,8 @@
             const res = await fetch("../home/customer-header.html");
             const html = await res.text();
             headerEl.innerHTML = html;
+
+
 
 
             // ✅ ép chạy script trong file header
@@ -538,10 +598,14 @@
     })();
 
 
+
+
     // 🧩 Load footer
     fetch("../home/footer.html")
         .then(r => r.text())
         .then(h => document.getElementById("footer").innerHTML = h);
+
+
 
 
     // 🔹 Tab filter style (nếu có)

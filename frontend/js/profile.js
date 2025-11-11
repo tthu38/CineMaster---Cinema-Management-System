@@ -19,7 +19,7 @@ function renderProfile(p) {
     const avatar = document.getElementById("avatarImg");
     if (avatar) {
         const src =
-            p.avatarUrl && p.avatarUrl.trim() !== "" ? p.avatarUrl : "/image/avatar.png";
+            p.avatarUrl && p.avatarUrl.trim() !== "" ? p.avatarUrl : "/uploads/avatar.png";
         avatar.src = src.startsWith("/") || src.startsWith("http") ? src : "/" + src;
     }
 
@@ -147,8 +147,14 @@ function initEditProfile() {
             }
 
             alert("Cập nhật thành công!");
+            if (userData.fullName) {
+                localStorage.setItem("fullName", userData.fullName);
+                window.dispatchEvent(new StorageEvent("storage", { key: "fullName", newValue: userData.fullName }));
+            }
+
             await loadProfile();
             form.reset();
+
         } catch (err) {
             console.error("Update profile error:", err);
             alert(err.message || "Lỗi khi cập nhật thông tin");

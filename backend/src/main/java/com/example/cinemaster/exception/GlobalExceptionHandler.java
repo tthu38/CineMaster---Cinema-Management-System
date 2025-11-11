@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 🧱 Bắt AppException (toàn bộ lỗi có mã ErrorCode)
     @ExceptionHandler(AppException.class)
     public ResponseEntity<ErrorResponse> handleAppException(AppException ex, HttpServletRequest request) {
         ErrorCode error = ex.getErrorCode();
@@ -27,7 +26,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(error.getStatusCode()).body(response);
     }
 
-    // 🧱 Bắt các lỗi hệ thống không lường trước (NullPointer, IllegalArgument,…)
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex, HttpServletRequest request) {
         ErrorResponse response = ErrorResponse.builder()

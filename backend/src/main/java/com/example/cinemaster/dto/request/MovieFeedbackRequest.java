@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @Data
 public class MovieFeedbackRequest {
-    private Integer accountId;  // tạm thời public, sau này lấy từ token
+    private Integer accountId;
     private Integer rating;
     private String comment;
 }

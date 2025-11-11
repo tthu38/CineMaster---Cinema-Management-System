@@ -17,9 +17,7 @@ import java.util.List;
 public class MovieFeedbackController {
 
     private final MovieFeedbackService feedbackService;
-    private final JwtService jwtService; // 👈 Thêm vào để decode token
-
-    // 🟢 Xem tất cả feedback của phim — public
+    private final JwtService jwtService;
     @GetMapping("/movie/{movieId}")
     public ResponseEntity<ApiResponse<List<MovieFeedbackResponse>>> getByMovie(@PathVariable Integer movieId) {
         return ResponseEntity.ok(
@@ -27,20 +25,17 @@ public class MovieFeedbackController {
         );
     }
 
-    // 🟢 Tạo feedback — yêu cầu đăng nhập
     @PostMapping("/movie/{movieId}")
     public ResponseEntity<ApiResponse<MovieFeedbackResponse>> create(
             @PathVariable Integer movieId,
             @RequestHeader(value = "Authorization", required = false) String authHeader,
             @RequestBody MovieFeedbackRequest request
     ) {
-        // ✅ Kiểm tra login
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.status(401)
                     .body(new ApiResponse<>(401, "Bạn cần đăng nhập để gửi đánh giá!", null));
         }
 
-        // 👇 Giải mã token để lấy accountId
         String token = authHeader.substring(7);
         Integer accountId = jwtService.extractAccountId(token);
 
@@ -51,7 +46,6 @@ public class MovieFeedbackController {
         );
     }
 
-    // 🟢 Cập nhật feedback — yêu cầu đăng nhập
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<MovieFeedbackResponse>> update(
             @PathVariable Integer id,
@@ -72,7 +66,6 @@ public class MovieFeedbackController {
         );
     }
 
-    // 🟢 Xoá feedback — yêu cầu đăng nhập
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(
             @PathVariable Integer id,

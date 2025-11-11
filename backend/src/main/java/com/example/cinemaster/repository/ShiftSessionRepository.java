@@ -13,10 +13,6 @@ import java.util.Optional;
 
 public interface ShiftSessionRepository extends JpaRepository<ShiftSession, Integer> {
 
-
-    /* ============================================================
-       🔹 1️⃣ TÌM CA ĐANG MỞ CỦA NHÂN VIÊN HIỆN TẠI
-    ============================================================ */
     @Query("""
        SELECT s FROM ShiftSession s
        WHERE s.staff.accountID = :staffId
@@ -32,10 +28,6 @@ public interface ShiftSessionRepository extends JpaRepository<ShiftSession, Inte
     }
 
 
-    /* ============================================================
-       🔹 2️⃣ TÌM BẤT KỲ CA ĐANG MỞ NÀO TRONG CÙNG CHI NHÁNH
-          (để nhân viên khác cùng branch có thể xem chung)
-    ============================================================ */
     @Query("""
        SELECT s FROM ShiftSession s
        WHERE s.staff.branch.id = :branchId

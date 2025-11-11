@@ -42,11 +42,11 @@ public class SeatController {
         }
     }
 
-    // ==================== 🔹 GET SEATS BY AUDITORIUM ====================
+    // ====================  GET SEATS BY AUDITORIUM ====================
     @GetMapping("/by-auditorium/{auditoriumId}")
     public ResponseEntity<List<SeatResponse>> getSeatsByAuditorium(@PathVariable Integer auditoriumId) {
         List<SeatResponse> seats = seatService.getSeatsByAuditorium(auditoriumId);
-        log.info("🎬 [SeatController] Lấy danh sách ghế của phòng chiếu ID {}", auditoriumId);
+        log.info(" [SeatController] Lấy danh sách ghế của phòng chiếu ID {}", auditoriumId);
         return ResponseEntity.ok(seats);
     }
 

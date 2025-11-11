@@ -13,12 +13,11 @@ import java.util.stream.Collectors;
 public class VectorStoreService {
 
     private final EmbeddingService embeddingService;
-    // MÔ PHỎNG: Dùng List để lưu trữ thay cho Vector Database thực tế
+
     private final List<DocumentChunk> vectorStore = new ArrayList<>();
 
     public VectorStoreService(EmbeddingService embeddingService) {
         this.embeddingService = embeddingService;
-        // Khởi tạo dữ liệu mẫu
         initializeVectorStore();
     }
 

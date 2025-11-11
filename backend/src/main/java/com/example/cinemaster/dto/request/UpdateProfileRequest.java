@@ -18,5 +18,5 @@ public class UpdateProfileRequest {
 
     private String phoneNumber;
     private String address;
-    private String avatarUrl; // giữ sẵn, nếu bạn muốn update trực tiếp URL
+    private String avatarUrl;
 }

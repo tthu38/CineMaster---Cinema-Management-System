@@ -34,7 +34,6 @@ public class ContextRetrieverService {
     private final MovieRecommendationService movieRecommendationService;
     private final AuthService authService;
 
-    // ✅ Cache 5 phút cho dữ liệu ít thay đổi
     private final SimpleCache<List<BranchResponse>> branchCache = new SimpleCache<>(5 * 60 * 1000);
     private final SimpleCache<List<Movie>> comingCache = new SimpleCache<>(5 * 60 * 1000);
 
@@ -49,7 +48,7 @@ public class ContextRetrieverService {
             MembershipLevelService membershipLevelService,
             NewsService newsService,
             MovieRecommendationService movieRecommendationService,
-            AuthService authService// 👈 thêm
+            AuthService authService
     ) {
         this.branchService = branchService;
         this.auditoriumService = auditoriumService;
@@ -61,11 +60,11 @@ public class ContextRetrieverService {
         this.membershipLevelService = membershipLevelService;
         this.newsService = newsService;
         this.movieRecommendationService = movieRecommendationService;
-        this.authService = authService;// 👈 gán
+        this.authService = authService;
     }
 
     /**
-     * 🧠 Trích xuất ngữ cảnh phù hợp dựa trên intent + chi nhánh + câu hỏi người dùng
+     *  Trích xuất ngữ cảnh phù hợp dựa trên intent + chi nhánh + câu hỏi người dùng
      */
     public String retrieveContext(IntentRouterService.ChatIntent intent, BranchResponse targetBranch, String userInput) {
         if (targetBranch != null)
@@ -80,7 +79,7 @@ public class ContextRetrieverService {
                 case SCREENING_DETAIL -> getScreeningOrShowtimeContext(userInput, targetBranch);
                 case MOVIE_DETAIL -> getMovieDetailContext(userInput, targetBranch);
                 case COMBO_INFO -> getComboContext(targetBranch);
-                case PROMOTION_INFO -> getPromotionFallback(userInput); // ⚠️ Không có service → fallback vector
+                case PROMOTION_INFO -> getPromotionFallback(userInput);
                 case GENERAL_INFO -> getGeneralInfo();
                 case FAQ_OR_POLICY, UNKNOWN -> retrieveVectorContext(userInput, 3);
                 case MEMBERSHIP_INFO -> getMembershipLevelContext(userInput);
@@ -88,23 +87,23 @@ public class ContextRetrieverService {
                 case RECOMMEND_MOVIE -> getRecommendationContext(userInput);
             };
         } catch (Exception e) {
-            System.err.println("⚠️ [Fallback] Lỗi SQL hoặc xử lý: " + e.getMessage());
-            return "⚠️ Hệ thống đang bận, dưới đây là thông tin gợi ý từ kiến thức nền:\n"
+            System.err.println("️ [Fallback] Lỗi SQL hoặc xử lý: " + e.getMessage());
+            return " Hệ thống đang bận, dưới đây là thông tin gợi ý từ kiến thức nền:\n"
                     + ChatFormatter.divider()
                     + retrieveVectorContext(userInput, 3);
         }
     }
 
     // ==========================================
-    // 🔹 VECTOR RAG
+    //  VECTOR RAG
     // ==========================================
     private String retrieveVectorContext(String userInput, int topK) {
         List<String> relevantDocs = vectorStoreService.searchSimilarDocuments(userInput, topK);
         if (relevantDocs.isEmpty()) {
-            return emoji("💡", "Hiện tôi chưa có thông tin trong cơ sở kiến thức về câu hỏi này.");
+            return emoji("", "Hiện tôi chưa có thông tin trong cơ sở kiến thức về câu hỏi này.");
         }
         return relevantDocs.stream()
-                .map(doc -> emoji("📘", doc))
+                .map(doc -> emoji("", doc))
                 .collect(Collectors.joining());
     }
 
@@ -114,7 +113,7 @@ public class ContextRetrieverService {
     private String getBranchInfoContext() {
         List<BranchResponse> branches = branchCache.get("branches", branchService::getAllActiveBranches);
         if (branches == null || branches.isEmpty())
-            return emoji("🚫", "Hiện không có chi nhánh nào đang hoạt động.");
+            return emoji("", "Hiện không có chi nhánh nào đang hoạt động.");
 
         String info = branches.stream()
                 .map(b -> mdTitle("🏢 " + safeGet(b.getBranchName()))
@@ -124,7 +123,7 @@ public class ContextRetrieverService {
                         + kv("Giờ đóng cửa", safeGet(b.getCloseTime())))
                 .collect(Collectors.joining(divider()));
 
-        return mdTitle("📍 Danh sách chi nhánh đang hoạt động") + info;
+        return mdTitle(" Danh sách chi nhánh đang hoạt động") + info;
     }
 
     // ==========================================
@@ -132,7 +131,7 @@ public class ContextRetrieverService {
     // ==========================================
     private String getAuditoriumInfoContext(BranchResponse targetBranch) {
         if (targetBranch == null)
-            return emoji("📍", "Vui lòng nói rõ chi nhánh bạn muốn xem phòng chiếu.");
+            return emoji("", "Vui lòng nói rõ chi nhánh bạn muốn xem phòng chiếu.");
 
         List<AuditoriumResponse> list = auditoriumService.getActiveAuditoriumsByBranchId(targetBranch.getBranchId());
         if (list.isEmpty())
@@ -142,11 +141,11 @@ public class ContextRetrieverService {
                 .map(a -> kv(a.getName(), a.getType() + " - " + a.getCapacity() + " ghế"))
                 .collect(Collectors.joining());
 
-        return mdTitle("🎬 Phòng chiếu tại " + targetBranch.getBranchName()) + details;
+        return mdTitle(" Phòng chiếu tại " + targetBranch.getBranchName()) + details;
     }
 
     // ==========================================
-    // 🔹 PHIM ĐANG CHIẾU
+    //  PHIM ĐANG CHIẾU
     // ==========================================
     private String getMoviesNowShowingContext(BranchResponse branch) {
         if (branch == null) {
@@ -160,17 +159,15 @@ public class ContextRetrieverService {
         }
 
         if (branch == null)
-            return emoji("📍", "Vui lòng nói rõ chi nhánh bạn muốn xem suất chiếu.");
+            return emoji("", "Vui lòng nói rõ chi nhánh bạn muốn xem suất chiếu.");
         List<Movie> movies = screeningPeriodService.getMoviesNowShowingByBranchId(branch.getBranchId());
         if (movies == null || movies.isEmpty())
-            return emoji("🎥", "Hiện tại không có phim nào đang chiếu ở chi nhánh " + branch.getBranchName() + ".");
+            return emoji("", "Hiện tại không có phim nào đang chiếu ở chi nhánh " + branch.getBranchName() + ".");
 
         String detail = movies.stream()
                 .map(m -> {
-                    // 🧠 Ghi nhớ phim cuối cùng mà user vừa xem để dùng lại ở context khác
                     sessionHistory.setSessionContext("last_movie_name", m.getTitle());
 
-                    // 🎬 Render thông tin từng phim
                     return mdTitle("🎬 " + safeGet(m.getTitle()))
                             + kv("Đạo diễn", m.getDirector())
                             + kv("Diễn viên", m.getCast())
@@ -178,25 +175,22 @@ public class ContextRetrieverService {
                             + kv("Thời lượng", safeGet(m.getDuration()) + " phút")
                             + kv("Tóm tắt", m.getDescription())
                             + "\n"
-                            // 🔗 Sửa đường dẫn thành tuyệt đối /user/... để tránh lỗi 404
-                            + ChatFormatter.link("📖 Xem chi tiết", "../movies/movieDetail.html?id=" + m.getMovieID()) + "\n"
-                            + ChatFormatter.link("🎫 Xem suất chiếu", "../user/showtimes-calendar.html?movieId=" + m.getMovieID());
+                            + ChatFormatter.link(" Xem chi tiết", "../movies/movieDetail.html?id=" + m.getMovieID()) + "\n"
+                            + ChatFormatter.link(" Xem suất chiếu", "../user/showtimes-calendar.html?movieId=" + m.getMovieID());
                 })
                 .collect(Collectors.joining(divider()));
 
-        return mdTitle("📅 Phim đang chiếu tại " + branch.getBranchName()) + detail;
+        return mdTitle(" Phim đang chiếu tại " + branch.getBranchName()) + detail;
     }
 
     // ==========================================
-    // 🔹 PHIM SẮP CHIẾU
+    //  PHIM SẮP CHIẾU
     // ==========================================
     private String getUpcomingMoviesContext() {
-        // 🧠 Lấy danh sách phim sắp chiếu từ cache (hoặc DB)
         List<Movie> coming = comingCache.get("comingSoon", () -> screeningPeriodService.getComingSoonMovies());
         if (coming == null || coming.isEmpty())
-            return emoji("🎬", "Hiện chưa có phim sắp chiếu được công bố.");
+            return emoji("", "Hiện chưa có phim sắp chiếu được công bố.");
 
-        // 📝 Xây dựng danh sách phim chi tiết (giống phần 'phim đang chiếu')
         String detail = coming.stream()
                 .map(m -> mdTitle("🎞 " + safeGet(m.getTitle()))
                         + kv("Đạo diễn", safeGet(m.getDirector()))
@@ -206,17 +200,16 @@ public class ContextRetrieverService {
                         + kv("Tóm tắt", safeGet(m.getDescription()))
                         // 🔗 Thêm link đến trang chi tiết phim
                         + "\n"
-                        + ChatFormatter.link("📖 Xem chi tiết", "../movies/movieDetail.html?id=" + m.getMovieID()))
+                        + ChatFormatter.link("Xem chi tiết", "../movies/movieDetail.html?id=" + m.getMovieID()))
                 .collect(Collectors.joining(divider()));
 
-        return mdTitle("🎉 Phim sắp chiếu tại CineMaster") + detail;
+        return mdTitle(" Phim sắp chiếu tại CineMaster") + detail;
     }
 
     // ==========================================
-    // 🔹 KỲ CHIẾU / SUẤT CHIẾU
+    //  KỲ CHIẾU / SUẤT CHIẾU
     // ==========================================
     private String getScreeningOrShowtimeContext(String userInput, BranchResponse branch) {
-        // 🧠 Nếu user không nói chi nhánh → thử lấy từ session (dạng String)
         if (branch == null) {
             String storedBranchName = sessionHistory.getSessionContext("target_branch");
             if (storedBranchName != null) {
@@ -228,16 +221,14 @@ public class ContextRetrieverService {
         }
 
         if (branch == null)
-            return emoji("📍", "Vui lòng nói rõ chi nhánh bạn muốn xem suất chiếu.");
+            return emoji("", "Vui lòng nói rõ chi nhánh bạn muốn xem suất chiếu.");
 
-        // 🔍 Nếu người dùng có nhắc tới tên phim → lấy phim trực tiếp
         List<Movie> allMovies = screeningPeriodService.getAllMoviesWithPeriods();
         Movie targetMovie = allMovies.stream()
                 .filter(m -> userInput.toLowerCase().contains(m.getTitle().toLowerCase()))
                 .findFirst()
                 .orElse(null);
 
-        // 🧠 Nếu không tìm thấy phim trong input → lấy phim gần nhất mà user đã hỏi
         if (targetMovie == null) {
             String lastMovieName = sessionHistory.getSessionContext("last_movie_name");
             if (lastMovieName != null) {
@@ -248,7 +239,6 @@ public class ContextRetrieverService {
             }
         }
 
-        // ✅ Nếu xác định được phim → tạo link lịch chiếu trực tiếp
         if (targetMovie != null) {
             String link = "../user/showtimes-calendar.html?branchId=" + branch.getBranchId()
                     + "&movieId=" + targetMovie.getMovieID();
@@ -256,7 +246,6 @@ public class ContextRetrieverService {
                     + "🎫 [Xem lịch chiếu ngay](" + link + ")";
         }
 
-        // 🗓 Nếu không có tên phim nào → hiển thị danh sách suất chiếu chung của rạp
         LocalDate date = extractDateFromInput(userInput);
         String dateText = (date != null
                 ? date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
@@ -277,7 +266,7 @@ public class ContextRetrieverService {
 
 
     // ==========================================
-    // 🔹 CHI TIẾT PHIM
+    //  CHI TIẾT PHIM
     // ==========================================
     private String getMovieDetailContext(String userInput, BranchResponse branch) {
         List<Movie> all = screeningPeriodService.getAllMoviesWithPeriods();
@@ -289,7 +278,7 @@ public class ContextRetrieverService {
                         p.getEndDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                         : "Không có dữ liệu kỳ chiếu.";
 
-                return mdTitle("🎬 " + m.getTitle())
+                return mdTitle(" " + m.getTitle())
                         + kv("Đạo diễn", m.getDirector())
                         + kv("Diễn viên", m.getCast())
                         + kv("Thể loại", m.getGenre())
@@ -298,26 +287,26 @@ public class ContextRetrieverService {
                         + kv("Mô tả", m.getDescription());
             }
         }
-        return emoji("❓", "Mình chưa rõ bạn đang nói tới phim nào. Bạn có thể nhập lại tên phim nhé!");
+        return emoji("", "Mình chưa rõ bạn đang nói tới phim nào. Bạn có thể nhập lại tên phim nhé!");
     }
 
     // ==========================================
-    // 🔹 COMBO (từ DB)
+    //  COMBO (từ DB)
     // ==========================================
     private String getComboContext(BranchResponse targetBranch) {
         List<ComboResponse> combos;
 
-        // 🔧 Dù có branch hay không, luôn cho phép lấy combo toàn hệ thống (BranchID = NULL)
+        //  Dù có branch hay không, luôn cho phép lấy combo toàn hệ thống (BranchID = NULL)
         if (targetBranch != null)
             combos = comboService.getAvailableCombosByBranchId(targetBranch.getBranchId());
         else
             combos = comboService.getAvailableCombosByBranchId(null); // ✅ quan trọng
 
         if (combos == null || combos.isEmpty())
-            return emoji("🍿", "Hiện tại chưa có combo bắp nước nào được áp dụng.");
+            return emoji("", "Hiện tại chưa có combo bắp nước nào được áp dụng.");
 
         String comboList = combos.stream()
-                .map(c -> mdTitle("🍿 " + safeGet(c.getNameCombo()))
+                .map(c -> mdTitle(" " + safeGet(c.getNameCombo()))
                         + kv("Giá", String.format("%,.0f VNĐ", c.getPrice()))
                         + kv("Mô tả", safeGet(c.getDescriptionCombo()))
                         + kv("Gồm", safeGet(c.getItems()))
@@ -326,11 +315,11 @@ public class ContextRetrieverService {
                         : kv("Áp dụng", "Toàn hệ thống")))
                 .collect(Collectors.joining(divider()));
 
-        return mdTitle("🎁 Combo bắp nước đang bán") + comboList;
+        return mdTitle("Combo bắp nước đang bán") + comboList;
     }
 
     // ==========================================
-    // 🔹 KHUYẾN MÃI (Fallback → Vector)
+    //  KHUYẾN MÃI (Fallback → Vector)
     // ==========================================
     private String getPromotionFallback(String userInput) {
         return emoji("🎟", "Hiện tại hệ thống chưa tích hợp dữ liệu khuyến mãi từ DB. "
@@ -339,21 +328,21 @@ public class ContextRetrieverService {
     }
 
     // ==========================================
-    // 🔹 THÔNG TIN CHUNG
+    // THÔNG TIN CHUNG
     // ==========================================
     private String getGeneralInfo() {
         List<BranchResponse> branches = branchCache.get("branches", branchService::getAllActiveBranches);
         if (branches == null || branches.isEmpty())
-            return emoji("📍", "Hiện CineMaster chưa có chi nhánh hoạt động.");
+            return emoji("", "Hiện CineMaster chưa có chi nhánh hoạt động.");
 
-        return mdTitle("🗺 CineMaster hiện có " + branches.size() + " chi nhánh:")
+        return mdTitle(" CineMaster hiện có " + branches.size() + " chi nhánh:")
                 + branches.stream()
                 .map(b -> "- " + b.getBranchName())
                 .collect(Collectors.joining("\n"));
     }
 
     // ==========================================
-    // 🔹 Tiện ích
+    //  Tiện ích
     // ==========================================
     private String safeGet(Object value) {
         if (value == null) return "N/A";
@@ -369,12 +358,12 @@ public class ContextRetrieverService {
         var page = membershipLevelService.list(Pageable.unpaged());
         List<MembershipLevelResponse> levels = page.getContent();
         if (levels == null || levels.isEmpty()) {
-            return emoji("👤", "Hiện chưa có dữ liệu hạng thành viên nào trong hệ thống.");
+            return emoji("", "Hiện chưa có dữ liệu hạng thành viên nào trong hệ thống.");
         }
 
         StringBuilder sb = new StringBuilder(mdTitle("👑 Các hạng thành viên CineMaster"));
         for (MembershipLevelResponse lv : levels) {
-            sb.append(mdTitle("⭐ " + safeGet(lv.getLevelName())))
+            sb.append(mdTitle(" " + safeGet(lv.getLevelName())))
                     .append(kv("Điểm yêu cầu",
                             safeGet(lv.getMinPoints()) + " - " + safeGet(lv.getMaxPoints())))
                     .append(kv("Quyền lợi", safeGet(lv.getBenefits())));
@@ -383,7 +372,7 @@ public class ContextRetrieverService {
     }
 
     private String getNewsContext(String userInput) {
-        // 🎯 Nhận diện category theo từ khóa người dùng
+        // Nhận diện category theo từ khóa người dùng
         String category = null;
         String lower = userInput.toLowerCase();
         if (lower.contains("khuyến mãi") || lower.contains("ưu đãi")) category = "Promotion";
@@ -392,7 +381,7 @@ public class ContextRetrieverService {
 
         List<NewsResponse> newsList = newsService.getAll(category);
         if (newsList == null || newsList.isEmpty()) {
-            return emoji("📰", "Hiện chưa có tin tức mới được đăng tải.");
+            return emoji("", "Hiện chưa có tin tức mới được đăng tải.");
         }
 
         // 🎨 Hiển thị 5 tin mới nhất
@@ -404,10 +393,10 @@ public class ContextRetrieverService {
                         ? n.getPublishDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
                         : "Chưa xác định")
 
-                        + ChatFormatter.link("📖 Đọc chi tiết", "../news/listNewsCus.html?id=" + n.getNewsID()))
+                        + ChatFormatter.link(" Đọc chi tiết", "../news/listNewsCus.html?id=" + n.getNewsID()))
                 .collect(Collectors.joining(divider()));
 
-        return mdTitle("📰 Tin tức CineMaster mới nhất") + detail;
+        return mdTitle(" Tin tức CineMaster mới nhất") + detail;
     }
 
     private LocalDate extractDateFromInput(String input) {
@@ -423,26 +412,24 @@ public class ContextRetrieverService {
     private String getRecommendationContext(String userInput) {
         Integer accountId = sessionHistory.getSessionUserId(); // lấy user đăng nhập từ session
 
-        // ❌ Chưa đăng nhập → gợi ý phim hot hoặc theo thể loại trong câu hỏi
         if (accountId == null) {
             var list = movieRecommendationService.recommendTopRatedByGenre(userInput);
-            if (list.isEmpty()) return emoji("🎬", "Hiện chưa có phim nào phù hợp với yêu cầu.");
-            return mdTitle("🔥 Phim nổi bật mà bạn có thể thích") +
+            if (list.isEmpty()) return emoji("", "Hiện chưa có phim nào phù hợp với yêu cầu.");
+            return mdTitle(" Phim nổi bật mà bạn có thể thích") +
                     list.stream()
-                            .map(r -> "- **" + r.getTitle() + "** (" + r.getGenre() + ") ⭐" +
+                            .map(r -> "- **" + r.getTitle() + "** (" + r.getGenre() + ") " +
                                     String.format("%.1f", r.getRating() == null ? 0.0 : r.getRating().doubleValue()))
                             .collect(Collectors.joining("\n"));
         }
 
-        // ✅ Đã đăng nhập → cá nhân hóa
         var personalized = movieRecommendationService.recommendForUser(accountId, userInput);
         if (personalized.isEmpty())
             return emoji("🎞", "Hiện chưa có gợi ý phù hợp, mình sẽ đề xuất các phim hot nhất nhé!")
                     + movieRecommendationService.recommendTopRatedGlobal();
 
-        return mdTitle("🍿 Phim bạn có thể thích") +
+        return mdTitle("Phim bạn có thể thích") +
                 personalized.stream()
-                        .map(r -> "- **" + r.getTitle() + "** (" + r.getGenre() + ") ⭐" +
+                        .map(r -> "- **" + r.getTitle() + "** (" + r.getGenre() + ") " +
                                 String.format("%.1f", r.getRating() == null ? 0.0 : r.getRating().doubleValue()))
                         .collect(Collectors.joining("\n"));
     }

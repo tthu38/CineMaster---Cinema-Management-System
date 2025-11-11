@@ -13,27 +13,24 @@ import java.util.UUID;
 @Service
 public class FileStorageService {
 
-    private final String UPLOAD_DIR = "uploads";  // Avatar
-    private final String POSTER_DIR = "posters";  // Poster phim
-    private final String NEWS_DIR = "news";        // Ảnh tin tức
+    private final String UPLOAD_DIR = "uploads";
+    private final String POSTER_DIR = "posters";
+    private final String NEWS_DIR = "news";
 
-    // Lưu avatar
     public String saveFile(MultipartFile file) {
         return saveToDir(file, UPLOAD_DIR, "avatar_");
     }
 
-    // Lưu poster
     public String savePosterFile(MultipartFile file) {
         return saveToDir(file, POSTER_DIR, "poster_");
     }
 
-    // Lưu news
     public String saveNewsFile(MultipartFile file) {
         return saveToDir(file, NEWS_DIR, "news_");
     }
 
     private String saveToDir(MultipartFile file, String baseDir, String prefix) {
-        if (file.isEmpty()) throw new RuntimeException("File is empty");
+        if (file.isEmpty()) throw new RuntimeException("Thư mục rỗng");
 
         try {
             File dir = new File(baseDir);
@@ -45,7 +42,7 @@ public class FileStorageService {
             Path path = Paths.get(baseDir, filename);
             Files.copy(file.getInputStream(), path);
 
-            return "/" + baseDir + "/" + filename; // path trả về cho FE
+            return "/" + baseDir + "/" + filename;
         } catch (IOException e) {
             throw new RuntimeException("Could not store file. Error: " + e.getMessage(), e);
         }

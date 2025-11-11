@@ -25,7 +25,6 @@ public class EmbeddingService {
             @Value("${gemini.embedding.model}") String embeddingModelName
     ) {
         this.restTemplate = restTemplate;
-        // Endpoint cho Embedding: /v1beta/models/{model}:embedContent
         this.embeddingModelUrl = String.format("%s/%s:embedContent?key=%s", geminiApiUrl, embeddingModelName, geminiApiKey);
     }
 
@@ -57,7 +56,7 @@ public class EmbeddingService {
     @PostConstruct
     public void testGeminiEmbed() {
         var vec = embedText("giá vé học sinh");
-        System.out.println("🔍 Vector length: " + vec.size());
-        System.out.println("🔢 Sample dims: " + vec.stream().limit(5).toList());
+        System.out.println(" Vector length: " + vec.size());
+        System.out.println(" Sample dims: " + vec.stream().limit(5).toList());
     }
 }

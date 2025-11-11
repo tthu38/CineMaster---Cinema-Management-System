@@ -29,8 +29,6 @@ public class ShowtimeController {
 
     private final ShowtimeService service;
 
-
-    // ================== CREATE ==================
     @PreAuthorize("hasAnyRole('Admin','Manager')")
     @PostMapping
     public ResponseEntity<ShowtimeResponse> create(
@@ -42,15 +40,11 @@ public class ShowtimeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-
-    // ================== GET BY ID ==================
     @GetMapping("/{id}")
     public ResponseEntity<ShowtimeResponse> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(service.getById(id));
     }
 
-
-    // ================== SEARCH ==================
     @GetMapping
     public ResponseEntity<Page<ShowtimeResponse>> search(
             @RequestParam(required = false) Integer periodId,
@@ -71,7 +65,6 @@ public class ShowtimeController {
 
         LocalDateTime fromTime = null, toTime = null;
         try {
-            // ✅ Cho phép cả yyyy-MM-dd và yyyy-MM-ddTHH:mm:ss
             if (from != null && !from.isEmpty()) {
                 if (from.contains("T")) fromTime = LocalDateTime.parse(from);
                 else fromTime = LocalDate.parse(from).atStartOfDay();
@@ -90,8 +83,6 @@ public class ShowtimeController {
         return ResponseEntity.ok(result);
     }
 
-
-    // ================== UPDATE ==================
     @PreAuthorize("hasAnyRole('Admin','Manager')")
     @PutMapping("/{id}")
     public ResponseEntity<ShowtimeResponse> update(
@@ -104,8 +95,6 @@ public class ShowtimeController {
         return ResponseEntity.ok(response);
     }
 
-
-    // ================== DELETE ==================
     @PreAuthorize("hasAnyRole('Admin','Manager')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
@@ -117,8 +106,6 @@ public class ShowtimeController {
         return ResponseEntity.noContent().build();
     }
 
-
-    // ================== WEEKLY SCHEDULE ==================
     @GetMapping("/next-week")
     public ResponseEntity<List<DayScheduleResponse>> nextWeek(
             @RequestParam(required = false) Integer branchId
@@ -126,8 +113,6 @@ public class ShowtimeController {
         return ResponseEntity.ok(service.getNextWeekSchedule(branchId));
     }
 
-
-    // ================== WEEKLY SCHEDULE ==================
     @GetMapping("/week")
     public ResponseEntity<List<DayScheduleResponse>> week(
             @RequestParam(required = false) String anchor,
@@ -150,18 +135,12 @@ public class ShowtimeController {
                 ? (AccountPrincipal) auth.getPrincipal()
                 : null;
 
-
-        // ✅ Manager chỉ xem được chi nhánh của mình
         Integer effectiveBranchId = branchId;
         if (user != null && user.isManager()) {
             effectiveBranchId = user.getBranchId();
         }
-
-
         LocalDate targetWeek = (anchorDate != null ? anchorDate : LocalDate.now()).plusWeeks(offset);
 
-
-        // 🆕 Truyền thêm movieId vào service
         return ResponseEntity.ok(service.getWeekSchedule(targetWeek, effectiveBranchId, movieId));
     }
 

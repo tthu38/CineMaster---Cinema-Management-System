@@ -15,8 +15,6 @@ public class SeatTypeController {
     public SeatTypeController(SeatTypeService seatTypeService) {
         this.seatTypeService = seatTypeService;
     }
-
-    // GET: /api/v1/seattypes (Dùng để load dropdown trong Seat-Management)
     @GetMapping
     public List<SeatTypeResponse> getAllSeatTypes() {
         return seatTypeService.getAllSeatTypes();

@@ -46,7 +46,7 @@ public class AuditoriumController {
         return ResponseEntity.ok(auditoriumService.getAllAuditoriums());
     }
 
-    // 🟣 Lọc phòng chiếu theo chi nhánh (có thể có branchId = null)
+    // Lọc phòng chiếu theo chi nhánh (có thể có branchId = null)
     @PreAuthorize("hasAnyRole('Admin','Manager')")
     @GetMapping("/branch")
     public ResponseEntity<List<AuditoriumResponse>> listByBranch(
@@ -54,14 +54,14 @@ public class AuditoriumController {
         return ResponseEntity.ok(auditoriumService.listByBranch(branchId));
     }
 
-    // 🟣 Lấy tất cả phòng chiếu theo chi nhánh cụ thể
+    // Lấy tất cả phòng chiếu theo chi nhánh cụ thể
     @PreAuthorize("hasAnyRole('Admin','Manager')")
     @GetMapping("/branch/{branchId}")
     public ResponseEntity<List<AuditoriumResponse>> getAuditoriumsByBranchId(@PathVariable Integer branchId) {
         return ResponseEntity.ok(auditoriumService.getAuditoriumsByBranchId(branchId));
     }
 
-    // 🟣 Lấy chi tiết phòng chiếu (Admin xem được kể cả phòng bị khóa)
+    // Lấy chi tiết phòng chiếu (Admin xem được kể cả phòng bị khóa)
     @PreAuthorize("hasAnyRole('Admin','Manager')")
     @GetMapping("/{id}/admin")
     public ResponseEntity<AuditoriumResponse> getAuditoriumByIdAdmin(@PathVariable Integer id) {
@@ -72,9 +72,7 @@ public class AuditoriumController {
         }
     }
 
-    // ===========================================================
-    // 🔐 ADMIN — CRUD quản lý phòng chiếu
-    // ===========================================================
+    // ADMIN — CRUD quản lý phòng chiếu
     @PreAuthorize("hasRole('Admin')")
     @PostMapping
     public ResponseEntity<AuditoriumResponse> createAuditorium(

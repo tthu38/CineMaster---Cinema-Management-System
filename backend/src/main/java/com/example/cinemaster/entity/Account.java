@@ -47,7 +47,7 @@ public class Account {
     @Column(name = "isActive")
     Boolean isActive;
 
-    @Column(name = "CreatedAt") // match chính xác DB
+    @Column(name = "CreatedAt")
     LocalDate createdAt;
 
     @Size(max = 255)

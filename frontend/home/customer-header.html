@@ -6,12 +6,12 @@
 
         <!-- Navigation -->
         <nav class="cm-nav">
-            <a href="../home/home.html" class="nav-link">Home</a>
-            <a href="../movies/listMovieCus.html" class="nav-link">Movies</a>
-            <a href="../user/showtimes-calendar.html" class="nav-link">Showtimes</a>
-            <a href="../discount/listDiscount.html" class="nav-link">Promotions</a>
-            <a href="../news/listNewsCus.html" class="nav-link">News</a> <!-- 📰 Thêm mục Tin tức -->
-            <a href="../contact/contact.html" class="nav-link">Contact</a>
+            <a href="../home/home.html" class="nav-link">Trang chủ</a>
+            <a href="../movies/listMovieCus.html" class="nav-link">Phim</a>
+            <a href="../user/showtimes-calendar.html" class="nav-link">Lịch chiếu</a>
+            <a href="../discount/listDiscount.html" class="nav-link">Khuyến mãi</a>
+            <a href="../news/listNewsCus.html" class="nav-link">Tin tức</a> <!-- 📰 Thêm mục Tin tức -->
+            <a href="../contact/contact.html" class="nav-link">Liên hệ</a>
         </nav>
 
 
@@ -137,50 +137,82 @@
         const authArea = document.getElementById("authArea");
         if (!authArea) return;
 
-
         const token = localStorage.getItem("accessToken");
         const name = localStorage.getItem("fullName") || "User";
         const storedAvatar = localStorage.getItem("avatarUrl");
         const accountId = localStorage.getItem("accountId");
+        const role = localStorage.getItem("role"); // 👑 Role hiện tại
 
-
-        // ✅ Tự xử lý đường dẫn avatar
+        // Avatar xử lý đường dẫn
         let avatar = "../assets/default-avatar.png";
         if (storedAvatar) {
-            if (storedAvatar.startsWith("/uploads/")) {
-                avatar = "http://localhost:8080" + storedAvatar;
-            } else if (storedAvatar.startsWith("http")) {
-                avatar = storedAvatar;
-            }
+            if (storedAvatar.startsWith("/uploads/")) avatar = "http://localhost:8080" + storedAvatar;
+            else if (storedAvatar.startsWith("http")) avatar = storedAvatar;
         }
 
-
+        // Nếu chưa login
         if (!token) {
             authArea.innerHTML = `
-           <button class="btn-auth" onclick="location.href='../user/login.html'">Login</button>
-           <button class="btn-auth-outline" onclick="location.href='../user/register.html'">Register</button>
-       `;
+            <button class="btn-auth" onclick="location.href='../user/login.html'">Login</button>
+            <button class="btn-auth-outline" onclick="location.href='../user/register.html'">Register</button>
+        `;
             return;
         }
 
+        /* ============================================================
+           Xác định nếu đang ở dashboard (admin/manager/staff)
+           ============================================================ */
+        const currentPath = window.location.pathname;
+        const isDashboard =
+            currentPath.includes("dashboardAdmin") ||
+            currentPath.includes("dashboardManager") ||
+            currentPath.includes("dashboardStaff");
 
-        // ✅ Nếu đã login thì render avatar + tên
+        /* ============================================================
+           Xây dựng menu dropdown
+           ============================================================ */
+        let dropdownItems = `
+        <a href="../user/profile.html?id=${accountId || ''}">👤 Trang cá nhân </a>
+        <hr>
+        <a href="#" id="logoutBtn">🚪 Đăng xuất</a>
+    `;
+
+        if (role === "Customer") {
+            // 👤 Customer: có thêm vé & membership
+            dropdownItems = `
+            <a href="../user/profile.html?id=${accountId || ''}">👤 Trang cá nhân</a>
+            <a href="../tickets/myTickets.html">🎟 Vé của tôi</a>
+            <a href="../user/membership.html">⭐ Thẻ thành viên</a>
+            <hr>
+            <a href="#" id="logoutBtn">🚪 Đăng xuất</a>
+        `;
+        } else if (["Admin", "Manager", "Staff"].includes(role)) {
+            // 🧑‍💼 Admin/Manager/Staff
+            let dashboardLink = "";
+            if (!isDashboard) {
+                if (role === "Admin") dashboardLink = `<a href="/CineMaster/frontend/home/dashboardAdmin.html">🧭 Trang quản lý</a>`;
+                else if (role === "Manager") dashboardLink = `<a href="/CineMaster/frontend/home/dashboardManager.html">🧭 Trang quản lý</a>`;
+                else if (role === "Staff") dashboardLink = `<a href="/CineMaster/frontend/home/dashboardStaff.html">🧭 Trang quản lý</a>`;
+            }
+
+            dropdownItems = `
+            <a href="../user/profile.html?id=${accountId || ''}">👤 Trang cá nhân</a>
+            ${dashboardLink}
+            <hr>
+            <a href="#" id="logoutBtn">🚪 Đăng xuất</a>
+        `;
+        }
+
+        // ✅ Render giao diện header
         authArea.innerHTML = `
-       <div class="user-info">
-           <div class="user-dropdown">
-               <img src="${avatar}" alt="avatar" class="user-avatar" id="userAvatar">
-               <div class="dropdown-menu" id="dropdownMenu">
-                   <a href="../user/profile.html?id=${accountId || ''}">👤 Profile</a>
-                   <a href="../tickets/myTickets.html">🎟 My Tickets</a>
-                   <a href="../user/membership.html">⭐ Membership</a>
-                   <hr>
-                   <a href="#" id="logoutBtn">🚪 Log out</a>
-               </div>
-           </div>
-           <span class="user-name">${name}</span>
-       </div>
-   `;
-
+        <div class="user-info">
+            <div class="user-dropdown">
+                <img src="${avatar}" alt="avatar" class="user-avatar" id="userAvatar">
+                <div class="dropdown-menu" id="dropdownMenu">${dropdownItems}</div>
+            </div>
+            <span class="user-name">${name}</span>
+        </div>
+    `;
 
         // Toggle dropdown
         const avatarEl = document.getElementById("userAvatar");
@@ -193,15 +225,15 @@
             document.addEventListener("click", () => dropdown.classList.remove("show"));
         }
 
-
         // Logout
         const logoutBtn = document.getElementById("logoutBtn");
         logoutBtn.addEventListener("click", (e) => {
             e.preventDefault();
             localStorage.clear();
+            sessionStorage.clear();
+            if (window.google?.accounts?.id) google.accounts.id.disableAutoSelect();
             location.href = "../user/login.html";
         });
-
 
         // Highlight menu active
         const current = window.location.pathname.split("/").pop();
@@ -209,29 +241,33 @@
             if (link.getAttribute("href").includes(current)) link.classList.add("active");
         });
 
-
-        // ✅ Cập nhật realtime khi đổi avatar hoặc tên
+        // Update realtime avatar / name
         window.addEventListener("storage", (e) => {
             if (e.key === "avatarUrl" || e.key === "fullName") {
                 const img = document.getElementById("userAvatar");
                 const nameEl = document.querySelector(".user-name");
-
-
                 if (e.key === "avatarUrl" && img) {
                     let newAvatar = e.newValue || "../assets/default-avatar.png";
-                    if (newAvatar && newAvatar.startsWith("/uploads/")) {
-                        newAvatar = "http://localhost:8080" + newAvatar;
-                    }
+                    if (newAvatar.startsWith("/uploads/")) newAvatar = "http://localhost:8080" + newAvatar;
                     img.src = newAvatar;
                 }
-
-
-                if (e.key === "fullName" && nameEl) {
-                    nameEl.textContent = e.newValue || "User";
-                }
+                if (e.key === "fullName" && nameEl) nameEl.textContent = e.newValue || "User";
             }
         });
     })();
+    // ✅ Lắng nghe sự kiện avatarUpdated để cập nhật ngay lập tức (khi đang ở cùng trang)
+    window.addEventListener("avatarUpdated", () => {
+        const newUrl = localStorage.getItem("avatarUrl");
+        const img = document.getElementById("userAvatar");
+        if (img && newUrl) {
+            let updated = newUrl;
+            if (updated.startsWith("/uploads/")) updated = "http://localhost:8080" + updated;
+            else if (!updated.startsWith("http")) updated = "/" + updated;
+            img.src = updated + `?t=${Date.now()}`; // chống cache
+        }
+    });
+
+
 </script>
 
 

@@ -2,181 +2,179 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8" />
-    <title>CineMaster • Báo cáo doanh thu</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CineMaster • Báo cáo doanh thu</title>
+
+    <!-- Font + Icon -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <!-- Giao diện tổng -->
+    <link rel="stylesheet" href="../css/user.css">
 
     <style>
-        :root{
-            --red:#e50914;
-            --cyan:#22c1ff;
-            --blue:#0aa3ff;
-            --ink:#06101f;
-            --bg:#0b162c;
-            --card:#0c1324;
-            --border:#1b2b4a;
-            --muted:#9aa7b3;
-            --muted2:#cfe3ff;
-            --glow:0 0 20px rgba(34,193,255,.35), 0 0 60px rgba(34,193,255,.15);
+        /* ================== CUSTOM PAGE ================== */
+        main.shell {
+            max-width: 1280px;
+            margin: 110px auto 60px;
+            padding: 0 24px;
+        }
+
+        section.report-panel {
+            background: linear-gradient(180deg, #0b152a, #0c162c);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            box-shadow: var(--glow);
+            padding: 32px 28px;
+            position: relative;
+            z-index: 1;
+        }
+
+        section.report-panel::before,
+        section.report-panel::after {
+            content: "";
+            position: absolute;
+            left: 20px;
+            right: 20px;
+            height: 10px;
+            background: repeating-linear-gradient(90deg, #142443 0 16px, transparent 16px 32px);
+            filter: drop-shadow(0 0 6px rgba(34,193,255,.2));
+            opacity: .4;
+        }
+
+        section.report-panel::before { top: 12px; }
+        section.report-panel::after { bottom: 12px; }
+
+        /* ================== HEADER ================== */
+        .panel-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 28px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            padding-bottom: 14px;
+        }
+        .panel-head i {
+            color: var(--cyan);
+            font-size: 1.5rem;
+            filter: drop-shadow(0 0 8px rgba(34,193,255,.5));
+        }
+        .panel-head h2 {
+            margin: 0;
+            font-weight: 900;
+            font-size: 1.9rem;
+            letter-spacing: .3px;
         }
 
 
-        /* ===== Pretty cinema tickets background (static) ===== */
-        .tickets-wall{
-            position:fixed; inset:0; pointer-events:none; z-index:0;   /* dưới content, trên background */
-        }
-        .tickets-wall .tickets-layer{
-            position:absolute; inset:-10%;           /* nới biên để khi xoay không hở mép */
-            background-repeat:repeat;
-            background-size:320px 160px;             /* đúng kích cỡ tile SVG */
-            opacity:.14;                              /* độ đậm tổng thể của vé */
-            filter:drop-shadow(0 0 20px rgba(22,40,76,.18));
-            transform-origin:center center;
-        }
-        .tickets-wall .l1{
-            transform:rotate(-3deg) scale(1.04);
-            background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='160' viewBox='0 0 320 160'%3E%3Crect fill='none' width='320' height='160'/%3E%3Cg opacity='0.95'%3E%3Cg transform='translate(8,8)'%3E%3Cpath d='M0 24 a12 12 0 0 1 12 -12 h200 a10 10 0 0 0 10 -10 a12 12 0 0 1 12 12 v60 a12 12 0 0 1 -12 12 a10 10 0 0 0 -10 10 H12 a12 12 0 0 1 -12 -12z' fill='%23192A43' stroke='%232c3e66' stroke-width='2'/%3E%3Cline x1='140' y1='12' x2='140' y2='96' stroke='%238fb4ff' stroke-opacity='0.18' stroke-dasharray='6 6' /%3E%3Ccircle cx='60' cy='54' r='22' fill='none' stroke='%238fb4ff' stroke-opacity='0.35' stroke-width='3'/%3E%3Ccircle cx='60' cy='54' r='5' fill='%238fb4ff' opacity='0.3'/%3E%3Cg fill='%238fb4ff' opacity='0.35'%3E%3Ccircle cx='49' cy='44' r='5'/%3E%3Ccircle cx='71' cy='44' r='5'/%3E%3Ccircle cx='49' cy='64' r='5'/%3E%3Ccircle cx='71' cy='64' r='5'/%3E%3C/g%3E%3Cg transform='translate(164,32)' stroke='%23cfe3ff' stroke-opacity='0.38'%3E%3Crect x='0' y='0' width='60' height='24' fill='none'/%3E%3Cpath d='M3 0 v24 M8 0 v24 M11 0 v24 M16 0 v24 M22 0 v24 M27 0 v24 M33 0 v24 M38 0 v24 M45 0 v24 M51 0 v24 M56 0 v24' stroke-width='2'/%3E%3C/g%3E%3Cg transform='translate(164,66)' stroke='%23cfe3ff' stroke-opacity='0.45'%3E%3Cline x1='0' y1='0' x2='76' y2='0' stroke-width='2'/%3E%3Cline x1='0' y1='10' x2='62' y2='10' stroke-width='2'/%3E%3Cline x1='0' y1='20' x2='70' y2='20' stroke-width='2'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(8,88)'%3E%3Cpath d='M0 24 a12 12 0 0 1 12 -12 h200 a10 10 0 0 0 10 -10 a12 12 0 0 1 12 12 v60 a12 12 0 0 1 -12 12 a10 10 0 0 0 -10 10 H12 a12 12 0 0 1 -12 -12z' fill='%231b2f50' stroke='%23314774' stroke-width='2'/%3E%3Cline x1='140' y1='12' x2='140' y2='96' stroke='%238fb4ff' stroke-opacity='0.18' stroke-dasharray='6 6'/%3E%3Ccircle cx='60' cy='54' r='22' fill='none' stroke='%23a8c8ff' stroke-opacity='0.32' stroke-width='3'/%3E%3Ccircle cx='60' cy='54' r='5' fill='%23a8c8ff' opacity='0.28'/%3E%3Cg fill='%23a8c8ff' opacity='0.32'%3E%3Ccircle cx='49' cy='44' r='5'/%3E%3Ccircle cx='71' cy='44' r='5'/%3E%3Ccircle cx='49' cy='64' r='5'/%3E%3Ccircle cx='71' cy='64' r='5'/%3E%3C/g%3E%3Cg transform='translate(164,32)' stroke='%23d8e6ff' stroke-opacity='0.38'%3E%3Cpath d='M3 0 v24 M8 0 v24 M11 0 v24 M16 0 v24 M22 0 v24 M27 0 v24 M33 0 v24 M38 0 v24 M45 0 v24 M51 0 v24 M56 0 v24' stroke-width='2'/%3E%3C/g%3E%3Cg transform='translate(164,66)' stroke='%23d8e6ff' stroke-opacity='0.45'%3E%3Cline x1='0' y1='0' x2='76' y2='0' stroke-width='2'/%3E%3Cline x1='0' y1='10' x2='62' y2='10' stroke-width='2'/%3E%3Cline x1='0' y1='20' x2='70' y2='20' stroke-width='2'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-        }
-        .tickets-wall .l2{
-            transform:rotate(3deg) scale(1.06);
-            background-position:160px 80px;          /* lệch ô để pattern nhìn tự nhiên hơn */
-            opacity:.10;                              /* lớp 2 nhạt hơn để không rối mắt */
-            background-image:inherit;                 /* dùng cùng SVG */
-        }
-        /* nếu muốn tăng/giảm độ đậm chung của vé: chỉnh 2 giá trị opacity ở .l1 và .l2 */
-
-
-        /* ===== NỀN động + pattern vé ===== */
-        html,body{
-            margin:0; color:#fff; font-family:'Roboto',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-            min-height:100vh;
-            background-color: var(--ink);
-            background-image:
-                    radial-gradient(1200px 600px at -10% -35%, rgba(229,9,20,.18), transparent 60%),
-                    radial-gradient(900px 400px at 120% -20%, rgba(34,193,255,.12), transparent 60%),
-                    linear-gradient(180deg, var(--ink), var(--bg)),
-                    url("data:image/svg+xml;utf8,\
-<svg xmlns='http://www.w3.org/2000/svg' width='160' height='80' viewBox='0 0 160 80'>\
-<rect width='160' height='80' fill='none'/>\
-<g opacity='0.08' stroke='%23cfe3ff' stroke-width='1.2' fill='none'>\
-<path d='M8 20 h110 a10 10 0 0 0 10 -10 a10 10 0 0 1 10 10 v20 a10 10 0 0 1 -10 10 a10 10 0 0 0 -10 10 H8 z'/>\
-<path d='M30 18 v44' stroke-dasharray='6 6'/>\
-<circle cx='120' cy='20' r='3'/><circle cx='120' cy='60' r='3'/>\
-</g></svg>");
-            background-repeat:no-repeat,no-repeat,no-repeat,repeat;
-            background-size:1200px 600px,900px 400px,100% 100%,320px 160px;
-            background-position:-10% -35%,120% -20%,0 0,0 0;
-            background-attachment:fixed, fixed, fixed, fixed;
-            overflow-x:hidden;
+        /* === Chart === */
+        #revenueChart {
+            width: 100%;
+            background: #091325;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: inset 0 0 0 1px rgba(34,193,255,.08);
+            margin-bottom: 32px;
         }
 
-
-        .grain{ pointer-events:none; position:fixed; inset:0; opacity:.14; mix-blend-mode:screen;
-            background-image:radial-gradient(circle at 20% 30%, rgba(255,255,255,.06) 0 2px, transparent 2px),
-            radial-gradient(circle at 70% 60%, rgba(255,255,255,.05) 0 2px, transparent 2px);
-            background-size:200px 200px, 260px 260px;
-            animation: drift 18s linear infinite alternate;
-        }
-        @keyframes drift{from{transform:translate3d(0,0,0)}to{transform:translate3d(30px,-25px,0)}}
-
-
-        .shell{max-width:1300px;margin:110px auto 50px;padding:0 24px}
-
-
-        /* card kiểu vé */
-        .film{
-            background:linear-gradient(180deg,#0b152a,#0c162c);
-            border:1px solid var(--border);
-            border-radius:20px; box-shadow:var(--glow);
-            padding:26px 24px; position:relative;
-        }
-        .film::before,.film::after{
-            content:""; position:absolute; left:18px; right:18px;
-            height:10px; background:repeating-linear-gradient(90deg,#142443 0 16px,transparent 16px 32px);
-            filter:drop-shadow(0 0 6px rgba(34,193,255,.2)); opacity:.5;
-        }
-        .film::before{top:12px;} .film::after{bottom:12px;}
-
-
-        h2.title{display:flex;align-items:center;gap:10px;font-weight:900;font-size:1.8rem;margin-bottom:24px;}
-        h2.title i{color:var(--cyan);}
-        canvas{margin-bottom:30px;}
-
-
-        #revenueChart{
-            background:#091325;border-radius:16px;padding:14px;
-            box-shadow:inset 0 0 0 1px rgba(34,193,255,.08);
-        }
-
-
-        /* Bảng top phim */
-        table{background:rgba(10,17,30,.9);border-radius:12px;overflow:hidden;margin-top:25px;}
-        table th{color:var(--cyan);background:rgba(34,193,255,.12);}
-        .rank{text-align:center;font-weight:bold;}
-        tr:nth-child(1) .rank{color:gold;font-size:1.3rem;}
-        tr:nth-child(2) .rank{color:silver;}
-        tr:nth-child(3) .rank{color:#cd7f32;}
-        tbody tr:hover{background:rgba(34,193,255,.06);}
-
-
-        /* Bộ lọc đặt dưới */
-        .filters{
-            margin-top:40px;
-            background:#0e1b33;
-            border:1px solid var(--border);
-            border-radius:14px;
-            padding:22px;
-        }
-        .filters h3{
-            font-weight:800;font-size:1.3rem;
-            color:var(--cyan);
-            margin-bottom:18px;
-        }
-        label{font-weight:500;color:#cfe3ff;}
-        .form-select,.form-control{
-            background:#0c162c;border:1px solid var(--border);
-            color:#e6eefc;border-radius:10px;
-        }
-        .form-select:focus,.form-control:focus{
-            border-color:var(--cyan);
-            box-shadow:0 0 6px rgba(34,193,255,.4);
-        }
-        .btn{
-            border-radius:10px;font-weight:600;
-        }
-        .btn-primary{
-            background:linear-gradient(90deg,var(--cyan),var(--blue));
-            border:none;
-        }
-        .btn-outline-info{
-            border-color:var(--cyan);color:var(--cyan);
-        }
-        .btn-outline-info:hover{
-            background:var(--cyan);color:#06101f;
-        }
-        .chart-wrapper {
-            margin-top: -20px;  /* kéo chart cao lên 1 chút */
-        }
+        /* === Bộ lọc === */
         .filters {
-            margin-top: 10px;   /* dính sát chart */
+            background: #0e1b33;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px;
+            margin-top: 10px;
         }
-        /* ✅ Đồng bộ màu nền cho các ô bị disable */
+
+        .filters h3 {
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: var(--cyan);
+            margin-bottom: 18px;
+        }
+
+        label {
+            font-weight: 500;
+            color: var(--muted2);
+        }
+
+        .form-select,
+        .form-control {
+            background: #0c162c;
+            border: 1px solid var(--border);
+            color: #e6eefc;
+            border-radius: 10px;
+        }
+
+        .form-select:focus,
+        .form-control:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 6px rgba(34,193,255,.4);
+        }
+
         .form-select:disabled,
         .form-control:disabled {
-            background-color: #0c162c !important;  /* cùng màu với các ô bình thường */
-            color: #9aa7b3 !important;             /* chữ nhạt hơn */
-            opacity: 1 !important;                 /* tránh bị làm mờ */
-            cursor: not-allowed;                   /* vẫn cho thấy không click được */
-            border: 1px solid var(--border);       /* viền nhất quán */
+            background-color: #0c162c !important;
+            color: #9aa7b3 !important;
+            opacity: 1 !important;
+            cursor: not-allowed;
+        }
+
+        .btn {
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, var(--cyan), var(--blue));
+            border: none;
+        }
+
+        .btn-outline-info {
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        .btn-outline-info:hover {
+            background: var(--cyan);
+            color: #06101f;
+        }
+
+        /* === Bảng top phim === */
+        .table-container {
+            margin-top: 40px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 0 0 1px rgba(34,193,255,.1);
+        }
+
+        table {
+            margin: 0;
+        }
+
+        table th {
+            color: var(--cyan);
+            background: rgba(34,193,255,.12);
+        }
+
+        .rank {
+            text-align: center;
+            font-weight: bold;
+        }
+
+        tr:nth-child(1) .rank { color: gold; font-size: 1.3rem; }
+        tr:nth-child(2) .rank { color: silver; }
+        tr:nth-child(3) .rank { color: #cd7f32; }
+
+        tbody tr:hover {
+            background: rgba(34,193,255,.06);
         }
 
 
     </style>
 </head>
+
 <body>
 <div class="grain"></div>
 <div class="tickets-wall" aria-hidden="true">
@@ -184,20 +182,19 @@
     <div class="tickets-layer l2"></div>
 </div>
 
-
 <div id="site-header"></div>
 
-
 <main class="shell">
-    <section class="film">
-        <h2 class="title"><i class="fa-solid fa-chart-line"></i> Báo cáo doanh thu</h2>
-        <div class="chart-wrapper">
-            <canvas id="revenueChart" height="120"></canvas>
+    <section class="report-panel">
+        <div class="panel-head">
+            <i class="fa-solid fa-chart-line"></i>
+            <h2>Tổng quan doanh nghiệp</h2>
         </div>
+        <!-- Biểu đồ doanh thu -->
+        <canvas id="revenueChart" height="120"></canvas>
 
-
-        <!-- 🔽 Bộ lọc nằm sát chart -->
-        <div class="filters mt-3">
+        <!-- Bộ lọc doanh thu -->
+        <div class="filters">
             <h3><i class="fa-solid fa-filter me-2"></i> Bộ lọc doanh thu</h3>
             <div class="row g-3">
                 <div class="col-md-3">
@@ -218,7 +215,6 @@
                 </div>
             </div>
 
-
             <div class="d-flex flex-wrap gap-2 mt-4">
                 <button id="btnLast7Days" class="btn btn-outline-info flex-fill">
                     <i class="fa-solid fa-calendar-week me-1"></i> 7 ngày gần nhất
@@ -232,10 +228,11 @@
             </div>
         </div>
 
-
+        <!-- Top 10 phim -->
         <h2 class="title mt-5"><i class="fa-solid fa-ranking-star"></i> Top 10 phim được mua vé nhiều nhất</h2>
-        <div class="table-responsive">
-            <table class="table table-dark table-striped table-hover align-middle">
+
+        <div class="table-container table-responsive">
+            <table class="table table-dark table-striped table-hover align-middle mb-0">
                 <thead>
                 <tr>
                     <th style="width:60px;">#</th>
@@ -249,17 +246,13 @@
             </table>
         </div>
     </section>
-
-
 </main>
-
 
 <div id="site-footer"></div>
 
-
+<!-- Scripts -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="module" src="../js/revenue-bar.js"></script>
 </body>
 </html>
-

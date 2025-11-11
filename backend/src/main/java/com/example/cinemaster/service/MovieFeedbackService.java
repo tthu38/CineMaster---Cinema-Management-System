@@ -26,7 +26,7 @@ public class MovieFeedbackService {
                 .stream()
                 .map(f -> MovieFeedbackResponse.builder()
                         .id(f.getFeedbackId())
-                        .accountId(f.getAccount().getAccountID()) // 👈 thêm
+                        .accountId(f.getAccount().getAccountID())
                         .accountName(f.getAccount().getFullName())
                         .rating(f.getRating())
                         .comment(f.getComment())
@@ -52,7 +52,7 @@ public class MovieFeedbackService {
 
         return MovieFeedbackResponse.builder()
                 .id(saved.getFeedbackId())
-                .accountId(acc.getAccountID()) // 👈 thêm
+                .accountId(acc.getAccountID())
                 .accountName(acc.getFullName())
                 .rating(saved.getRating())
                 .comment(saved.getComment())
@@ -82,7 +82,7 @@ public class MovieFeedbackService {
 
         return MovieFeedbackResponse.builder()
                 .id(feedback.getFeedbackId())
-                .accountId(feedback.getAccount().getAccountID()) // 👈 thêm
+                .accountId(feedback.getAccount().getAccountID())
                 .accountName(feedback.getAccount().getFullName())
                 .rating(feedback.getRating())
                 .comment(feedback.getComment())

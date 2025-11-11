@@ -10,7 +10,6 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring")
 public interface SeatMapper {
 
-    // ====== 1️⃣ Entity → Response DTO ======
     @Mappings({
             @Mapping(target = "auditoriumID", source = "auditorium.auditoriumID"),
             @Mapping(target = "auditoriumName", source = "auditorium.name"),
@@ -22,14 +21,12 @@ public interface SeatMapper {
     })
     SeatResponse toResponse(Seat seat);
 
-    // ====== 2️⃣ Request → Entity (CREATE) ======
     @Mapping(target = "seatID", ignore = true)
     @Mapping(target = "auditorium", expression = "java(auditorium)")
     @Mapping(target = "seatType", expression = "java(seatType)")
     @Mapping(target = "status", expression = "java(com.example.cinemaster.entity.Seat.SeatStatus.valueOf(request.getStatus().toUpperCase()))")
     Seat toEntity(SeatRequest request, Auditorium auditorium, SeatType seatType);
 
-    // ====== 3️⃣ Request → Entity (UPDATE) ======
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "auditorium", expression = "java(auditorium)")
     @Mapping(target = "seatType", expression = "java(seatType)")

@@ -34,9 +34,7 @@ public class RevenueService {
     private final TicketRepository ticketRepo;
 
 
-    /* ============================================================
-       🟦 LẤY DOANH THU CHUNG (CHO DASHBOARD)
-    ============================================================ */
+    /* =========== LẤY DOANH THU CHUNG (CHO DASHBOARD)===================================== */
     public List<RevenueDayResponse> getRevenue(AccountPrincipal user) {
         LocalDate today = LocalDate.now();
 
@@ -87,9 +85,7 @@ public class RevenueService {
     }
 
 
-    /* ============================================================
-       🟩 BÁO CÁO CHI TIẾT (CA / NGÀY / THÁNG / NĂM)
-    ============================================================ */
+    /* ====================== BÁO CÁO CHI TIẾT (CA / NGÀY / THÁNG / NĂM)=========================== */
     public List<RevenueRowResponse> getReport(RevenueQueryResquest q, AccountPrincipal user) {
         enforceScopeByRole(q, user);
         Integer branchId = normalizeBranch(q, user);
@@ -104,7 +100,7 @@ public class RevenueService {
     }
 
 
-    // ==================== 1️⃣ THEO CA ====================
+    // ==================== THEO CA ====================
     private List<RevenueRowResponse> reportByShiftFromSchedule(LocalDate date, Integer branchId) {
         LocalDate targetDate = (date != null) ? date : LocalDate.now();
         List<WorkSchedule> shifts = scheduleRepo.findDistinctShiftTypesByDateAndBranch(targetDate, branchId);
@@ -138,7 +134,7 @@ public class RevenueService {
     }
 
 
-    // ==================== 2️⃣ THEO NGÀY ====================
+    // =================THEO NGÀY ====================
     private List<RevenueRowResponse> reportByDayOfMonth(LocalDate anchor, Integer branchId) {
         LocalDate base = (anchor != null) ? anchor : LocalDate.now();
         LocalDate first = base.withDayOfMonth(1);
@@ -153,7 +149,7 @@ public class RevenueService {
     }
 
 
-    // ==================== 3️⃣ THEO THÁNG ====================
+    // ==================THEO THÁNG ====================
     private List<RevenueRowResponse> reportByMonthOfYear(Integer year, Integer branchId) {
         int y = (year != null) ? year : Year.now().getValue();
         List<RevenueRowResponse> rows = new ArrayList<>();
@@ -167,7 +163,7 @@ public class RevenueService {
     }
 
 
-    // ==================== 4️⃣ THEO NĂM ====================
+    // ================ THEO NĂM ====================
     private List<RevenueRowResponse> reportByYearRange(Integer fromYear, Integer toYear, Integer branchId) {
         int y1 = (fromYear != null) ? fromYear : Year.now().getValue();
         int y2 = (toYear != null && toYear >= y1) ? toYear : y1;
@@ -183,7 +179,7 @@ public class RevenueService {
     }
 
 
-    // ==================== 🧮 BUILD ROW ====================
+    // ================BUILD ROW ====================
     private RevenueRowResponse buildRow(String label, LocalDateTime from, LocalDateTime to, Integer branchId) {
         RevenueAggregate aggr = repo.aggregateForWindow(from, to, branchId);
         RevenueRowResponse row = mapper.toResponse(aggr);
@@ -207,9 +203,7 @@ public class RevenueService {
     }
 
 
-    /* ============================================================
-       🟨 PHÂN QUYỀN & CHI NHÁNH
-    ============================================================ */
+    /* ===================== PHÂN QUYỀN & CHI NHÁNH======================================= */
     private void enforceScopeByRole(RevenueQueryResquest q, AccountPrincipal user) {
         if (user.hasRole("Admin")) return;
 
@@ -255,16 +249,12 @@ public class RevenueService {
     }
 
 
-    /* ============================================================
-       🟪 DOANH THU 7 NGÀY GẦN NHẤT
-    ============================================================ */
+    /* =================== DOANH THU 7 NGÀY GẦN NHẤT======================================== */
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getRevenueLast7Days(AccountPrincipal principal, Integer branchId) {
         if (principal == null)
             throw new SecurityException("Không xác thực được người dùng.");
 
-
-        // ✅ LocalDate: vẫn dùng bình thường
         LocalDate today = LocalDate.now();
         LocalDate from = today.minusDays(6);
         Integer finalBranchId = principal.isAdmin() ? branchId : principal.getBranchId();
@@ -273,12 +263,8 @@ public class RevenueService {
         if (!principal.isAdmin() && !principal.isManager())
             throw new SecurityException("Không quyền truy cập chức năng này");
 
-
-        // ✅ Query lấy luôn cả ngày hôm nay (vì BETWEEN inclusive)
         List<Object[]> rows = ticketRepo.findRevenueBetweenDates(from, today, finalBranchId);
 
-
-        // 👉 Map doanh thu theo ngày có dữ liệu
         Map<LocalDate, Long> revenueMap = new HashMap<>();
         for (Object[] r : rows) {
             LocalDate date = ((java.sql.Date) r[0]).toLocalDate();
@@ -286,8 +272,6 @@ public class RevenueService {
             revenueMap.put(date, amount);
         }
 
-
-        // 👉 Sinh đủ 7 ngày (kể cả hôm nay, dù không có doanh thu)
         List<Map<String, Object>> result = new ArrayList<>();
         for (LocalDate d = from; !d.isAfter(today); d = d.plusDays(1)) {
             Map<String, Object> map = new HashMap<>();
@@ -313,17 +297,11 @@ public class RevenueService {
         if (!principal.isAdmin() && !principal.isManager())
             throw new SecurityException("Không quyền truy cập chức năng này");
 
-
-        // ✅ Bao gồm toàn bộ tháng (đến hết ngày cuối cùng)
         LocalDate first = LocalDate.of(year, month, 1);
         LocalDate last = first.withDayOfMonth(first.lengthOfMonth()).plusDays(1);
 
-
-        // ✅ Lấy doanh thu từng ngày trong tháng
         List<Object[]> rows = ticketRepo.findRevenueBetweenDates(first, last, finalBranchId);
 
-
-        // 👉 Map doanh thu theo ngày
         Map<LocalDate, Long> revenueMap = new HashMap<>();
         for (Object[] r : rows) {
             LocalDate date = ((java.sql.Date) r[0]).toLocalDate();
@@ -331,8 +309,6 @@ public class RevenueService {
             revenueMap.put(date, amount);
         }
 
-
-        // 👉 Sinh toàn bộ ngày trong tháng (kể cả ngày không có doanh thu)
         List<Map<String, Object>> result = new ArrayList<>();
         for (LocalDate d = first; d.isBefore(last); d = d.plusDays(1)) {
             Map<String, Object> map = new HashMap<>();
@@ -340,21 +316,10 @@ public class RevenueService {
             map.put("revenue", revenueMap.getOrDefault(d, 0L));
             result.add(map);
         }
-
-
         return result;
     }
 
-
-
-
-
-
-
-
-    /* ============================================================
-       🟧 DOANH THU TRONG KHOẢNG THỜI GIAN TUỲ CHỈNH
-    ============================================================ */
+    /* ================= DOANH THU TRONG KHOẢNG THỜI GIAN TUỲ CHỈNH==================================== */
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getRevenueBetweenDates(AccountPrincipal principal, LocalDate from, LocalDate to, Integer branchId) {
         if (principal == null)
@@ -370,8 +335,6 @@ public class RevenueService {
 
         List<Object[]> rows = ticketRepo.findRevenueBetweenDates(from, to, finalBranchId);
 
-
-        // 👉 Bước 1: Map doanh thu theo ngày có dữ liệu
         Map<LocalDate, Long> revenueMap = new HashMap<>();
         for (Object[] r : rows) {
             LocalDate date = ((java.sql.Date) r[0]).toLocalDate();
@@ -379,8 +342,6 @@ public class RevenueService {
             revenueMap.put(date, amount);
         }
 
-
-        // 👉 Bước 2: Sinh toàn bộ ngày trong khoảng [from..to]
         List<Map<String, Object>> result = new ArrayList<>();
         for (LocalDate d = from; !d.isAfter(to); d = d.plusDays(1)) {
             Map<String, Object> map = new HashMap<>();
@@ -393,10 +354,7 @@ public class RevenueService {
         return result;
     }
 
-
-    /* ============================================================
-   🎬 TOP 10 PHIM ĐƯỢC MUA VÉ NHIỀU NHẤT
- ============================================================ */
+    /* ========================TOP 10 PHIM ĐƯỢC MUA VÉ NHIỀU NHẤT=========================== */
     @Transactional(readOnly = true)
     public List<Map<String, Object>> getTop10Movies(AccountPrincipal principal,
                                                     Integer branchId,
@@ -411,7 +369,6 @@ public class RevenueService {
         if (!principal.isAdmin() && !principal.isManager() && !principal.isStaff())
             throw new SecurityException("Không quyền truy cập chức năng này.");
 
-
         Integer finalBranchId;
         if (principal.isAdmin()) {
             finalBranchId = branchId;
@@ -423,10 +380,6 @@ public class RevenueService {
             }
         }
 
-
-
-
-        // ✅ Xử lý khoảng thời gian lọc
         LocalDateTime fromTime = null, toTime = null;
 
 
@@ -438,12 +391,8 @@ public class RevenueService {
             toTime = fromTime.plusMonths(1);
         }
 
-
-        // ✅ Gọi repository
         List<Object[]> rows = ticketRepo.findTop10MoviesByTickets(finalBranchId, fromTime, toTime);
 
-
-        // ✅ Dùng HashMap để tránh lỗi Map.of() incompatible bounds
         return rows.stream()
                 .limit(10)
                 .map(r -> {

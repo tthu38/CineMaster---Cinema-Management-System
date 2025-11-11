@@ -36,10 +36,6 @@ public class GeminiRequest {
     public Content getSystemInstruction() { return systemInstruction; }
     public void setSystemInstruction(Content systemInstruction) { this.systemInstruction = systemInstruction; }
 
-
-    // --- INNER STATIC CLASSES ---
-
-    // Lưu ý: Các lớp này giờ là Inner Static Class trong file của bạn
     public static class Content {
         private String role;
         private List<Part> parts;

@@ -5,7 +5,6 @@ import com.example.cinemaster.dto.response.AccountResponse;
 import com.example.cinemaster.entity.Account;
 import org.mapstruct.*;
 
-import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface AccountManageMapper {

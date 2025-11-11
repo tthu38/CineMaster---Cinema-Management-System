@@ -16,18 +16,18 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class WorkScheduleUpsertCellManyRequest {
 
-    @NotNull(message = "Branch ID is required")
+    @NotNull(message = "Cần phải có ID chi nhánh")
     Integer branchId;
 
-    @NotNull(message = "Date is required")
+    @NotNull(message = "Thời gian là bắt buộc")
     LocalDate date;
 
     @NotBlank(message = "Shift type is required")
-    @Size(max = 50, message = "Shift type must be at most 50 characters")
+    @Size(max = 50, message = "Loại ca phải dài tối đa 50 ký tự")
     String shiftType; // MORNING / AFTERNOON / NIGHT
 
-    @NotNull(message = "Account list cannot be null")
-    @Size(min = 0, message = "Account list cannot be empty")
+    @NotNull(message = "Danh sách tài khoản không thể rỗng")
+    @Size(min = 0, message = "Danh sách tài khoản không thể rỗng")
     List<Integer> accountIds;
 
     LocalTime startTime;

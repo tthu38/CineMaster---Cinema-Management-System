@@ -20,22 +20,21 @@ public class OtpCheckService {
 
     public OtpCheckResponse checkOtp(OtpCheckRequest req) {
         var otp = otpRepository.findValidOtp(req.getCode(), LocalDateTime.now())
-                .orElseThrow(() -> new IllegalArgumentException("❌ OTP không hợp lệ hoặc đã hết hạn!"));
+                .orElseThrow(() -> new IllegalArgumentException(" OTP không hợp lệ hoặc đã hết hạn!"));
 
         var ticket = otp.getTicket();
         if (ticket == null)
-            throw new IllegalArgumentException("❌ OTP này chưa liên kết với vé nào!");
+            throw new IllegalArgumentException(" OTP này chưa liên kết với vé nào!");
 
         var show = ticket.getShowtime();
         if (show == null)
-            throw new IllegalArgumentException("❌ Vé này không có thông tin suất chiếu!");
+            throw new IllegalArgumentException(" Vé này không có thông tin suất chiếu!");
 
         var period = show.getPeriod();
         var movie = (period != null) ? period.getMovie() : null;
         var auditorium = show.getAuditorium();
         var branch = (auditorium != null) ? auditorium.getBranch() : null;
 
-        // Lấy combo
         var combos = ticketComboRepository.findByTicket_TicketId(ticket.getTicketId()).stream()
                 .map(this::formatCombo)
                 .collect(Collectors.toList());
@@ -52,7 +51,7 @@ public class OtpCheckService {
                         .collect(Collectors.toList()))
                 .combos(combos)
                 .totalPrice(ticket.getTotalPrice())
-                .paymentMethod(ticket.getPaymentMethod() != null ? ticket.getPaymentMethod().name() : "UNKNOWN")  // ✅ fix dòng này
+                .paymentMethod(ticket.getPaymentMethod() != null ? ticket.getPaymentMethod().name() : "UNKNOWN")
                 .ticketStatus(ticket.getTicketStatus().name())
                 .build();
 

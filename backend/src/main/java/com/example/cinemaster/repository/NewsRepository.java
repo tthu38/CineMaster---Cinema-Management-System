@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface NewsRepository extends JpaRepository<News, Integer> {
-    List<News> findByCategoryAndActiveTrue(String category);  // chỉ lấy active = true
-    List<News> findByActiveTrue();                           // chỉ lấy active = true
-    List<News> findByCategory(String category);              // 👈 lấy tất cả, bất kể active
+    List<News> findByCategoryAndActiveTrue(String category);
+    List<News> findByActiveTrue();
+    List<News> findByCategory(String category);
 }

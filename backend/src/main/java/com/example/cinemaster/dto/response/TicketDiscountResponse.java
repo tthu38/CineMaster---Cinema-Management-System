@@ -11,13 +11,12 @@ import java.math.BigDecimal;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TicketDiscountResponse {
 
-    Integer ticketId;          // ID của vé
-    String discountCode;       // Mã giảm giá được áp dụng
-    BigDecimal discountAmount; // Số tiền được giảm
-    BigDecimal newTotal;       // Tổng mới sau khi giảm
-    BigDecimal originalTotal;  // Tổng gốc (ghế + combo, chưa giảm)
+    Integer ticketId;
+    String discountCode;
+    BigDecimal discountAmount;
+    BigDecimal newTotal;
+    BigDecimal originalTotal;
 
-    // 🆕 Chi tiết tách riêng (hữu ích cho FE hiển thị)
-    BigDecimal seatPrice;      // Tổng tiền ghế
-    BigDecimal comboPrice;     // Tổng tiền combo
+    BigDecimal seatPrice;
+    BigDecimal comboPrice;
 }

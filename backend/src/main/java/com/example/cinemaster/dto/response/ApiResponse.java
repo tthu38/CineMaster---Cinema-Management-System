@@ -16,7 +16,6 @@ public class ApiResponse <T> {
     private String message;
     private T result;
 
-    // ✅ Thêm vào cuối file ApiResponse.java
     public static <T> ApiResponse<T> success(T result) {
         return ApiResponse.<T>builder()
                 .code(1000)

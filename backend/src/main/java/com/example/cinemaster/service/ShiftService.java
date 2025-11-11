@@ -25,16 +25,12 @@ public class ShiftService {
     private final TicketDiscountRepository discountRepo;
 
 
-    /* ============================================================
-       🟢 MỞ CA
-    ============================================================ */
+    /* =========== MỞ CA====================================== */
     public ShiftSession openShift(AccountPrincipal staff, BigDecimal openingCash) {
         // Nếu nhân viên đã có ca mở, chặn lại
         sessionRepo.findActiveSession(staff.getId()).ifPresent(s -> {
             throw new IllegalStateException("Bạn đang có ca làm chưa kết thúc!");
         });
-
-
         ShiftSession session = ShiftSession.builder()
                 .staff(Account.builder().accountID(staff.getId()).build()) // chỉ cần ID
                 .startTime(LocalDateTime.now())
@@ -42,18 +38,14 @@ public class ShiftService {
                 .status("OPEN")
                 .build();
 
-
-        System.out.println("🟢 Mở ca thành công cho nhân viên: " + staff.getFullName() +
+        System.out.println(" Mở ca thành công cho nhân viên: " + staff.getFullName() +
                 " | ID=" + staff.getId() + " | OpeningCash=" + openingCash);
         return sessionRepo.save(session);
     }
 
 
-    /* ============================================================
-       📊 XEM DOANH THU CA HIỆN TẠI (nhân viên khác cùng branch cũng xem được)
-    ============================================================ */
     public ShiftReportResponse getCurrentShiftReport(AccountPrincipal staff) {
-        System.out.println("📊 Lấy báo cáo ca cho staffID=" + staff.getId());
+        System.out.println(" Lấy báo cáo ca cho staffID=" + staff.getId());
 
 
         ShiftSession session = sessionRepo.findActiveSession(staff.getId())
@@ -97,7 +89,7 @@ public class ShiftService {
 
 
         } catch (Exception e) {
-            System.out.println("⚠️ Không thể tạo báo cáo, trả mặc định 0. " + e.getMessage());
+            System.out.println("⚠ Không thể tạo báo cáo, trả mặc định 0. " + e.getMessage());
             return new ShiftReportResponse(
                     session.getOpeningCash(),
                     0, BigDecimal.ZERO,
@@ -108,32 +100,25 @@ public class ShiftService {
     }
 
 
-    /* ============================================================
-       🔴 KẾT CA
-    ============================================================ */
     public ShiftSession closeShift(AccountPrincipal staff, BigDecimal closingCash) {
-        System.out.println("🔴 Bắt đầu kết ca cho nhân viên: " + staff.getFullName() +
+        System.out.println(" Bắt đầu kết ca cho nhân viên: " + staff.getFullName() +
                 " | ID=" + staff.getId() + " | ClosingCash=" + closingCash);
 
 
-        // Tìm ca đang mở: của nhân viên hoặc của chi nhánh
         ShiftSession session = sessionRepo.findActiveSession(staff.getId())
                 .or(() -> sessionRepo.findAnyOpenSessionInSameBranch(staff.getBranchId()))
                 .orElseThrow(() -> new IllegalStateException("Không có ca làm đang mở."));
 
 
-        // Nếu không phải người mở ca và không phải manager → chặn
         if (!staff.isManager() && !session.getStaff().getAccountID().equals(staff.getId())) {
             throw new IllegalStateException("Bạn không có quyền kết ca này!");
         }
 
-
-        // ✅ Nếu không có dữ liệu vé, vẫn cho kết ca bình thường
         ShiftReportResponse report;
         try {
             report = getCurrentShiftReport(staff);
         } catch (Exception e) {
-            System.out.println("⚠️ Không thể tạo báo cáo, dùng giá trị mặc định (0). Lỗi: " + e.getMessage());
+            System.out.println("Không thể tạo báo cáo, dùng giá trị mặc định (0). Lỗi: " + e.getMessage());
             report = new ShiftReportResponse(
                     session.getOpeningCash(), 0, BigDecimal.ZERO,
                     0, BigDecimal.ZERO, BigDecimal.ZERO,
@@ -154,17 +139,13 @@ public class ShiftService {
 
 
         ShiftSession saved = sessionRepo.save(session);
-        System.out.println("✅ Kết ca thành công! SessionID=" + saved.getId() +
+        System.out.println("Kết ca thành công! SessionID=" + saved.getId() +
                 " | ExpectedCash=" + expectedCash + " | Diff=" + diff);
 
 
         return saved;
     }
 
-
-    /* ============================================================
-       ⚙️ HÀM TIỆN ÍCH
-    ============================================================ */
     private BigDecimal safe(BigDecimal val) {
         return val != null ? val : BigDecimal.ZERO;
     }

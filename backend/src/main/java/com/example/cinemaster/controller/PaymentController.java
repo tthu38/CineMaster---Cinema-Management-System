@@ -51,7 +51,7 @@ public class PaymentController {
     }
 
 
-    // ==================== 🔹 TẠO ĐƠN HÀNG ====================
+    // ====================  TẠO ĐƠN HÀNG ====================
     @PostMapping("/create")
     public ResponseEntity<?> createOrder(@RequestBody Map<String, Object> body) {
         long amount;
@@ -63,8 +63,6 @@ public class PaymentController {
             return ResponseEntity.badRequest().body(Map.of("error", "invalid data"));
         }
 
-
-        // ✅ Tạo mã thanh toán duy nhất
         String code = "CINE" + UUID.randomUUID().toString().replaceAll("-", "").substring(0, 8).toUpperCase();
         statusMap.put(code, "pending");
         orderTicketMap.put(code, ticketId);
@@ -73,8 +71,6 @@ public class PaymentController {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy vé để liên kết Payment!"));
 
-
-        // 💾 Tạo bản ghi Payment ban đầu
         Payment payment = Payment.builder()
                 .orderCode(code)
                 .ticketID(ticket)
@@ -86,7 +82,7 @@ public class PaymentController {
 
 
         paymentRepository.save(payment);
-        log.info("💾 Đã tạo Payment [{}] cho TicketID {}", code, ticketId);
+        log.info("Đã tạo Payment [{}] cho TicketID {}", code, ticketId);
 
 
         return ResponseEntity.ok(Map.of(
@@ -101,7 +97,7 @@ public class PaymentController {
     }
 
 
-    // ==================== 🔹 KIỂM TRA TRẠNG THÁI THANH TOÁN ====================
+    // ==================== KIỂM TRA TRẠNG THÁI THANH TOÁN ====================
     @GetMapping("/status/{code}")
     public ResponseEntity<?> checkStatus(@PathVariable String code) {
         try {
@@ -114,41 +110,33 @@ public class PaymentController {
 
                 Integer ticketId = orderTicketMap.get(code);
                 if (ticketId != null) {
-                    // ✅ Kiểm tra trạng thái vé trước
                     Ticket ticket = ticketRepository.findById(ticketId)
                             .orElseThrow(() -> new RuntimeException("Không tìm thấy vé!"));
 
-
-                    // ✅ CHỈ xử lý nếu vé vẫn đang HOLDING
                     if (ticket.getTicketStatus() == Ticket.TicketStatus.HOLDING) {
                         BigDecimal amount = new BigDecimal(r.getOrDefault("amount", "0"));
                         String note = r.getOrDefault("note", "Thanh toán thành công qua Google Sheets");
 
 
-                        // 🟢 Ghi DB Payment
                         paymentService.confirmPaid(code, note, amount, ticketId);
 
 
-                        // 🟢 Xác nhận vé + Gửi mail
                         try {
-                            // ✅ Lấy lại email từ ticket
                             String customerEmail = ticket.getAccount() != null ? ticket.getAccount().getEmail() : ticket.getCustomerEmail();
 
-
-                            // ✅ Gọi confirmPayment với email thật
                             ticketService.confirmPayment(ticketId, null, customerEmail);
 
 
-                            log.info("📩 Đã xác nhận & gửi mail vé {} đến {}", ticketId, customerEmail);
+                            log.info(" Đã xác nhận & gửi mail vé {} đến {}", ticketId, customerEmail);
                         } catch (Exception mailError) {
-                            log.error("❌ Lỗi gửi mail cho vé {}: {}", ticketId, mailError.getMessage(), mailError);
+                            log.error(" Lỗi gửi mail cho vé {}: {}", ticketId, mailError.getMessage(), mailError);
                         }
 
 
 
 
                     } else {
-                        log.info("📨 Vé {} đã BOOKED rồi, bỏ qua xử lý lại.", ticketId);
+                        log.info("Vé {} đã BOOKED rồi, bỏ qua xử lý lại.", ticketId);
                     }
                 }
 
@@ -160,7 +148,7 @@ public class PaymentController {
 
 
         } catch (Exception e) {
-            log.error("❌ Lỗi checkStatus cho mã {}: {}", code, e.getMessage(), e);
+            log.error("Lỗi checkStatus cho mã {}: {}", code, e.getMessage(), e);
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
     }

@@ -15,14 +15,14 @@ public class BulkSeatRequest {
     Integer auditoriumID;
 
     @NotNull(message = "ID loại ghế mặc định không được để trống.")
-    Integer typeID; // Loại ghế mặc định cho tất cả các ghế
+    Integer typeID;
 
     @Min(value = 1, message = "Số dãy phải lớn hơn 0.")
-    Integer rowCount; // Số lượng hàng (VD: 10)
+    Integer rowCount;
 
     @Min(value = 1, message = "Số cột phải lớn hơn 0.")
-    Integer columnCount; // Số lượng ghế trên mỗi hàng (VD: 18)
+    Integer columnCount;
 
     @Pattern(regexp = "[A-Z]", message = "Ký tự dãy phải là một chữ cái in hoa.")
-    String startRowChar; // Ký tự bắt đầu (VD: "A")
+    String startRowChar;
 }

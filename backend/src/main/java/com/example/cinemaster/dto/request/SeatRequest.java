@@ -13,18 +13,18 @@ import lombok.experimental.FieldDefaults;
 public class SeatRequest {
 
     @NotNull(message = "ID phòng chiếu không được để trống.")
-    Integer auditoriumID; // Khóa ngoại tới Auditorium
+    Integer auditoriumID;
 
     @NotNull(message = "ID loại ghế không được để trống.")
-    Integer typeID; // Khóa ngoại tới SeatType
+    Integer typeID;
 
     @NotBlank(message = "Số ghế không được để trống.")
     @Size(max = 10, message = "Số ghế tối đa 10 ký tự.")
-    String seatNumber; // Ví dụ: A1, B10, etc.
+    String seatNumber;
 
     @NotBlank(message = "Dãy ghế không được để trống.")
     @Size(max = 10, message = "Dãy ghế tối đa 10 ký tự.")
-    String seatRow; // Ví dụ: A, B, C
+    String seatRow;
 
     @NotNull(message = "Cột ghế không được để trống.")
     Integer columnNumber;

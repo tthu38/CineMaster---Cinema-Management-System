@@ -26,13 +26,13 @@ public class MovieRecommendationService {
     private final EmbeddingService embeddingService;
 
     /**
-     * 🎟️ Gợi ý phim dựa trên lịch sử vé của người dùng (theo thể loại)
+     *  Gợi ý phim dựa trên lịch sử vé của người dùng (theo thể loại)
      */
     public List<MovieRecommendResponse> recommendByTicketHistory(Integer accountId) {
         try {
             var userTickets = ticketService.getTicketsByAccount(accountId);
             if (userTickets.isEmpty()) {
-                log.info("⚪ User {} chưa có lịch sử vé.", accountId);
+                log.info(" User {} chưa có lịch sử vé.", accountId);
                 return List.of();
             }
 
@@ -68,13 +68,13 @@ public class MovieRecommendationService {
                     .toList();
 
         } catch (Exception e) {
-            log.error("❌ Lỗi gợi ý lịch sử vé: {}", e.getMessage());
+            log.error(" Lỗi gợi ý lịch sử vé: {}", e.getMessage());
             return List.of();
         }
     }
 
     /**
-     * ❤️ Gợi ý phim theo feedback người dùng
+     *  Gợi ý phim theo feedback người dùng
      */
     public List<MovieRecommendResponse> recommendByFeedback(Integer accountId) {
         try {
@@ -111,13 +111,13 @@ public class MovieRecommendationService {
                     .toList();
 
         } catch (Exception e) {
-            log.error("❌ Lỗi gợi ý feedback: {}", e.getMessage());
+            log.error(" Lỗi gợi ý feedback: {}", e.getMessage());
             return List.of();
         }
     }
 
     /**
-     * 🧠 Gợi ý phim tương tự theo nội dung (semantic)
+     *  Gợi ý phim tương tự theo nội dung (semantic)
      */
     public List<MovieRecommendResponse> recommendSimilarMovies(String movieTitle) {
         try {
@@ -146,18 +146,18 @@ public class MovieRecommendationService {
                             .genre(e.getKey().getGenre())
                             .posterUrl(e.getKey().getPosterUrl())
                             .description(e.getKey().getDescription())
-                            .rating(e.getValue() * 5) // quy đổi similarity thành điểm tạm
+                            .rating(e.getValue() * 5)
                             .build())
                     .toList();
 
         } catch (Exception e) {
-            log.error("❌ Lỗi gợi ý tương tự: {}", e.getMessage());
+            log.error(" Lỗi gợi ý tương tự: {}", e.getMessage());
             return List.of();
         }
     }
 
     /**
-     * 🤖 Gợi ý tổng hợp từ cả 3 nguồn
+     *  Gợi ý tổng hợp từ cả 3 nguồn
      */
     public List<MovieRecommendResponse> recommendHybrid(Integer accountId, String movieTitle) {
         Set<MovieRecommendResponse> finalSet = new LinkedHashSet<>();
@@ -208,13 +208,13 @@ public class MovieRecommendationService {
                             .build())
                     .toList();
         } catch (Exception e) {
-            log.error("❌ Lỗi recommendTopRatedByGenre: {}", e.getMessage());
+            log.error(" Lỗi recommendTopRatedByGenre: {}", e.getMessage());
             return List.of();
         }
     }
 
     /**
-     * 🌎 Gợi ý phim có rating trung bình cao nhất (top 5)
+     *  Gợi ý phim có rating trung bình cao nhất (top 5)
      */
     public List<MovieRecommendResponse> recommendTopRatedGlobal() {
         try {
@@ -239,13 +239,13 @@ public class MovieRecommendationService {
                             .build())
                     .toList();
         } catch (Exception e) {
-            log.error("❌ Lỗi recommendTopRatedGlobal: {}", e.getMessage());
+            log.error(" Lỗi recommendTopRatedGlobal: {}", e.getMessage());
             return List.of();
         }
     }
 
     /**
-     * 👤 Dành cho người dùng đăng nhập — gợi ý kết hợp nhiều nguồn
+     *  Dành cho người dùng đăng nhập — gợi ý kết hợp nhiều nguồn
      */
     public List<MovieRecommendResponse> recommendForUser(Integer accountId, String userInput) {
         // Nếu user có nói rõ tên phim → gợi ý phim tương tự
@@ -260,7 +260,7 @@ public class MovieRecommendationService {
     }
 
     /**
-     * 🎭 Nhận diện thể loại phim từ câu hỏi người dùng
+     *  Nhận diện thể loại phim từ câu hỏi người dùng
      */
     private String detectGenreFromInput(String input) {
         if (input == null) return null;

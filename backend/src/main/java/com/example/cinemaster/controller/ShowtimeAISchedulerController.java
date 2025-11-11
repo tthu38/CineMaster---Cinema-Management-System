@@ -23,7 +23,6 @@ public class ShowtimeAISchedulerController {
     private final ShowtimeAISchedulerService aiService;
     private final ShowtimeService showtimeService;
 
-    // 🎯 Cho phép cả role "Admin" và "Manager" (chữ thường hoặc hoa)
     @PostMapping("/generate")
     @PreAuthorize("hasAnyRole('Admin','Manager')")
     public ResponseEntity<?> generateSchedule(
@@ -33,9 +32,6 @@ public class ShowtimeAISchedulerController {
         return ResponseEntity.ok(result);
     }
 
-    /**
-     * 💾 Lưu danh sách lịch chiếu do AI gợi ý vào database
-     */
     @PostMapping("/approve")
     @PreAuthorize("hasAnyRole('Admin','Manager')")
     public ResponseEntity<?> approveSchedules(
@@ -49,7 +45,6 @@ public class ShowtimeAISchedulerController {
         return ResponseEntity.ok(saved);
     }
 
-    // ✅ API public không yêu cầu token
     @PostMapping("/approve/public")
     public ResponseEntity<?> approveSchedulesPublic(
             @RequestBody List<ShowtimeCreateRequest> showtimes) {

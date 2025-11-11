@@ -37,7 +37,6 @@ public class TicketDiscount {
     @Column(name = "Amount", precision = 10, scale = 2)
     BigDecimal amount;
 
-    // Inner ID class
     @Getter
     @Setter
     @NoArgsConstructor

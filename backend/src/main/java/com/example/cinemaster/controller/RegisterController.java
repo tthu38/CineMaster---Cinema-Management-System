@@ -33,22 +33,18 @@ public class RegisterController {
 
         String serviceResult = accountService.register(request);
 
-        // 👉 Check lỗi trùng email
         if (serviceResult.contains("Email đã tồn tại")) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(serviceResult);
         }
 
-        // 👉 Check lỗi trùng số điện thoại
         if (serviceResult.contains("Số điện thoại đã tồn tại")) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(serviceResult);
         }
 
-        // 👉 Check lỗi không tìm thấy role
         if (serviceResult.contains("Không tìm thấy Role")) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(serviceResult);
         }
 
-        // 👉 Mặc định: đăng ký thành công
         return ResponseEntity.ok(serviceResult);
     }
 

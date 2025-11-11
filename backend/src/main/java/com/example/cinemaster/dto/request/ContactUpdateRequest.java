@@ -14,7 +14,7 @@ import lombok.experimental.FieldDefaults;
 public class ContactUpdateRequest {
 
     @NotBlank(message = "Trạng thái không được để trống")
-    String status; // Pending / Processing / Resolved / Rejected
+    String status;
 
     @Size(max = 500, message = "Ghi chú tối đa 500 ký tự")
     String handleNote;

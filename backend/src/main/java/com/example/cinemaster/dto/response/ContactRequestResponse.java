@@ -21,8 +21,8 @@ public class ContactRequestResponse {
     String status;
     LocalDateTime createdAt;
 
-    String handledBy;   // tên nhân viên xử lý
-    String branchName;  // tên chi nhánh
-    String handleNote;  // ghi chú xử lý
-    LocalDateTime handledAt; // thời điểm xử lý
+    String handledBy;
+    String branchName;
+    String handleNote;
+    LocalDateTime handledAt;
 }

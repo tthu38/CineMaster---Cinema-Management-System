@@ -21,12 +21,10 @@ public class Seat {
     @Column(name = "SeatID", nullable = false)
     Integer seatID;
 
-    // Quan hệ với Auditorium
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "AuditoriumID", referencedColumnName = "AuditoriumID")
     Auditorium auditorium;
 
-    // Quan hệ với SeatType
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TypeID", referencedColumnName = "TypeID")
     SeatType seatType;
@@ -44,13 +42,12 @@ public class Seat {
     @Column(name = "ColumnNumber")
     Integer columnNumber;
 
-    // 👇 CẬP NHẬT 1: Thay đổi kiểu dữ liệu từ String sang Enum
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", length = 20)
-    SeatStatus status; // <-- Sử dụng Enum SeatStatus
+    SeatStatus status;
     public enum SeatStatus {
         AVAILABLE,
-        BROKEN,   // <-- Đây là giá trị bạn cần
+        BROKEN,
         RESERVED,
     }
 }

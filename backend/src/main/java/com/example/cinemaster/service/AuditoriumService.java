@@ -26,7 +26,6 @@ public class AuditoriumService {
     private static final String NOT_FOUND = "Phòng chiếu không tìm thấy với ID: ";
     private static final String INACTIVE_STATUS = "Phòng chiếu không hoạt động hoặc không tồn tại với ID: ";
 
-    // --- READ ---
     public List<AuditoriumResponse> getAllAuditoriums() {
         return mapper.toResponseList(auditoriumRepository.findAll());
     }
@@ -53,7 +52,6 @@ public class AuditoriumService {
         return mapper.toResponseList(auditoriumRepository.findByBranch_IdAndIsActiveTrue(branchId));
     }
 
-    // --- CREATE ---
     public AuditoriumResponse createAuditorium(AuditoriumRequest request) {
         Branch branch = branchRepository.findById(request.getBranchId())
                 .orElseThrow(() -> new EntityNotFoundException("Chi nhánh không tìm thấy với ID: " + request.getBranchId()));
@@ -69,7 +67,6 @@ public class AuditoriumService {
         return mapper.toResponse(auditoriumRepository.save(entity));
     }
 
-    // --- UPDATE ---
     public AuditoriumResponse updateAuditorium(Integer id, AuditoriumRequest request) {
         Auditorium auditorium = auditoriumRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(NOT_FOUND + id));
@@ -91,7 +88,6 @@ public class AuditoriumService {
         return mapper.toResponse(auditoriumRepository.save(auditorium));
     }
 
-    // --- DEACTIVATE / ACTIVATE ---
     public void deactivateAuditorium(Integer id) {
         Auditorium auditorium = auditoriumRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(NOT_FOUND + id));
@@ -116,7 +112,6 @@ public class AuditoriumService {
         auditoriumRepository.save(auditorium);
     }
 
-    // --- LITE LIST (ví dụ cho dropdown) ---
     public List<AuditoriumResponse> listByBranch(Integer branchId) {
         List<Auditorium> list = (branchId == null)
                 ? auditoriumRepository.findAll()

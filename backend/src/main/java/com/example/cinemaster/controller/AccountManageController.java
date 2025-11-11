@@ -29,12 +29,10 @@ public class AccountManageController {
 
         AccountPrincipal user = (AccountPrincipal) auth.getPrincipal();
 
-        // 🔒 Manager chỉ được tạo nhân viên trong chi nhánh của họ
         if (user.hasRole("Manager")) {
             if (!request.getBranchId().equals(user.getBranchId())) {
                 throw new SecurityException("Bạn chỉ có thể tạo tài khoản cho chi nhánh của mình!");
             }
-            // ✅ Nếu muốn đảm bảo an toàn tuyệt đối, ghi đè branchId
             request.setBranchId(user.getBranchId());
         }
 
@@ -78,8 +76,6 @@ public class AccountManageController {
             Authentication auth
     ) {
         AccountPrincipal user = (AccountPrincipal) auth.getPrincipal();
-
-        // 🔒 Manager chỉ xem nhân viên thuộc chi nhánh mình
         if (user.hasRole("Manager")) {
             branchId = user.getBranchId();
         }
@@ -94,7 +90,6 @@ public class AccountManageController {
         AccountResponse account = accountService.getById(id);
         AccountPrincipal user = (AccountPrincipal) auth.getPrincipal();
 
-        // 🔒 Manager không được xem tài khoản chi nhánh khác
         if (user.hasRole("Manager") && !account.getBranchId().equals(user.getBranchId())) {
             throw new SecurityException("Bạn không thể xem tài khoản của chi nhánh khác!");
         }

@@ -40,20 +40,12 @@ public class ShowtimeService {
 
     private static final int CLEANUP_MINUTES = 15;
 
-
-    /* ============================================================
-       🔹 LẤY CHI TIẾT / TÌM KIẾM SUẤT CHIẾU
-    ============================================================ */
     public ShowtimeResponse getById(Integer id) {
         var s = showtimeRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Showtime not found"));
         return mapper.toResponse(s);
     }
 
-
-    /* ============================================================
-   🔎 TÌM KIẾM SUẤT CHIẾU (lọc & phân trang)
-============================================================ */
     public Page<ShowtimeResponse> search(
             Integer periodId,
             Integer auditoriumId,
@@ -63,22 +55,18 @@ public class ShowtimeService {
 
         Specification<Showtime> spec = (root, query, cb) -> cb.conjunction();
 
-        // 🔹 Chỉ lấy showtime ACTIVE (không bị xóa mềm)
         spec = spec.and((r, q, cb) -> cb.equal(r.get("status"), "ACTIVE"));
 
-        // 🔹 Lọc theo ScreeningPeriod
         if (periodId != null) {
             spec = spec.and((r, q, cb) ->
                     cb.equal(r.get("period").get("periodID"), periodId));
         }
 
-        // 🔹 Lọc theo phòng chiếu
         if (auditoriumId != null) {
             spec = spec.and((r, q, cb) ->
                     cb.equal(r.get("auditorium").get("auditoriumID"), auditoriumId));
         }
 
-        // 🔹 Lọc theo khoảng thời gian (from → to)
         if (from != null) {
             spec = spec.and((r, q, cb) -> cb.greaterThanOrEqualTo(r.get("startTime"), from));
         }
@@ -86,15 +74,11 @@ public class ShowtimeService {
             spec = spec.and((r, q, cb) -> cb.lessThan(r.get("startTime"), to));
         }
 
-        // ✅ Trả về Page<ShowtimeResponse>
         Page<Showtime> result = showtimeRepo.findAll(spec, pageable);
         return result.map(mapper::toResponse);
     }
 
 
-    /* ============================================================
-       🟩 TẠO / CẬP NHẬT / XOÁ
-    ============================================================ */
     @Transactional
     public ShowtimeResponse create(ShowtimeCreateRequest req, AccountPrincipal user) {
         var period = periodRepo.findById(req.periodId())
@@ -127,30 +111,25 @@ public class ShowtimeService {
     }
     @Transactional
     public ShowtimeResponse createFromAI(ShowtimeCreateRequest req) {
-        // 🔹 1. Kiểm tra dữ liệu đầu vào cơ bản
         if (req == null)
             throw new IllegalArgumentException("Request không được null");
         if (req.periodId() == null || req.auditoriumId() == null)
             throw new IllegalArgumentException("Thiếu phim hoặc phòng chiếu");
 
-        // 🔹 2. Tìm period và auditorium trong DB
         var period = periodRepo.findById(req.periodId())
                 .orElseThrow(() -> new EntityNotFoundException("ScreeningPeriod not found"));
         var auditorium = auditoriumRepo.findById(req.auditoriumId())
                 .orElseThrow(() -> new EntityNotFoundException("Auditorium not found"));
 
-        // 🔹 3. Chuẩn hóa thời gian chiếu
         LocalDateTime start = req.startTime();
         LocalDateTime end = req.endTime();
         if (start == null || end == null)
             throw new IllegalArgumentException("StartTime hoặc EndTime không được null");
         if (end.isBefore(start))
-            end = end.plusDays(1); // xử lý phim chiếu qua 0h
+            end = end.plusDays(1);
 
-        // 🔹 4. Kiểm tra trùng suất chiếu và thời gian hợp lệ
         validateShowtime(start, end, period, auditorium, null);
 
-        // 🔹 5. Ánh xạ sang entity và lưu
         Showtime entity = mapper.toEntity(req, period, auditorium);
         entity.setStartTime(start);
         entity.setEndTime(end);
@@ -158,7 +137,6 @@ public class ShowtimeService {
 
         Showtime saved = showtimeRepo.saveAndFlush(entity);
 
-        // 🔹 6. Trả về ShowtimeResponse (gồm tên phim + phòng chiếu)
         return mapper.toResponse(saved);
     }
 
@@ -175,7 +153,6 @@ public class ShowtimeService {
         var auditorium = auditoriumRepo.findById(req.auditoriumId())
                 .orElseThrow(() -> new EntityNotFoundException("Auditorium not found"));
 
-        // 🔐 Manager chỉ được sửa suất chiếu trong chi nhánh của mình
         if (user != null && user.isManager()) {
             Integer managerBranch = user.getBranchId();
             Integer auditoriumBranch = auditorium.getBranch().getId();
@@ -188,7 +165,6 @@ public class ShowtimeService {
         LocalDateTime end = req.endTime();
         if (end.isBefore(start)) end = end.plusDays(1);
 
-        // ✅ CHỈ KIỂM TRA TRÙNG GIỜ NẾU CÓ THAY ĐỔI thời gian hoặc phòng chiếu
         boolean changedTimeOrRoom =
                 !start.equals(entity.getStartTime()) ||
                         !end.equals(entity.getEndTime()) ||
@@ -198,7 +174,6 @@ public class ShowtimeService {
             validateShowtime(start, end, period, auditorium, id);
         }
 
-        // 🟢 Cập nhật thông tin
         mapper.updateEntityFromRequest(req, entity, period, auditorium);
         entity.setPeriod(period);
         entity.setAuditorium(auditorium);
@@ -217,65 +192,50 @@ public class ShowtimeService {
         var entity = showtimeRepo.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Showtime not found"));
 
-        // 🔹 Log chi tiết để debug
         Integer showtimeBranch = entity.getAuditorium().getBranch().getId();
         log.info("🗑️ Delete Showtime {} | Status={} | Branch={}", id, entity.getStatus(), showtimeBranch);
 
-        // 🔹 Nếu là Manager → chỉ cảnh báo nếu khác chi nhánh (không throw)
         if (user != null && user.isManager()) {
             Integer managerBranch = user.getBranchId();
             if (!Objects.equals(managerBranch, showtimeBranch)) {
                 log.warn("Quản lý (chi nhánh {}) đang cố xóa suất chiếu của chi nhánh khác (chi nhánh {})",
                         managerBranch, showtimeBranch);
-                // Không throw nữa để tránh HTTP 500
             }
         }
 
-        // 🔹 Soft delete (đặt trạng thái INACTIVE)
         if (!"INACTIVE".equalsIgnoreCase(entity.getStatus())) {
             entity.setStatus("INACTIVE");
             showtimeRepo.saveAndFlush(entity);
-            log.info("✅ Showtime {} set to INACTIVE successfully", id);
+            log.info(" Showtime {} set to INACTIVE successfully", id);
         } else {
-            log.info("ℹ️ Showtime {} đã ở trạng thái INACTIVE, bỏ qua", id);
+            log.info(" Showtime {} đã ở trạng thái INACTIVE, bỏ qua", id);
         }
     }
 
-
-
-
-    /* ============================================================
-       🧩 VALIDATION
-    ============================================================ */
     private void validateShowtime(LocalDateTime start, LocalDateTime end,
                                   ScreeningPeriod period, Auditorium auditorium,
                                   Integer excludeId) {
 
-        // 🔹 1. Kiểm tra chi nhánh khớp
         if (!Objects.equals(period.getBranch().getId(), auditorium.getBranch().getId())) {
             throw new IllegalArgumentException("Phòng chiếu không thuộc cùng chi nhánh với phim");
         }
 
-        // 🔹 2. Kiểm tra thời gian hợp lệ
         if (!end.isAfter(start)) {
             throw new IllegalArgumentException("Giờ kết thúc phải lớn hơn giờ bắt đầu!");
         }
 
-        // 🔹 3. Kiểm tra ngày chiếu nằm trong khoảng chiếu phim
         LocalDate showDate = start.toLocalDate();
         if (showDate.isBefore(period.getStartDate()) || showDate.isAfter(period.getEndDate())) {
             throw new IllegalArgumentException("Ngày chiếu nằm ngoài khoảng chiếu phim!");
         }
 
-        // 🔹 4. Không được chiếu quá giới hạn cuối của period
         if (end.toLocalDate().isAfter(period.getEndDate().plusDays(1))) {
             throw new IllegalArgumentException("Suất chiếu vượt quá giới hạn cuối của khoảng chiếu!");
         }
 
-        // ✅ 5. Kiểm tra buffer nghỉ giữa các suất (mặc định 15 phút)
         LocalDateTime startMinusBuffer = start.minusMinutes(CLEANUP_MINUTES);
 
-        log.info("🎬 Kiểm tra overlap (buffer={} phút) | start={} end={} | start-buffer={}",
+        log.info("Kiểm tra overlap (buffer={} phút) | start={} end={} | start-buffer={}",
                 CLEANUP_MINUTES, start, end, startMinusBuffer);
 
         long roomClash = (excludeId == null)
@@ -283,11 +243,10 @@ public class ShowtimeService {
                 : showtimeRepo.countOverlapsExcluding(auditorium.getAuditoriumID(), startMinusBuffer, end, excludeId);
 
         if (roomClash > 0) {
-            throw new IllegalStateException("❌ Suất chiếu này quá gần suất trước! " +
+            throw new IllegalStateException(" Suất chiếu này quá gần suất trước! " +
                     "(Phải cách nhau ít nhất " + CLEANUP_MINUTES + " phút)");
         }
 
-        // 🔹 6. Kiểm tra trùng phim trong cùng chi nhánh & phòng
         long movieClash = (excludeId == null)
                 ? showtimeRepo.countMovieOverlapInBranch(
                 period.getMovie().getMovieID(),
@@ -301,10 +260,10 @@ public class ShowtimeService {
                 start, end, excludeId);
 
         if (movieClash > 0) {
-            throw new IllegalStateException("❌ Phim này đã có suất chiếu trong khung giờ đó!");
+            throw new IllegalStateException(" Phim này đã có suất chiếu trong khung giờ đó!");
         }
 
-        log.info("✅ Showtime hợp lệ: {} → {}", start, end);
+        log.info(" Showtime hợp lệ: {} → {}", start, end);
     }
 
 

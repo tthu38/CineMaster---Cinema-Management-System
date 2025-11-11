@@ -46,24 +46,24 @@ public class ChatbotService {
     }
 
     /**
-     * 🎯 Luồng chính xử lý RAG
+     *  Luồng chính xử lý RAG
      */
     public String getChatbotResponse(String userInput) {
         try {
-            // 1️⃣ Intent detection
+            // 1 Intent detection
             ChatIntent intent = intentRouterService.determineIntent(userInput);
             BranchResponse targetBranch = intentRouterService.findTargetBranch(userInput).orElse(null);
 
-            // 2️⃣ Context retrieval
+            // 2 Context retrieval
             String contextData = contextRetrieverService.retrieveContext(intent, targetBranch, userInput);
             if (contextData == null || contextData.isBlank()) {
                 contextData = "Hiện hệ thống chưa có dữ liệu cụ thể cho yêu cầu này.";
             }
 
-            // 3️⃣ Build system prompt (tối ưu cho Gemini Markdown)
+            // 3 Build system prompt (tối ưu cho Gemini Markdown)
             String systemPrompt = buildSystemPrompt(contextData);
 
-            // 4️⃣ Call Gemini API
+            // 4 Call Gemini API
             String answer = callGeminiApi(systemPrompt, userInput);
 
             // Lưu vào lịch sử hội thoại (chỉ giữ 8 lượt gần nhất)
@@ -75,14 +75,14 @@ public class ChatbotService {
             return answer;
 
         } catch (Exception e) {
-            System.err.println("❌ [ChatbotService] Lỗi: " + e.getMessage());
+            System.err.println(" [ChatbotService] Lỗi: " + e.getMessage());
             e.printStackTrace();
-            return emoji("⚠️", "Xin lỗi, tôi gặp sự cố khi kết nối với hệ thống AI. Vui lòng thử lại sau!");
+            return emoji("⚠", "Xin lỗi, tôi gặp sự cố khi kết nối với hệ thống AI. Vui lòng thử lại sau!");
         }
     }
 
     /**
-     * 🧠 Tạo System Prompt cho Gemini — đảm bảo Gemini hiểu đúng Markdown & context
+     *  Tạo System Prompt cho Gemini — đảm bảo Gemini hiểu đúng Markdown & context
      */
     private String buildSystemPrompt(String contextData) {
         return String.join("\n",
@@ -96,7 +96,7 @@ public class ChatbotService {
                 "",
                 ChatFormatter.divider(),
                 "**Ngày hiện tại:** " + LocalDate.now(),
-                mdTitle("📂 DỮ LIỆU CỦA HỆ THỐNG"),
+                mdTitle("DỮ LIỆU CỦA HỆ THỐNG"),
                 ChatFormatter.jsonBlock(contextData),
                 ChatFormatter.divider()
         );
@@ -108,23 +108,19 @@ public class ChatbotService {
     private String callGeminiApi(String systemPrompt, String userInput) {
         String apiUrl = API_BASE_URL + geminiApiKey;
 
-        // --- System message ---
         GeminiRequest.Part sysPart = new GeminiRequest.Part(systemPrompt);
         GeminiRequest.Content systemContent = new GeminiRequest.Content("system", List.of(sysPart));
 
-        // --- Build conversation history ---
         List<GeminiRequest.Content> history = sessionHistory.getHistory();
         List<GeminiRequest.Content> contents = new ArrayList<>(history);
         contents.add(new GeminiRequest.Content("user", List.of(new GeminiRequest.Part(userInput))));
 
         GeminiRequest requestBody = new GeminiRequest(contents, systemContent);
 
-        // --- HTTP setup ---
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<GeminiRequest> entity = new HttpEntity<>(requestBody, headers);
 
-        // --- Call API ---
         ResponseEntity<GeminiResponse> response = restTemplate.postForEntity(apiUrl, entity, GeminiResponse.class);
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
             return response.getBody().getFirstResponseText();

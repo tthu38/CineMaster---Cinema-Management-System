@@ -25,21 +25,18 @@ public class BranchService {
     @Autowired
     private AuditoriumRepository auditoriumRepository;
 
-    // 🔥 THÊM: Inject ScreeningPeriodService
     @Autowired
     private ScreeningPeriodService screeningPeriodService;
 
-    private static final String BRANCH_NOT_FOUND = "Branch not found with ID: ";
-    private static final String MANAGER_NOT_FOUND = "Manager not found with ID: ";
+    private static final String BRANCH_NOT_FOUND = "Không tìm thấy nhánh có ID:";
+    private static final String MANAGER_NOT_FOUND = "Không tìm thấy người quản lý có ID:";
 
-    // --- Helper Method to find Account Entity (Giữ nguyên) ---
     private Account getManagerAccount(Integer managerId) {
         if (managerId == null) return null;
         return accountRepository.findById(managerId)
                 .orElseThrow(() -> new RuntimeException(MANAGER_NOT_FOUND + managerId));
     }
 
-    // --- Helper Method to Convert Entity to DTO (Giữ nguyên) ---
     private BranchResponse convertToDTO(Branch branch) {
         BranchResponse dto = new BranchResponse();
         dto.setBranchId(branch.getId());
@@ -63,35 +60,30 @@ public class BranchService {
         return dto;
     }
 
-    // --- READ ALL (Giữ nguyên) ---
     public List<BranchResponse> getAllBranches() {
         return branchRepository.findAll().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
-    // --- READ ALL ACTIVE (Giữ nguyên) ---
     public List<BranchResponse> getAllActiveBranches() {
         return branchRepository.findByIsActiveTrue().stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
-    // --- READ BY ID (Giữ nguyên) ---
     public BranchResponse getBranchByIdForAdmin(Integer id) {
         Branch branch = branchRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException(BRANCH_NOT_FOUND + id));
         return convertToDTO(branch);
     }
 
-    // --- READ BY ID (Giữ nguyên) ---
     public BranchResponse getBranchByIdForClient(Integer id) {
         Branch branch = branchRepository.findByIdAndIsActiveTrue(id)
                 .orElseThrow(() -> new RuntimeException(BRANCH_NOT_FOUND + id + " or is inactive"));
         return convertToDTO(branch);
     }
 
-    // --- CREATE (Giữ nguyên) ---
     public BranchResponse createBranch(BranchRequest requestDTO) {
         Branch branch = new Branch();
         Account managerAccount = getManagerAccount(requestDTO.getManagerId());
@@ -108,7 +100,6 @@ public class BranchService {
         return convertToDTO(savedBranch);
     }
 
-    // --- UPDATE (Giữ nguyên) ---
     public BranchResponse updateBranch(Integer id, BranchRequest requestDTO) {
         Branch existingBranch = branchRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException(BRANCH_NOT_FOUND + id));
@@ -127,28 +118,21 @@ public class BranchService {
         return convertToDTO(updatedBranch);
     }
 
-    // ----------------------------------------------------------------------
-    // --- CÁC HÀM CẬP NHẬT TRẠNG THÁI (Đã thêm Logic Thác Đổ) ---
-    // ----------------------------------------------------------------------
-
     @Transactional
     public void deactivateBranch(Integer id) {
         Branch existingBranch = branchRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException(BRANCH_NOT_FOUND + id));
 
         if (Boolean.FALSE.equals(existingBranch.getIsActive())) {
-            return; // Branch đã đóng rồi thì không cần làm gì
+            return;
         }
 
-        // 1. Cập nhật trạng thái Branch
         existingBranch.setIsActive(false);
         branchRepository.save(existingBranch);
 
-        // 2. LOGIC THÁC ĐỔ 1: Đóng tất cả phòng chiếu
         int closedAuditoriums = auditoriumRepository.updateIsActiveStatusByBranchId(id, false);
         System.out.println("LOG: Deactivated " + closedAuditoriums + " auditoriums for Branch ID: " + id);
 
-        // 3. 🔥 LOGIC THÁC ĐỔ 2: Đóng tất cả khoảng thời gian chiếu
         screeningPeriodService.deactivatePeriodsByBranch(id);
     }
 
@@ -158,21 +142,16 @@ public class BranchService {
                 .orElseThrow(() -> new RuntimeException(BRANCH_NOT_FOUND + id));
 
         if (Boolean.TRUE.equals(existingBranch.getIsActive())) {
-            return; // Branch đã hoạt động rồi thì không cần làm gì
+            return;
         }
 
-        // 1. Cập nhật trạng thái Branch
         existingBranch.setIsActive(true);
         branchRepository.save(existingBranch);
 
-        // 2. Logic Thác Đổ: Chỉ mở Branch, các thực thể liên quan vẫn giữ trạng thái Inactive
         System.out.println("LOG: Branch ID " + id + " activated. Related entities remain inactive for manual setup.");
     }
 
     //giang
-    // ================================================================
-// 🎬 LẤY DANH SÁCH CHI NHÁNH ĐANG CHIẾU MỘT PHIM
-// ================================================================
     public List<BranchResponse> getBranchesByMovie(Integer movieId) {
         List<Branch> branches = branchRepository.findBranchesByMovie(movieId);
         return branches.stream()

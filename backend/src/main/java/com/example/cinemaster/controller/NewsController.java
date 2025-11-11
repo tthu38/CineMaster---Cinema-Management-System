@@ -27,14 +27,12 @@ public class NewsController {
         return new ApiResponse<>(1000, "Success", newsService.getById(id));
     }
 
-    // 🔹 Thêm mới — tăng lượt xem
     @PutMapping("/{id}/view")
     public ApiResponse<Void> increaseView(@PathVariable Integer id) {
         newsService.increaseView(id);
         return new ApiResponse<>(1000, "View increased", null);
     }
 
-    // Tạo mới tin tức
     @PreAuthorize("hasRole('Admin')")
     @PostMapping(consumes = {"multipart/form-data"})
     public ApiResponse<NewsResponse> create(
@@ -43,7 +41,6 @@ public class NewsController {
         return new ApiResponse<>(1000, "Success", newsService.create(request, imageFile));
     }
 
-    // Cập nhật tin tức
     @PreAuthorize("hasRole('Admin')")
     @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
     public ApiResponse<NewsResponse> update(
@@ -53,7 +50,6 @@ public class NewsController {
         return new ApiResponse<>(1000, "Success", newsService.update(id, request, imageFile));
     }
 
-    // Xoá tin tức
     @PreAuthorize("hasRole('Admin')")
     @DeleteMapping("/{id}")
     public ApiResponse<Void> delete(@PathVariable Integer id) {

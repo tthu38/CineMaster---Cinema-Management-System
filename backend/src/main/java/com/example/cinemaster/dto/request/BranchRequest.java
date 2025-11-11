@@ -16,7 +16,7 @@ public class BranchRequest {
     String address;
     String phone;
     String email;
-    Integer managerId; // Vẫn là ID (Integer) khi nhận request từ client
+    Integer managerId;
     LocalTime openTime;
     LocalTime closeTime;
 }

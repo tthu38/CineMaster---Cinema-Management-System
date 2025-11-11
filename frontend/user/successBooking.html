@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <meta charset="UTF-8">
-    <title>Đặt vé thành công - CineMaster</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>Chọn Combo - CineMaster</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         :root {
             --ink: #06101f;
@@ -33,41 +33,170 @@
             background-position: -10% -35%, 120% -20%, 0 0;
             background-attachment: fixed, fixed, fixed;
             overflow-x: hidden;
+        }
+        .promo-banner, .main-container {
+            position: relative;
+            z-index: 10;
+        }
+        .promo-banner {
+            max-width: 1100px;
+            margin: 100px auto 30px;
+            background: rgba(8, 20, 40, 0.35);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(34, 193, 255, 0.25);
+            border-radius: 12px;
+            padding: 18px 25px;
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 10px;
+            font-weight: 500;
+            color: var(--text-light);
         }
-        .card-custom {
+        .promo-banner i {
+            color: var(--cyan);
+            font-size: 1.4rem;
+        }
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto 80px;
+            display: grid;
+            grid-template-columns: 2.3fr 0.9fr;
+            gap: 30px;
+        }
+
+
+
+
+        /* Combo Grid */
+        .combo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 15px;
+        }
+        .combo-card {
             background: rgba(8, 20, 40, 0.45);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(34, 193, 255, 0.25);
             border-radius: 18px;
-            padding: 30px;
-            backdrop-filter: blur(10px);
-            width: 100%;
-            max-width: 600px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 0 15px rgba(10, 163, 255, 0.08);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .combo-card:hover {
+            transform: translateY(-3px);
             box-shadow: 0 0 25px rgba(10, 163, 255, 0.2);
         }
-        .btn-cyan {
+        .combo-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .combo-info {
+            flex: 1;
+        }
+        .combo-info .name {
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+        .combo-info .desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .combo-price {
+            color: #ffd700;
+            font-weight: 800;
+            margin-top: 3px;
+        }
+        .combo-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .qty-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1px solid var(--cyan);
+            background: transparent;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .qty-btn:hover {
+            background: rgba(34, 193, 255, 0.2);
+        }
+        .qty {
+            min-width: 24px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+
+
+
+        /* Right Panel */
+        .order-panel {
+            background: rgba(8, 20, 40, 0.45);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(34, 193, 255, 0.25);
+            border-radius: 18px;
+            padding: 25px;
+            box-shadow: 0 0 20px rgba(10, 163, 255, 0.15);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        .order-divider {
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            margin: 10px 0;
+        }
+        .order-total {
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 10px;
+            padding-top: 10px;
+            font-weight: 700;
+            color: var(--cyan);
+        }
+        .btn-pay {
             background: linear-gradient(90deg, var(--blue), var(--cyan));
             border: none;
-            color: white;
-            font-weight: 600;
+            color: #fff;
+            font-weight: bold;
+            padding: 10px;
             border-radius: 10px;
-            padding: 10px 30px;
             box-shadow: 0 4px 15px rgba(34, 193, 255, 0.3);
             transition: transform 0.2s, box-shadow 0.2s;
         }
-        .btn-cyan:hover {
+        .btn-pay:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 20px rgba(34, 193, 255, 0.5);
         }
-        .ticket-info b {
+        .btn-skip {
+            border: 1px solid var(--cyan);
+            background: transparent;
             color: var(--cyan);
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 10px;
+            transition: background 0.2s, color 0.2s;
         }
-        .ticket-info {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
+        .btn-skip:hover {
+            background: var(--cyan);
+            color: #fff;
         }
+
+
+
 
         /* Ticket Pattern Overlay */
         .tickets-wall {
@@ -96,6 +225,9 @@
             background-image: inherit;
         }
 
+
+
+
         /* Grain Effect */
         .grain {
             pointer-events: none;
@@ -119,135 +251,325 @@
 <body>
 <div id="header"></div>
 
+
+
+
 <div class="grain"></div>
 <div class="tickets-wall" aria-hidden="true">
     <div class="tickets-layer l1"></div>
     <div class="tickets-layer l2"></div>
 </div>
 
-<div class="card-custom text-center">
-    <i class="fa-solid fa-circle-check text-success fa-5x mb-4"></i>
-    <h3 class="fw-bold text-light mb-3">🎉 Đặt vé thành công!</h3>
-    <p class="text-info mb-4">
-        Cảm ơn bạn đã đặt vé tại <b>CineMaster</b>! Thông tin vé của bạn được hiển thị bên dưới.
-    </p>
 
-    <div id="ticketDetail" class="ticket-info text-start p-3 rounded mb-3">
-        <p>⏳ Đang tải thông tin vé...</p>
-    </div>
 
-    <button class="btn-cyan" onclick="window.location.href='../home/home.html'">
-        Quay lại trang chủ
-    </button>
+
+
+
+
+
+
+
+
+
+<div class="promo-banner">
+    <i class="fas fa-check-circle"></i>
+    <span>Bỏ qua hàng chờ! Đặt trước combo bắp nước của bạn và nhận tại quầy nhanh. Tiết kiệm thời gian và không bỏ lỡ khoảnh khắc nào của bộ phim!</span>
 </div>
 
-<div id="footer"></div>
+
+
+
+<div class="main-container">
+    <div id="comboList" class="combo-grid"></div>
+
+
+
+
+    <div class="order-panel">
+        <div>
+            <h5><i class="fas fa-cart-shopping me-2"></i> Đơn hàng của bạn</h5>
+            <div id="movieInfo" class="small text-muted mb-2">Đang tải...</div>
+            <div id="selectedCombos"></div>
+            <div class="order-divider"></div>
+            <div class="order-item"><span>Vé xem phim</span><span id="ticketPriceDisplay">0 VNĐ</span></div>
+            <div class="order-item"><span>Combo bắp nước</span><span id="snackTotalDisplay">0 VNĐ</span></div>
+            <div class="order-total d-flex justify-content-between"><span>Tổng cộng</span><span id="grandTotalDisplay">0 VNĐ</span></div>
+        </div>
+        <div class="mt-3">
+            <button id="comboConfirmBtn" class="btn-pay w-100 mb-2">Tiếp tục thanh toán</button>
+            <button class="btn-skip w-100" onclick="window.history.back()">Bỏ qua combo</button>
+            <button id="backToSeatBtn" class="btn-skip w-100 mb-2">
+                <i class="fas fa-chair me-1"></i> Chọn lại ghế
+            </button>
+            <ul style="list-style:disc;margin-top:10px;padding-left:20px;font-size:0.85rem;color:var(--text-muted);">
+                <li>Nhận tại Quầy Nhanh #3</li>
+                <li>Xuất trình mã đặt vé</li>
+                <li>Có mặt trước giờ chiếu 30 phút</li>
+            </ul>
+        </div>
+    </div>
+
+
+
+
+</div>
+<div id="footer" style="position: relative; z-index: 20;"></div>
+
+
+
 
 <script type="module">
-    import { showtimeApi } from "../js/api/showtimeApi.js";
-    import { movieApi } from "../js/api/movieApi.js";
-    import { branchApi } from "../js/api/branchApi.js";
-    import { ticketApi } from "../js/api/ticketApi.js";
+    import { comboApi } from "../js/api/comboApi.js";
+    import { API_BASE_URL } from "../js/api/config.js";
 
-    // 🔹 Lấy dữ liệu lưu từ payment.html
-    const bookingData = JSON.parse(localStorage.getItem("successBookingData") || "{}");
-    const lastPayment = JSON.parse(localStorage.getItem("lastPaymentResult") || "{}");
 
-    if (!bookingData?.showtimeId || !bookingData?.branchId) {
-        document.getElementById("ticketDetail").innerHTML =
-            "<p class='text-danger'>❌ Không tìm thấy thông tin vé! Vui lòng đặt lại.</p>";
-        throw new Error("Thiếu dữ liệu booking");
-    }
+    (async () => {
+        const params = new URLSearchParams(window.location.search);
+        const showtimeId = params.get("showtimeId");
+        const accountId = params.get("accountId") || localStorage.getItem("accountId");
+        const branchId = params.get("branchId");
+        const seatIds = params.get("seatIds")?.split(",").map(x => Number(x)) || [];
+        const ticketIdParam = params.get("ticketId");
+        const tempTicketIdLocal = localStorage.getItem("tempTicketId");
 
-    // ====================== 🧾 GỌI API XÁC NHẬN THANH TOÁN ======================
-    async function confirmTicketPayment() {
-        try {
-            if (!bookingData?.ticketId) {
-                console.warn("⚠️ Không có ticketId để xác nhận!");
-                return;
-            }
 
-            const body = {
-                email: bookingData.email,
-                combos: bookingData.combos || []
+        const ticketId = ticketIdParam && ticketIdParam !== "undefined"
+            ? Number(ticketIdParam)
+            : tempTicketIdLocal
+                ? Number(tempTicketIdLocal)
+                : null;
+
+
+        // 🧩 Đồng bộ vé tạm
+        let tempTicket = JSON.parse(localStorage.getItem("tempTicket") || "null");
+
+
+        // ✅ Nếu chưa có vé tạm, tạo mới
+        if (!tempTicket && ticketId && seatIds.length > 0) {
+            tempTicket = {
+                ticketId,
+                ticketSeats: seatIds.map(id => ({ seat: { seatID: id } })),
+                status: "HOLDING",
+                holdUntil: null,
+                totalPrice: Number(localStorage.getItem("ticketPriceTotal") || 0)
             };
-
-            await ticketApi.confirmPayment(bookingData.ticketId, body);
-            console.log("🎫 Vé đã xác nhận BOOKED thành công!");
-        } catch (err) {
-            console.error("❌ Lỗi khi xác nhận vé:", err);
+            localStorage.setItem("tempTicket", JSON.stringify(tempTicket));
         }
-    }
 
-    // ====================== 🎬 HIỂN THỊ THÔNG TIN VÉ ======================
-    async function loadTicketInfo() {
-        try {
-            const showtimeRes = await showtimeApi.getPublicById(bookingData.showtimeId);
-            const showtime = showtimeRes?.result || showtimeRes;
 
-            const movieRes = await movieApi.getById(showtime.movieId || showtime.period?.movieId);
-            const movie = movieRes?.result || movieRes;
+        // ✅ Đảm bảo vé tạm luôn chứa danh sách ghế mới nhất
+        if (seatIds.length > 0) {
+            tempTicket = {
+                ...(tempTicket || {}),
+                ticketId,
+                ticketSeats: seatIds.map(id => ({ seat: { seatID: id } })),
+                status: "HOLDING",
+                totalPrice: Number(localStorage.getItem("ticketPriceTotal") || 0)
+            };
+            localStorage.setItem("tempTicket", JSON.stringify(tempTicket));
+        }
 
-            const branchRes = await branchApi.getById(bookingData.branchId);
-            const branch = branchRes?.result || branchRes;
 
-            const date = new Date(showtime.startTime);
-            const dateStr = date.toLocaleDateString("vi-VN", {
-                weekday: "long",
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric"
-            });
-            const timeStr = date.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+        // ❌ Nếu không có vé tạm hoặc ticketId → quay lại chọn ghế
+        if (!tempTicket || !ticketId) {
+            await Swal.fire("Không có vé tạm!", "Vui lòng chọn ghế trước.", "info");
+            window.location.href = `seat-diagram.html?branchId=${branchId}&showtimeId=${showtimeId}&accountId=${accountId}`;
+            return;
+        }
 
-            const discountText = bookingData.discountCode
-                ? `Mã: <b>${bookingData.discountCode}</b> (-${bookingData.discountAmount?.toLocaleString("vi-VN")}đ)`
-                : "Không có";
 
-            document.getElementById("ticketDetail").innerHTML = `
-                <div><b>🎬 Phim:</b> ${movie.title}</div>
-                <div><b>🏠 Chi nhánh:</b> ${branch.name}</div>
-                <div><b>🕓 Suất chiếu:</b> ${dateStr} - ${timeStr}</div>
-                <div><b>💺 Ghế:</b> ${bookingData.seatIds?.join(", ") || "Không rõ"}</div>
-                <div><b>🎁 Ưu đãi:</b> ${discountText}</div>
-                <hr>
-                <div><b>🎟️ Vé:</b> ${(bookingData.seatPrice || 0).toLocaleString("vi-VN")}đ</div>
-                <div><b>🥤 Combo:</b> ${(bookingData.comboPrice || 0).toLocaleString("vi-VN")}đ</div>
-                <div class="fw-bold text-info mt-2"><b>Tổng cộng:</b> ${(bookingData.grandTotal || 0).toLocaleString("vi-VN")}đ</div>
-                <div class="mt-3"><b>📧 Vé gửi đến:</b> ${bookingData.email}</div>
-            `;
+        let comboList = [];
+        let selectedCombos = JSON.parse(localStorage.getItem("selectedCombos") || "{}");
+        let comboTotal = Number(localStorage.getItem("comboTotal") || 0);
+        let ticketTotal = Number(localStorage.getItem("ticketPriceTotal") || tempTicket.totalPrice || 0);
 
-            if (lastPayment?.status === "success") {
-                document.getElementById("ticketDetail").innerHTML += `
-                    <div class="mt-3 text-success fw-bold">
-                        ✅ Vé đã được xác nhận & email xác nhận đã gửi thành công!
-                    </div>`;
-            } else {
-                document.getElementById("ticketDetail").innerHTML += `
-                    <div class="mt-3 text-warning">
-                        ⚠️ Hệ thống chưa xác nhận thanh toán. Vui lòng kiểm tra lại hoặc liên hệ hỗ trợ.
-                    </div>`;
+
+        const comboListEl = document.getElementById("comboList");
+        const selectedComboEl = document.getElementById("selectedCombos");
+
+
+        // ================= LOAD COMBOS =================
+        async function loadCombos() {
+            try {
+                comboList = await comboApi.getByBranch(branchId);
+                if (!Array.isArray(comboList) || comboList.length === 0) {
+                    comboListEl.innerHTML = `<p class="text-center text-gray-500">Không có combo nào cho chi nhánh này.</p>`;
+                    return;
+                }
+
+
+                comboListEl.innerHTML = comboList.map(c => {
+                    const imgSrc = (() => {
+                        if (!c.imageURL) return "https://via.placeholder.com/80x80?text=Combo";
+                        let path = c.imageURL.trim();
+                        if (path.startsWith("http")) return path;
+                        if (!path.startsWith("/")) path = "/" + path;
+                        return `http://localhost:8080${path}`;
+                    })();
+
+
+                    const currentQty = selectedCombos[String(c.id)] || 0;
+                    return `
+                      <div class="combo-card">
+                          <img src="${imgSrc}" class="combo-img" alt="${c.nameCombo}">
+                          <div class="combo-info">
+                              <div class="name">${c.nameCombo}</div>
+                              <div class="desc">${c.descriptionCombo || ""}</div>
+                              <div class="combo-price">${(c.price || 0).toLocaleString("vi-VN")} VNĐ</div>
+                          </div>
+                          <div class="combo-actions">
+                              <button class="qty-btn" data-action="minus" data-id="${c.id}" ${currentQty === 0 ? "disabled" : ""}>−</button>
+                              <span class="qty" id="qty-${c.id}">${currentQty}</span>
+                              <button class="qty-btn" data-action="plus" data-id="${c.id}">+</button>
+                          </div>
+                      </div>`;
+                }).join("");
+
+
+                document.querySelectorAll(".qty-btn").forEach(btn => {
+                    btn.addEventListener("click", () => {
+                        const id = String(btn.dataset.id);
+                        if (!selectedCombos[id]) selectedCombos[id] = 0;
+
+
+                        if (btn.dataset.action === "plus") selectedCombos[id]++;
+                        else if (btn.dataset.action === "minus" && selectedCombos[id] > 0) selectedCombos[id]--;
+
+
+                        document.getElementById(`qty-${id}`).textContent = selectedCombos[id];
+                        const minusBtn = btn.closest(".combo-actions").querySelector("[data-action='minus']");
+                        minusBtn.disabled = selectedCombos[id] <= 0;
+
+
+                        updateSummary();
+                    });
+                });
+            } catch (error) {
+                console.error("❌ Lỗi khi tải combo:", error);
+                comboListEl.innerHTML = `<p class="text-center text-red-500">Không thể tải danh sách combo. Vui lòng thử lại sau.</p>`;
             }
-        } catch (err) {
-            console.error("❌ Lỗi load vé:", err);
-            document.getElementById("ticketDetail").innerHTML =
-                "<p class='text-danger'>Không thể tải thông tin vé!</p>";
         }
-    }
 
-    // ====================== 🚀 KHỞI CHẠY ======================
-    // ====================== 🚀 KHỞI CHẠY ======================
-    await confirmTicketPayment();
 
-    // ✅ Đánh dấu vé BOOKED để seatCus.html hiển thị đúng màu
-    const temp = JSON.parse(localStorage.getItem("tempTicket") || "{}");
-    if (temp.ticketId === bookingData.ticketId) {
-        temp.ticketStatus = "BOOKED";
-        localStorage.setItem("tempTicket", JSON.stringify(temp));
-    }
+        // ================= UPDATE SUMMARY =================
+        function updateSummary() {
+            comboTotal = 0;
+            selectedComboEl.innerHTML = "";
 
-    await loadTicketInfo();
+
+            for (const [id, qty] of Object.entries(selectedCombos)) {
+                const combo = comboList.find(c => c.id == id);
+                if (combo && qty > 0) {
+                    const subtotal = (combo.price || 0) * qty;
+                    comboTotal += subtotal;
+                    selectedComboEl.innerHTML += `
+                      <div class="order-item">
+                          <span>${combo.nameCombo} × ${qty}</span>
+                          <span>${subtotal.toLocaleString("vi-VN")} VNĐ</span>
+                      </div>`;
+                }
+            }
+
+
+            const total = ticketTotal + comboTotal;
+            document.getElementById("ticketPriceDisplay").textContent = `${ticketTotal.toLocaleString("vi-VN")} VNĐ`;
+            document.getElementById("snackTotalDisplay").textContent = `${comboTotal.toLocaleString("vi-VN")} VNĐ`;
+            document.getElementById("grandTotalDisplay").textContent = `${total.toLocaleString("vi-VN")} VNĐ`;
+
+
+            localStorage.setItem("comboTotal", String(comboTotal));
+            localStorage.setItem("ticketGrandTotal", String(total));
+        }
+
+
+        // ================= NÚT XÁC NHẬN =================
+        document.getElementById("comboConfirmBtn").addEventListener("click", async () => {
+            const token = localStorage.getItem("accessToken");
+
+
+            const comboBody = Object.entries(selectedCombos)
+                .filter(([_, qty]) => qty > 0)
+                .map(([id, qty]) => ({
+                    comboId: Number(id),
+                    quantity: qty
+                }));
+
+
+            try {
+                await fetch(`${API_BASE_URL}/tickets/${ticketId}/add-combos`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify(comboBody)
+                });
+                console.log("✅ Đã lưu combo lên backend:", comboBody);
+            } catch (err) {
+                console.error("❌ Lỗi khi gửi combo lên backend:", err);
+            }
+
+
+            localStorage.setItem("selectedComboList", JSON.stringify(comboBody));
+
+
+            const finalTemp = {
+                ...(tempTicket || {}),
+                ticketId: tempTicket.ticketId || ticketId,
+                ticketSeats: tempTicket.ticketSeats || seatIds.map(id => ({ seat: { seatID: id } })),
+                seatPrice: ticketTotal,
+                comboPrice: comboTotal,
+                totalPrice: ticketTotal + comboTotal,
+                status: "HOLDING"
+            };
+            localStorage.setItem("tempTicket", JSON.stringify(finalTemp));
+
+
+            await Swal.fire({
+                title: "Đã lưu combo!",
+                text: "Chuyển đến trang xác nhận thanh toán...",
+                icon: "success",
+                timer: 1000,
+                showConfirmButton: false
+            });
+
+
+            window.location.href =
+                `confirmBooking.html?showtimeId=${showtimeId}&accountId=${accountId}&branchId=${branchId}&seatIds=${seatIds.join(",")}&ticketId=${ticketId}`;
+        });
+
+
+        // ================= QUAY LẠI CHỌN GHẾ =================
+        document.getElementById("backToSeatBtn").addEventListener("click", async () => {
+            const confirm = await Swal.fire({
+                title: "Quay lại chọn ghế?",
+                text: "Các ghế bạn đã chọn sẽ được khôi phục nếu vé tạm còn hiệu lực.",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Quay lại",
+                cancelButtonText: "Hủy"
+            });
+            if (!confirm.isConfirmed) return;
+
+
+            window.location.href =
+                `seat-diagram.html?branchId=${branchId}&showtimeId=${showtimeId}&accountId=${accountId}&ticketId=${ticketId}&seatIds=${seatIds.join(",")}`;
+        });
+
+
+        // ================= INIT =================
+        await loadCombos();
+        updateSummary();
+    })();
 </script>
+
+
+
+
+
+
+
+
 
 
 <script>
@@ -258,6 +580,9 @@
             const res = await fetch("../home/customer-header.html");
             const html = await res.text();
             headerEl.innerHTML = html;
+
+
+
 
             // ✅ ép chạy script trong file header
             const scripts = headerEl.querySelectorAll("script");
@@ -272,22 +597,29 @@
         }
     })();
 
-    // // 🧩 Load footer
-    // fetch("../home/footer.html")
-    //     .then(r => r.text())
-    //     .then(h => document.getElementById("footer").innerHTML = h);
-    //
-    // // 🔹 Tab filter style (nếu có)
-    // document.querySelectorAll('.filter-tabs button').forEach(button => {
-    //     button.addEventListener('click', function() {
-    //         document.querySelectorAll('.filter-tabs button').forEach(btn => {
-    //             btn.classList.remove('btn-custom-active');
-    //             btn.classList.add('btn-custom-outline');
-    //         });
-    //         this.classList.remove('btn-custom-outline');
-    //         this.classList.add('btn-custom-active');
-    //     });
-    // });
+
+
+
+    // 🧩 Load footer
+    fetch("../home/footer.html")
+        .then(r => r.text())
+        .then(h => document.getElementById("footer").innerHTML = h);
+
+
+
+
+    // 🔹 Tab filter style (nếu có)
+    document.querySelectorAll('.filter-tabs button').forEach(button => {
+        button.addEventListener('click', function() {
+            document.querySelectorAll('.filter-tabs button').forEach(btn => {
+                btn.classList.remove('btn-custom-active');
+                btn.classList.add('btn-custom-outline');
+            });
+            this.classList.remove('btn-custom-outline');
+            this.classList.add('btn-custom-active');
+        });
+    });
 </script>
 </body>
 </html>
+

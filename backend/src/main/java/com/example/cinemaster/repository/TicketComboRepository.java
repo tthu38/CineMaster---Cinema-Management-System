@@ -17,11 +17,9 @@ public interface TicketComboRepository extends JpaRepository<TicketCombo, Intege
     boolean existsByTicket_TicketIdAndCombo_Id(Integer ticketId, Integer comboId);
 
 
-    // ✅ Giữ nguyên từ bản đầu tiên: load combo kèm quan hệ
     @EntityGraph(attributePaths = {"combo"})
     List<TicketCombo> findByTicket_TicketId(Integer ticketId);
 
-    // 🔹 Tổng số combo bán được
     @Query("""
         SELECT COALESCE(SUM(c.quantity), 0)
         FROM TicketCombo c
@@ -33,7 +31,6 @@ public interface TicketComboRepository extends JpaRepository<TicketCombo, Intege
                                   @Param("from") LocalDateTime from,
                                   @Param("to") LocalDateTime to);
 
-    // 🔹 Tổng doanh thu combo (dựa theo combo.price * quantity)
     @Query("""
         SELECT COALESCE(SUM(c.combo.price * c.quantity), 0)
         FROM TicketCombo c

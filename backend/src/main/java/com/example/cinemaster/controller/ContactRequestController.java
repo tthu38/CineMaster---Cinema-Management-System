@@ -22,21 +22,21 @@ public class ContactRequestController {
 
     private final ContactRequestService service;
 
-    // 🟢 Gửi yêu cầu (public)
+    //  Gửi yêu cầu (public)
     @PermitAll
     @PostMapping
     public ResponseEntity<ContactRequestResponse> create(@Valid @RequestBody ContactRequestRequest dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(dto));
     }
 
-    // 🟢 Staff xem liên hệ chi nhánh mình
+    //  Staff xem liên hệ chi nhánh mình
     @PreAuthorize("hasAnyRole('Staff','Manager','Admin')")
     @GetMapping("/branch/{branchId}")
     public ResponseEntity<List<ContactRequestResponse>> getByBranch(@PathVariable Integer branchId) {
         return ResponseEntity.ok(service.getByBranch(branchId));
     }
 
-    // 🟢 Staff xử lý contact
+    //  Staff xử lý contact
     @PreAuthorize("hasRole('Staff')")
     @PutMapping("/{contactId}/update")
     public ResponseEntity<ContactRequestResponse> updateStatus(

@@ -9,7 +9,7 @@ import java.time.Instant;
 @NoArgsConstructor
 public class MovieFeedbackResponse {
     private Integer id;
-    private Integer accountId; // 👈 cần có để frontend kiểm tra quyền
+    private Integer accountId;
     private String accountName;
     private Integer rating;
     private String comment;

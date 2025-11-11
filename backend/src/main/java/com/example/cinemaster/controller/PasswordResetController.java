@@ -45,7 +45,6 @@ public class PasswordResetController {
             return ResponseEntity.badRequest().body(response);
         }
 
-        // Sinh OTP
         String otp = String.valueOf((int) (Math.random() * 900000) + 100000);
         acc.setVerificationCode(otp);
         acc.setVerificationExpiry(LocalDateTime.now().plusMinutes(10));
@@ -78,7 +77,6 @@ public class PasswordResetController {
             return ResponseEntity.badRequest().body(response);
         }
 
-        // Check OTP
         if (acc.getVerificationCode() == null
                 || !acc.getVerificationCode().equals(request.getOtp())) {
             response.setCode(4002);
@@ -93,7 +91,6 @@ public class PasswordResetController {
             return ResponseEntity.badRequest().body(response);
         }
 
-        // Đặt lại mật khẩu
         acc.setPassword(passwordEncoder.encode(request.getNewPassword()));
         acc.setVerificationCode(null);
         acc.setVerificationExpiry(null);
@@ -115,14 +112,12 @@ public class PasswordResetController {
         String email = body.get("email");
         String phone = body.get("phone");
 
-        // Check email trùng
         if (accountRepository.existsByEmail(email)) {
             response.setCode(4001);
             response.setMessage("Email đã tồn tại trong hệ thống");
             return ResponseEntity.badRequest().body(response);
         }
 
-        // Check số điện thoại trùng
         if (accountRepository.existsByPhoneNumber(phone)) {
             response.setCode(4002);
             response.setMessage("Số điện thoại đã tồn tại trong hệ thống");
@@ -135,16 +130,13 @@ public class PasswordResetController {
         acc.setIsActive(false);
         acc.setCreatedAt(LocalDate.now());
 
-        // 👇 Tự động đặt username theo prefix email
         String username = email.substring(0, email.indexOf('@'));
         acc.setFullName(username); // hoặc acc.setUsername(username) nếu bạn có cột Username riêng
 
-        // Role mặc định là Customer
         Role role = roleRepository.findByRoleName("Customer")
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Role"));
         acc.setRole(role);
 
-        // Token đặt mật khẩu
         String token = UUID.randomUUID().toString();
         acc.setPasswordResetToken(token);
         acc.setPasswordResetTokenExpiry(LocalDateTime.now().plusMinutes(30));

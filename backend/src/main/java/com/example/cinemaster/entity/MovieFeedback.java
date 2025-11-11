@@ -32,7 +32,7 @@ public class MovieFeedback {
     Account account;
 
     @Column(name = "Rating")
-    Integer rating;  // 1-5 sao
+    Integer rating;
 
     @Nationalized
     @Lob

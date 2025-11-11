@@ -20,6 +20,5 @@ public class MembershipLevelRequest {
     @NotNull @Min(0)
     private Integer maxPoints;
 
-    // Cho phép null; nếu có có thể khá dài
     private String benefits;
 }

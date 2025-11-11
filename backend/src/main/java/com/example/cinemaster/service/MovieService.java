@@ -101,24 +101,20 @@ public class MovieService {
 
     public List<MovieResponse> filterMovies(MovieFilterRequest request) {
 
-        // 1. Chuẩn hóa tham số: Lấy giá trị, trim (cắt khoảng trắng), và đặt thành NULL nếu rỗng.
         String title = normalizeFilterParam(request.getTitle()); // Thêm dòng này
         String genre = normalizeFilterParam(request.getGenre());
         String director = normalizeFilterParam(request.getDirector());
         String cast = normalizeFilterParam(request.getCast());
         String language = normalizeFilterParam(request.getLanguage());
 
-        // 2. Gọi Repository với các tham số đã được chuẩn hóa.
-        // Cần đảm bảo thứ tự khớp với Repository: (title, genre, director, cast, language)
         List<Movie> filteredMovies = movieRepository.findMoviesByCriteria(
-                title, // Thêm title vào đầu tiên
+                title,
                 genre,
                 director,
                 cast,
                 language
         );
 
-        // 3. Chuyển đổi và trả về DTO
         return movieMapper.toMovieResponseList(filteredMovies);
     }
 

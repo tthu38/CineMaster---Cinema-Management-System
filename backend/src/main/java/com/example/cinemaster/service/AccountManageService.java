@@ -33,21 +33,17 @@ public class AccountManageService {
     private final FileStorageService fileStorageService;
     private final PasswordEncoder passwordEncoder;
 
-    // CREATE
     public AccountResponse create(AccountRequest request, MultipartFile avatarFile) {
         Account account = mapper.toEntity(request);
 
-        // Gán role
         Role role = roleRepository.findById(request.getRoleId())
                 .orElseThrow(() -> new EntityNotFoundException("Role not found"));
         account.setRole(role);
 
-        // Gán branch
         Branch branch = branchRepository.findById(request.getBranchId())
                 .orElseThrow(() -> new EntityNotFoundException("Branch not found"));
         account.setBranch(branch);
 
-        // Mã hóa password trước khi lưu
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
             account.setPassword(passwordEncoder.encode(request.getPassword()));
         }
@@ -63,31 +59,27 @@ public class AccountManageService {
         return mapper.toResponse(account);
     }
 
-    // UPDATE
     public AccountResponse update(Integer id, AccountRequest request, MultipartFile avatarFile) {
         Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Account not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy tài khoản"));
 
         account.setEmail(request.getEmail());
         account.setFullName(request.getFullName());
         account.setPhoneNumber(request.getPhoneNumber());
         account.setAddress(request.getAddress());
 
-        // Nếu có role mới
         if (request.getRoleId() != null) {
             Role role = roleRepository.findById(request.getRoleId())
-                    .orElseThrow(() -> new EntityNotFoundException("Role not found"));
+                    .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy role"));
             account.setRole(role);
         }
 
-        // Nếu có branch mới
         if (request.getBranchId() != null) {
             Branch branch = branchRepository.findById(request.getBranchId())
-                    .orElseThrow(() -> new EntityNotFoundException("Branch not found"));
+                    .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy chi nhánh"));
             account.setBranch(branch);
         }
 
-        // Nếu có password mới → encode lại
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
             account.setPassword(passwordEncoder.encode(request.getPassword()));
         }
@@ -101,7 +93,6 @@ public class AccountManageService {
         return mapper.toResponse(account);
     }
 
-    // READ ALL
     public List<AccountResponse> getAll() {
         return accountRepository.findAll()
                 .stream()
@@ -109,25 +100,22 @@ public class AccountManageService {
                 .toList();
     }
 
-    // READ BY ID
     public AccountResponse getById(Integer id) {
         Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Account not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy tài khoản"));
         return mapper.toResponse(account);
     }
 
-    // DELETE (soft delete)
     public void softDelete(Integer id) {
         Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Account not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy tài khoản"));
         account.setIsActive(false);
         accountRepository.save(account);
     }
 
-    // RESTORE (active lại)
     public void restore(Integer id) {
         Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Account not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy tài khoản"));
         account.setIsActive(true);
         accountRepository.save(account);
     }

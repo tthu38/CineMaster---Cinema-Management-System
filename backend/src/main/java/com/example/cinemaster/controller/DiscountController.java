@@ -20,8 +20,6 @@ public class DiscountController {
 
     private final DiscountService discountService;
 
-
-
     @PreAuthorize("hasRole('Admin')")
     @PostMapping
     public ResponseEntity<ApiResponse<DiscountResponse>> create(@Valid @RequestBody DiscountRequest request) {
@@ -44,7 +42,6 @@ public class DiscountController {
         return ResponseEntity.ok(api);
     }
 
-    // ✅ Chuyển từ String → Enum tự động (Spring sẽ convert "ACTIVE" → DiscountStatus.ACTIVE)
     @GetMapping("/status/{status}")
     public ResponseEntity<ApiResponse<List<DiscountResponse>>> getByStatus(@PathVariable DiscountStatus status) {
         List<DiscountResponse> discounts = discountService.getByStatus(status);

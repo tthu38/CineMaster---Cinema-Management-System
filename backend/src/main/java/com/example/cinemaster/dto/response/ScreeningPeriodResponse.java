@@ -15,7 +15,6 @@ public class ScreeningPeriodResponse {
 
     Integer id;
 
-    // Hiển thị thông tin FK dưới dạng tên thay vì chỉ ID
     Integer movieId;
     String movieTitle;
 

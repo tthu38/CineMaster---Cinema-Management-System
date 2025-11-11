@@ -23,7 +23,6 @@ import java.util.Map;
 public class WorkScheduleController {
 
     private final WorkScheduleService service;
-
     @PreAuthorize("hasAnyRole('Manager')")
     @PostMapping
     public ResponseEntity<WorkScheduleResponse> create(
@@ -31,20 +30,15 @@ public class WorkScheduleController {
             Authentication auth) {
 
         AccountPrincipal user = (AccountPrincipal) auth.getPrincipal();
-
-        // Nếu là Manager → bắt buộc dùng branch của họ
         if (user.hasRole("Manager")) {
             req.setBranchId(user.getBranchId());
         }
 
-        // ✅ Kiểm tra: nhân viên được gán phải thuộc chi nhánh này
         service.ensureAccountBelongsToBranchs(req.getAccountId(), req.getBranchId());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(service.create(req));
     }
 
-
-    /* ======================= UPDATE ======================= */
     @PreAuthorize("hasAnyRole('Manager')")
     @PutMapping("/{id}")
     public ResponseEntity<WorkScheduleResponse> update(
@@ -54,7 +48,6 @@ public class WorkScheduleController {
 
         AccountPrincipal user = (AccountPrincipal) auth.getPrincipal();
 
-        // Nếu là Manager → chỉ được sửa trong chi nhánh của họ
         if (user.hasRole("Manager")) {
             service.ensureScheduleInBranch(id, user.getBranchId());
         }
@@ -62,7 +55,6 @@ public class WorkScheduleController {
         return ResponseEntity.ok(service.update(id, req));
     }
 
-    /* ======================= DELETE ======================= */
     @PreAuthorize("hasAnyRole('Manager')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
@@ -70,17 +62,13 @@ public class WorkScheduleController {
             Authentication auth) {
 
         AccountPrincipal user = (AccountPrincipal) auth.getPrincipal();
-
-        // Nếu là Manager → chỉ xóa lịch trong chi nhánh của họ
         if (user.hasRole("Manager")) {
             service.ensureScheduleInBranch(id, user.getBranchId());
         }
-
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
 
-    /* ======================= READ ======================= */
     @GetMapping("/{id}")
     public ResponseEntity<WorkScheduleResponse> get(@PathVariable Integer id) {
         return ResponseEntity.ok(service.get(id));
@@ -104,7 +92,6 @@ public class WorkScheduleController {
         return ResponseEntity.ok(service.search(accountId, branchId, from, to, pageable));
     }
 
-    /* ======================= MATRIX & CELL ======================= */
     @GetMapping("/matrix")
     public ResponseEntity<Map<String, Map<String, List<WorkScheduleCellAssignmentResponse>>>> matrix(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
@@ -123,7 +110,6 @@ public class WorkScheduleController {
         return ResponseEntity.ok(service.getCell(branchId, date, shiftType));
     }
 
-    /* ======================= UPSERT CELL MANY ======================= */
     @PreAuthorize("hasAnyRole('Admin','Manager')")
     @PutMapping("/upsert-cell-many")
     public ResponseEntity<WorkScheduleResponse> upsertCellMany(
@@ -131,8 +117,6 @@ public class WorkScheduleController {
             Authentication auth) {
 
         AccountPrincipal user = (AccountPrincipal) auth.getPrincipal();
-
-        // Nếu là Manager → chỉ được upsert cell trong chi nhánh của mình
         if (user.hasRole("Manager")) {
             if (!user.getBranchId().equals(req.getBranchId())) {
                 throw new IllegalArgumentException("Không được thao tác lịch của chi nhánh khác.");

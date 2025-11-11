@@ -12,12 +12,12 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TicketCreateRequest {
 
-    Integer ticketId;        // Nếu null → tạo mới, nếu có → cập nhật vé tạm
-    Integer accountId;       // Người đặt vé
-    Integer showtimeId;      // Suất chiếu
-    List<Integer> seatIds;   // Danh sách ID ghế được chọn
-    List<Integer> discountIds; // Danh sách mã giảm giá áp dụng
-    List<ComboItem> combos;  // Danh sách combo kèm số lượng
+    Integer ticketId;
+    Integer accountId;
+    Integer showtimeId;
+    List<Integer> seatIds;
+    List<Integer> discountIds;
+    List<ComboItem> combos;
     private String customerEmail;
 
     @Getter

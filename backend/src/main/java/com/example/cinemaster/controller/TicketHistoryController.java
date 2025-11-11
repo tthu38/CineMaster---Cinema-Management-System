@@ -27,7 +27,7 @@ public class TicketHistoryController {
                         .oldStatus(h.getOldStatus())
                         .newStatus(h.getNewStatus())
                         .note(h.getNote())
-                        .changedAt(h.getChangedAt()) // ✅ CHỈ CẦN DÒNG NÀY
+                        .changedAt(h.getChangedAt())
                         .changedById(h.getChangedBy() != null ? h.getChangedBy().getAccountID() : null)
                         .changedByName(h.getChangedBy() != null
                                 ? h.getChangedBy().getFullName()

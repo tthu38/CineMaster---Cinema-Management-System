@@ -23,8 +23,8 @@ public class AccountPrincipal implements UserDetails {
     Integer id;
     String email;
     String fullName;
-    String phoneNumber;   // ✅ Thêm mới
-    String address;       // ✅ Thêm mới
+    String phoneNumber;
+    String address;
 
 
     String role;

@@ -23,7 +23,7 @@ public class Ticket {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "TicketID") // ✅ thêm từ file 2
+    @Column(name = "TicketID")
     Integer ticketId;
 
 
@@ -36,34 +36,25 @@ public class Ticket {
     @JoinColumn(name = "ShowtimeID", nullable = false)
     Showtime showtime;
 
-
-    // 💺 Tổng tiền ghế (chỉ dùng tạm trong logic, không lưu DB)
     @Transient
     BigDecimal seatPrice;
 
-
-    // 🍿 Tổng tiền combo (chỉ dùng tạm trong logic, không lưu DB)
     @Transient
     BigDecimal comboPrice;
 
-
-    // 💳 Tổng tiền sau giảm giá (lưu vào DB)
-    @Column(name = "TotalPrice", precision = 12, scale = 2) // ✅ thêm annotation name
+    @Column(name = "TotalPrice", precision = 12, scale = 2)
             BigDecimal totalPrice;
 
 
-    @Column(name = "BookingTime", columnDefinition = "DATETIME2(0) DEFAULT SYSDATETIME()") // ✅ thêm name
+    @Column(name = "BookingTime", columnDefinition = "DATETIME2(0) DEFAULT SYSDATETIME()")
     LocalDateTime bookingTime;
 
-
-    // ⚙️ Trạng thái vé
     @Enumerated(EnumType.STRING)
     @Column(name = "TicketStatus", length = 30, nullable = false)
     @Builder.Default
     TicketStatus ticketStatus = TicketStatus.HOLDING;
 
 
-    // 💵 Phương thức thanh toán (CASH / ONLINE)
     @Enumerated(EnumType.STRING)
     @Column(name = "PaymentMethod", length = 10, nullable = false)
     @Builder.Default
@@ -77,13 +68,9 @@ public class Ticket {
     @Column(name = "CustomerEmail")
     String customerEmail;
 
-
-    // 🎟️ Tổng giảm giá (chỉ tạm hiển thị, không lưu DB)
     @Transient
     BigDecimal discountTotal;
 
-
-    // ================= RELATIONSHIPS =================
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     List<TicketSeat> ticketSeats = new ArrayList<>();
@@ -109,17 +96,14 @@ public class Ticket {
     }
 
 
-
-
-    // ================= ENUM =================
     public enum TicketStatus {
         HOLDING, BOOKED, USED, CANCEL_REQUESTED, CANCELLED, REFUNDED
     }
 
 
     public enum PaymentMethod {
-        CASH,    // 💵 Thanh toán trực tiếp tại quầy
-        ONLINE   // 💳 Thanh toán trực tuyến (VNPAY, MOMO, SEPAY, ...)
+        CASH,
+        ONLINE
     }
 }
 

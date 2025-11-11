@@ -19,8 +19,8 @@ public class AuditoriumRequest {
     Integer capacity;
 
     @NotBlank(message = "Loại phòng không được để trống.")
-    String type; // Ví dụ: 2D, 3D, IMAX, VIP
+    String type;
 
     @NotNull(message = "ID Chi nhánh không được để trống.")
-    Integer branchId; // Khóa ngoại, ID của Branch (kiểu Integer theo Entity của bạn)
+    Integer branchId;
 }

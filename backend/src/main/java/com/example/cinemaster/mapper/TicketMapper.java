@@ -75,7 +75,7 @@ public interface TicketMapper {
     @Mapping(target = "movieTitle", source = "showtime.period.movie.title")
     @Mapping(target = "showtimeStart", source = "showtime.startTime")
     @Mapping(target = "branchName", source = "showtime.auditorium.branch.branchName")
-    // ✅ Thêm mapping để danh sách vé hiển thị đúng tên khách hàng
+    // Thêm mapping để danh sách vé hiển thị đúng tên khách hàng
     @Mapping(target = "customerName",
             expression = "java(entity.getAccount() != null ? entity.getAccount().getFullName() : \"Khách vãng lai\")")
     @Mapping(target = "seatNumbers", expression = "java(getSeatNumbers(entity))")
@@ -99,7 +99,7 @@ public interface TicketMapper {
     @Mapping(target = "paymentMethod",
             expression = "java(entity.getPaymentMethod() != null ? entity.getPaymentMethod().name() : null)")
     @Mapping(target = "comboList", ignore = true)
-    // ✅ Gắn thêm customerName cho chi tiết vé
+    // Gắn thêm customerName cho chi tiết vé
     @Mapping(target = "customerName",
             expression = "java(entity.getAccount() != null ? entity.getAccount().getFullName() : null)")
     TicketDetailResponse toDetailResponse(Ticket entity);

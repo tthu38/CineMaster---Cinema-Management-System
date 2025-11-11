@@ -14,17 +14,11 @@ import java.util.List;
 @Repository
 public interface SeatRepository extends JpaRepository<Seat, Integer> {
 
-    // 🔹 Lấy danh sách ghế theo phòng và dãy
     List<Seat> findAllByAuditoriumAuditoriumIDAndSeatRow(Integer auditoriumID, String seatRow);
 
-
-    // 🔹 Lấy tất cả ghế trong 1 phòng
     List<Seat> findAllByAuditorium_AuditoriumID(Integer auditoriumId);
 
-    // 🔹 Kiểm tra trùng số ghế trong cùng phòng (dùng khi create seat)
     boolean existsByAuditoriumAuditoriumIDAndSeatNumber(Integer auditoriumID, String seatNumber);
-
-
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT s FROM Seat s WHERE s.seatID = :seatId")

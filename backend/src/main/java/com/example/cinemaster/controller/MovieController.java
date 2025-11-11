@@ -95,21 +95,18 @@ public class MovieController {
 
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<List<MovieResponse>>> searchMovies(
-            @RequestParam(required = false) String title, // Thêm title
+            @RequestParam(required = false) String title,
             @RequestParam(required = false) String genre,
             @RequestParam(required = false) String director,
             @RequestParam(required = false) String cast,
             @RequestParam(required = false) String language) {
 
-        // 1. Tạo Request DTO từ các tham số
         MovieFilterRequest request = MovieFilterRequest.builder()
-                .title(title) // Thêm title vào builder
+                .title(title)
                 .genre(genre).director(director).cast(cast).language(language).build();
 
-        // 2. Gọi Service để thực hiện logic lọc
         List<MovieResponse> filteredMovies = movieService.filterMovies(request);
 
-        // 3. Trả về Response
         ApiResponse<List<MovieResponse>> res = new ApiResponse<>();
         res.setCode(1000);
         res.setMessage("Success");

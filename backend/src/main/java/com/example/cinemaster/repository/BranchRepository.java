@@ -21,9 +21,7 @@ public interface BranchRepository extends JpaRepository<Branch, Integer> {
             "FROM Branch b")
     List<BranchNameResponse> findAllBranchNames();
 
-    /* ============================================================
-      🎬 LẤY CÁC CHI NHÁNH ĐANG CHIẾU PHIM
-    ============================================================ */
+    /* ============ LẤY CÁC CHI NHÁNH ĐANG CHIẾU PHIM===================================== */
     @Query("""
    SELECT DISTINCT b
    FROM Showtime s

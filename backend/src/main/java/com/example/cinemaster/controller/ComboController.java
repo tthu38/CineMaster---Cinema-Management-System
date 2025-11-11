@@ -29,12 +29,10 @@ public class ComboController {
             Authentication auth) {
 
         AccountPrincipal user = (AccountPrincipal) auth.getPrincipal();
-
         if (user.hasRole("Manager")) {
             // 🔒 Gán luôn branchId của Manager để tránh fake dữ liệu
             request.setBranchId(user.getBranchId());
         }
-
         return ResponseEntity.ok(comboService.create(request, imageFile));
     }
 
@@ -48,13 +46,9 @@ public class ComboController {
         return ResponseEntity.ok(comboService.getAvailable());
     }
 
-
-//    @PreAuthorize("hasAnyRole('Admin','Manager','Staff', 'Customer')")
     @GetMapping("/branch/{branchId}")
     public ResponseEntity<List<ComboResponse>> getByBranch(@PathVariable Integer branchId, Authentication auth) {
         AccountPrincipal user = (AccountPrincipal) auth.getPrincipal();
-
-        // ✅ Manager chỉ xem combo của chi nhánh mình
         if (user.hasRole("Manager") && !branchId.equals(user.getBranchId())) {
             throw new SecurityException("Bạn không thể xem combo của chi nhánh khác!");
         }
@@ -86,7 +80,6 @@ public class ComboController {
         ComboResponse existing = comboService.getById(id);
         AccountPrincipal user = (AccountPrincipal) auth.getPrincipal();
 
-        // ✅ Manager chỉ được sửa combo của chi nhánh mình
         if (user.hasRole("Manager") && !existing.getBranchId().equals(user.getBranchId())) {
             throw new SecurityException("Bạn không thể sửa combo của chi nhánh khác!");
         }

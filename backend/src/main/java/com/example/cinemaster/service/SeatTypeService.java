@@ -27,14 +27,12 @@ public class SeatTypeService {
                 .build();
     }
 
-    // READ ALL
     public List<SeatTypeResponse> getAllSeatTypes() {
         return seatTypeRepository.findAll().stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
 
-    // CREATE
     public SeatTypeResponse createSeatType(SeatTypeRequest request) {
         SeatType seatType = SeatType.builder()
                 .typeName(request.getTypeName())
@@ -44,5 +42,4 @@ public class SeatTypeService {
         return mapToResponse(saved);
     }
 
-    // ... (Thêm các hàm getById, update, delete tương tự SeatService)
 }

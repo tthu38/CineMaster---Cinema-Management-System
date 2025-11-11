@@ -14,10 +14,10 @@ public class NewsResponse {
     private String category;
     private String imageUrl;
     private LocalDateTime publishDate;
-    private LocalDateTime createdDate;   // 👈 thêm
+    private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
     private Integer views;
     private Boolean active;
 
-    private List<NewsDetailResponse> details; // danh sách detail đi kèm
+    private List<NewsDetailResponse> details;
 }

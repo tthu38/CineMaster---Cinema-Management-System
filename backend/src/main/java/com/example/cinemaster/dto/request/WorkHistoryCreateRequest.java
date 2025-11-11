@@ -4,11 +4,11 @@ import com.example.cinemaster.validation.NoShiftOverlap;
 import jakarta.validation.constraints.*;
 import java.time.Instant;
 
-@NoShiftOverlap // <— check trùng ca khi tạo
+@NoShiftOverlap
 public record WorkHistoryCreateRequest(
         @NotNull Integer accountId,
         Integer affectedAccountId,
-        @NotBlank @Size(max = 100) String action,   // MORNING/AFTERNOON/NIGHT
-        @NotNull Instant actionTime,                // thời điểm bắt đầu (trong ngày)
+        @NotBlank @Size(max = 100) String action,
+        @NotNull Instant actionTime,
         @Size(max = 255) String description
 ) {}

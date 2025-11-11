@@ -13,9 +13,7 @@ public class AuditoriumResponse {
     String name;
     Integer capacity;
     String type;
-
-    // Thông tin từ Branch Entity
     Integer branchId;
-    String branchName; // Tên Chi nhánh để hiển thị ở bảng
+    String branchName;
     Boolean isActive;
 }

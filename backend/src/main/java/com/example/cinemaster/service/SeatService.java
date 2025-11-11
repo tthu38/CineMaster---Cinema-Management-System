@@ -30,7 +30,6 @@ public class SeatService {
     private final SeatTypeRepository seatTypeRepository;
     private final SeatMapper seatMapper;
 
-    // 1️⃣ READ ALL
     public List<SeatResponse> getAllSeats() {
         return seatRepository.findAll()
                 .stream()
@@ -38,14 +37,12 @@ public class SeatService {
                 .collect(Collectors.toList());
     }
 
-    // 2️⃣ READ ONE
     public SeatResponse getSeatById(Integer id) {
         Seat seat = seatRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Ghế không tìm thấy với ID: " + id));
         return seatMapper.toResponse(seat);
     }
 
-    // 3️⃣ CREATE
     public SeatResponse createSeat(SeatRequest request) {
         Auditorium auditorium = auditoriumRepository.findById(request.getAuditoriumID())
                 .orElseThrow(() -> new EntityNotFoundException("Phòng chiếu không tìm thấy với ID: " + request.getAuditoriumID()));
@@ -57,7 +54,6 @@ public class SeatService {
         return seatMapper.toResponse(saved);
     }
 
-    // 4️⃣ UPDATE
     public SeatResponse updateSeat(Integer id, SeatRequest request) {
         Seat seat = seatRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Ghế không tìm thấy với ID: " + id));
@@ -71,15 +67,12 @@ public class SeatService {
         Seat updated = seatRepository.save(seat);
         return seatMapper.toResponse(updated);
     }
-
-    // 5️⃣ DELETE
     public void deleteSeat(Integer id) {
         if (!seatRepository.existsById(id))
             throw new EntityNotFoundException("Ghế không tìm thấy với ID: " + id);
         seatRepository.deleteById(id);
     }
 
-    // 6️⃣ CREATE BULK
     @Transactional
     public List<SeatResponse> createBulkSeats(BulkSeatRequest request) {
         Auditorium auditorium = auditoriumRepository.findById(request.getAuditoriumID())
@@ -98,7 +91,7 @@ public class SeatService {
                         .seatType(seatType)
                         .seatRow(seatRow)
                         .columnNumber(c)
-                        .seatNumber(String.valueOf(c)) // ❗ chỉ số, KHÔNG nối row ở đây
+                        .seatNumber(String.valueOf(c))
                         .status(Seat.SeatStatus.AVAILABLE)
                         .build());
             }
@@ -107,7 +100,6 @@ public class SeatService {
         return savedSeats.stream().map(seatMapper::toResponse).collect(Collectors.toList());
     }
 
-    // 7️⃣ UPDATE ROW TYPE
     @Transactional
     public List<SeatResponse> updateSeatRowType(BulkSeatUpdateRequest request) {
         SeatType newSeatType = seatTypeRepository.findById(request.getNewTypeID())
@@ -126,7 +118,6 @@ public class SeatService {
         return saved.stream().map(seatMapper::toResponse).collect(Collectors.toList());
     }
 
-    // 8️⃣ BULK UPDATE ROW (GỘP / TÁCH)
     @Transactional
     public List<SeatResponse> bulkUpdateSeatRow(BulkSeatUpdateRequest request) {
         // ===== Lấy loại ghế mới (nếu có) =====
@@ -136,7 +127,6 @@ public class SeatService {
                     .orElseThrow(() -> new EntityNotFoundException("Loại ghế mới không tồn tại"));
         }
 
-        // ===== Lấy trạng thái mới (nếu có) =====
         Seat.SeatStatus newSeatStatus = null;
         if (request.getNewStatus() != null && !request.getNewStatus().isEmpty()) {
             try {
@@ -146,7 +136,6 @@ public class SeatService {
             }
         }
 
-        // ===== Lấy toàn bộ ghế trong dãy =====
         List<Seat> seatsInRow = seatRepository.findAllByAuditoriumAuditoriumIDAndSeatRow(
                 request.getAuditoriumID(), request.getSeatRowToUpdate().toUpperCase());
 
@@ -154,16 +143,13 @@ public class SeatService {
             throw new EntityNotFoundException("Không tìm thấy ghế nào trong dãy " + request.getSeatRowToUpdate());
         }
 
-        // ===== 1️⃣ Xử lý GỘP GHẾ (Couple Seat) =====
         if (Boolean.TRUE.equals(request.getIsConvertCoupleSeat())) {
-            // ✅ Chỉ cho phép gộp nếu loại ghế mới thực sự là "Couple"
             if (newSeatType == null || !newSeatType.getTypeName().toLowerCase().contains("couple")) {
                 throw new IllegalArgumentException("Để gộp ghế, loại ghế mới phải là 'Couple'.");
             }
             return processCoupleSeatConversion(seatsInRow, newSeatType, newSeatStatus);
         }
 
-        // ===== 2️⃣ Xử lý TÁCH GHẾ =====
         if (Boolean.TRUE.equals(request.getIsSeparateCoupleSeat())) {
             SeatType defaultSingleSeatType = newSeatType;
             if (defaultSingleSeatType == null) {
@@ -174,7 +160,6 @@ public class SeatService {
             return processSingleSeatSeparation(seatsInRow, defaultSingleSeatType, newSeatStatus);
         }
 
-        // ===== 3️⃣ Trường hợp chỉ đổi loại hoặc trạng thái =====
         for (Seat seat : seatsInRow) {
             if (newSeatType != null) {
                 seat.setSeatType(newSeatType);
@@ -190,7 +175,6 @@ public class SeatService {
                 .collect(Collectors.toList());
     }
 
-    // 🔹 GỘP GHẾ ĐÔI
     private List<SeatResponse> processCoupleSeatConversion(List<Seat> seatsInRow, SeatType coupleSeatType, Seat.SeatStatus newSeatStatus) {
         List<Seat> toDelete = new ArrayList<>();
         List<Seat> toUpdate = new ArrayList<>();
@@ -212,7 +196,6 @@ public class SeatService {
         return saved.stream().map(seatMapper::toResponse).collect(Collectors.toList());
     }
 
-    // 🔹 TÁCH GHẾ ĐÔI
     private List<SeatResponse> processSingleSeatSeparation(List<Seat> seatsInRow, SeatType singleSeatType, Seat.SeatStatus newSeatStatus) {
         List<Seat> toUpdate = new ArrayList<>();
         List<Seat> toCreate = new ArrayList<>();
@@ -250,7 +233,6 @@ public class SeatService {
         return savedUpdated.stream().map(seatMapper::toResponse).collect(Collectors.toList());
     }
 
-    // ==================== 🔹 LẤY GHẾ THEO PHÒNG ====================
     @Transactional(readOnly = true)
     public List<SeatResponse> getSeatsByAuditorium(Integer auditoriumId) {
         List<Seat> seats = seatRepository.findAllByAuditorium_AuditoriumID(auditoriumId);

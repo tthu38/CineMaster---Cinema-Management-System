@@ -37,9 +37,7 @@ public class ProfileController {
     private final PasswordEncoder passwordEncoder;
 
 
-    /* ==============================================================
-       ✅ 1. GET PROFILE
-    ============================================================== */
+    /* =================== GET PROFILE ================= */
     @GetMapping("/profile")
     public ResponseEntity<ApiResponse<ProfileResponse>> getProfile(
             @AuthenticationPrincipal AccountPrincipal principal
@@ -48,7 +46,7 @@ public class ProfileController {
             return ResponseEntity.status(401).body(
                     ApiResponse.<ProfileResponse>builder()
                             .code(401)
-                            .message("Unauthorized: No user found in context")
+                            .message("Không tìm thấy người dùng")
                             .build()
             );
         }
@@ -70,16 +68,14 @@ public class ProfileController {
         return ResponseEntity.ok(
                 ApiResponse.<ProfileResponse>builder()
                         .code(200)
-                        .message("Success")
+                        .message("Thành công!")
                         .result(profile)
                         .build()
         );
     }
 
 
-    /* ==============================================================
-       ✅ 2. UPDATE PROFILE (fullName, phone, address, avatar)
-    ============================================================== */
+    /* ====================== UPDATE PROFILE========================= */
     @PutMapping("/profile")
     @Transactional
     public ResponseEntity<ApiResponse<ProfileResponse>> updateProfile(
@@ -127,16 +123,14 @@ public class ProfileController {
         return ResponseEntity.ok(
                 ApiResponse.<ProfileResponse>builder()
                         .code(1000)
-                        .message("Profile updated successfully")
+                        .message("Cập nhật thành công!")
                         .result(updated)
                         .build()
         );
     }
 
 
-    /* ==============================================================
-       ✅ 3. CHANGE PASSWORD
-    ============================================================== */
+    /* ===================CHANGE PASSWORD======================== */
     @PutMapping("/change-password")
     public ResponseEntity<ApiResponse<String>> changePassword(
             @RequestBody @Validated ChangePasswordRequest req,
@@ -160,7 +154,7 @@ public class ProfileController {
             return ResponseEntity.badRequest().body(
                     ApiResponse.<String>builder()
                             .code(2004)
-                            .message("Current password is incorrect")
+                            .message("Mật khẩu hiện tại sai!")
                             .build()
             );
         }
@@ -173,16 +167,14 @@ public class ProfileController {
         return ResponseEntity.ok(
                 ApiResponse.<String>builder()
                         .code(1000)
-                        .message("Password changed successfully")
+                        .message("Thay đổi mật khẩu thành công")
                         .result("OK")
                         .build()
         );
     }
 
 
-    /* ==============================================================
-       ✅ 4. SEND OTP TO CHANGE EMAIL
-    ============================================================== */
+    /* ==================SEND OTP TO CHANGE EMAIL========================== */
     @PostMapping("/profile/send-otp-change-email")
     @Transactional
     public ResponseEntity<ApiResponse<String>> sendOtpChangeEmail(
@@ -207,7 +199,7 @@ public class ProfileController {
             return ResponseEntity.badRequest().body(
                     ApiResponse.<String>builder()
                             .code(2003)
-                            .message("Email already exists")
+                            .message("Email đã tồn tại!")
                             .build()
             );
         }
@@ -226,7 +218,7 @@ public class ProfileController {
             return ResponseEntity.ok(
                     ApiResponse.<String>builder()
                             .code(1000)
-                            .message("OTP sent successfully")
+                            .message("Đã gửi OTP thành công")
                             .result("OK")
                             .build()
             );
@@ -244,9 +236,7 @@ public class ProfileController {
     }
 
 
-    /* ==============================================================
-       ✅ 5. VERIFY EMAIL CHANGE
-    ============================================================== */
+    /* =========================== VERIFY EMAIL CHANGE=========================================== */
     @PostMapping("/profile/verify-email-change")
     @Transactional
     public ResponseEntity<ApiResponse<String>> verifyEmailChange(
@@ -272,7 +262,7 @@ public class ProfileController {
             return ResponseEntity.badRequest().body(
                     ApiResponse.<String>builder()
                             .code(2002)
-                            .message("Invalid verification code")
+                            .message("Mã xác thực không hợp lệ")
                             .build()
             );
         }
@@ -283,7 +273,7 @@ public class ProfileController {
             return ResponseEntity.badRequest().body(
                     ApiResponse.<String>builder()
                             .code(2002)
-                            .message("Verification code expired")
+                            .message("Mã xác minh đã hết hạn!")
                             .build()
             );
         }
@@ -298,14 +288,12 @@ public class ProfileController {
         return ResponseEntity.ok(
                 ApiResponse.<String>builder()
                         .code(1000)
-                        .message("Email verified and updated successfully")
+                        .message("Email đã được xác minh và cập nhật thành công!")
                         .result("SUCCESS")
                         .build()
         );
     }
-    /* ==============================================================
-   ✅ 6. UPLOAD AVATAR
- ============================================================== */
+    /* ================= 6. UPLOAD AVATAR======================================== */
     @PostMapping("/avatar")
     @Transactional
     public ResponseEntity<ApiResponse<String>> uploadAvatar(
@@ -327,15 +315,12 @@ public class ProfileController {
 
 
         try {
-            // ✅ Đường dẫn thư mục lưu file
             String uploadDir = "uploads/";
             java.nio.file.Path dir = java.nio.file.Paths.get(uploadDir);
             if (!java.nio.file.Files.exists(dir)) {
                 java.nio.file.Files.createDirectories(dir);
             }
 
-
-            // ✅ Tên file duy nhất (userID + thời gian)
             String fileName = "avatar_" + account.getAccountID() + "_" + System.currentTimeMillis()
                     + "_" + file.getOriginalFilename();
 
@@ -343,8 +328,6 @@ public class ProfileController {
             java.nio.file.Path path = dir.resolve(fileName);
             java.nio.file.Files.copy(file.getInputStream(), path, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
 
-
-            // ✅ Cập nhật đường dẫn avatar trong DB
             String fileUrl = "/uploads/" + fileName;
             account.setAvatarUrl(fileUrl);
             accountRepository.save(account);

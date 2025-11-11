@@ -47,9 +47,8 @@ public class Showtime {
     BigDecimal price;
 
     @Column(name = "Status", length = 20)
-    String status = "ACTIVE"; // ✅ mặc định ACTIVE
+    String status = "ACTIVE";
 
-    // honghanh
     @Transient
     public Movie getMovie() {
         return period != null ? period.getMovie() : null;

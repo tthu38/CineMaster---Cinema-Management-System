@@ -24,7 +24,7 @@ public class NewsService {
     private final NewsRepository newsRepository;
     private final NewsDetailRepository newsDetailRepository;
     private final NewsMapper newsMapper;
-    private final FileStorageService fileStorageService; // 👈 thêm vào
+    private final FileStorageService fileStorageService;
 
     public List<NewsResponse> getAll(String category) {
         if (category != null && !category.isEmpty()) {
@@ -62,9 +62,6 @@ public class NewsService {
         news.setViews(0);
 
         LocalDateTime now = LocalDateTime.now();
-//        news.setCreatedDate(now);
-//        news.setUpdatedDate(now);
-        // publishDate do user nhập, nếu null thì gán createdDate
         news.setPublishDate(req.getPublishDate() != null ? req.getPublishDate() : now);
 
         news.setActive(true);
@@ -103,7 +100,6 @@ public class NewsService {
 
         LocalDateTime now = LocalDateTime.now();
         news.setUpdatedDate(now);
-        // cho phép chỉnh sửa publishDate, nếu null thì giữ nguyên
         if (req.getPublishDate() != null) {
             news.setPublishDate(req.getPublishDate());
         }
@@ -113,7 +109,6 @@ public class NewsService {
             news.setImageUrl(url);
         }
 
-        // xoá detail cũ và thêm detail mới
         newsDetailRepository.deleteAll(newsDetailRepository.findByNewsID_NewsID(id));
         if (req.getDetails() != null) {
             for (NewsDetailRequest d : req.getDetails()) {
@@ -134,7 +129,7 @@ public class NewsService {
     public void delete(Integer id) {
         News news = newsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("News not found"));
-        news.setActive(false); // ❌ không xóa cứng
+        news.setActive(false);
         news.setUpdatedDate(LocalDateTime.now());
         newsRepository.save(news);
     }
@@ -153,7 +148,6 @@ public class NewsService {
         News news = newsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("News not found"));
 
-        // Nếu null thì khởi tạo 0
         if (news.getViews() == null) news.setViews(0);
 
         news.setViews(news.getViews() + 1);

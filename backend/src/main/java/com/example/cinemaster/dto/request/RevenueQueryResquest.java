@@ -8,17 +8,12 @@ import java.time.LocalDate;
 public class RevenueQueryResquest {
     private RevenueScopeResquest scope;
 
-    // neo thời gian:
-    // SHIFT & DAY dùng anchorDate (yyyy-MM-dd)
-    private LocalDate anchorDate;   // ví dụ 2025-10-15 (bắt buộc với SHIFT, DAY)
+    private LocalDate anchorDate;
 
-    // MONTH dùng year (ví dụ 2025)
-    private Integer year;           // cho scope=MONTH
+    private Integer year;
 
-    // YEAR dùng fromYear..toYear (ví dụ 2023..2025)
-    private Integer fromYear;       // optional
-    private Integer toYear;         // optional
+    private Integer fromYear;
+    private Integer toYear;
 
-    // lọc chi nhánh (Admin có thể null = tất cả; Manager/Staff bị ép chi nhánh theo user)
     private Integer branchId;
 }

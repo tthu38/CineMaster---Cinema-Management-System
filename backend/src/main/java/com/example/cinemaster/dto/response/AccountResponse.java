@@ -17,8 +17,6 @@ public class AccountResponse {
     String address;
     Boolean isActive;
     String avatarUrl;
-
-    // ✅ thêm để load role/branch
     Integer roleId;
     String roleName;
     Integer branchId;

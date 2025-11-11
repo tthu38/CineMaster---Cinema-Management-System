@@ -120,7 +120,6 @@ public class AuthController {
             String roleName = account.getRole() != null ? account.getRole().getRoleName() : "Customer";
             String token = jwtService.generateAccessToken(account.getAccountID(), account.getEmail(), roleName);
 
-            // ✅ Trả về đầy đủ thông tin
             AuthResponse response = AuthResponse.builder()
                     .accessToken(token)
                     .tokenType("Bearer")

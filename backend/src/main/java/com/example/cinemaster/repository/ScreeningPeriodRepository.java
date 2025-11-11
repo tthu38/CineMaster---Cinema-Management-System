@@ -15,16 +15,13 @@ import java.util.List;
 @Repository
 public interface ScreeningPeriodRepository extends JpaRepository<ScreeningPeriod, Integer> {
 
-    // 🟢 Load tất cả, kèm movie & branch (tránh N+1)
     @EntityGraph(attributePaths = {"movie", "branch"})
     @Override
     List<ScreeningPeriod> findAll();
 
-    // 🟢 Tìm theo chi nhánh
     @EntityGraph(attributePaths = {"movie", "branch"})
     List<ScreeningPeriod> findByBranch_Id(Integer branchId);
 
-    // 🟢 Tìm các kỳ chiếu đang hoạt động theo ngày
     @EntityGraph(attributePaths = {"movie", "branch"})
     @Query("""
         SELECT p FROM ScreeningPeriod p
@@ -59,6 +56,5 @@ public interface ScreeningPeriodRepository extends JpaRepository<ScreeningPeriod
            """)
     List<ScreeningPeriod> findComingSoon();
 
-    // 🔹 Tìm tất cả kỳ chiếu của 1 phim
     List<ScreeningPeriod> findByMovie_MovieID(Integer movieId);
 }

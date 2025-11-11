@@ -33,7 +33,6 @@ public interface AccountRepository extends JpaRepository<Account, Integer> {
        order by a.fullName asc
        """)
     List<StaffSimpleResponse> findAllStaffSimple();
-    // AccountRepository.java
     @Query("""
        SELECT a
        FROM Account a
