@@ -139,8 +139,6 @@
 
 <div id="wrapper">
     <aside id="sidebar">
-        <div class="sidebar-heading"><i class="fas fa-user"></i> Staff</div>
-
         <!-- ✅ Thông tin nhân viên -->
         <div class="sidebar-user-info">
             <div class="staff-name" id="staffName">Đang tải...</div>
@@ -153,8 +151,8 @@
         <div class="sidebar-content">
             <div class="list-group list-group-flush my-3">
                 <a href="#" class="list-group-item list-group-item-action active"
-                   onclick="loadIframe('../statistic/revenue-bar.html', this); return false;">
-                    <i class="fas fa-chart-pie"></i> Tổng quan
+                   onclick="loadIframe('../statistic/staff-shift.html', this); return false;">
+                    <i class="fas fa-chart-pie"></i> Báo cáo doanh thu
                 </a>
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('../user/otp-check.html', this); return false;">
@@ -164,10 +162,7 @@
                    onclick="loadIframe('../user/work-schedule-matrix.html', this); return false;">
                     <i class="fas fa-calendar-day"></i> Lịch làm việc
                 </a>
-                <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('../statistic/staff-shift.html', this); return false;">
-                    <i class="fas fa-chart-line"></i> Báo cáo doanh thu
-                </a>
+
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('../user/showtimes-calendar.html', this); return false;">
                     <i class="fas fa-ticket-alt"></i> Bán vé / Suất chiếu
@@ -218,7 +213,7 @@
     </aside>
 
     <div id="main-content">
-        <iframe id="main-frame" src="dashboard_home.html"></iframe>
+        <iframe id="main-frame" src="../statistic/staff-shift.html"></iframe>
     </div>
 </div>
 

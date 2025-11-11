@@ -1,6 +1,5 @@
 package com.example.cinemaster.controller;
 
-
 import com.example.cinemaster.dto.request.RevenueQueryResquest;
 import com.example.cinemaster.dto.request.RevenueScopeResquest;
 import com.example.cinemaster.dto.response.RevenueDayResponse;
@@ -15,64 +14,56 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
-
 
 @RestController
 @RequestMapping("/api/v1/revenue")
 @RequiredArgsConstructor
 public class RevenueController {
 
-
     private final RevenueService service;
 
-
+    /* =====================================================
+       🧾 DOANH THU CHUNG (cho dashboard)
+    ====================================================== */
     @PreAuthorize("hasAnyRole('Admin','Manager','Staff')")
     @GetMapping("/daily")
     public ResponseEntity<List<RevenueDayResponse>> getDailyRevenue(Authentication auth) {
         AccountPrincipal user = (AccountPrincipal) auth.getPrincipal();
-        List<RevenueDayResponse> data = service.getRevenue(user);
-        return ResponseEntity.ok(data);
-    }
-    @GetMapping("/by-shift")
-    @PreAuthorize("hasAnyRole('Admin','Manager','Staff')")
-    public ResponseEntity<List<RevenueRowResponse>> byShift(
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
-            @RequestParam(required = false) Integer branchId,
-            Authentication auth
-    ) {
-        AccountPrincipal user = (AccountPrincipal) auth.getPrincipal();
-        RevenueQueryResquest q = RevenueQueryResquest.builder()
-                .scope(RevenueScopeResquest.SHIFT)
-                .anchorDate(date)
-                .branchId(branchId)
-                .build();
-        return ResponseEntity.ok(service.getReport(q, user));
+        return ResponseEntity.ok(service.getRevenue(user));
     }
 
-
-    @GetMapping("/by-day")
+    /* =====================================================
+   📅 DOANH THU THEO NGÀY TRONG THÁNG
+====================================================== */
     @PreAuthorize("hasAnyRole('Admin','Manager')")
-    public ResponseEntity<List<RevenueRowResponse>> byDay(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate monthAnchor,
-            @RequestParam(required = false) Integer branchId,
-            Authentication auth
+    @GetMapping("/by-day")
+    public ResponseEntity<List<RevenueRowResponse>> getRevenueByDay(
+            @AuthenticationPrincipal AccountPrincipal principal,
+            @RequestParam(name = "anchorDate", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate anchorDate,
+            @RequestParam(required = false) Integer branchId
     ) {
-        AccountPrincipal user = (AccountPrincipal) auth.getPrincipal();
+        // Nếu không truyền ngày thì mặc định lấy hôm nay
+        LocalDate safeDate = (anchorDate != null) ? anchorDate : LocalDate.now();
+
         RevenueQueryResquest q = RevenueQueryResquest.builder()
                 .scope(RevenueScopeResquest.DAY)
-                .anchorDate(monthAnchor)
+                .anchorDate(safeDate)
                 .branchId(branchId)
                 .build();
-        return ResponseEntity.ok(service.getReport(q, user));
+
+        return ResponseEntity.ok(service.getReport(q, principal));
     }
 
 
-    @GetMapping("/by-month")
+    /* =====================================================
+       📆 DOANH THU THEO THÁNG (CẢ NĂM)
+    ====================================================== */
     @PreAuthorize("hasRole('Admin')")
+    @GetMapping("/by-month")
     public ResponseEntity<List<RevenueRowResponse>> byMonth(
             @RequestParam Integer year,
             @RequestParam(required = false) Integer branchId,
@@ -87,9 +78,11 @@ public class RevenueController {
         return ResponseEntity.ok(service.getReport(q, user));
     }
 
-
-    @GetMapping("/by-year")
+    /* =====================================================
+       📊 DOANH THU THEO NĂM
+    ====================================================== */
     @PreAuthorize("hasRole('Admin')")
+    @GetMapping("/by-year")
     public ResponseEntity<List<RevenueRowResponse>> byYear(
             @RequestParam(required = false) Integer fromYear,
             @RequestParam(required = false) Integer toYear,
@@ -105,6 +98,10 @@ public class RevenueController {
                 .build();
         return ResponseEntity.ok(service.getReport(q, user));
     }
+
+    /* =====================================================
+       📉 DOANH THU 7 NGÀY GẦN NHẤT
+    ====================================================== */
     @PreAuthorize("hasAnyRole('Admin','Manager')")
     @GetMapping("/last7days")
     public ResponseEntity<?> getLast7DaysRevenue(
@@ -112,8 +109,7 @@ public class RevenueController {
             @RequestParam(required = false) Integer branchId
     ) {
         try {
-            List<Map<String, Object>> data = service.getRevenueLast7Days(principal, branchId);
-            return ResponseEntity.ok(data);
+            return ResponseEntity.ok(service.getRevenueLast7Days(principal, branchId));
         } catch (SecurityException se) {
             return ResponseEntity.status(403).body(Map.of(
                     "error", "Không quyền truy cập chức năng này.",
@@ -128,9 +124,9 @@ public class RevenueController {
         }
     }
 
-
-
-
+    /* =====================================================
+       📅 DOANH THU CHI TIẾT TRONG 1 THÁNG
+    ====================================================== */
     @PreAuthorize("hasAnyRole('Admin','Manager')")
     @GetMapping("/by-month-detail")
     public ResponseEntity<?> getRevenueByMonthDetail(
@@ -139,10 +135,20 @@ public class RevenueController {
             @RequestParam Integer month,
             @RequestParam(required = false) Integer branchId
     ) {
-        return ResponseEntity.ok(service.getRevenueByMonth(principal, year, month, branchId));
+        return ResponseEntity.ok(service.getReport(
+                RevenueQueryResquest.builder()
+                        .scope(RevenueScopeResquest.MONTH)
+                        .year(year)
+                        .branchId(branchId)
+                        .build(),
+                principal
+        ));
+
     }
 
-
+    /* =====================================================
+       🔎 DOANH THU TÙY CHỌN KHOẢNG THỜI GIAN
+    ====================================================== */
     @PreAuthorize("hasAnyRole('Admin','Manager')")
     @GetMapping("/custom-range")
     public ResponseEntity<?> getRevenueCustomRange(
@@ -151,8 +157,19 @@ public class RevenueController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             @RequestParam(required = false) Integer branchId
     ) {
-        return ResponseEntity.ok(service.getRevenueBetweenDates(principal, from, to, branchId));
+        RevenueQueryResquest q = RevenueQueryResquest.builder()
+                .scope(RevenueScopeResquest.DAY)
+                .anchorDate(from)  // hoặc null cũng được
+                .branchId(branchId)
+                .build();
+
+        return ResponseEntity.ok(service.getReport(q, principal));
+
     }
+
+    /* =====================================================
+       🎬 TOP 10 PHIM CÓ DOANH THU VÉ CAO NHẤT
+    ====================================================== */
     @PreAuthorize("hasAnyRole('Admin','Manager','Staff')")
     @GetMapping("/top-movies")
     public ResponseEntity<?> getTopMovies(
@@ -165,7 +182,4 @@ public class RevenueController {
     ) {
         return ResponseEntity.ok(service.getTop10Movies(principal, branchId, from, to, year, month));
     }
-
-
 }
-

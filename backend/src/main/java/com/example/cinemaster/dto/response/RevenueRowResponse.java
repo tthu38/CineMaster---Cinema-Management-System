@@ -15,13 +15,15 @@ public class RevenueRowResponse {
     private LocalDateTime from;
     private LocalDateTime to;
 
-    private long ticketsSold;
+    private Long ticketsSold;
     private long combosSold;
 
     @Builder.Default
     private BigDecimal ticketRevenue = BigDecimal.ZERO;
     @Builder.Default
     private BigDecimal comboRevenue = BigDecimal.ZERO;
+    @Builder.Default
+    private BigDecimal grossBeforeDiscount = BigDecimal.ZERO;
     @Builder.Default
     private BigDecimal discountTotal = BigDecimal.ZERO;
     @Builder.Default

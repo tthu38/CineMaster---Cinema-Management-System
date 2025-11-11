@@ -21,7 +21,7 @@ export const revenueApi = {
     async getByShift(date = null, branchId = null) {
         const token = getValidToken();
         const params = new URLSearchParams();
-        if (date) params.append('date', date);
+        if (date) params.append('anchorDate', date);
         if (branchId) params.append('branchId', branchId);
 
 
@@ -150,4 +150,3 @@ export const revenueApi = {
 
 
 };
-

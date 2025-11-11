@@ -14,46 +14,6 @@
 🎬 SHOWTIME PAGE STYLE — CINE MASTER (Final Merged Version)
 ============================================================ */
 
-    /* Schedule panel */
-    .schedule-panel {
-        position: relative;
-        background: rgba(11,20,40,0.55);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(34,193,255,0.28);
-        border-radius: 22px;
-        box-shadow: 0 0 30px rgba(34,193,255,0.2),
-        0 0 60px rgba(255,0,128,0.05),
-        inset 0 0 60px rgba(34,193,255,0.06);
-        animation: fadeInUp .7s ease both;
-        padding: 26px 22px;
-    }
-    @keyframes fadeInUp {
-        from { opacity:0; transform:translateY(24px); }
-        to { opacity:1; transform:translateY(0); }
-    }
-
-    /* Panel header */
-    .panel-head {
-        display:flex;
-        align-items:center;
-        gap:12px;
-        margin-bottom:16px;
-    }
-    .panel-head h2 {
-        margin:0;
-        font-weight:900;
-        letter-spacing:.3px;
-        text-transform:uppercase;
-        background: linear-gradient(90deg,#22c1ff 0%,#ff0055 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-shadow: 0 0 20px rgba(34,193,255,0.35);
-        animation: glowShift 4s infinite alternate ease-in-out;
-    }
-    @keyframes glowShift {
-        0% { text-shadow: 0 0 14px rgba(34,193,255,0.5); }
-        100% { text-shadow: 0 0 24px rgba(255,0,128,0.45); }
-    }
 
     /* Toolbar */
     .toolbar {
@@ -280,6 +240,63 @@
     .footer-note::before {
         content:"🎬 ";
         color:#22c1ff;
+    }
+
+    main.shell {
+        margin-bottom: 0 !important;
+        padding-bottom: 20px !important;
+    }
+
+    #footer {
+        position: relative;
+        margin-top: 20px !important;
+    }
+    /* === Đồng bộ style với trang Báo cáo doanh thu === */
+    section.film.schedule-panel {
+        background: linear-gradient(180deg, #0b152a, #0c162c);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        box-shadow: var(--glow);
+        position: relative;
+        padding: 36px 28px 40px;
+    }
+
+    section.film.schedule-panel::before,
+    section.film.schedule-panel::after {
+        content: "";
+        position: absolute;
+        left: 18px;
+        right: 18px;
+        height: 10px;
+        background: repeating-linear-gradient(90deg, #142443 0 16px, transparent 16px 32px);
+        filter: drop-shadow(0 0 6px rgba(34,193,255,.2));
+        opacity: .4;
+    }
+    section.film.schedule-panel::before { top: 12px; }
+    section.film.schedule-panel::after { bottom: 12px; }
+
+    .panel-head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 28px;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+        padding-bottom: 14px;
+    }
+    .panel-head i {
+        color: var(--cyan);
+        font-size: 1.5rem;
+        filter: drop-shadow(0 0 8px rgba(34,193,255,.5));
+        transform: translateY(2px);
+    }
+    .panel-head h2 {
+        margin: 0;
+        font-weight: 900;
+        font-size: 1.9rem;
+        letter-spacing: .3px;
+        background: linear-gradient(90deg, #22c1ff 0%, #ff0055 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
 
 

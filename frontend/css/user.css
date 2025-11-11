@@ -281,3 +281,40 @@ footer, #footer, .cm-footer {
     transform: scale(1.01);
 }
 
+/* ================================
+🎬 PANEL HEAD (DÙNG CHUNG, CĂN CHỈNH FIX LỆCH)
+================================== */
+
+.panel-head {
+    display: flex;
+    align-items: baseline; /* ⬅ Đổi từ center sang baseline */
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.panel-head i {
+    font-size: 1.5rem;
+    color: #22c1ff;
+    flex-shrink: 0;
+    transform: translateY(2px); /* đẩy icon xuống chút cho đều chữ */
+}
+
+.panel-head h2 {
+    margin: 0;
+    font-weight: 900;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    background: linear-gradient(90deg, #22c1ff 0%, #ff0055 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 20px rgba(34, 193, 255, 0.35);
+    animation: glowShift 4s infinite alternate ease-in-out;
+}
+
+
+/* Hiệu ứng phát sáng đổi màu */
+@keyframes glowShift {
+    0% { text-shadow: 0 0 14px rgba(34, 193, 255, 0.5); }
+    100% { text-shadow: 0 0 24px rgba(255, 0, 128, 0.45); }
+}
+

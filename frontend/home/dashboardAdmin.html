@@ -202,28 +202,20 @@
                             <i class="fas fa-newspaper"></i> Quản lý tin tức
                         </a>
 
-
-                        <a href="#" class="list-group-item list-group-item-action"
-                           onclick="loadIframe('../feedback/viewFeedback.html', this); return false;">
-                            <i class="fas fa-comments"></i> Phản hồi
                         </a>
                         <a href="#" class="list-group-item list-group-item-action"
                            onclick="loadIframe('../contact/contactManagement.html', this); return false;">
                             <i class="fas fa-envelope"></i> Liên hệ khách hàng
                         </a>
 
-
-
-
-                        <a href="#" class="list-group-item list-group-item-action"
-                           onclick="loadIframe('../settings/viewSettings.html', this); return false;">
-                            <i class="fas fa-cog"></i> Cài đặt
-                        </a>
-
                         <!-- 🔹 Đăng xuất -->
                         <a href="#" class="list-group-item list-group-item-action text-danger" onclick="logoutUser()">
                             <i class="fas fa-sign-out-alt"></i> Đăng xuất
                         </a>
+
+
+                    </div>
+                </div>
             </div>
         </div>
     </aside>
@@ -297,27 +289,32 @@
         try {
             const innerDoc = frame.contentDocument || frame.contentWindow.document;
 
-            const resizeObserver = new ResizeObserver(() => {
+            // 🧹 Reset chiều cao mỗi lần load mới
+            frame.style.height = "0px";
+
+            // 🧠 Tính lại đúng chiều cao nội dung thực tế
+            const updateHeight = () => {
                 const scrollHeight = Math.max(
                     innerDoc.body.scrollHeight,
                     innerDoc.documentElement.scrollHeight
                 );
-                frame.style.height = scrollHeight + 'px';
+                frame.style.height = scrollHeight + "px";
+            };
 
-// 🩵 ép bỏ khoảng trống thừa của file con (nếu có)
-                innerDoc.body.style.minHeight = 'unset';
-                innerDoc.documentElement.style.minHeight = 'unset';
-                innerDoc.body.style.marginBottom = '0';
-                innerDoc.documentElement.style.marginBottom = '0';
+            // 🧩 Dùng 1 observer duy nhất, tránh chồng lên
+            if (frame._observer) frame._observer.disconnect();
+            const observer = new ResizeObserver(updateHeight);
+            observer.observe(innerDoc.body);
+            frame._observer = observer;
 
-                frame.style.height = scrollHeight + 'px';
-            });
+            // Gọi ngay lần đầu
+            updateHeight();
 
-            resizeObserver.observe(innerDoc.body);
         } catch (err) {
-            console.warn('Không thể truy cập nội dung iframe:', err);
+            console.warn("Không thể truy cập nội dung iframe:", err);
         }
     });
+
 </script>
 
 </body>

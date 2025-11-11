@@ -265,5 +265,53 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
             @Param("from") LocalDateTime from,
             @Param("to") LocalDateTime to
     );
+
+
+
+    @Query(value = """
+    SELECT ISNULL(SUM(t.TotalPrice), 0)
+    FROM Ticket t
+    JOIN Showtimes sh ON sh.ShowtimeID = t.ShowtimeID
+    JOIN Auditorium a ON a.AuditoriumID = sh.AuditoriumID
+    JOIN Branchs b ON b.BranchID = a.BranchID
+    WHERE t.TicketStatus IN ('BOOKED','USED')
+      AND t.BookingTime >= :from AND t.BookingTime < :to
+      AND (:branchId IS NULL OR b.BranchID = :branchId)
+    """, nativeQuery = true)
+    BigDecimal getTicketRevenue(@Param("from") LocalDateTime from,
+                                @Param("to") LocalDateTime to,
+                                @Param("branchId") Integer branchId);
+
+    @Query(value = """
+    SELECT ISNULL(SUM(t.TotalPrice), 0)
+    FROM Ticket t
+    JOIN Showtimes sh ON sh.ShowtimeID = t.ShowtimeID
+    JOIN Auditorium a ON a.AuditoriumID = sh.AuditoriumID
+    JOIN Branchs b ON b.BranchID = a.BranchID
+    WHERE t.TicketStatus IN ('BOOKED','USED')
+      AND t.PaymentMethod = :method
+      AND t.BookingTime >= :from AND t.BookingTime < :to
+      AND (:branchId IS NULL OR b.BranchID = :branchId)
+    """, nativeQuery = true)
+    BigDecimal getRevenueByMethod(@Param("from") LocalDateTime from,
+                                  @Param("to") LocalDateTime to,
+                                  @Param("branchId") Integer branchId,
+                                  @Param("method") String method);
+
+    @Query(value = """
+    SELECT COUNT(ts.SeatID)
+    FROM Ticket t
+    JOIN TicketSeat ts ON ts.TicketID = t.TicketID
+    JOIN Showtimes sh ON sh.ShowtimeID = t.ShowtimeID
+    JOIN Auditorium a ON a.AuditoriumID = sh.AuditoriumID
+    JOIN Branchs b ON b.BranchID = a.BranchID
+    WHERE t.TicketStatus IN ('BOOKED','USED')
+      AND t.BookingTime >= :from AND t.BookingTime < :to
+      AND (:branchId IS NULL OR b.BranchID = :branchId)
+    """, nativeQuery = true)
+    Long countSeatsSold(@Param("from") LocalDateTime from,
+                        @Param("to") LocalDateTime to,
+                        @Param("branchId") Integer branchId);
+
 }
 

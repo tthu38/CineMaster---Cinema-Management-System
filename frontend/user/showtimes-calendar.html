@@ -332,9 +332,23 @@
     (async function loadHeaderFooter() {
         const headerEl = document.getElementById("header");
         const footerEl = document.getElementById("footer");
+
         try {
+            const role = localStorage.getItem("role");
+
+            // ✅ Nếu là staff → ẩn header và footer
+            if (role && role.toLowerCase() === "staff") {
+                headerEl.style.display = "none";
+                footerEl.style.display = "none";
+                document.body.style.paddingTop = "40px"; // tránh dính lề nếu cần
+                return; // không load header/footer nữa
+            }
+
+            // ✅ Nếu KHÔNG phải staff → load header/footer như thường
             const headerHtml = await (await fetch("../home/customer-header.html")).text();
             headerEl.innerHTML = headerHtml;
+
+            // nạp lại các script bên trong header
             const temp = document.createElement("div");
             temp.innerHTML = headerHtml;
             temp.querySelectorAll("script").forEach(s => {
@@ -343,11 +357,13 @@
                 else ns.textContent = s.textContent;
                 document.body.appendChild(ns);
             });
+
             footerEl.innerHTML = await (await fetch("../home/footer.html")).text();
         } catch (err) {
             console.error("❌ Lỗi load header/footer:", err);
         }
     })();
+
 </script>
 
 <!-- ✅ Logic render lịch chiếu -->

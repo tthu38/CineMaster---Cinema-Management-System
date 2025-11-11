@@ -153,6 +153,11 @@
                 <a href="#" class="list-group-item list-group-item-action active"
                    onclick="loadIframe('../statistic/revenue-bar.html', this); return false;">
                     <i class="fas fa-chart-line"></i> Tổng quan chi nhánh
+
+                </a>
+                <a href="#" class="list-group-item list-group-item-action"
+                   onclick="loadIframe('../statistic/revenue.html', this); return false;">
+                    <i class="fas fa-coins"></i> Báo cáo doanh thu
                 </a>
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('../user/showtimes-calendar.html', this); return false;">
@@ -178,10 +183,7 @@
                    onclick="loadIframe('../user/reportAccount.html', this); return false;">
                     <i class="fas fa-exclamation-circle"></i> Báo cáo vi phạm
                 </a>
-                <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('../statistic/revenue.html', this); return false;">
-                    <i class="fas fa-coins"></i> Báo cáo doanh thu
-                </a>
+
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('../user/branch-list.html', this); return false;">
                     <i class="fas fa-code-branch"></i> Thông tin chi nhánh
@@ -217,7 +219,6 @@
 
 <!-- ✅ Footer chung -->
 <div id="footer-placeholder"></div>
-
 <script>
     // ✅ Load Header
     (async function loadHeader() {

@@ -2,17 +2,13 @@ import { branchApi } from "./api/branchApi.js";
 import { requireAuth } from "./api/config.js";
 import { accountApi } from "./api/accountApi.js";
 
+let deleteModal, restoreModal;
+let deleteNameEl, restoreNameEl;
+let confirmDeleteBtn, confirmRestoreBtn;
+
 const table = document.getElementById("accountTable");
 const pagination = document.getElementById("pagination");
 const branchSelect = document.getElementById("branchFilter");
-
-const deleteModal = new bootstrap.Modal(document.getElementById("deleteAccountModal"));
-const deleteNameEl = document.getElementById("deleteAccountName");
-const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
-
-const restoreModal = new bootstrap.Modal(document.getElementById("restoreAccountModal"));
-const restoreNameEl = document.getElementById("restoreAccountName");
-const confirmRestoreBtn = document.getElementById("confirmRestoreBtn");
 
 let currentPage = 0;
 const pageSize = 10;
@@ -46,10 +42,9 @@ async function loadAccounts(page = 0) {
     try {
         let branchFilter = currentBranchId;
 
-        // Nếu đang xem danh sách staff
-        const viewingStaff = currentRoleId && Number(currentRoleId) === 2; // giả sử 2 = Staff RoleId
+        const viewingStaff = currentRoleId && Number(currentRoleId) === 2;
         if (viewingStaff && (currentRole === "Manager" || currentRole === "Staff")) {
-            branchFilter = managerBranchId; // chỉ staff của chi nhánh mình
+            branchFilter = managerBranchId;
         }
 
         const res = await accountApi.getAllPaged(
@@ -64,7 +59,6 @@ async function loadAccounts(page = 0) {
         table.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Không thể tải danh sách account</td></tr>`;
     }
 }
-
 
 // ========================= LOAD BRANCHES =========================
 async function loadBranches() {
@@ -100,37 +94,30 @@ function renderTable(accounts = []) {
 
         let actionButtons = "";
 
-// 🧑‍💼 ADMIN: full quyền
+        // 🧑‍💼 ADMIN
         if (currentRole === "Admin") {
             actionButtons = acc.isActive
                 ? `
             <a href="updateUser.html?id=${acc.accountID}" class="btn btn-sm btn-warning me-1">Sửa</a>
-            <button class="btn btn-sm btn-danger btn-delete" data-id="${acc.accountID}" data-name="${acc.fullName || acc.email}">Xóa</button>
-          `
-                : `
-            <button class="btn btn-sm btn-success btn-restore" data-id="${acc.accountID}" data-name="${acc.fullName || acc.email}">Khôi phục</button>
-          `;
+            <button class="btn btn-sm btn-danger btn-delete" data-id="${acc.accountID}" data-name="${acc.fullName || acc.email}">Xóa</button>`
+                : `<button class="btn btn-sm btn-success btn-restore" data-id="${acc.accountID}" data-name="${acc.fullName || acc.email}">Khôi phục</button>`;
         }
-// 🧑‍💼 MANAGER: CRUD staff của chi nhánh mình, chỉ xem customer
+        // 🧑‍💼 MANAGER
         else if (currentRole === "Manager") {
             if (acc.roleName === "Staff") {
                 actionButtons = acc.isActive
                     ? `
                 <a href="updateUser.html?id=${acc.accountID}" class="btn btn-sm btn-warning me-1">Sửa</a>
-                <button class="btn btn-sm btn-danger btn-delete" data-id="${acc.accountID}" data-name="${acc.fullName || acc.email}">Xóa</button>
-              `
-                    : `
-                <button class="btn btn-sm btn-success btn-restore" data-id="${acc.accountID}" data-name="${acc.fullName || acc.email}">Khôi phục</button>
-              `;
+                <button class="btn btn-sm btn-danger btn-delete" data-id="${acc.accountID}" data-name="${acc.fullName || acc.email}">Xóa</button>`
+                    : `<button class="btn btn-sm btn-success btn-restore" data-id="${acc.accountID}" data-name="${acc.fullName || acc.email}">Khôi phục</button>`;
             } else {
                 actionButtons = `<span class="text-muted">—</span>`;
             }
         }
-// 👷 STAFF: chỉ xem (không CRUD) staff & customer
+        // 👷 STAFF
         else if (currentRole === "Staff") {
             actionButtons = `<span class="text-muted">—</span>`;
         }
-
 
         table.innerHTML += `
             <tr data-id="${acc.accountID}">
@@ -188,29 +175,31 @@ function renderPagination(pageData) {
 }
 
 // ========================= DELETE / RESTORE =========================
-confirmDeleteBtn.addEventListener("click", async () => {
-    if (!currentDeleteId) return;
-    try {
-        await accountApi.remove(currentDeleteId);
-        deleteModal.hide();
-        updateRowStatus(currentDeleteId, false);
-    } catch (err) {
-        console.error("❌ Error deleting account:", err);
-        alert("Vô hiệu hóa thất bại!");
-    }
-});
+function attachModalActions() {
+    confirmDeleteBtn.addEventListener("click", async () => {
+        if (!currentDeleteId) return;
+        try {
+            await accountApi.remove(currentDeleteId);
+            deleteModal.hide();
+            updateRowStatus(currentDeleteId, false);
+        } catch (err) {
+            console.error("❌ Error deleting account:", err);
+            alert("Vô hiệu hóa thất bại!");
+        }
+    });
 
-confirmRestoreBtn.addEventListener("click", async () => {
-    if (!currentRestoreId) return;
-    try {
-        await accountApi.restore(currentRestoreId);
-        restoreModal.hide();
-        updateRowStatus(currentRestoreId, true);
-    } catch (err) {
-        console.error("❌ Error restoring account:", err);
-        alert("Khôi phục thất bại!");
-    }
-});
+    confirmRestoreBtn.addEventListener("click", async () => {
+        if (!currentRestoreId) return;
+        try {
+            await accountApi.restore(currentRestoreId);
+            restoreModal.hide();
+            updateRowStatus(currentRestoreId, true);
+        } catch (err) {
+            console.error("❌ Error restoring account:", err);
+            alert("Khôi phục thất bại!");
+        }
+    });
+}
 
 // ========================= CẬP NHẬT DÒNG TRONG BẢNG =========================
 function updateRowStatus(accountID, isActive) {
@@ -223,13 +212,9 @@ function updateRowStatus(accountID, isActive) {
 
     const actionCell = row.children[8];
     actionCell.innerHTML = isActive
-        ? `
-            <a href="updateUser.html?id=${accountID}" class="btn btn-sm btn-warning me-1">Sửa</a>
-            <button class="btn btn-sm btn-danger btn-delete" data-id="${accountID}">Xóa</button>
-          `
-        : `
-            <button class="btn btn-sm btn-success btn-restore" data-id="${accountID}">Khôi phục</button>
-          `;
+        ? `<a href="updateUser.html?id=${accountID}" class="btn btn-sm btn-warning me-1">Sửa</a>
+           <button class="btn btn-sm btn-danger btn-delete" data-id="${accountID}">Xóa</button>`
+        : `<button class="btn btn-sm btn-success btn-restore" data-id="${accountID}">Khôi phục</button>`;
 
     attachRowEvents();
 }
@@ -257,23 +242,35 @@ async function init() {
     console.log("🧭 Role:", currentRole, "Branch:", managerBranchId);
 
     if (currentRole === "Manager") {
-        // Manager: chỉ xem/CRUD staff của chi nhánh mình
         branchSelect.parentElement.style.display = "none";
         currentBranchId = Number(managerBranchId);
     }
     else if (currentRole === "Staff") {
-        // Staff: chỉ xem staff của chi nhánh mình (readonly)
         branchSelect.parentElement.style.display = "none";
         currentBranchId = Number(managerBranchId);
     }
     else {
-        // Admin: xem tất cả chi nhánh
         await loadBranches();
     }
-
 
     await loadAccounts();
 }
 
-window.loadAccounts = loadAccounts;
-document.addEventListener("DOMContentLoaded", init);
+// ========================= WAIT DOM THEN START =========================
+document.addEventListener("DOMContentLoaded", () => {
+    // Modal chắc chắn tồn tại
+    const deleteEl = document.getElementById("deleteAccountModal");
+    const restoreEl = document.getElementById("restoreAccountModal");
+
+    if (deleteEl && restoreEl) {
+        deleteModal = new bootstrap.Modal(deleteEl);
+        restoreModal = new bootstrap.Modal(restoreEl);
+        deleteNameEl = document.getElementById("deleteAccountName");
+        restoreNameEl = document.getElementById("restoreAccountName");
+        confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+        confirmRestoreBtn = document.getElementById("confirmRestoreBtn");
+        attachModalActions();
+    }
+
+    init();
+});

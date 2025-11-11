@@ -348,7 +348,6 @@
     <div class="tickets-layer l1"></div>
     <div class="tickets-layer l2"></div>
 </div>
-<div id="header"></div>
 
 <main class="shell">
     <section class="film account-box">
@@ -368,36 +367,7 @@
     </section>
 </main>
 
-<div id="footer"></div>
 
 <script src="../js/AccountCounter.js"></script>
-<script>
-    // ✅ Load header có script đi kèm (đúng cách)
-    (async function loadHeader() {
-        const headerEl = document.getElementById("header");
-        try {
-            const res = await fetch("../home/customer-header.html");
-            const html = await res.text();
-            headerEl.innerHTML = html;
-
-            // Nạp lại các script bên trong header (nếu có)
-            const scripts = headerEl.querySelectorAll("script");
-            scripts.forEach(s => {
-                const ns = document.createElement("script");
-                if (s.src) ns.src = s.src;
-                else ns.textContent = s.textContent;
-                document.body.appendChild(ns);
-            });
-        } catch (err) {
-            console.error("Lỗi load header:", err);
-        }
-    })();
-
-    // ✅ Load footer đơn giản
-    fetch("../home/footer.html")
-        .then(res => res.text())
-        .then(html => document.getElementById("footer").innerHTML = html)
-        .catch(err => console.error("Lỗi load footer:", err));
-</script>
 </body>
 </html>

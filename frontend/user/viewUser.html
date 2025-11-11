@@ -3,21 +3,172 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin - Quản Lý Account • CineMaster</title>
+    <title>Admin - Quản lý nhân viên • CineMaster</title>
 
     <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-
-    <!-- Fonts & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Font + Icon -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-    <!-- 🎨 Giao diện chung -->
+    <!-- CSS chung -->
     <link rel="stylesheet" href="../css/user.css">
+
+    <style>
+        /* ===============================
+        🎬 ACCOUNT MANAGEMENT - MATCH SHOWTIME STYLE
+        =============================== */
+
+        main.shell {
+            max-width: 1300px;
+            margin: 110px auto 60px;
+            padding: 0 24px;
+        }
+
+        section.film {
+            background: linear-gradient(180deg, #0b152a, #0c162c);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: var(--glow);
+            position: relative;
+            padding: 36px 28px 40px;
+        }
+
+        section.film::before,
+        section.film::after {
+            content: "";
+            position: absolute;
+            left: 18px;
+            right: 18px;
+            height: 10px;
+            background: repeating-linear-gradient(90deg, #142443 0 16px, transparent 16px 32px);
+            filter: drop-shadow(0 0 6px rgba(34,193,255,.2));
+            opacity: .4;
+        }
+        section.film::before { top: 12px; }
+        section.film::after { bottom: 12px; }
+
+        .panel-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            position: relative;
+            z-index: 2;
+        }
+
+        .panel-head i {
+            color: var(--cyan);
+            font-size: 1.5rem;
+            filter: drop-shadow(0 0 8px rgba(34,193,255,.5));
+        }
+
+        .panel-head h2 {
+            margin: 0;
+            font-weight: 900;
+            font-size: 1.6rem;
+            letter-spacing: .3px;
+            background: linear-gradient(90deg, #22c1ff 0%, #ff0055 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Filter Box */
+        .filter-box {
+            background: rgba(15, 28, 55, 0.55);
+            border: 1px solid rgba(34,193,255,0.15);
+            border-radius: 16px;
+            padding: 22px 20px;
+            margin-bottom: 28px;
+            box-shadow: inset 0 0 14px rgba(34,193,255,0.08);
+        }
+
+        .filter-box .btn-outline-info {
+            color: #e6f1ff;
+            border-color: rgba(34,193,255,0.4);
+        }
+
+        .filter-box .btn-outline-info.active,
+        .filter-box .btn-outline-info:hover {
+            background: linear-gradient(90deg, #22c1ff, #0aa3ff);
+            color: #fff;
+            border: none;
+        }
+
+        /* Table */
+        .table {
+            color: #e6f1ff;
+            font-size: 0.95rem;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: transparent;
+        }
+
+        thead th {
+            background: linear-gradient(180deg, #102444 0%, #133155 100%) !important;
+            color: var(--cyan);
+            border-bottom: 2px solid #1b2b4a !important;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        tbody tr {
+            background: linear-gradient(180deg, #0d1c35 0%, #112847 100%) !important;
+            border-color: #1b2b4a !important;
+            transition: 0.25s ease;
+        }
+
+        tbody tr:nth-child(even) {
+            background: linear-gradient(180deg, #112a4b 0%, #15335f 100%) !important;
+        }
+
+        tbody tr:hover {
+            background: linear-gradient(180deg, rgba(20,60,100,0.85), rgba(30,110,160,0.9)) !important;
+            transform: scale(1.003);
+        }
+
+        .table th, .table td {
+            border: 1px solid #1c2c4d !important;
+            vertical-align: middle;
+        }
+
+        /* Buttons */
+        .btn {
+            border-radius: 10px !important;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #22c1ff, #0aa3ff);
+            border: none;
+            color: #fff;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg,#ffcc00,#ff8800);
+            color: #fff;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg,#ff0044,#b30000);
+            color: #fff;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(34,193,255,.3);
+        }
+
+    </style>
 </head>
 
 <body>
-<!-- Hiệu ứng nền -->
+<!-- Nền động -->
 <div class="grain"></div>
 <div class="tickets-wall" aria-hidden="true">
     <div class="tickets-layer l1"></div>
@@ -27,69 +178,78 @@
 <!-- Header động -->
 <div id="header"></div>
 
-<div class="container">
-    <div class="header">
-        <h2>Quản Lý Nhân Viên</h2>
-        <div class="d-flex justify-content-center mb-3">
-            <!-- Bộ lọc vai trò -->
-            <div class="btn-group" role="group">
-                <button class="btn filter-btn active" data-role="">Tất cả</button>
-                <button class="btn filter-btn" data-role="4">Customer</button>
-                <button class="btn filter-btn" data-role="2">Manager</button>
-                <button class="btn filter-btn" data-role="3">Staff</button>
-            </div>
+<!-- ===================== MAIN PANEL ===================== -->
+<main class="shell">
+    <section class="film">
+        <div class="panel-head">
+            <i class="fa-solid fa-users-gear"></i>
+            <h2>QUẢN LÝ NHÂN VIÊN</h2>
+        </div>
 
-            <!-- Ô tìm kiếm + Chi nhánh + Thêm -->
-            <div class="d-flex ms-3">
-                <input id="searchInput" type="text" class="form-control me-2" placeholder="Tìm kiếm...">
-                <select id="branchFilter" class="form-select me-2"></select>
-                <a href="createUser.html" class="btn btn-primary text-nowrap">
-                    <i class="fa-solid fa-user-plus"></i> Thêm Account
-                </a>
+        <!-- Bộ lọc -->
+        <div class="filter-box mb-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-lg-5 d-flex flex-wrap gap-2">
+                    <div class="btn-group flex-wrap" role="group">
+                        <button class="btn btn-outline-info filter-btn active" data-role="">Tất cả</button>
+                        <button class="btn btn-outline-info filter-btn" data-role="4">Customer</button>
+                        <button class="btn btn-outline-info filter-btn" data-role="2">Manager</button>
+                        <button class="btn btn-outline-info filter-btn" data-role="3">Staff</button>
+                    </div>
+                </div>
+
+                <div class="col-lg-7 d-flex gap-2">
+                    <input id="searchInput" type="text" class="form-control" placeholder="🔍 Tìm kiếm tài khoản...">
+                    <select id="branchFilter" class="form-select">
+                        <option value="">Tất cả chi nhánh</option>
+                    </select>
+                    <a href="createUser.html" class="btn btn-primary text-nowrap">
+                        <i class="fa-solid fa-user-plus me-1"></i> Thêm Account
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Bảng tài khoản -->
-    <div class="film">
-        <table class="table table-bordered table-hover align-middle">
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Profile</th>
-                <th>Email</th>
-                <th>Fullname</th>
-                <th>Phone</th>
-                <th>Trạng thái</th>
-                <th>Role</th>
-                <th>Chi nhánh</th>
-                <th>Hành động</th>
-            </tr>
-            </thead>
-            <tbody id="accountTable"></tbody>
-        </table>
+        <!-- Bảng tài khoản -->
+        <div class="table-responsive">
+            <table class="table table-hover text-center align-middle mb-0">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Profile</th>
+                    <th>Email</th>
+                    <th>Họ và tên</th>
+                    <th>Điện thoại</th>
+                    <th>Trạng thái</th>
+                    <th>Role</th>
+                    <th>Chi nhánh</th>
+                    <th>Hành động</th>
+                </tr>
+                </thead>
+                <tbody id="accountTable">
+                <tr><td colspan="9" class="text-muted py-3">Đang tải dữ liệu...</td></tr>
+                </tbody>
+            </table>
+        </div>
 
         <!-- Phân trang -->
-        <div id="pagination" class="d-flex justify-content-center mt-3"></div>
-    </div>
-</div>
+        <div id="pagination" class="d-flex justify-content-center mt-4"></div>
+    </section>
+</main>
 
-<!-- Footer -->
 <div id="footer"></div>
-
-<!-- Modal xác nhận Xóa -->
+<!-- Modal Xóa -->
 <div class="modal fade" id="deleteAccountModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark text-white border-secondary">
-            <div class="modal-header">
-                <h5 class="modal-title">Xác nhận vô hiệu hóa</h5>
+            <div class="modal-header border-0">
+                <h5 class="modal-title"><i class="fa-solid fa-user-slash me-2 text-danger"></i>Xác nhận vô hiệu hóa</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                Bạn có chắc muốn vô hiệu hóa account
-                <strong id="deleteAccountName"></strong> không?
+                Bạn có chắc muốn vô hiệu hóa tài khoản <strong id="deleteAccountName"></strong> không?
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer border-0">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
                 <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Vô hiệu hóa</button>
             </div>
@@ -97,19 +257,18 @@
     </div>
 </div>
 
-<!-- Modal khôi phục -->
+<!-- Modal Khôi phục -->
 <div class="modal fade" id="restoreAccountModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark text-white border-secondary">
-            <div class="modal-header">
-                <h5 class="modal-title">Xác nhận khôi phục</h5>
+            <div class="modal-header border-0">
+                <h5 class="modal-title"><i class="fa-solid fa-user-check me-2 text-success"></i>Khôi phục tài khoản</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                Bạn có muốn khôi phục account
-                <strong id="restoreAccountName"></strong> không?
+                Bạn có muốn khôi phục tài khoản <strong id="restoreAccountName"></strong> không?
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer border-0">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
                 <button type="button" class="btn btn-success" id="confirmRestoreBtn">Khôi phục</button>
             </div>
@@ -117,13 +276,8 @@
     </div>
 </div>
 
-<!-- Toast Thông báo -->
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
-    <div id="toastContainer"></div>
-</div>
-
-<!-- JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script type="module" src="../js/listAccount.js"></script>
 </body>
 </html>

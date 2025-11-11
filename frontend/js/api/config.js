@@ -60,3 +60,13 @@ export function requireAuth() {
     }
     return token;
 }
+
+export const authGet = async (url) => {
+    const token = localStorage.getItem("accessToken");
+    const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error("Lỗi khi fetch dữ liệu");
+    return res.json();
+};
+
