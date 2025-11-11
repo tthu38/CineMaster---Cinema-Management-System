@@ -4,7 +4,7 @@ import { requireAuth } from "./api/config.js";
 import Swal from "https://cdn.jsdelivr.net/npm/sweetalert2@11/+esm";
 
 // ========== DOM ELEMENTS ==========
-let auditoriumForm, auditoriumsBody, loadButton, formTitle,
+let auditoriumForm, auditoriumsBody, loadButton,
     submitBtn, cancelBtn, auditoriumIdField, paginationControls,
     branchSelect, filterBranchSelect;
 
@@ -176,7 +176,6 @@ async function toggleAuditoriumStatus(id, newStatus) {
 }
 
 function populateFormForUpdate(a) {
-    formTitle.innerHTML = `<i class="fa-solid fa-pen-to-square me-2"></i> Cập Nhật Phòng Chiếu (ID: ${a.auditoriumID})`;
     submitBtn.textContent = "Lưu Cập Nhật";
     cancelBtn.style.display = "inline-block";
     auditoriumIdField.value = a.auditoriumID;
@@ -189,7 +188,6 @@ function populateFormForUpdate(a) {
 
 function resetForm() {
     auditoriumForm.reset(); auditoriumIdField.value = "";
-    formTitle.innerHTML = `<i class="fa-solid fa-plus me-2"></i> Thêm Phòng Chiếu Mới`;
     submitBtn.textContent = "Tạo Phòng Chiếu"; cancelBtn.style.display = "none";
 }
 
@@ -198,7 +196,6 @@ document.addEventListener("DOMContentLoaded", () => {
     auditoriumForm = document.getElementById("auditorium-form");
     auditoriumsBody = document.getElementById("auditoriums-body");
     loadButton = document.getElementById("load-auditoriums");
-    formTitle = document.getElementById("form-title");
     submitBtn = document.getElementById("submit-btn");
     cancelBtn = document.getElementById("cancel-btn");
     auditoriumIdField = document.getElementById("auditoriumID");

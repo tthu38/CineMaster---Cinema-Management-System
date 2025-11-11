@@ -29,11 +29,9 @@ public class WorkHistoryService {
 
     @Transactional
     public WorkHistoryResponse create(WorkHistoryCreateRequest req) {
-        // Nhân viên làm ca
         Account actor = accountRepo.findById(req.accountId())
                 .orElseThrow(() -> new EntityNotFoundException("Account not found: " + req.accountId()));
 
-        // Người duyệt/đổi ca (tuỳ chọn)
         Account approver = null;
         if (req.affectedAccountId() != null) {
             approver = accountRepo.findById(req.affectedAccountId())
@@ -43,7 +41,7 @@ public class WorkHistoryService {
         WorkHistory entity = WorkHistory.builder()
                 .accountID(actor)
                 .affectedAccountID(approver)
-                .action(req.action()) // MORNING/AFTERNOON/NIGHT...
+                .action(req.action())
                 .actionTime(req.actionTime() != null ? req.actionTime() : Instant.now())
                 .description(req.description())
                 .build();

@@ -46,7 +46,6 @@ public class VectorStoreService {
     public List<String> searchSimilarDocuments(String query, int topK) {
         if (vectorStore.isEmpty()) return List.of();
 
-        // 1️⃣ Lọc sơ bộ theo từ khóa
         String q = query.toLowerCase();
         List<DocumentChunk> filtered = vectorStore.stream()
                 .filter(chunk ->
@@ -60,11 +59,9 @@ public class VectorStoreService {
 
         if (filtered.isEmpty()) filtered = vectorStore;
 
-        // 2️⃣ Nhúng câu hỏi người dùng thành vector
         List<Double> queryVector = embeddingService.embedText(query);
         if (queryVector.isEmpty()) return List.of();
 
-        // 3️⃣ Tính điểm tương đồng
         List<DocumentChunk> ranked = filtered.stream()
                 .map(chunk -> {
                     double score = cosineSimilarity(queryVector, chunk.getEmbedding());
@@ -80,18 +77,14 @@ public class VectorStoreService {
                 .limit(topK)
                 .collect(Collectors.toList());
 
-        // ✅ 4️⃣ Trả về danh sách văn bản có gắn nhãn nguồn
         return ranked.stream()
                 .map(chunk -> String.format("[Nguồn: %s] %s", chunk.getSource(), chunk.getContent()))
                 .collect(Collectors.toList());
     }
-    // Hàm hỗ trợ: Tính Cosine Similarity
     private double cosineSimilarity(List<Double> vecA, List<Double> vecB) {
         double dotProduct = 0.0;
         double normA = 0.0;
         double normB = 0.0;
-
-        // Kiểm tra kích thước vector
         if (vecA.size() != vecB.size()) return 0.0;
 
         for (int i = 0; i < vecA.size(); i++) {
@@ -100,22 +93,21 @@ public class VectorStoreService {
             normB += vecB.get(i) * vecB.get(i);
         }
         if (normA == 0 || normB == 0) return 0.0;
-        // Ép kiểu về double trước khi tính căn bậc hai để tránh lỗi
         return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
     }
 
     public void ingestDocuments(String domain, List<String> docs) {
         if (docs == null || docs.isEmpty()) {
-            System.out.println("⚠️ Không có dữ liệu nào để ingest cho domain: " + domain);
+            System.out.println("Không có dữ liệu nào để ingest cho domain: " + domain);
             return;
         }
 
-        System.out.println("🚀 Bắt đầu ingest " + docs.size() + " documents vào domain: " + domain);
+        System.out.println(" Bắt đầu ingest " + docs.size() + " documents vào domain: " + domain);
 
         for (String content : docs) {
             addDocumentChunk(content, domain);
         }
 
-        System.out.println("✅ Hoàn tất ingest domain: " + domain + " | Tổng số chunk hiện tại: " + vectorStore.size());
+        System.out.println(" Hoàn tất ingest domain: " + domain + " | Tổng số chunk hiện tại: " + vectorStore.size());
     }
 }

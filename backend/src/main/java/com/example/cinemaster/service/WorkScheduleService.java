@@ -26,7 +26,6 @@ public class WorkScheduleService {
     private final BranchRepository branchRepo;
     private final WorkScheduleMapper mapper; // ✅ inject mapper bean
 
-    // ===== CRUD =====
     public WorkScheduleResponse create(WorkScheduleCreateRequest req) {
         Account acc = accountRepo.findById(req.getAccountId())
                 .orElseThrow(() -> new EntityNotFoundException("Account not found: " + req.getAccountId()));
@@ -35,7 +34,6 @@ public class WorkScheduleService {
 
         ensureAccountBelongsToBranch(acc, br.getId());
 
-        // Dùng mapper thay vì set thủ công
         WorkSchedule e = mapper.toEntity(req, acc, br);
         return mapper.toResponse(repo.save(e));
     }
@@ -74,7 +72,6 @@ public class WorkScheduleService {
                 page.getTotalElements(), page.getTotalPages());
     }
 
-    // ===== Matrix + Cell =====
     public Map<String, Map<String, List<WorkScheduleCellAssignmentResponse>>> getMatrix(LocalDate from, LocalDate to, Integer branchId) {
         var spec = Specification.allOf(
                 WorkScheduleRepository.hasBranch(branchId),
@@ -102,7 +99,6 @@ public class WorkScheduleService {
                 .toList();
     }
 
-    // ===== Upsert 1 ô với nhiều nhân viên =====
     @Transactional
     public WorkScheduleResponse upsertCellMany(WorkScheduleUpsertCellManyRequest req) {
         var br = branchRepo.findById(req.getBranchId())
@@ -133,8 +129,6 @@ public class WorkScheduleService {
         }
         return last == null ? null : mapper.toResponse(last);
     }
-
-    // ===== Helper =====
     public void ensureScheduleInBranch(Integer scheduleId, Integer managerBranchId) {
         WorkSchedule ws = repo.findById(scheduleId)
                 .orElseThrow(() -> new EntityNotFoundException("Schedule not found: " + scheduleId));
@@ -145,8 +139,6 @@ public class WorkScheduleService {
         }
     }
 
-    // Kiểm tra: nhân viên có thuộc chi nhánh đang thao tác không
-    // WorkScheduleService.java
     public void ensureAccountBelongsToBranch(Account acc, Integer branchId) {
         if (acc == null) {
             throw new IllegalArgumentException("Account is null");
