@@ -4,190 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Quản Lý Phòng Chiếu • CineMaster</title>
-
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <!-- 🎨 CSS dùng chung -->
     <link rel="stylesheet" href="../css/user.css">
 
-    <style>
-        /* ===============================
-        🎥 AUDITORIUM MANAGEMENT - MATCH CINE MASTER THEME
-        =============================== */
-
-        main.shell {
-            max-width: 1300px;
-            margin: 110px auto 60px;
-            padding: 0 24px;
-        }
-
-        section.film {
-            background: linear-gradient(180deg, #0b152a, #0c162c);
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            box-shadow: var(--glow);
-            position: relative;
-            padding: 36px 28px 40px;
-        }
-
-        section.film::before,
-        section.film::after {
-            content: "";
-            position: absolute;
-            left: 18px;
-            right: 18px;
-            height: 10px;
-            background: repeating-linear-gradient(90deg, #142443 0 16px, transparent 16px 32px);
-            filter: drop-shadow(0 0 6px rgba(34,193,255,.2));
-            opacity: .4;
-        }
-
-        section.film::before { top: 12px; }
-        section.film::after { bottom: 12px; }
-
-        /* Tiêu đề panel */
-        .panel-head {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 24px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-            position: relative;
-            z-index: 2;
-        }
-
-        .panel-head i {
-            color: var(--cyan);
-            font-size: 1.5rem;
-            filter: drop-shadow(0 0 8px rgba(34,193,255,.5));
-        }
-
-        .panel-head h2 {
-            margin: 0;
-            font-weight: 900;
-            font-size: 1.6rem;
-            background: linear-gradient(90deg, #22c1ff 0%, #ff0055 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* Form + Filter Box */
-        .filter-box {
-            background: rgba(15, 28, 55, 0.55);
-            border: 1px solid rgba(34,193,255,0.15);
-            border-radius: 16px;
-            padding: 22px 20px;
-            margin-bottom: 28px;
-            box-shadow: inset 0 0 14px rgba(34,193,255,0.08);
-        }
-
-        label {
-            color: #e6f1ff;
-            font-weight: 500;
-        }
-
-        input, select {
-            background-color: #132440 !important;
-            color: #e6f1ff !important;
-            border: 1px solid rgba(34,193,255,0.2);
-        }
-
-        /* Table */
-        .table {
-            color: #e6f1ff;
-            font-size: 0.95rem;
-            border-collapse: separate;
-            border-spacing: 0;
-            background: transparent;
-        }
-
-        thead th {
-            background: linear-gradient(180deg, #102444 0%, #133155 100%) !important;
-            color: var(--cyan);
-            border-bottom: 2px solid #1b2b4a !important;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        tbody tr {
-            background: linear-gradient(180deg, #0d1c35 0%, #112847 100%) !important;
-            border-color: #1b2b4a !important;
-            transition: 0.25s ease;
-        }
-
-        tbody tr:nth-child(even) {
-            background: linear-gradient(180deg, #112a4b 0%, #15335f 100%) !important;
-        }
-
-        tbody tr:hover {
-            background: linear-gradient(180deg, rgba(20,60,100,0.85), rgba(30,110,160,0.9)) !important;
-            transform: scale(1.003);
-        }
-
-        .table th, .table td {
-            border: 1px solid #1c2c4d !important;
-            vertical-align: middle;
-        }
-
-        /* Buttons */
-        .btn {
-            border-radius: 10px !important;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(90deg, #22c1ff, #0aa3ff);
-            border: none;
-            color: #fff;
-        }
-
-        .btn-warning {
-            background: linear-gradient(135deg,#ffcc00,#ff8800);
-            color: #fff;
-        }
-
-        .btn-danger {
-            background: linear-gradient(135deg,#ff0044,#b30000);
-            color: #fff;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 20px rgba(34,193,255,.3);
-        }
-
-        .action-buttons {
-            white-space: nowrap;
-        }
-
-        .action-buttons .btn {
-            flex: 0 0 auto;
-            margin-right: 6px;
-        }
-    </style>
 </head>
 
 <body>
-<!-- Hiệu ứng nền -->
 <div class="grain"></div>
 <div class="tickets-wall" aria-hidden="true">
     <div class="tickets-layer l1"></div>
     <div class="tickets-layer l2"></div>
 </div>
 
-<!-- Header -->
 <div id="header"></div>
 
-<!-- ===================== MAIN PANEL ===================== -->
 <main class="shell">
     <section class="film">
         <div class="panel-head">
@@ -195,7 +28,6 @@
             <h2>QUẢN LÝ PHÒNG CHIẾU</h2>
         </div>
 
-        <!-- FORM TẠO/CHỈNH SỬA -->
         <div class="filter-box mb-4">
             <form id="auditorium-form" class="mb-2">
                 <input type="hidden" id="auditoriumID" />
@@ -261,15 +93,14 @@
                 </tbody>
             </table>
         </div>
-        <div id="pagination-controls" class="mt-4 d-flex justify-content-center"></div>
+        <div id="pagination" class="mt-4 d-flex justify-content-center"></div>
     </section>
 </main>
 
-<!-- Footer -->
 <div id="footer"></div>
 
-<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script type="module" src="../js/auditorium-management.js"></script>
+<script src="../js/footer-loader.js"></script>
 </body>
 </html>

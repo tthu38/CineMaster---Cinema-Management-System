@@ -12,6 +12,7 @@ public interface ContactRequestMapper {
     @Mapping(target = "handledBy", ignore = true)
     ContactRequest toEntity(ContactRequestRequest dto);
 
+    @Mapping(source = "branch.id", target = "branchId")
     @Mapping(source = "handledBy.fullName", target = "handledBy", defaultValue = "Chưa xử lý")
     @Mapping(source = "branch.branchName", target = "branchName", defaultValue = "Không xác định")
     @Mapping(source = "handleNote", target = "handleNote")

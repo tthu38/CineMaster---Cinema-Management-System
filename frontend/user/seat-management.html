@@ -13,25 +13,81 @@
     <link rel="stylesheet" href="../css/user.css">
     <style>
 
-        .branch-panel{ padding:26px 22px }
-        .form-control{ background:#0e1c37; border:1px solid #17345f; color:#fff; border-radius:10px; }
-        .form-control:focus{ outline:none; border-color:var(--blue); box-shadow:0 0 0 .2rem rgba(34,193,255,.22) }
-        .btn-primary{ background:linear-gradient(90deg, var(--blue), var(--cyan)); border:none; color:#051020; font-weight:800 }
-        .btn-primary:hover{ filter:brightness(1.1) }
-        .btn-warning{ border:none; color: #000 !important; }
-        .btn-secondary{ background:transparent; border:1px solid var(--red); color:#fff }
-        .btn-secondary:hover{ background:var(--red); }
-        .tab-card { background:linear-gradient(180deg,#0b152a 0%, #0c162c 100%); border:1px solid var(--border); border-radius:16px; padding:18px }
-        .tab-card h2 { font-size: 1.5rem; margin-bottom: 1rem; color: #fff; font-weight: 700; }
-        .table-branch { width: 100%; border-collapse: collapse; color: #e6f1ff; }
-        .table-branch th, .table-branch td { border: 1px solid var(--border); padding: 10px; vertical-align: middle; }
-        .table-branch thead th { background: #132742; color: var(--cyan); }
-        .table-branch tr:hover { background: #112040; }
-        .header-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .header-title h2 { font-size: 2rem; font-weight: 900; }
-        .action-btns button:first-child { margin-right: 5px; }
 
+        :root {
+            --cyan: #22c1ff;
+            --blue: #0aa3ff;
+            --red: #e50914;
+            --border: rgba(255,255,255,0.1);
+            --muted: #9db1c9;
+        }
 
+        /* ========== KHUNG CHUNG ========== */
+        .tab-card {
+            background: rgba(11, 21, 42, 0.45);
+            border: 1px solid rgba(34,193,255,0.25);
+            border-radius: 16px;
+            padding: 28px 32px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.35);
+            backdrop-filter: blur(8px);
+            transition: all 0.25s ease;
+            margin-bottom: 2.5rem;
+        }
+        .tab-card:hover {
+            border-color: var(--cyan);
+            box-shadow: 0 0 20px rgba(34,193,255,0.35);
+        }
+
+        /* ========== TIÊU ĐỀ ========== */
+        .tab-card h2 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--cyan);
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            border-bottom: 1px solid rgba(34,193,255,0.25);
+            padding-bottom: .5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* ========== FORM ========== */
+        .tab-card label {
+            color: #dce6f8;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        .tab-card .form-control {
+            background: rgba(255,255,255,0.06);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        .tab-card .form-control:focus {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--cyan);
+            box-shadow: 0 0 6px rgba(34,193,255,0.3);
+        }
+
+        /* ========== NÚT ========== */
+        .tab-card .btn-primary {
+            background: linear-gradient(90deg, var(--blue), var(--cyan));
+            border: none;
+            font-weight: 600;
+            color: #fff;
+        }
+        .tab-card .btn-primary:hover {
+            filter: brightness(1.15);
+        }
+        .tab-card .btn-secondary {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #cfdcf7;
+        }
+        .tab-card .btn-secondary:hover {
+            background: rgba(255,255,255,0.15);
+        }
         /* ======================== SƠ ĐỒ GHẾ KIỂU CGV / LOTTE ======================== */
         #seat-diagram {
             padding: 50px 20px;
@@ -139,6 +195,12 @@
         .seat-row:hover .seat-box:not(.seat-selected) {
             filter: brightness(1.3);
         }
+        .seat-broken {
+            background-color: #ff3b3b !important;
+            color: #fff !important;
+            font-size: 1.2rem;
+            font-weight: 900;
+        }
 
 
         /* Animation khi load ghế */
@@ -174,37 +236,28 @@
             margin-right: 6px;
             border: 1px solid rgba(255,255,255,0.1);
         }
-        /* --- CSS TÙY CHỈNH CHO PHÂN TRANG (PAGINATION) --- */
-        #pagination-controls .page-link {
-            background-color: var(--ink) !important; /* Nền tối tuyệt đối */
-            color: var(--muted2) !important;        /* Chữ màu trắng/xanh nhạt */
-            border: 1px solid var(--border) !important; /* Viền màu border */
+
+
+        /* ========== BẢNG GHẾ ========== */
+        .table {
+            border-collapse: collapse;
+            color: #e6f1ff;
         }
-
-
-        /* Hover/Focus cho nút thường */
-        #pagination-controls .page-item:not(.active) .page-link:hover,
-        #pagination-controls .page-item:not(.active) .page-link:focus {
-            background-color: #1a3052 !important; /* Màu nền tối hơn khi hover */
-            color: #fff !important;               /* Chữ trắng rõ nét */
-            box-shadow: none !important;          /* Loại bỏ box-shadow Bootstrap */
+        .table thead {
+            background: #152d4e;
         }
-
-
-        /* Nút Active (Trang hiện tại) */
-        #pagination-controls .page-item.active .page-link {
-            background-color: var(--blue) !important; /* Nền xanh dương đậm */
-            border-color: var(--blue) !important;     /* Viền xanh đậm */
-            color: var(--ink) !important;             /* Chữ màu tối nổi bật */
+        .table th {
+            color: var(--cyan);
+            text-transform: uppercase;
             font-weight: 700;
+            font-size: 0.85rem;
         }
-
-
-        /* Nút Disabled (Previous/Next ở 2 đầu) */
-        #pagination-controls .page-item.disabled .page-link {
-            opacity: 0.5; /* Làm mờ nút bị disabled */
+        .table tbody tr:nth-child(even) {
+            background: rgba(255,255,255,0.02);
         }
-
+        .table tbody tr:hover {
+            background: rgba(34,193,255,0.08);
+        }
 
     </style>
 
@@ -216,22 +269,14 @@
     <div class="tickets-layer l1"></div>
     <div class="tickets-layer l2"></div>
 </div>
-
-
-<div id="site-header"></div>
-
-
+<div id="header"></div>
 <main class="shell">
-    <div class="layout">
-        <section class="film branch-panel">
-
-
-            <div class="header-title">
-                <h2 id="page-main-title"><i class="fa-solid fa-chair me-3"></i> Quản Lý Ghế Ngồi</h2>
-            </div>
-
-
-            <div id="diagram-container" class="tab-card mb-4">
+    <section class="film branch-panel">
+        <div class="panel-head">
+            <i class="fa-solid fa-chair"></i>
+            <h2>Quản Lý Ghế Ngồi</h2>
+        </div>
+        <div id="diagram-container" class="tab-card mb-4">
                 <h2 class="m-0 mb-3"><i class="fa-solid fa-map-marked-alt me-2"></i> Sơ Đồ Ghế Phòng Chiếu (Click để Sửa)</h2>
 
 
@@ -265,7 +310,7 @@
             </div>
 
 
-            <div class="tab-card mb-4">
+        <div id="card-add-seat" class="tab-card mb-4">
                 <h2 id="form-title" class="m-0 mb-3"><i class="fa-solid fa-plus me-2"></i> Thêm Ghế Ngồi Mới (Đơn Lẻ)</h2>
                 <form id="seat-form">
                     <input type="hidden" id="seatID" value="">
@@ -320,7 +365,7 @@
 
 
 
-            <div class="tab-card mb-4">
+        <div id="card-bulk-seat" class="tab-card mb-4">
                 <h2 class="m-0 mb-3"><i class="fa-solid fa-layer-group me-2"></i> Tạo Sơ Đồ Ghế Hàng Loạt</h2>
                 <form id="bulk-seat-form">
                     <div class="row">
@@ -370,7 +415,7 @@
 
 
 
-            <div class="tab-card mb-4">
+        <div id="card-update-seat" class="tab-card mb-4">
                 <h2 class="m-0 mb-3"><i class="fa-solid fa-arrows-rotate me-2"></i> Cập Nhật Loại/Trạng Thái Ghế theo Dãy</h2>
                 <form id="bulk-update-form">
                     <div class="row">
@@ -445,39 +490,40 @@
             </div>
 
 
-            <div id="seat-list-container" class="tab-card">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h2 class="m-0"><i class="fa-solid fa-list me-2"></i> Danh Sách Ghế Ngồi</h2>
-                    <button id="load-seats" class="btn btn-secondary"><i class="fa-solid fa-rotate me-2"></i>Tải Lại</button>
-                </div>
+        <div id="seat-list-container" class="tab-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="m-0"><i class="fa-solid fa-list me-2"></i> Danh Sách Ghế Ngồi</h2>
+                <button id="load-seats" class="btn btn-secondary">
+                    <i class="fa-solid fa-rotate me-2"></i> Tải Lại
+                </button>
+            </div>
 
-
-                <div class="table-responsive">
-                    <table id="seat-table" class="table-branch">
-                        <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Phòng Chiếu</th>
-                            <th>Dãy/Cột</th>
-                            <th>Số Ghế</th>
-                            <th>Loại Ghế</th>
-                            <th>Trạng Thái</th>
-                            <th>Hành động</th>
-                        </tr>
-                        </thead>
-                        <tbody id="seats-body">
-                        </tbody>
-                    </table>
-                </div>
-                <div id="pagination-controls" class="d-flex justify-content-center mt-3">
-                </div>
+            <div class="table-responsive">
+                <table id="seat-table" class="table table-hover align-middle text-center">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Chi Nhánh</th>
+                        <th>Phòng Chiếu</th>
+                        <th>Dãy</th>
+                        <th>Cột</th>
+                        <th>Loại Ghế</th>
+                        <th>Trạng Thái</th>
+                        <th>Hành Động</th>
+                    </tr>
+                    </thead>
+                    <tbody id="seats-body">
+                    <tr>
+                        <td colspan="8" class="text-muted py-3">Đang tải dữ liệu...</td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
 
 
-        </section>
-
-
-    </div>
+        </div>
+        <div id="pagination" class="d-flex justify-content-center mt-4"></div>
+    </section>
 </main>
 
 
@@ -487,7 +533,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="module" src="../js/seatManagement.js"></script>
-
+<script src="../js/footer-loader.js"></script>
 
 </body>
 </html>

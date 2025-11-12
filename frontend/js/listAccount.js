@@ -55,7 +55,7 @@ async function loadAccounts(page = 0) {
         renderPagination(res);
         currentPage = res.page;
     } catch (err) {
-        console.error("❌ Error loading accounts:", err);
+        console.error(" Error loading accounts:", err);
         table.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Không thể tải danh sách account</td></tr>`;
     }
 }
@@ -71,7 +71,7 @@ async function loadBranches() {
             branchSelect.innerHTML += `<option value="${branchValue}">${b.branchName}</option>`;
         });
     } catch (err) {
-        console.error("❌ Error loading branches:", err);
+        console.error("Error loading branches:", err);
         branchSelect.innerHTML = `<option value="">(Lỗi tải chi nhánh)</option>`;
     }
 }
@@ -156,23 +156,32 @@ function attachRowEvents() {
     });
 }
 
-// ========================= PAGINATION =========================
+//========================= PAGINATION =========================
 function renderPagination(pageData) {
     pagination.innerHTML = "";
-    if (pageData.totalPages <= 1) return;
+    if (!pageData || pageData.totalPages <= 1) return;
 
-    const createBtn = (page, label, disabled = false, active = false) => `
-        <button class="btn btn-sm ${active ? "btn-primary" : "btn-secondary"} me-1"
-                ${disabled ? "disabled" : ""}
-                onclick="loadAccounts(${page})">${label}</button>
-    `;
+    const makeButton = (page, label, disabled = false, active = false) => {
+        const btn = document.createElement("button");
+        btn.className = `btn btn-sm ${active ? "btn-primary" : "btn-secondary"} me-1`;
+        btn.innerHTML = label;
+        btn.disabled = disabled;
+        btn.addEventListener("click", () => loadAccounts(page));
+        return btn;
+    };
 
-    pagination.innerHTML += createBtn(pageData.page - 1, "&laquo;", pageData.page === 0);
+    // Previous
+    pagination.appendChild(makeButton(pageData.page - 1, "&laquo;", pageData.page === 0));
+
+    // Page numbers
     for (let i = 0; i < pageData.totalPages; i++) {
-        pagination.innerHTML += createBtn(i, i + 1, false, i === pageData.page);
+        pagination.appendChild(makeButton(i, i + 1, false, i === pageData.page));
     }
-    pagination.innerHTML += createBtn(pageData.page + 1, "&raquo;", pageData.page === pageData.totalPages - 1);
+
+    // Next
+    pagination.appendChild(makeButton(pageData.page + 1, "&raquo;", pageData.page === pageData.totalPages - 1));
 }
+
 
 // ========================= DELETE / RESTORE =========================
 function attachModalActions() {
@@ -183,7 +192,7 @@ function attachModalActions() {
             deleteModal.hide();
             updateRowStatus(currentDeleteId, false);
         } catch (err) {
-            console.error("❌ Error deleting account:", err);
+            console.error("Error deleting account:", err);
             alert("Vô hiệu hóa thất bại!");
         }
     });
@@ -195,7 +204,7 @@ function attachModalActions() {
             restoreModal.hide();
             updateRowStatus(currentRestoreId, true);
         } catch (err) {
-            console.error("❌ Error restoring account:", err);
+            console.error("Error restoring account:", err);
             alert("Khôi phục thất bại!");
         }
     });
@@ -239,7 +248,7 @@ async function init() {
     currentRole = localStorage.getItem("role");
     managerBranchId = localStorage.getItem("branchId");
 
-    console.log("🧭 Role:", currentRole, "Branch:", managerBranchId);
+    console.log(" Role:", currentRole, "Branch:", managerBranchId);
 
     if (currentRole === "Manager") {
         branchSelect.parentElement.style.display = "none";

@@ -7,91 +7,117 @@ let allMovies = [];
 let currentPage = 1;
 const pageSize = 10;
 
-// 🔹 Sắp xếp phim theo trạng thái
+/* ===================== SORT MOVIES ===================== */
 function sortMovies(movies) {
     const order = { "Now Showing": 1, "Coming Soon": 2, "Ended": 3 };
     return movies.sort((a, b) => (order[a.status] || 99) - (order[b.status] || 99));
 }
 
-// 🔹 Render phim theo trang
+/* ===================== RENDER MOVIES ===================== */
 function renderMovies(movies, page = 1) {
     tbody.innerHTML = "";
     const start = (page - 1) * pageSize;
     const end = start + pageSize;
     const pageMovies = movies.slice(start, end);
 
-    pageMovies.forEach(m => {
+    if (pageMovies.length === 0) {
+        tbody.innerHTML = `
+      <tr><td colspan="8" class="text-muted py-3">Không có phim nào để hiển thị.</td></tr>`;
+        return;
+    }
+
+    pageMovies.forEach((m) => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-            <td><img src="${m.posterUrl || ''}" class="movie-poster"/></td>
-            <td title="${m.title}" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
-                ${m.title}
-            </td>
-            <td>${m.genre || "-"}</td>
-            <td>${m.duration || 0} phút</td>
-            <td>${m.releaseDate || "-"}</td>
-            <td>${m.director || "-"}</td>
-            <td>${m.status || "-"}</td>
-            <td style="min-width:160px;">
-                <div class="btn-group-action">
-                    ${m.status !== "Ended" ? `
-                        <button class="btn btn-sm btn-primary"
-                            onclick="editMovie(${m.movieID})">
-                            <i class="fa fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteMovie(${m.movieID})">
-                            <i class="fa fa-trash"></i>
-                        </button>
-                    ` : `
-                        <button class="btn btn-sm btn-success" onclick="restoreMovie(${m.movieID})">
-                            <i class="fa fa-rotate-left"></i>
-                        </button>
-                    `}
-                    <button class="btn btn-sm btn-warning" onclick="showTrailer('${m.trailerUrl || ""}')">
-                        <i class="fa fa-play"></i>
-                    </button>
-                </div>
-            </td>
-        `;
+      <td><img src="${m.posterUrl || ""}" class="movie-poster"/></td>
+      <td title="${m.title}" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+          ${m.title}
+      </td>
+      <td>${m.genre || "-"}</td>
+      <td>${m.duration || 0} phút</td>
+      <td>${m.releaseDate || "-"}</td>
+      <td>${m.director || "-"}</td>
+      <td>${m.status || "-"}</td>
+      <td style="min-width:180px;">
+        <div class="btn-group-action">
+          ${m.status !== "Ended"
+            ? `
+              <button class="btn btn-sm btn-primary" onclick="editMovie(${m.movieID})">Sửa</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteMovie(${m.movieID})">Đóng</button>
+            `
+            : `
+              <button class="btn btn-sm btn-success" onclick="restoreMovie(${m.movieID})">Mở lại</button>
+            `}
+          <button class="btn btn-sm btn-warning" onclick="showTrailer('${m.trailerUrl || ""}')">Trailer</button>
+        </div>
+      </td>
+    `;
         tbody.appendChild(tr);
     });
 
     renderPagination(movies);
 }
 
-// 🔹 Render phân trang
 function renderPagination(movies) {
     const totalPages = Math.ceil(movies.length / pageSize);
-    pageNumbers.innerHTML = "";
+    const pagination = document.getElementById("page-numbers");
+    pagination.innerHTML = "";
 
-    for (let i = 1; i <= totalPages; i++) {
-        const btn = document.createElement("button");
-        btn.textContent = i;
-        btn.className = `btn btn-sm ${i === currentPage ? "btn-primary" : "btn-secondary"} me-1`;
-        btn.onclick = () => {
-            currentPage = i;
-            renderMovies(movies, currentPage);
-        };
-        pageNumbers.appendChild(btn);
+    if (totalPages <= 1) return;
+
+    const ul = document.createElement("ul");
+    ul.className = "pagination pagination-sm";
+
+    const createItem = (label, page, disabled = false, active = false) => {
+        const li = document.createElement("li");
+        li.className = `page-item ${disabled ? "disabled" : ""} ${active ? "active" : ""}`;
+        const a = document.createElement("a");
+        a.className = "page-link";
+        a.href = "#";
+        a.textContent = label;
+        if (!disabled) {
+            a.addEventListener("click", (e) => {
+                e.preventDefault();
+                goToPage(page);
+            });
+        }
+        li.appendChild(a);
+        return li;
+    };
+    ul.appendChild(createItem("«", currentPage - 1, currentPage === 1));
+    const start = Math.max(1, currentPage - 2);
+    const end = Math.min(totalPages, currentPage + 2);
+    for (let i = start; i <= end; i++) {
+        ul.appendChild(createItem(i, i, false, i === currentPage));
     }
+    ul.appendChild(createItem("»", currentPage + 1, currentPage === totalPages));
+
+    pagination.appendChild(ul);
 }
 
-// 🔹 Load danh sách phim
+function goToPage(page) {
+    const totalPages = Math.ceil(allMovies.length / pageSize);
+    if (page < 1 || page > totalPages) return;
+    currentPage = page;
+    renderMovies(allMovies, currentPage);
+}
+
+/* ===================== LOAD MOVIES ===================== */
 async function loadMovies() {
     try {
         const res = await movieApi.getAll();
-        allMovies = res?.result || res; // ✅ hỗ trợ cả {code, result}
+        allMovies = res?.result || res;
         allMovies = sortMovies(allMovies);
         currentPage = 1;
         renderMovies(allMovies, currentPage);
         updateStats(allMovies);
     } catch (err) {
-        console.error("❌ Load movies error:", err);
+        console.error("Load movies error:", err);
         Swal.fire("Lỗi", err.message || "Không thể tải danh sách phim!", "error");
     }
 }
 
-// 🔹 Chuyển phim sang trạng thái Ended
+/* ===================== DELETE (SET ENDED) ===================== */
 window.deleteMovie = async function (id) {
     Swal.fire({
         title: "Xác nhận",
@@ -99,7 +125,7 @@ window.deleteMovie = async function (id) {
         icon: "warning",
         showCancelButton: true,
         confirmButtonText: "Đồng ý",
-        cancelButtonText: "Hủy"
+        cancelButtonText: "Hủy",
     }).then(async (result) => {
         if (result.isConfirmed) {
             try {
@@ -111,9 +137,7 @@ window.deleteMovie = async function (id) {
                 formData.append("movie", new Blob([JSON.stringify(movie)], { type: "application/json" }));
 
                 await movieApi.update(id, formData);
-
-                Swal.fire("Thành công", "Phim đã được chuyển sang 'Ended'", "success")
-                    .then(() => loadMovies());
+                Swal.fire("Thành công", "Phim đã được chuyển sang 'Ended'", "success").then(() => loadMovies());
             } catch (err) {
                 Swal.fire("Lỗi", err.message || "Không thể cập nhật phim!", "error");
             }
@@ -121,7 +145,7 @@ window.deleteMovie = async function (id) {
     });
 };
 
-// 🔹 Khôi phục phim về trạng thái chiếu
+/* ===================== RESTORE MOVIE ===================== */
 window.restoreMovie = async function (id) {
     Swal.fire({
         title: "Khôi phục phim",
@@ -131,7 +155,7 @@ window.restoreMovie = async function (id) {
         showCancelButton: true,
         confirmButtonText: "Now Showing",
         denyButtonText: "Coming Soon",
-        cancelButtonText: "Hủy"
+        cancelButtonText: "Hủy",
     }).then(async (result) => {
         let newStatus = null;
         if (result.isConfirmed) newStatus = "Now Showing";
@@ -147,9 +171,7 @@ window.restoreMovie = async function (id) {
                 formData.append("movie", new Blob([JSON.stringify(movie)], { type: "application/json" }));
 
                 await movieApi.update(id, formData);
-
-                Swal.fire("Thành công", `Đã khôi phục sang '${newStatus}'`, "success")
-                    .then(() => loadMovies());
+                Swal.fire("Thành công", `Đã khôi phục sang '${newStatus}'`, "success").then(() => loadMovies());
             } catch (err) {
                 Swal.fire("Lỗi", err.message || "Không thể khôi phục phim!", "error");
             }
@@ -157,8 +179,7 @@ window.restoreMovie = async function (id) {
     });
 };
 
-// 🔹 Hiển thị trailer YouTube (đã FIX lỗi X-Frame-Options)
-// 🔹 Hiển thị trailer (hỗ trợ cả YouTube và Cloudinary)
+/* ===================== SHOW TRAILER ===================== */
 window.showTrailer = function (url) {
     if (!url || url.trim() === "") {
         Swal.fire("Thông báo", "Phim này chưa có trailer!", "info");
@@ -166,9 +187,7 @@ window.showTrailer = function (url) {
     }
 
     let htmlContent = "";
-
     if (url.includes("youtu")) {
-        // 🎬 YouTube trailer
         const match = url.match(/(?:v=|youtu\.be\/)([^#&?]*)/);
         const videoId = match ? match[1] : null;
         if (!videoId) {
@@ -177,29 +196,19 @@ window.showTrailer = function (url) {
         }
         const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&controls=1&modestbranding=1&rel=0&loop=1&playlist=${videoId}`;
         htmlContent = `
-            <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;">
-                <iframe 
-                    src="${embedUrl}" 
-                    frameborder="0" 
-                    allow="autoplay; encrypted-media" 
-                    allowfullscreen 
-                    style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
-            </div>
-        `;
-    }
-    else if (url.includes("cloudinary.com")) {
-        // 🎥 Cloudinary trailer (.mp4)
+      <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;">
+        <iframe src="${embedUrl}" frameborder="0"
+          allow="autoplay; encrypted-media"
+          allowfullscreen
+          style="position:absolute;top:0;left:0;width:100%;height:100%;"></iframe>
+      </div>`;
+    } else if (url.includes("cloudinary.com")) {
         htmlContent = `
-            <video 
-                src="${url}" 
-                controls 
-                autoplay 
-                style="width:100%;border-radius:12px;outline:none;box-shadow:0 0 20px rgba(34,193,255,.3)">
-                Trình duyệt của bạn không hỗ trợ video.
-            </video>
-        `;
-    }
-    else {
+      <video src="${url}" controls autoplay
+        style="width:100%;border-radius:12px;outline:none;box-shadow:0 0 20px rgba(34,193,255,.3)">
+        Trình duyệt của bạn không hỗ trợ video.
+      </video>`;
+    } else {
         Swal.fire("Lỗi", "Trailer không hợp lệ!", "error");
         return;
     }
@@ -213,8 +222,7 @@ window.showTrailer = function (url) {
     });
 };
 
-
-// 🔹 Nút sửa phim
+/* ===================== EDIT MOVIE ===================== */
 window.editMovie = function (id) {
     if (!id || id === "undefined" || isNaN(Number(id))) {
         Swal.fire("Lỗi", "Không tìm thấy ID phim hợp lệ để chỉnh sửa!", "error");
@@ -223,11 +231,11 @@ window.editMovie = function (id) {
     window.location.href = `updateMovie.html?id=${id}`;
 };
 
-// 🔹 Cập nhật thống kê và chart
+/* ===================== UPDATE STATS & CHART ===================== */
 function updateStats(movies) {
     const total = movies.length;
-    const nowShowing = movies.filter(m => m.status === "Now Showing").length;
-    const comingSoon = movies.filter(m => m.status === "Coming Soon").length;
+    const nowShowing = movies.filter((m) => m.status === "Now Showing").length;
+    const comingSoon = movies.filter((m) => m.status === "Coming Soon").length;
 
     document.getElementById("total-movies").textContent = total;
     document.getElementById("current-movies").textContent = nowShowing;
@@ -240,16 +248,18 @@ function updateStats(movies) {
         type: "doughnut",
         data: {
             labels: ["Đang chiếu", "Sắp chiếu", "Đã kết thúc"],
-            datasets: [{
-                data: [nowShowing, comingSoon, total - nowShowing - comingSoon],
-                backgroundColor: ["#0aa3ff", "#22c1ff", "#e50914"]
-            }]
+            datasets: [
+                {
+                    data: [nowShowing, comingSoon, total - nowShowing - comingSoon],
+                    backgroundColor: ["#0aa3ff", "#22c1ff", "#e50914"],
+                },
+            ],
         },
         options: {
-            plugins: { legend: { labels: { color: "#fff" } } }
-        }
+            plugins: { legend: { labels: { color: "#fff" } } },
+        },
     });
 }
 
-// 🔹 Load khởi đầu
+/* ===================== INIT ===================== */
 loadMovies();

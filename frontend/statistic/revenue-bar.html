@@ -4,71 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>CineMaster • Báo cáo doanh thu</title>
-
-    <!-- Font + Icon -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-
-    <!-- Giao diện tổng -->
     <link rel="stylesheet" href="../css/user.css">
 
     <style>
-        /* ================== CUSTOM PAGE ================== */
-        main.shell {
-            max-width: 1280px;
-            margin: 110px auto 60px;
-            padding: 0 24px;
-        }
-
-        section.report-panel {
-            background: linear-gradient(180deg, #0b152a, #0c162c);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            box-shadow: var(--glow);
-            padding: 32px 28px;
-            position: relative;
-            z-index: 1;
-        }
-
-        section.report-panel::before,
-        section.report-panel::after {
-            content: "";
-            position: absolute;
-            left: 20px;
-            right: 20px;
-            height: 10px;
-            background: repeating-linear-gradient(90deg, #142443 0 16px, transparent 16px 32px);
-            filter: drop-shadow(0 0 6px rgba(34,193,255,.2));
-            opacity: .4;
-        }
-
-        section.report-panel::before { top: 12px; }
-        section.report-panel::after { bottom: 12px; }
-
-        /* ================== HEADER ================== */
-        .panel-head {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 28px;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-            padding-bottom: 14px;
-        }
-        .panel-head i {
-            color: var(--cyan);
-            font-size: 1.5rem;
-            filter: drop-shadow(0 0 8px rgba(34,193,255,.5));
-        }
-        .panel-head h2 {
-            margin: 0;
-            font-weight: 900;
-            font-size: 1.9rem;
-            letter-spacing: .3px;
-        }
-
-
-        /* === Chart === */
+         /* === Chart === */
         #revenueChart {
             width: 100%;
             background: #091325;
@@ -185,15 +127,12 @@
 <div id="site-header"></div>
 
 <main class="shell">
-    <section class="report-panel">
+    <section class="film">
         <div class="panel-head">
             <i class="fa-solid fa-chart-line"></i>
             <h2>Tổng quan doanh nghiệp</h2>
         </div>
-        <!-- Biểu đồ doanh thu -->
         <canvas id="revenueChart" height="400"></canvas>
-
-        <!-- Bộ lọc doanh thu -->
         <div class="filters">
             <h3><i class="fa-solid fa-filter me-2"></i> Bộ lọc doanh thu</h3>
             <div class="row g-3">
@@ -248,11 +187,9 @@
     </section>
 </main>
 
-<div id="site-footer"></div>
-
-<!-- Scripts -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script type="module" src="../js/revenue-bar.js"></script>
+<script src="../js/footer-loader.js"></script>
 </body>
 </html>

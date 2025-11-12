@@ -1,19 +1,14 @@
 // ================= MEMBERSHIP LEVEL MANAGER =================
 import { membershipLevelApi } from './api/membershipLevelApi.js';
 
-// ===== DOM =====
 const tblBody = document.getElementById("tblBody");
 const formEl = document.getElementById("levelForm");
 const levelModal = new bootstrap.Modal(document.getElementById("levelModal"));
 const btnSave = document.getElementById("btnSave");
 const btnCreate = document.getElementById("btnCreate");
 const modalTitle = document.getElementById("levelModalTitle");
+const pagination = document.getElementById("pagination");
 
-const btnPrev = document.getElementById("prevPage");
-const btnNext = document.getElementById("nextPage");
-const pagingInfo = document.getElementById("pagingInfo");
-
-// ===== State =====
 let state = {
     page: 0,
     size: 10,
@@ -21,8 +16,6 @@ let state = {
     totalPages: 1,
     editingId: null,
 };
-
-// ===== Render Table =====
 function renderTable(page) {
     const data = page.content || [];
     if (!data.length) {
@@ -42,8 +35,14 @@ function renderTable(page) {
         <td>${x.minPoints} – ${x.maxPoints}</td>
         <td>${x.benefits || ''}</td>
         <td class="text-end">
-          <button class="btn btn-outline btn-sm act-edit me-1" title="Sửa"><i class="fa-solid fa-pen"></i></button>
-          <button class="btn btn-outline btn-sm text-danger act-del" title="Xóa"><i class="fa-solid fa-trash"></i></button>
+          <div class="d-inline-flex gap-2 justify-content-end align-items-center flex-nowrap">
+            <button class="btn btn-sm btn-warning act-edit" title="Sửa" data-id="${x.id}">
+              <i class="fa-solid fa-pen me-1"></i> Sửa
+            </button>
+            <button class="btn btn-sm btn-danger act-del" title="Xóa" data-id="${x.id}" data-name="${x.levelName}">
+              <i class="fa-solid fa-trash me-1"></i> Xóa
+            </button>
+          </div>
         </td>
       </tr>
     `).join('');
@@ -52,7 +51,6 @@ function renderTable(page) {
     document.querySelectorAll(".act-del").forEach(btn => btn.addEventListener("click", onDelete));
 }
 
-// ===== Fetch Page =====
 async function fetchPage() {
     tblBody.innerHTML = `
       <tr><td colspan="5" class="text-center text-info py-4">Đang tải dữ liệu...</td></tr>`;
@@ -60,31 +58,48 @@ async function fetchPage() {
         const page = await membershipLevelApi.list(state.page, state.size, state.sort);
         state.totalPages = page.totalPages;
         renderTable(page);
-        pagingInfo.textContent = `Trang ${state.page + 1} / ${state.totalPages}`;
-        btnPrev.disabled = state.page === 0;
-        btnNext.disabled = state.page >= state.totalPages - 1;
+        renderPagination();
     } catch (err) {
         console.error(err);
         tblBody.innerHTML = `
           <tr><td colspan="5" class="text-center text-danger py-4">Không tải được dữ liệu</td></tr>`;
     }
 }
+function renderPagination() {
+    if (!pagination) return;
+    pagination.innerHTML = "";
 
-// ===== Pagination =====
-btnPrev.addEventListener("click", () => {
-    if (state.page > 0) {
-        state.page--;
+    const totalPages = state.totalPages;
+    const currentPage = state.page;
+
+    // Nếu chỉ có 1 trang → không hiện nút
+    if (totalPages <= 1) return;
+
+    // Tạo nút helper
+    const createBtn = (page, label, disabled = false, active = false) => `
+        <button class="btn btn-sm ${active ? "btn-primary" : "btn-outline-info"} me-1"
+            ${disabled ? "disabled" : ""} 
+            onclick="goToPage(${page})">${label}</button>
+    `;
+
+    pagination.innerHTML += createBtn(currentPage - 1, "&laquo;", currentPage === 0);
+
+    const start = Math.max(0, currentPage - 2);
+    const end = Math.min(totalPages, start + 5);
+    for (let i = start; i < end; i++) {
+        pagination.innerHTML += createBtn(i, i + 1, false, i === currentPage);
+    }
+
+    pagination.innerHTML += createBtn(currentPage + 1, "&raquo;", currentPage === totalPages - 1);
+}
+
+window.goToPage = (page) => {
+    if (page >= 0 && page < state.totalPages) {
+        state.page = page;
         fetchPage();
     }
-});
-btnNext.addEventListener("click", () => {
-    if (state.page < state.totalPages - 1) {
-        state.page++;
-        fetchPage();
-    }
-});
+};
 
-// ===== Edit =====
 async function onEdit(e) {
     const id = e.currentTarget.closest("tr").dataset.id;
     try {
@@ -103,12 +118,9 @@ async function onEdit(e) {
         console.error(err);
     }
 }
-
-// ===== Delete =====
 function onDelete(e) {
-    const row = e.currentTarget.closest("tr");
-    const id = row.dataset.id;
-    const name = row.querySelector("td:nth-child(2)")?.textContent || "(không rõ)";
+    const id = e.currentTarget.dataset.id;
+    const name = e.currentTarget.dataset.name || "(Không rõ)";
     const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
     const confirmMsg = document.getElementById('confirmMessage');
     const confirmOkBtn = document.getElementById('confirmOkBtn');
@@ -119,20 +131,20 @@ function onDelete(e) {
     confirmOkBtn.parentNode.replaceChild(newBtn, confirmOkBtn);
 
     newBtn.addEventListener("click", async () => {
-        document.activeElement.blur();
         confirmModal.hide();
         try {
             await membershipLevelApi.remove(id);
             showToast("Đã xóa cấp thành viên thành công!");
             fetchPage();
         } catch (err) {
-            console.error(err);
-            showToast("Lỗi khi xóa cấp thành viên!", "danger");
+            console.error(" Lỗi khi xóa:", err);
+            showToast("Xóa thất bại!", "danger");
         }
     });
 
     confirmModal.show();
 }
+
 
 // ===== Form Submit =====
 formEl.addEventListener("submit", async (e) => {
@@ -167,7 +179,6 @@ formEl.addEventListener("submit", async (e) => {
     }
 });
 
-// ===== Create Button =====
 btnCreate.addEventListener("click", () => {
     state.editingId = null;
     formEl.reset();
@@ -175,7 +186,6 @@ btnCreate.addEventListener("click", () => {
     levelModal.show();
 });
 
-// ===== Toast =====
 function showToast(message, type = "success") {
     const container = document.getElementById("toastContainer");
     if (!container) {
@@ -196,6 +206,4 @@ function showToast(message, type = "success") {
     container.appendChild(toast);
     setTimeout(() => toast.remove(), 3000);
 }
-
-// ===== Init =====
 fetchPage();

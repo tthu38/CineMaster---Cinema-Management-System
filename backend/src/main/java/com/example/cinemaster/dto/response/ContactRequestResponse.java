@@ -22,6 +22,7 @@ public class ContactRequestResponse {
     LocalDateTime createdAt;
 
     String handledBy;
+    Integer branchId;
     String branchName;
     String handleNote;
     LocalDateTime handledAt;

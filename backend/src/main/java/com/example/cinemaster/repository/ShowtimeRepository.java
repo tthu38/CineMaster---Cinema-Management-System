@@ -44,34 +44,40 @@ public interface ShowtimeRepository extends JpaRepository<Showtime, Integer>, Jp
 
 
     @Query("""
-    SELECT COUNT(s)
-    FROM Showtime s
-    WHERE s.auditorium.auditoriumID = :auditoriumId
-      AND s.status = 'ACTIVE'
-      AND (
-           s.endTime > :startMinusBuffer
-           AND s.startTime < :end
-      )
+SELECT COUNT(s)
+FROM Showtime s
+WHERE s.auditorium.auditoriumID = :auditoriumId
+  AND s.auditorium.branch.id = :branchId
+  AND s.status = 'ACTIVE'
+  AND (
+       s.endTime > :startMinusBuffer
+       AND s.startTime < :end
+  )
 """)
-    long countOverlaps(@Param("auditoriumId") Integer auditoriumId,
+    long countOverlaps(@Param("branchId") Integer branchId,
+                       @Param("auditoriumId") Integer auditoriumId,
                        @Param("startMinusBuffer") LocalDateTime startMinusBuffer,
                        @Param("end") LocalDateTime end);
 
+
     @Query("""
-    SELECT COUNT(s)
-    FROM Showtime s
-    WHERE s.auditorium.auditoriumID = :auditoriumId
-      AND s.status = 'ACTIVE'
-      AND s.showtimeID <> :excludeId
-      AND (
-           s.endTime > :startMinusBuffer
-           AND s.startTime < :end
-      )
+SELECT COUNT(s)
+FROM Showtime s
+WHERE s.auditorium.auditoriumID = :auditoriumId
+  AND s.auditorium.branch.id = :branchId
+  AND s.status = 'ACTIVE'
+  AND s.showtimeID <> :excludeId
+  AND (
+       s.endTime > :startMinusBuffer
+       AND s.startTime < :end
+  )
 """)
-    long countOverlapsExcluding(@Param("auditoriumId") Integer auditoriumId,
+    long countOverlapsExcluding(@Param("branchId") Integer branchId,
+                                @Param("auditoriumId") Integer auditoriumId,
                                 @Param("startMinusBuffer") LocalDateTime startMinusBuffer,
                                 @Param("end") LocalDateTime end,
                                 @Param("excludeId") Integer excludeId);
+
 
     @Query("""
    SELECT COUNT(s) FROM Showtime s

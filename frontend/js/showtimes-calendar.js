@@ -319,7 +319,13 @@ async function loadBranches() {
     }
 }
 
-branchSelect.addEventListener('change', () => load(true));
+branchSelect.addEventListener('change', async () => {
+    // ✅ Lưu chi nhánh đang mở để AI Scheduler tự nhận khi mở modal
+    localStorage.setItem("currentBranchId", branchSelect.value);
+
+    // ✅ Tải lại dữ liệu lịch chiếu
+    await load(true);
+});
 
 /* ====================== CLICK EVENTS ====================== */
 dayButtons.addEventListener('click', (e) => {

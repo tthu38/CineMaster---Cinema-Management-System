@@ -23,9 +23,15 @@ export const seatApi = {
 
     // 🔹 Lấy ghế theo ID
     async getById(id) {
+        const token = getValidToken();
+        if (!token) throw new Error("Vui lòng đăng nhập.");
+
         const res = await fetch(`${API_BASE_URL}/seats/${id}`, {
             method: "GET",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
         });
         return handleResponse(res);
     },

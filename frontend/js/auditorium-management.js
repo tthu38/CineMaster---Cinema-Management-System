@@ -3,25 +3,34 @@ import { branchApi } from "./api/branchApi.js";
 import { requireAuth } from "./api/config.js";
 import Swal from "https://cdn.jsdelivr.net/npm/sweetalert2@11/+esm";
 
-// ========== DOM ELEMENTS ==========
+/* ====================== ROLE DETECTION ====================== */
+requireAuth();
+const role = localStorage.getItem("role") || null;
+const branchId = localStorage.getItem("branchId") || null;
+
+const isAdmin = role === "Admin";
+const isManager = role === "Manager";
+const isStaff = role === "Staff";
+
+/* ====================== DOM ELEMENTS ====================== */
 let auditoriumForm, auditoriumsBody, loadButton,
     submitBtn, cancelBtn, auditoriumIdField, paginationControls,
     branchSelect, filterBranchSelect;
 
-// ========== STATE ==========
+/* ====================== STATE ====================== */
 let allAuditoriumsData = [];
 let isBranchesLoaded = false;
 let currentPage = 1;
 const ITEMS_PER_PAGE = 10;
 
-// ========== LOAD BRANCHES ==========
+/* ====================== LOAD BRANCHES ====================== */
 async function loadBranches() {
     if (!branchSelect || !filterBranchSelect) {
         console.warn("⚠️ Không tìm thấy select chi nhánh trong DOM.");
         return;
     }
-
     if (isBranchesLoaded) return;
+
     branchSelect.innerHTML = `<option>Đang tải chi nhánh...</option>`;
     filterBranchSelect.innerHTML = `<option>Đang tải...</option>`;
 
@@ -36,7 +45,12 @@ async function loadBranches() {
         branchSelect.innerHTML = `<option value="" disabled selected hidden>--- Chọn Chi Nhánh ---</option>`;
         filterBranchSelect.innerHTML = `<option value="">--- Tất Cả Chi Nhánh ---</option>`;
 
-        branches.forEach(b => {
+        // 🟡 Nếu là Manager/Staff thì chỉ thấy chi nhánh của mình
+        const visibleBranches = isAdmin
+            ? branches
+            : branches.filter(b => String(b.branchId ?? b.id ?? b.branchID) === String(branchId));
+
+        visibleBranches.forEach(b => {
             const label = b.isActive ? b.branchName : `${b.branchName} (Đã đóng ⚠️)`;
             const value = b.id ?? b.branchID ?? b.branchId;
             const opt1 = new Option(label, value);
@@ -45,6 +59,15 @@ async function loadBranches() {
             branchSelect.appendChild(opt1);
             filterBranchSelect.appendChild(opt2);
         });
+
+        // Nếu là staff/manager, auto chọn chi nhánh và khóa select lọc
+        if (!isAdmin) {
+            branchSelect.value = branchId;
+            filterBranchSelect.value = branchId;
+            branchSelect.disabled = true;
+            filterBranchSelect.disabled = true;
+        }
+
         isBranchesLoaded = true;
     } catch (err) {
         console.error("❌ Lỗi tải chi nhánh:", err);
@@ -53,7 +76,7 @@ async function loadBranches() {
     }
 }
 
-// ========== LOAD AUDITORIUMS ==========
+/* ====================== LOAD AUDITORIUMS ====================== */
 async function loadAuditoriums() {
     await loadBranches();
 
@@ -62,9 +85,17 @@ async function loadAuditoriums() {
     paginationControls.innerHTML = "";
 
     try {
-        const branchId = filterBranchSelect?.value || "";
-        const res = branchId ? await auditoriumApi.getByBranch(branchId) : await auditoriumApi.getAll();
-        allAuditoriumsData = res || [];
+        let data = [];
+        if (isAdmin) {
+            // Admin: toàn quyền
+            const branchFilter = filterBranchSelect?.value || "";
+            data = branchFilter ? await auditoriumApi.getByBranch(branchFilter) : await auditoriumApi.getAll();
+        } else {
+            // Manager/Staff: chỉ load theo chi nhánh của mình
+            data = await auditoriumApi.getByBranch(branchId);
+        }
+
+        allAuditoriumsData = data || [];
         displayAuditoriums(1);
     } catch (err) {
         console.error("❌ Lỗi khi tải phòng chiếu:", err);
@@ -73,7 +104,7 @@ async function loadAuditoriums() {
     }
 }
 
-// ========== HIỂN THỊ ==========
+/* ====================== HIỂN THỊ ====================== */
 function displayAuditoriums(page = 1) {
     auditoriumsBody.innerHTML = "";
     if (!allAuditoriumsData.length) {
@@ -97,39 +128,53 @@ function displayAuditoriums(page = 1) {
         row.insertCell(5).innerHTML = a.isActive
             ? `<span class="text-success fw-bold">Hoạt động</span>`
             : `<span class="text-danger">Đã đóng</span>`;
+
         const actionCell = row.insertCell(6);
-        actionCell.append(
-            createButton("Sửa", "btn-warning me-2", () => populateFormForUpdate(a)),
-            createButton(a.isActive ? "Đóng" : "Mở lại", a.isActive ? "btn-danger" : "btn-info",
-                () => toggleAuditoriumStatus(a.auditoriumID, !a.isActive))
-        );
+        if (isAdmin) {
+            // Admin có quyền chỉnh sửa
+            actionCell.append(
+                createButton("Sửa", "btn-warning me-2", () => populateFormForUpdate(a)),
+                createButton(a.isActive ? "Đóng" : "Mở lại",
+                    a.isActive ? "btn-danger" : "btn-info",
+                    () => toggleAuditoriumStatus(a.auditoriumID, !a.isActive))
+            );
+        } else {
+            actionCell.innerHTML = `<span class="text-muted">Không có quyền</span>`;
+        }
     });
     renderPaginationControls(totalPages);
 }
 
+/* ====================== PHÂN TRANG ====================== */
 function createButton(label, cls, onClick) {
     const btn = document.createElement("button");
-    btn.textContent = label; btn.className = `btn btn-sm ${cls}`; btn.onclick = onClick;
+    btn.textContent = label;
+    btn.className = `btn btn-sm ${cls}`;
+    btn.onclick = onClick;
     return btn;
 }
 
 function renderPaginationControls(totalPages) {
     paginationControls.innerHTML = "";
-    if (totalPages <= 1) return;
-    const ul = document.createElement("ul");
-    ul.className = "pagination pagination-sm";
+    if (!totalPages || totalPages <= 1) return;
+
+    const makeButton = (page, label, disabled = false, active = false) => {
+        const btn = document.createElement("button");
+        btn.className = `btn btn-sm ${active ? "btn-primary" : "btn-secondary"} me-1`;
+        btn.innerHTML = label;
+        btn.disabled = disabled;
+        btn.addEventListener("click", () => displayAuditoriums(page));
+        return btn;
+    };
+
+    paginationControls.appendChild(makeButton(currentPage - 1, "&laquo;", currentPage === 1));
     for (let i = 1; i <= totalPages; i++) {
-        const li = document.createElement("li");
-        li.className = `page-item ${i === currentPage ? "active" : ""}`;
-        const a = document.createElement("a");
-        a.href = "#"; a.className = "page-link"; a.textContent = i;
-        a.onclick = e => { e.preventDefault(); displayAuditoriums(i); };
-        li.appendChild(a); ul.appendChild(li);
+        paginationControls.appendChild(makeButton(i, i, false, i === currentPage));
     }
-    paginationControls.appendChild(ul);
+    paginationControls.appendChild(makeButton(currentPage + 1, "&raquo;", currentPage === totalPages));
 }
 
-// ========== FORM SUBMIT ==========
+/* ====================== FORM HANDLERS ====================== */
 async function handleFormSubmission(e) {
     e.preventDefault();
     const data = {
@@ -142,6 +187,7 @@ async function handleFormSubmission(e) {
         Swal.fire("Cảnh báo", "Vui lòng chọn chi nhánh hợp lệ!", "warning");
         return;
     }
+
     const id = auditoriumIdField.value;
     try {
         if (id) await auditoriumApi.update(id, data);
@@ -165,6 +211,7 @@ async function toggleAuditoriumStatus(id, newStatus) {
         cancelButtonText: "Hủy"
     });
     if (!confirm.isConfirmed) return;
+
     try {
         if (newStatus) await auditoriumApi.activate(id);
         else await auditoriumApi.deactivate(id);
@@ -187,11 +234,13 @@ function populateFormForUpdate(a) {
 }
 
 function resetForm() {
-    auditoriumForm.reset(); auditoriumIdField.value = "";
-    submitBtn.textContent = "Tạo Phòng Chiếu"; cancelBtn.style.display = "none";
+    auditoriumForm.reset();
+    auditoriumIdField.value = "";
+    submitBtn.textContent = "Tạo Phòng Chiếu";
+    cancelBtn.style.display = "none";
 }
 
-// ========== INIT ==========
+/* ====================== INIT ====================== */
 document.addEventListener("DOMContentLoaded", () => {
     auditoriumForm = document.getElementById("auditorium-form");
     auditoriumsBody = document.getElementById("auditoriums-body");
@@ -199,11 +248,17 @@ document.addEventListener("DOMContentLoaded", () => {
     submitBtn = document.getElementById("submit-btn");
     cancelBtn = document.getElementById("cancel-btn");
     auditoriumIdField = document.getElementById("auditoriumID");
-    paginationControls = document.getElementById("pagination-controls");
+    paginationControls = document.getElementById("pagination");
     branchSelect = document.getElementById("branchID");
     filterBranchSelect = document.getElementById("filterBranchID");
 
     if (!requireAuth()) return;
+
+    // 🟡 Ẩn form thêm/sửa nếu không phải admin
+    if (!isAdmin && auditoriumForm) {
+        auditoriumForm.classList.add("d-none");
+    }
+
     if (auditoriumForm) auditoriumForm.addEventListener("submit", handleFormSubmission);
     if (cancelBtn) cancelBtn.addEventListener("click", resetForm);
     if (loadButton) loadButton.addEventListener("click", loadAuditoriums);

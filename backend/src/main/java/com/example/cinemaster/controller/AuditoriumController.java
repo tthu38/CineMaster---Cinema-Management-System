@@ -33,21 +33,21 @@ public class AuditoriumController {
             return ResponseEntity.notFound().build();
         }
     }
-
+    @PreAuthorize("hasAnyRole('Admin','Manager','Staff')")
     @GetMapping("/branch/{branchId}/active")
     public ResponseEntity<List<AuditoriumResponse>> getActiveAuditoriumsByBranchId(@PathVariable Integer branchId) {
         return ResponseEntity.ok(auditoriumService.getActiveAuditoriumsByBranchId(branchId));
     }
 
 
-    @PreAuthorize("hasAnyRole('Admin','Manager')")
+    @PreAuthorize("hasAnyRole('Admin','Manager','Staff')")
     @GetMapping
     public ResponseEntity<List<AuditoriumResponse>> getAllAuditoriums() {
         return ResponseEntity.ok(auditoriumService.getAllAuditoriums());
     }
 
     // Lọc phòng chiếu theo chi nhánh (có thể có branchId = null)
-    @PreAuthorize("hasAnyRole('Admin','Manager')")
+    @PreAuthorize("hasAnyRole('Admin','Manager','Staff')")
     @GetMapping("/branch")
     public ResponseEntity<List<AuditoriumResponse>> listByBranch(
             @RequestParam(required = false) Integer branchId) {
@@ -55,14 +55,14 @@ public class AuditoriumController {
     }
 
     // Lấy tất cả phòng chiếu theo chi nhánh cụ thể
-    @PreAuthorize("hasAnyRole('Admin','Manager')")
+    @PreAuthorize("hasAnyRole('Admin','Manager','Staff')")
     @GetMapping("/branch/{branchId}")
     public ResponseEntity<List<AuditoriumResponse>> getAuditoriumsByBranchId(@PathVariable Integer branchId) {
         return ResponseEntity.ok(auditoriumService.getAuditoriumsByBranchId(branchId));
     }
 
     // Lấy chi tiết phòng chiếu (Admin xem được kể cả phòng bị khóa)
-    @PreAuthorize("hasAnyRole('Admin','Manager')")
+    @PreAuthorize("hasAnyRole('Admin','Manager','Staff')")
     @GetMapping("/{id}/admin")
     public ResponseEntity<AuditoriumResponse> getAuditoriumByIdAdmin(@PathVariable Integer id) {
         try {

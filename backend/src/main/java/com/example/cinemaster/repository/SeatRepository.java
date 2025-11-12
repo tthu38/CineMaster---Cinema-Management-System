@@ -24,6 +24,4 @@ public interface SeatRepository extends JpaRepository<Seat, Integer> {
     @Query("SELECT s FROM Seat s WHERE s.seatID = :seatId")
     Seat lockSeatForBooking(@Param("seatId") Integer seatId);
 
-    List<Seat> findByAuditorium_AuditoriumID(Integer auditoriumId);
-
 }

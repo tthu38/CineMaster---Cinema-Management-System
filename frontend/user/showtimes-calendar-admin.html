@@ -351,7 +351,6 @@
 
 <div id="footer"></div>
 
-<!-- Modal AI Scheduler -->
 <div class="modal fade" id="aiSchedulerModal" tabindex="-1">
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content" style="background:#0e1d38;border:1px solid #2a3d6a;color:#fff;">
@@ -395,8 +394,18 @@
     });
 
     btnAI.addEventListener("click", () => {
-        new bootstrap.Modal(document.getElementById("aiSchedulerModal")).show();
+        const selectedDay = window.__calendarSelectedYMD || null;
+        if (!selectedDay) {
+            alert("Vui lòng chọn ngày trước khi mở AI Scheduler!");
+            return;
+        }
+        const iframe = document.getElementById("aiSchedulerFrame");
+        iframe.src = `../user/ai-scheduler.html?date=${selectedDay}`;
+
+        const modal = new bootstrap.Modal(document.getElementById("aiSchedulerModal"));
+        modal.show();
     });
+
 
     await initShowtimeCreate({ htmlPath: '../user/showtime-create.html' });
     await initShowtimeEdit({ htmlPath: '../user/showtime-edit.html' });
@@ -409,9 +418,7 @@
     window.addEventListener('showtime:deleted', reload);
 </script>
 
-
-
-<!-- ✅ Dùng chung file lịch chiếu -->
 <script type="module" src="../js/showtimes-calendar.js"></script>
+<script src="../js/footer-loader.js"></script>
 </body>
 </html>

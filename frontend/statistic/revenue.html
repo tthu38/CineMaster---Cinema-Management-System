@@ -13,153 +13,7 @@
     <script type="module" src="../js/revenue.js"></script>
 
     <style>
-        /* ================== GLOBAL PANEL ================== */
-        main.shell {
-            max-width: 1300px;
-            margin: 110px auto 60px;
-            padding: 0 24px;
-        }
 
-        section.film {
-            background: linear-gradient(180deg, #0b152a, #0c162c);
-            border: 1px solid var(--border);
-            border-radius: 18px;
-            box-shadow: var(--glow);
-            position: relative;
-            padding: 36px 28px 40px;
-        }
-
-        section.film::before,
-        section.film::after {
-            content: "";
-            position: absolute;
-            left: 18px;
-            right: 18px;
-            height: 10px;
-            background: repeating-linear-gradient(90deg, #142443 0 16px, transparent 16px 32px);
-            filter: drop-shadow(0 0 6px rgba(34,193,255,.2));
-            opacity: .4;
-        }
-        section.film::before { top: 12px; }
-        section.film::after { bottom: 12px; }
-
-        /* ================== HEADER ================== */
-        .panel-head {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 28px;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-            padding-bottom: 14px;
-        }
-        .panel-head i {
-            color: var(--cyan);
-            font-size: 1.5rem;
-            filter: drop-shadow(0 0 8px rgba(34,193,255,.5));
-        }
-        .panel-head h2 {
-            margin: 0;
-            font-weight: 900;
-            font-size: 1.9rem;
-            letter-spacing: .3px;
-        }
-
-        /* ================== FILTER FORM ================== */
-        .filter-box {
-            background: rgba(15, 28, 55, 0.55);
-            border: 1px solid rgba(34,193,255,0.15);
-            border-radius: 16px;
-            padding: 22px 20px;
-            margin-bottom: 28px;
-            box-shadow: inset 0 0 14px rgba(34,193,255,0.08);
-        }
-
-        label.form-label {
-            font-weight: 600;
-            color: var(--muted2);
-            font-size: 0.95rem;
-        }
-
-        .form-select,
-        .form-control {
-            background: #0e1c37;
-            border: 1px solid #17345f;
-            color: #eaf2ff;
-            border-radius: 10px;
-            font-weight: 500;
-            transition: all .2s ease;
-        }
-
-        .form-select:focus,
-        .form-control:focus {
-            border-color: var(--cyan);
-            box-shadow: 0 0 8px rgba(34,193,255,0.4);
-        }
-
-        .btn-primary {
-            background: linear-gradient(90deg, var(--cyan), var(--blue));
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            color: #06101f;
-            transition: .25s ease;
-        }
-
-        .btn-primary:hover {
-            filter: brightness(1.1);
-            box-shadow: 0 0 20px rgba(34,193,255,0.45);
-            transform: translateY(-2px);
-        }
-
-        /* ================== TABLE ================== */
-        .table-responsive {
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 0 25px rgba(0, 0, 0, 0.5),
-            0 0 18px rgba(34,193,255,0.12) inset;
-        }
-
-        .table {
-            color: #fff !important;
-            border-collapse: separate !important;
-            border-spacing: 0 !important;
-            background: transparent !important;
-            font-size: 0.95rem;
-        }
-
-        thead th {
-            background: linear-gradient(180deg, #102444 0%, #133155 100%) !important;
-            color: var(--cyan) !important;
-            border-bottom: 2px solid #1b2b4a !important;
-            text-transform: uppercase;
-            font-weight: 700;
-        }
-
-        tbody tr {
-            background: linear-gradient(180deg, #0d1c35 0%, #112847 100%) !important;
-            border-color: #1b2b4a !important;
-            transition: all 0.25s ease;
-        }
-
-        tbody tr:nth-child(even) {
-            background: linear-gradient(180deg, #112a4b 0%, #15335f 100%) !important;
-        }
-
-        tbody tr:hover {
-            background: linear-gradient(180deg, rgba(20,60,100,0.85), rgba(30,110,160,0.9)) !important;
-            box-shadow: 0 0 14px rgba(34,193,255,0.15);
-            transform: scale(1.003);
-        }
-
-        .table td, .table th {
-            border: 1px solid #1c2c4d !important;
-            vertical-align: middle;
-        }
-
-        .text-success {
-            color: var(--cyan) !important;
-            font-weight: 600;
-        }
 
         /* ================== SPACING FIX ================== */
         .row.g-3 > div { min-width: 220px; }
@@ -175,8 +29,6 @@
     <div class="tickets-layer l1"></div>
     <div class="tickets-layer l2"></div>
 </div>
-
-<div id="site-header"></div>
 
 <main class="shell">
     <section class="film">
@@ -240,7 +92,6 @@
         </div>
     </section>
 </main>
-
-<div id="site-footer"></div>
+<script src="../js/footer-loader.js"></script>
 </body>
 </html>

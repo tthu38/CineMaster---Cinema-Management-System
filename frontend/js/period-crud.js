@@ -6,7 +6,10 @@ import { branchApi } from "./api/branchApi.js";
 import Swal from "https://cdn.jsdelivr.net/npm/sweetalert2@11/+esm";
 
 requireAuth();
-
+const role = localStorage.getItem("role") || "";
+const isAdmin = role === "Admin";
+const isManager = role === "Manager";
+const isStaff = role === "Staff";
 // --- DOM elements ---
 const periodForm = document.getElementById("period-form");
 const periodsBody = document.getElementById("periods-body");
@@ -24,7 +27,7 @@ const endDateInput = document.getElementById("endDate");
 const branchHint = document.getElementById("branch-hint");
 const posterPreviewContainer = document.getElementById("movie-poster-preview");
 const posterPreviewImg = document.getElementById("poster-img-preview");
-const paginationFooter = document.getElementById("pagination-footer");
+const paginationFooter = document.getElementById("pagination");
 
 // --- Data state ---
 let allMovies = [];
@@ -124,13 +127,22 @@ async function loadPeriods(page = 0, reload = false) {
             row.insertCell(3).textContent = branchName;
             row.insertCell(4).textContent = new Date(p.startDate).toLocaleDateString("vi-VN");
             row.insertCell(5).textContent = new Date(p.endDate).toLocaleDateString("vi-VN");
-            row.insertCell(6).innerHTML = `<span class="badge ${isActive ? "bg-success" : "bg-danger"}">${isActive ? "Đang hoạt động" : "Đã tắt"}</span>`;
-            row.insertCell(7).innerHTML = `
-                <button class="btn btn-warning btn-sm me-2" onclick="editPeriod(${p.id})"><i class="fa-solid fa-pen-to-square"></i></button>
-                <button class="btn ${isActive ? "btn-danger" : "btn-success"} btn-sm" onclick="togglePeriodStatus(${p.id}, ${isActive})">
-                    <i class="fa-solid fa-${isActive ? "power-off" : "check"}"></i>
-                </button>
-            `;
+            row.insertCell(6).innerHTML = `<span class="badge ${isActive ? "bg-success" : "bg-danger"}">${isActive ? "Đang chiếu" : "Đã tạm dừng"}</span>`;
+            if (isManager || isStaff) {
+                // Manager chỉ xem, không có nút hành động
+                row.insertCell(7).innerHTML = `<span class="text-muted fst-italic">Không có quyền</span>`;
+            } else {
+                row.insertCell(7).innerHTML = `
+        <button class="btn btn-sm btn-warning me-2" onclick="editPeriod(${p.id})">
+            Sửa
+        </button>
+        <button class="btn btn-sm ${isActive ? "btn-danger" : "btn-success"}" 
+                onclick="togglePeriodStatus(${p.id}, ${isActive})">
+            ${isActive ? "Xóa" : "Khôi phục"}
+        </button>
+    `;
+            }
+
         });
 
         renderPagination(totalPages);
@@ -139,29 +151,30 @@ async function loadPeriods(page = 0, reload = false) {
         Swal.fire("Lỗi", "Không thể tải dữ liệu khoảng chiếu.", "error");
     }
 }
-
-// =============================================================
-// 📅 Phân trang
-// =============================================================
-function renderPagination(totalPages) {
+/* ==================== PAGINATION (GIỐNG HỆT COMBO) ==================== */
+function renderPagination() {
     paginationFooter.innerHTML = "";
+    const totalPages = Math.ceil(allPeriodsData.length / PAGE_SIZE);
+    if (totalPages <= 1) return;
 
-    const createBtn = (label, page, disabled = false, active = false) => `
-        <li class="page-item ${disabled ? "disabled" : ""} ${active ? "active" : ""}">
-            <a class="page-link" href="#" onclick="loadPeriods(${page}); return false;">${label}</a>
-        </li>
-    `;
+    const createBtn = (page, label, disabled = false, active = false) => `
+       <button class="btn btn-sm ${active ? "btn-primary" : "btn-secondary"} me-1"
+               ${disabled ? "disabled" : ""}
+               onclick="goToPage(${page})">${label}</button>
+     `;
 
-    paginationFooter.innerHTML += createBtn("«", currentPage - 1, currentPage === 0);
+    paginationFooter.innerHTML += createBtn(currentPage - 1, "&laquo;", currentPage === 0);
     for (let i = 0; i < totalPages; i++) {
-        paginationFooter.innerHTML += createBtn(i + 1, i, false, i === currentPage);
+        paginationFooter.innerHTML += createBtn(i, i + 1, false, i === currentPage);
     }
-    paginationFooter.innerHTML += createBtn("»", currentPage + 1, currentPage >= totalPages - 1);
+    paginationFooter.innerHTML += createBtn(currentPage + 1, "&raquo;", currentPage === totalPages - 1);
 }
 
-// =============================================================
-// 🖼️ Xem trước poster khi chọn phim
-// =============================================================
+window.goToPage = page => loadPeriods(page);
+
+
+window.goToPage = page => loadPeriods(page);
+
 movieSelect.addEventListener("change", () => {
     const movie = allMovies.find(m => String(m.movieID || m.id) === String(movieSelect.value));
     if (movie?.posterUrl) {
@@ -288,6 +301,9 @@ window.loadPeriods = loadPeriods;
 // =============================================================
 document.addEventListener("DOMContentLoaded", async () => {
     await loadForeignKeys();
+    if (isManager||isStaff) {
+        document.getElementById("period-form-card").style.display = "none";
+    }
     await loadPeriods(0, true);
     startDateInput.valueAsDate = new Date();
 });

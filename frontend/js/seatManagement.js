@@ -1,86 +1,115 @@
-import { seatTypeApi } from "./api.js";
 import { seatApi } from "./api/seatApi.js";
-import { auditoriumApi } from "./api/auditoriumApi.js";
 import { branchApi } from "./api/branchApi.js";
+import { auditoriumApi } from "./api/auditoriumApi.js";
+import { seatTypeApi } from "./api.js";
 import { requireAuth } from "./api/config.js";
 requireAuth();
+// ====================== ROLE DETECTION ======================
+const role = localStorage.getItem("role") || null;
+const branchId = localStorage.getItem("branchId") || null;
 
-// --- DOM ---
-const seatForm = document.getElementById("seat-form");
-const bulkSeatForm = document.getElementById("bulk-seat-form");
-const bulkUpdateForm = document.getElementById("bulk-update-form");
+const isAdmin = role === "Admin";
+const isManager = role === "Manager";
+const isStaff = role === "Staff";
+const isCustomer = role === "Customer" || role === "Guest" || !role;
+
+// Nếu không có quyền, chặn truy cập
+if (!isAdmin && !isManager && !isStaff) {
+    Swal.fire("🚫 Truy cập bị từ chối", "Bạn không có quyền xem trang này.", "error")
+        .then(() => (window.location.href = "/home/index.html"));
+}
+
+
+/* ======================== DOM ======================== */
+const seatDiagram = document.getElementById("seat-diagram");
 const seatsBody = document.getElementById("seats-body");
-const paginationControls = document.getElementById("pagination-controls");
+const paginationControls = document.getElementById("pagination");
 const loadButton = document.getElementById("load-seats");
-
 const diagramBranchSelect = document.getElementById("diagramBranchID");
 const diagramAuditoriumSelect = document.getElementById("diagramAuditoriumID");
-const seatDiagram = document.getElementById("seat-diagram");
 
-const singleBranchSelect = document.getElementById("singleBranchID");
-const auditoriumSelect = document.getElementById("auditoriumID");
-const seatTypeSelect = document.getElementById("typeID");
+// --- Các form ---
+const formSingle = document.getElementById("seat-form");
+const formBulk = document.getElementById("bulk-seat-form");
+const formBulkUpdate = document.getElementById("bulk-update-form");
 
-const bulkBranchSelect = document.getElementById("bulkBranchID");
-const bulkAuditoriumSelect = document.getElementById("bulkAuditoriumID");
-const bulkTypeSelect = document.getElementById("bulkTypeID");
-
-const updateBranchSelect = document.getElementById("updateBranchID");
-const updateAuditoriumSelect = document.getElementById("updateAuditoriumID");
-const newTypeSelect = document.getElementById("newTypeID");
-
-const formTitle = document.getElementById("form-title");
-const submitBtn = document.getElementById("submit-btn");
-const cancelBtn = document.getElementById("cancel-btn");
-
-let selectedSeatId = null;
-
-// ======================= 1️⃣ LOAD DỮ LIỆU =======================
 async function loadBranches() {
     try {
         const branches = await branchApi.getAll();
-        const selects = [diagramBranchSelect, singleBranchSelect, bulkBranchSelect, updateBranchSelect];
-        selects.forEach(sel => {
+        const allBranchSelects = [
+            diagramBranchSelect,
+            document.getElementById("singleBranchID"),
+            document.getElementById("bulkBranchID"),
+            document.getElementById("updateBranchID"),
+        ];
+        allBranchSelects.forEach(sel => {
             sel.innerHTML = `<option value="" disabled selected hidden>--- Chọn Chi Nhánh ---</option>`;
-            branches.forEach(b => sel.appendChild(new Option(b.branchName, b.branchID || b.branchId || b.id)));
         });
-    } catch (err) { console.error("❌ Lỗi tải chi nhánh:", err); }
+
+        const visibleBranches = isAdmin
+            ? branches
+            : branches.filter(b => String(b.branchId) === String(branchId));
+
+        allBranchSelects.forEach(sel => {
+            visibleBranches.forEach(b => sel.appendChild(new Option(b.branchName, b.branchId)));
+        });
+    } catch (err) {
+        console.error("❌ Lỗi tải chi nhánh:", err);
+    }
 }
 
 async function loadSeatTypes() {
     try {
         const types = await seatTypeApi.getAll();
-        [seatTypeSelect, bulkTypeSelect, newTypeSelect].forEach(sel => {
+        ["typeID", "bulkTypeID", "newTypeID"].forEach(id => {
+            const sel = document.getElementById(id);
             sel.innerHTML = `<option value="" disabled selected hidden>--- Chọn Loại Ghế ---</option>`;
             types.forEach(t => sel.appendChild(new Option(t.typeName, t.typeID)));
         });
-    } catch (err) { console.error("❌ Lỗi tải loại ghế:", err); }
+    } catch (err) {
+        console.error("❌ Lỗi tải loại ghế:", err);
+    }
 }
 
-// ======================= 2️⃣ CẬP NHẬT PHÒNG CHIẾU =======================
-async function updateAuditoriumOptions(branchSelect, branchId) {
-    const map = {
-        [diagramBranchSelect.id]: diagramAuditoriumSelect,
-        [singleBranchSelect.id]: auditoriumSelect,
-        [bulkBranchSelect.id]: bulkAuditoriumSelect,
-        [updateBranchSelect.id]: updateAuditoriumSelect,
-    };
-    const target = map[branchSelect.id];
-    if (!target) return;
-    target.innerHTML = `<option value="" disabled selected hidden>--- Chọn Phòng Chiếu ---</option>`;
-    if (!branchId) return;
+async function updateAuditoriumOptions(branchId) {
+    const numericId = parseInt(branchId);
+    if (isNaN(numericId)) return;
+
+    // Xác định nơi gọi để tránh double append
+    const activeElement = document.activeElement;
+    const isDiagramSelect = activeElement === diagramBranchSelect;
+
+    const selectors = isDiagramSelect
+        ? [diagramAuditoriumSelect]
+        : [
+            document.getElementById("auditoriumID"),
+            document.getElementById("bulkAuditoriumID"),
+            document.getElementById("updateAuditoriumID"),
+        ];
+
+    selectors.forEach(sel => {
+        sel.innerHTML = `<option value="" disabled selected hidden>--- Chọn Phòng Chiếu ---</option>`;
+    });
 
     try {
-        const auds = await auditoriumApi.getActiveByBranch(branchId);
+        const auds = await auditoriumApi.getActiveByBranch(numericId);
         if (!auds?.length) {
-            target.innerHTML += `<option disabled>(Không có phòng chiếu)</option>`;
+            selectors.forEach(sel => sel.innerHTML += `<option disabled>(Không có phòng chiếu)</option>`);
             return;
         }
-        auds.forEach(a => target.appendChild(new Option(a.name, a.auditoriumID)));
-    } catch (err) { console.error("❌ Lỗi tải phòng chiếu:", err); }
+        auds.forEach(a => {
+            selectors.forEach(sel => {
+                if (![...sel.options].some(opt => opt.value == a.auditoriumID)) {
+                    sel.appendChild(new Option(a.auditoriumName || a.name, a.auditoriumID));
+                }
+            });
+        });
+    } catch (err) {
+        console.error("❌ Lỗi tải phòng chiếu:", err);
+    }
 }
 
-// ======================= 3️⃣ SƠ ĐỒ GHẾ =======================
+/* ======================== SƠ ĐỒ GHẾ ======================== */
 async function renderSeatDiagram(auditoriumId) {
     seatDiagram.innerHTML = `<p class="text-muted">Đang tải sơ đồ ghế...</p>`;
     try {
@@ -90,14 +119,13 @@ async function renderSeatDiagram(auditoriumId) {
             return;
         }
 
-        // Gom theo dãy
         const grouped = {};
         seats.forEach(s => {
             if (!grouped[s.seatRow]) grouped[s.seatRow] = [];
             grouped[s.seatRow].push(s);
         });
 
-        seatDiagram.innerHTML = `<div class="screen">Màn hình</div>`;
+        seatDiagram.innerHTML = `<div class="screen">MÀN HÌNH</div>`;
         Object.keys(grouped).sort().forEach(row => {
             const rowDiv = document.createElement("div");
             rowDiv.className = "seat-row";
@@ -107,32 +135,70 @@ async function renderSeatDiagram(auditoriumId) {
             label.textContent = row;
             rowDiv.appendChild(label);
 
-            grouped[row].sort((a, b) => a.columnNumber - b.columnNumber).forEach(s => {
-                const box = document.createElement("div");
-                box.className = `seat-box seat-type-${s.typeName.toLowerCase()}`;
-                const status = s.status?.toLowerCase();
-                if (status === "reserved") box.classList.add("seat-reserved");
-                if (status === "broken") box.classList.add("seat-broken");
-                if (s.seatID === selectedSeatId) box.classList.add("seat-selected");
+            grouped[row]
+                .sort((a, b) => a.columnNumber - b.columnNumber)
+                .forEach(s => {
+                    const box = document.createElement("div");
+                    const status = s.status?.toLowerCase();
 
-                // ✅ Ghép row + number để hiển thị đúng
-                const seatLabel = `${s.seatRow || ""}${s.seatNumber || ""}`;
-                box.textContent = seatLabel;
-                box.title = `${seatLabel} - ${s.typeName} (${s.status})`;
+                    box.className = `seat-box seat-type-${s.typeName.toLowerCase()}`;
+                    if (status === "reserved") box.classList.add("seat-reserved");
+                    if (status === "broken") box.classList.add("seat-broken");
 
-                // ✅ Click chọn ghế
-                box.addEventListener("click", () => {
-                    selectedSeatId = s.seatID;
-                    loadSeatToForm(s);
-                    formTitle.innerHTML = `<i class="fa-solid fa-pen-to-square me-2"></i> Đang chỉnh sửa: ${seatLabel}`;
-                    submitBtn.innerHTML = `<i class="fa-solid fa-check me-2"></i> Cập Nhật Ghế`;
-                    cancelBtn.style.display = "inline-block";
-                    document.querySelectorAll(".seat-box").forEach(el => el.classList.remove("seat-selected"));
-                    box.classList.add("seat-selected");
+                    const labelText = `${s.seatRow}${s.seatNumber}`;
+                    box.textContent = status === "broken" ? "❌" : labelText;
+                    box.title = `${labelText} - ${s.typeName} (${s.status})`;
+
+                    // ✅ Click đổi trạng thái trực tiếp (phân quyền)
+                    if (isAdmin || isManager || isStaff) {
+                        box.addEventListener("click", async () => {
+                            const seat = await seatApi.getById(s.seatID);
+                            const currentStatus = seat.status?.toLowerCase();
+                            const next = currentStatus === "available" ? "Broken" : "Available";
+
+                            // ✅ Staff/Manager chỉ được đổi ghế trong chi nhánh của mình
+                            const seatBranchId = seat.branchId || seat.branchID || seat.branch?.branchId || seat.auditorium?.branchId;
+                            if (!isAdmin && String(seatBranchId) !== String(branchId)) {
+                                return Swal.fire("🚫 Không thể đổi trạng thái", "Bạn chỉ được phép chỉnh ghế của chi nhánh mình.", "error");
+                            }
+
+
+                            const confirm = await Swal.fire({
+                                title: `Ghế ${seat.seatRow}${seat.seatNumber}`,
+                                text: `Bạn có muốn đổi trạng thái thành "${next}" không?`,
+                                icon: "question",
+                                showCancelButton: true,
+                                confirmButtonColor: next === "Broken" ? "#e50914" : "#22c1ff",
+                                confirmButtonText: "Xác nhận",
+                                cancelButtonText: "Hủy",
+                            });
+                            if (!confirm.isConfirmed) return;
+
+                            await seatApi.update(seat.seatID, {
+                                auditoriumID: seat.auditoriumID,
+                                typeID: seat.typeID,
+                                seatRow: seat.seatRow,
+                                seatNumber: seat.seatNumber,
+                                columnNumber: seat.columnNumber,
+                                status: next,
+                            });
+
+                            Swal.fire({
+                                title: "✅ Cập nhật thành công!",
+                                text: `Ghế ${seat.seatRow}${seat.seatNumber} hiện đã "${next}".`,
+                                icon: "success",
+                                timer: 1500,
+                                showConfirmButton: false,
+                            });
+
+                            await loadSeatsByAuditorium(auditoriumId);
+                            await renderSeatDiagram(auditoriumId);
+                        });
+                    }
+
+
+                    rowDiv.appendChild(box);
                 });
-
-                rowDiv.appendChild(box);
-            });
             seatDiagram.appendChild(rowDiv);
         });
     } catch (err) {
@@ -141,232 +207,231 @@ async function renderSeatDiagram(auditoriumId) {
     }
 }
 
-// ======================= 4️⃣ DANH SÁCH GHẾ =======================
+/* ======================== DANH SÁCH GHẾ ======================== */
 async function loadSeats(page = 0, size = 10) {
-    try {
-        const data = await seatApi.getAll();
-        renderSeatTable(data.slice(page * size, (page + 1) * size));
-        renderPagination(data.length, page, size);
-    } catch (err) { console.error("❌ Lỗi tải danh sách ghế:", err); }
+    const data = await seatApi.getAll();
+    renderSeatTable(data.slice(page * size, (page + 1) * size));
+    renderPagination(data.length, page, size);
+}
+
+async function loadSeatsByAuditorium(auditoriumId, page = 0, size = 10) {
+    if (!auditoriumId) return;
+    const data = await seatApi.getByAuditorium(auditoriumId);
+    renderSeatTable(data.slice(page * size, (page + 1) * size));
+    renderPagination(data.length, page, size, auditoriumId);
 }
 
 function renderSeatTable(seats) {
     seatsBody.innerHTML = "";
     if (!seats?.length) {
-        seatsBody.innerHTML = `<tr><td colspan="7" class="text-center text-muted">Chưa có dữ liệu ghế</td></tr>`;
+        seatsBody.innerHTML = `<tr><td colspan="8" class="text-center text-muted">Chưa có dữ liệu ghế</td></tr>`;
         return;
     }
+
     seats.forEach(s => {
-        const seatLabel = `${s.seatRow || ""}${s.seatNumber || ""}`;
         const tr = document.createElement("tr");
         tr.innerHTML = `
             <td>${s.seatID}</td>
-            <td>${s.auditoriumName || "?"}</td>
-            <td>${s.seatRow}/${s.columnNumber}</td>
-            <td>${seatLabel}</td>
+            <td>${s.branchName || "—"}</td>
+            <td>${s.auditoriumName || "—"}</td>
+            <td>${s.seatRow}</td>
+            <td>${s.columnNumber}</td>
             <td>${s.typeName}</td>
-            <td>${s.status}</td>
             <td>
-                <button class="btn btn-sm btn-warning me-2 btn-edit" data-id="${s.seatID}">
-                    <i class="fa fa-pen"></i>
+                <span class="badge ${
+            s.status === "Broken"
+                ? "bg-danger"
+                : s.status === "Reserved"
+                    ? "bg-warning text-dark"
+                    : "bg-success"
+        }">${s.status}</span>
+            </td>
+            <td>
+                <button class="btn btn-sm btn-outline-warning btn-toggle-status" data-id="${s.seatID}">
+                    Đổi
                 </button>
-                <button class="btn btn-sm btn-danger btn-delete" data-id="${s.seatID}">
-                    <i class="fa fa-trash"></i>
-                </button>
-            </td>`;
+            </td>
+        `;
         seatsBody.appendChild(tr);
     });
 
-    // === Nút Edit/Delete ===
-    document.querySelectorAll(".btn-edit").forEach(btn => {
-        btn.addEventListener("click", async (e) => {
+    // 🎯 Sự kiện đổi trạng thái trong bảng
+    document.querySelectorAll(".btn-toggle-status").forEach(btn => {
+        btn.addEventListener("click", async e => {
             const id = e.currentTarget.dataset.id;
             const seat = await seatApi.getById(id);
-            loadSeatToForm(seat);
-            const label = `${seat.seatRow || ""}${seat.seatNumber || ""}`;
-            formTitle.innerHTML = `<i class="fa-solid fa-pen-to-square me-2"></i> Đang chỉnh sửa: ${label}`;
-            submitBtn.innerHTML = `<i class="fa-solid fa-check me-2"></i> Cập Nhật Ghế`;
-            cancelBtn.style.display = "inline-block";
-        });
-    });
+            const next = seat.status === "Available" ? "Broken" : "Available";
 
-    document.querySelectorAll(".btn-delete").forEach(btn => {
-        btn.addEventListener("click", async (e) => {
-            const id = e.currentTarget.dataset.id;
-            Swal.fire({
-                title: "Xóa ghế?",
-                text: "Hành động này không thể hoàn tác.",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonText: "Xóa",
-                cancelButtonText: "Hủy",
-            }).then(async res => {
-                if (res.isConfirmed) {
-                    await seatApi.delete(id);
-                    Swal.fire("Đã xóa!", "", "success");
-                    loadSeats();
-                    if (diagramAuditoriumSelect.value)
-                        renderSeatDiagram(diagramAuditoriumSelect.value);
-                }
+            await seatApi.update(id, {
+                auditoriumID: seat.auditoriumID,
+                typeID: seat.typeID,
+                seatRow: seat.seatRow,
+                seatNumber: seat.seatNumber,
+                columnNumber: seat.columnNumber,
+                status: next,
             });
+
+            await Swal.fire("✅ Cập nhật thành công!", `Ghế ${seat.seatRow}${seat.seatNumber} → ${next}`, "success");
+
+            const currentAuditorium = diagramAuditoriumSelect.value;
+            if (currentAuditorium) {
+                await loadSeatsByAuditorium(currentAuditorium);
+                await renderSeatDiagram(currentAuditorium);
+            } else {
+                await loadSeats();
+            }
         });
     });
 }
 
-function renderPagination(total, currentPage, size) {
+/* ======================== PAGINATION ======================== */
+function renderPagination(total, currentPage, size, auditoriumId = null) {
     paginationControls.innerHTML = "";
     const totalPages = Math.ceil(total / size);
-    for (let i = 0; i < totalPages; i++) {
-        const btn = document.createElement("button");
-        btn.className = `btn btn-sm ${i === currentPage ? "btn-primary" : "btn-outline-primary"} mx-1`;
-        btn.textContent = i + 1;
-        btn.addEventListener("click", () => loadSeats(i, size));
-        paginationControls.appendChild(btn);
+    if (totalPages <= 1) return;
+
+    const createBtn = (page, label, disabled = false, active = false) => `
+        <button class="btn btn-sm ${active ? "btn-primary" : "btn-secondary"} me-1"
+                ${disabled ? "disabled" : ""}
+                onclick="goToSeatPage(${page}, ${auditoriumId || "null"})">${label}</button>
+    `;
+
+    const maxVisible = 5;
+    const start = Math.floor(currentPage / maxVisible) * maxVisible;
+    const end = Math.min(start + maxVisible, totalPages);
+
+    paginationControls.innerHTML += createBtn(Math.max(start - 1, 0), "&laquo;", currentPage === 0);
+    for (let i = start; i < end; i++) {
+        paginationControls.innerHTML += createBtn(i, i + 1, false, i === currentPage);
     }
+    paginationControls.innerHTML += createBtn(Math.min(end, totalPages - 1), "&raquo;", currentPage >= totalPages - 1);
 }
 
-// ======================= 5️⃣ LOAD FORM (EDIT) =======================
-async function loadSeatToForm(s) {
-    document.getElementById("seatID").value = s.seatID;
-    document.getElementById("seatRow").value = s.seatRow;
-    document.getElementById("columnNumber").value = s.columnNumber;
-    document.getElementById("seatNumber").value = s.seatNumber;
-    document.getElementById("status").value = s.status;
+window.goToSeatPage = (page, auditoriumId) => {
+    if (auditoriumId && auditoriumId !== "null") loadSeatsByAuditorium(auditoriumId, page);
+    else loadSeats(page);
+};
 
-    if (s.branchID) {
-        singleBranchSelect.value = s.branchID;
-        await updateAuditoriumOptions(singleBranchSelect, s.branchID);
-    }
-    if (s.auditoriumID) auditoriumSelect.value = s.auditoriumID;
-    if (s.typeID) seatTypeSelect.value = s.typeID;
-
-    const statusSelect = document.getElementById("status");
-    if (statusSelect && s.status) {
-        const val = s.status.charAt(0).toUpperCase() + s.status.slice(1).toLowerCase();
-        statusSelect.value = val;
-    }
-}
-
-// ======================= 6️⃣ HỦY SỬA =======================
-cancelBtn.addEventListener("click", () => {
-    seatForm.reset();
-    document.getElementById("seatID").value = "";
-    selectedSeatId = null;
-    formTitle.innerHTML = `<i class="fa-solid fa-plus me-2"></i> Thêm Ghế Ngồi Mới (Đơn Lẻ)`;
-    submitBtn.innerHTML = `<i class="fa-solid fa-plus me-2"></i> Tạo Ghế Ngồi`;
-    cancelBtn.style.display = "none";
-    document.querySelectorAll(".seat-box").forEach(el => el.classList.remove("seat-selected"));
-});
-
-// ======================= 7️⃣ SUBMIT FORM GHẾ ĐƠN =======================
-seatForm.addEventListener("submit", async (e) => {
+/* ======================== FORM HANDLERS ======================== */
+// 1️⃣ Thêm ghế đơn
+formSingle.addEventListener("submit", async e => {
     e.preventDefault();
+    const auditoriumID = parseInt(document.getElementById("auditoriumID").value);
+    const typeID = parseInt(document.getElementById("typeID").value);
     const seatRow = document.getElementById("seatRow").value.trim().toUpperCase();
+    const columnNumber = parseInt(document.getElementById("columnNumber").value);
     const seatNumber = document.getElementById("seatNumber").value.trim();
+    const status = document.getElementById("status").value || "Available";
 
-    const data = {
-        auditoriumID: parseInt(auditoriumSelect.value),
-        typeID: parseInt(seatTypeSelect.value),
-        seatRow,
-        columnNumber: parseInt(document.getElementById("columnNumber").value),
-        seatNumber, // chỉ số, không kèm row
-        status: document.getElementById("status").value,
-    };
+    if (!auditoriumID || !typeID || !seatRow || !columnNumber || !seatNumber)
+        return Swal.fire("⚠️ Thiếu thông tin", "Vui lòng nhập đầy đủ dữ liệu.", "warning");
 
-    try {
-        const id = document.getElementById("seatID").value;
-        if (id) {
-            await seatApi.update(id, data);
-            Swal.fire("Cập nhật thành công!", "", "success");
-        } else {
-            await seatApi.create(data);
-            Swal.fire("Thêm ghế thành công!", "", "success");
-        }
-        seatForm.reset();
-        document.getElementById("seatID").value = "";
-        selectedSeatId = null;
-        formTitle.innerHTML = `<i class="fa-solid fa-plus me-2"></i> Thêm Ghế Ngồi Mới (Đơn Lẻ)`;
-        submitBtn.innerHTML = `<i class="fa-solid fa-plus me-2"></i> Tạo Ghế Ngồi`;
-        cancelBtn.style.display = "none";
-        loadSeats();
-        if (diagramAuditoriumSelect.value) renderSeatDiagram(diagramAuditoriumSelect.value);
-    } catch (err) {
-        Swal.fire("Lỗi khi lưu ghế!", err.message, "error");
-    }
+    await seatApi.create({ auditoriumID, typeID, seatRow, columnNumber, seatNumber, status });
+    Swal.fire("✅ Thành công", `Ghế ${seatRow}${seatNumber} đã được tạo.`, "success");
+    await loadSeatsByAuditorium(auditoriumID);
+    await renderSeatDiagram(auditoriumID);
+    formSingle.reset();
 });
 
-// ======================= 8️⃣ HÀNG LOẠT =======================
-bulkSeatForm.addEventListener("submit", async (e) => {
+// 2️⃣ Tạo hàng loạt ghế
+formBulk.addEventListener("submit", async e => {
     e.preventDefault();
-    const data = {
-        auditoriumID: parseInt(bulkAuditoriumSelect.value),
-        typeID: parseInt(bulkTypeSelect.value),
-        rowCount: parseInt(document.getElementById("rowCount").value),
-        columnCount: parseInt(document.getElementById("columnCount").value),
-        startRowChar: document.getElementById("startChar").value.trim().toUpperCase(),
-    };
-    await seatApi.createBulk(data);
-    Swal.fire("Tạo hàng loạt thành công!", "", "success");
-    loadSeats();
-    if (diagramAuditoriumSelect.value) renderSeatDiagram(diagramAuditoriumSelect.value);
+    const auditoriumID = parseInt(document.getElementById("bulkAuditoriumID").value);
+    const typeID = parseInt(document.getElementById("bulkTypeID").value);
+    const startChar = document.getElementById("startChar").value.trim().toUpperCase();
+    const rowCount = parseInt(document.getElementById("rowCount").value);
+    const columnCount = parseInt(document.getElementById("columnCount").value);
+
+    if (!auditoriumID || !typeID || !startChar || !rowCount || !columnCount)
+        return Swal.fire("⚠️ Thiếu thông tin", "Vui lòng nhập đầy đủ dữ liệu.", "warning");
+
+    await seatApi.createBulk({ auditoriumID, typeID, startChar, rowCount, columnCount });
+    Swal.fire("✅ Thành công", "Đã tạo sơ đồ ghế hàng loạt.", "success");
+    await loadSeatsByAuditorium(auditoriumID);
+    await renderSeatDiagram(auditoriumID);
+    formBulk.reset();
 });
 
-// ======================= 9️⃣ CẬP NHẬT HÀNG LOẠT =======================
-bulkUpdateForm.addEventListener("submit", async (e) => {
+// 3️⃣ Cập nhật loại/trạng thái theo dãy
+formBulkUpdate.addEventListener("submit", async e => {
     e.preventDefault();
-    const data = {
-        auditoriumID: parseInt(updateAuditoriumSelect.value),
-        newTypeID: newTypeSelect.value ? parseInt(newTypeSelect.value) : null,
-        newStatus: document.getElementById("newStatusSelect").value || null,
-        seatRowToUpdate: document.getElementById("rowToUpdate").value.trim().toUpperCase(),
-        isConvertCoupleSeat: document.getElementById("isConvertCoupleSeat").checked,
-        isSeparateCoupleSeat: document.getElementById("isSeparateCoupleSeat").checked,
-    };
-    await seatApi.bulkUpdateRow(data);
-    Swal.fire("Cập nhật hàng loạt thành công!", "", "success");
-    loadSeats();
-    if (diagramAuditoriumSelect.value) renderSeatDiagram(diagramAuditoriumSelect.value);
-});
+    const auditoriumID = parseInt(document.getElementById("updateAuditoriumID").value);
+    const rowToUpdate = document.getElementById("rowToUpdate").value.trim().toUpperCase();
+    const newTypeID = parseInt(document.getElementById("newTypeID").value) || null;
+    const newStatus = document.getElementById("newStatusSelect").value || null;
 
-// ======================= 🔟 KHỞI TẠO =======================
-[diagramBranchSelect, singleBranchSelect, bulkBranchSelect, updateBranchSelect].forEach(sel => {
-    sel.addEventListener("change", e => updateAuditoriumOptions(e.target, e.target.value));
-});
-diagramAuditoriumSelect.addEventListener("change", e => renderSeatDiagram(e.target.value));
-loadButton.addEventListener("click", () => loadSeats());
+    if (!auditoriumID || !rowToUpdate)
+        return Swal.fire("⚠️ Thiếu dữ liệu", "Vui lòng chọn phòng và dãy ghế.", "warning");
 
+    await seatApi.bulkUpdateRow({ auditoriumID, rowToUpdate, newTypeID, newStatus });
+    Swal.fire("✅ Thành công", `Đã cập nhật dãy ${rowToUpdate}.`, "success");
+    await loadSeatsByAuditorium(auditoriumID);
+    await renderSeatDiagram(auditoriumID);
+    formBulkUpdate.reset();
+});
+/* ======================== KHỞI TẠO ======================== */
 await loadBranches();
 await loadSeatTypes();
-await loadSeats();
 
-// ======================= ⛳️ BỔ SUNG NÂNG CẤP (KHÔNG SỬA CODE GỐC) =======================
-
-// ✅ Hàm load ghế theo phòng chiếu (được kế thừa từ bản dưới)
-async function loadSeatsByAuditorium(auditoriumId, page = 0, size = 10) {
-    try {
-        const allSeats = await seatApi.getAll();
-        const data = allSeats.filter(s => s.auditoriumID === parseInt(auditoriumId));
-        renderSeatTable(data.slice(page * size, (page + 1) * size));
-        renderPagination(data.length, page, size);
-    } catch (err) {
-        console.error("❌ Lỗi tải danh sách ghế theo phòng chiếu:", err);
-    }
+if (isManager || isStaff) {
+    ["card-add-seat", "card-bulk-seat", "card-update-seat"]
+        .forEach(id => document.getElementById(id)?.classList.add("d-none"));
 }
 
-// ✅ Gắn sự kiện change để render theo phòng chiếu
-diagramAuditoriumSelect.addEventListener("change", e => {
-    const auditoriumId = e.target.value;
-    renderSeatDiagram(auditoriumId);
-    loadSeatsByAuditorium(auditoriumId); // chỉ load ghế của phòng này
-});
+/* ======================== TỰ ĐỘNG KHỞI TẠO ======================== */
+if (isAdmin) {
+    // 🟢 Admin có thể xem tất cả ghế
+    await loadSeats();
+    seatDiagram.innerHTML = `<p class="text-center text-muted">Chọn phòng chiếu để xem sơ đồ ghế.</p>`;
+}
+else if (isManager || isStaff) {
+    // 🟡 Staff / Manager
+    diagramBranchSelect.value = branchId;
+    diagramBranchSelect.disabled = true; // Khóa không cho đổi chi nhánh
 
-// ✅ Nâng cấp nút “Tải ghế” để chỉ load trong phòng đang chọn
-loadButton.addEventListener("click", () => {
-    const auditoriumId = diagramAuditoriumSelect.value;
-    if (!auditoriumId) {
-        Swal.fire("Vui lòng chọn Phòng chiếu trước!", "", "info");
-        return;
+    // Gọi load phòng chiếu của chi nhánh đó
+    await updateAuditoriumOptions(branchId);
+
+    // ✅ Kiểm tra có phòng không
+    const auds = await auditoriumApi.getActiveByBranch(branchId);
+    if (auds && auds.length > 0) {
+        // 🧩 Đổ danh sách phòng vào select
+        diagramAuditoriumSelect.innerHTML = `<option value="" disabled selected hidden>--- Chọn Phòng Chiếu ---</option>`;
+        auds.forEach(a => {
+            diagramAuditoriumSelect.appendChild(new Option(a.auditoriumName || a.name, a.auditoriumID));
+        });
+        seatDiagram.innerHTML = `<p class="text-center text-info">Vui lòng chọn phòng chiếu để xem sơ đồ ghế.</p>`;
+    } else {
+        seatDiagram.innerHTML = `<p class="text-center text-muted">Chi nhánh này chưa có phòng chiếu nào.</p>`;
     }
-    loadSeatsByAuditorium(auditoriumId);
+}
+else {
+    // 🔴 Không có quyền
+    Swal.fire("🚫 Truy cập bị từ chối", "Bạn không có quyền xem trang này.", "error")
+        .then(() => (window.location.href = "/home/index.html"));
+}
+
+/* ======================== GẮN SỰ KIỆN ======================== */
+[
+    diagramBranchSelect,
+    document.getElementById("singleBranchID"),
+    document.getElementById("bulkBranchID"),
+    document.getElementById("updateBranchID"),
+].forEach(sel => sel?.addEventListener("change", e => updateAuditoriumOptions(e.target.value)));
+
+diagramAuditoriumSelect.addEventListener("change", async e => {
+    const id = e.target.value;
+    if (!id) return;
+    await renderSeatDiagram(id);
+    await loadSeatsByAuditorium(id);
 });
 
+loadButton.addEventListener("click", async () => {
+    const current = diagramAuditoriumSelect.value;
+    if (current) {
+        await loadSeatsByAuditorium(current);
+        await renderSeatDiagram(current);
+    } else {
+        await loadSeats();
+    }
+});

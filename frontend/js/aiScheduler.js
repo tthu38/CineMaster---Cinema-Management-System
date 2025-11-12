@@ -10,11 +10,28 @@ const tableContainer = document.getElementById("table-container");
 const branchSelect = document.getElementById("branchSelect");
 let generatedData = [];
 
-// ====================== INIT ======================
-// ✅ Chạy khi DOM đã sẵn sàng
 document.addEventListener("DOMContentLoaded", async () => {
     await loadBranches();
+
+    // ✅ Tự nhận chi nhánh đang mở từ trang showtime (lưu trong localStorage)
+    const savedBranchId = localStorage.getItem("currentBranchId");
+    if (savedBranchId) {
+        const branchSelect = document.getElementById("branchId");
+        if (branchSelect) branchSelect.value = savedBranchId;
+        console.log("🏢 Đã tự chọn chi nhánh:", savedBranchId);
+    }
+
+    // ✅ Lấy ngày được truyền qua query và set vào input (sau khi DOM đã load)
+    const urlParams = new URLSearchParams(window.location.search);
+    const passedDate = urlParams.get("date");
+    const dateInput = document.getElementById("date");
+
+    if (passedDate && dateInput) {
+        dateInput.value = passedDate;
+        console.log("📅 Ngày chiếu được nhận:", passedDate);
+    }
 });
+
 
 // ================== LOAD CHI NHÁNH ==================
 async function loadBranches() {
@@ -88,7 +105,6 @@ export async function generateSchedule() {
     }
 }
 
-// ====================== RENDER TABLE ======================
 function renderTable(data) {
     let html = `
     <table>
@@ -102,6 +118,7 @@ function renderTable(data) {
         <th>⏹️ Kết thúc</th>
         <th>💰 Giá vé (₫)</th>
         <th>✅ Xác nhận</th>
+        <th>🗑️ Xóa</th>
       </tr>`;
 
     data.forEach((s, i) => {
@@ -109,7 +126,7 @@ function renderTable(data) {
         const end = new Date(s.endTime);
 
         html += `
-      <tr>
+      <tr id="row-${i}">
         <td>${i + 1}</td>
         <td>${s.movieTitle}</td>
         <td>${s.auditoriumName}</td>
@@ -119,35 +136,38 @@ function renderTable(data) {
             <option value="English" ${s.language === "English" ? "selected" : ""}>English</option>
           </select>
         </td>
-
         <td>${start.toISOString().split("T")[0]}</td>
         <td>${start.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</td>
         <td>${end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</td>
         <td>
-          <input 
-            type="number" 
-            id="price-${i}" 
-            value="${s.price}" 
-            min="0" 
-            step="1000" 
-            style="width:90px;text-align:center">
+          <input type="number" id="price-${i}" value="${s.price}" min="0" step="1000" style="width:90px;text-align:center">
         </td>
         <td>
           <button id="save-btn-${i}" class="confirm-btn" onclick="confirmShowtime(${i})">💾 Lưu</button>
         </td>
+        <td>
+          <button id="delete-btn-${i}" class="delete-btn" onclick="deleteShowtime(${i})">🗑️ Xóa</button>
+        </td>
       </tr>`;
     });
 
+    // ✅ Thêm nút "Lưu tất cả" (KHÔNG dùng onclick)
     html += `
     </table>
     <div style="margin-top:15px;text-align:right">
-      <button id="saveAllBtn" class="confirm-btn" style="background:#2563eb" onclick="confirmAll()">
-        💾 Lưu tất cả
-      </button>
-    </div>
-  `;
+        <button id="saveAllBtn" class="confirm-btn" style="background:#2563eb">
+            💾 Lưu tất cả
+        </button>
+    </div>`;
 
+    // ✅ Cập nhật vào DOM
     tableContainer.innerHTML = html;
+
+    // ✅ Gắn lại event mỗi khi render bảng
+    const saveAllBtn = document.getElementById("saveAllBtn");
+    if (saveAllBtn) {
+        saveAllBtn.addEventListener("click", confirmAll);
+    }
 }
 
 // ====================== LƯU 1 SUẤT ======================
@@ -155,7 +175,6 @@ window.confirmShowtime = async function (index) {
     const s = generatedData[index];
     if (!s) return;
 
-    // Lấy dữ liệu thực từ form
     s.price = Number(document.getElementById(`price-${index}`).value);
     s.language = document.getElementById(`lang-${index}`).value;
 
@@ -172,6 +191,9 @@ window.confirmShowtime = async function (index) {
             price: s.price
         }]);
 
+        // ✅ Gắn cờ đã lưu
+        s.isSaved = true;
+
         resultEl.textContent = `✅ Đã lưu thành công: ${s.movieTitle}`;
         if (button) {
             button.textContent = "✅ Đã lưu";
@@ -185,24 +207,50 @@ window.confirmShowtime = async function (index) {
     }
 };
 
-// ====================== LƯU TOÀN BỘ ======================
+window.deleteShowtime = function (index) {
+    const s = generatedData[index];
+    if (!s) return;
+
+    if (!confirm(`Bạn có chắc muốn xóa suất chiếu "${s.movieTitle}" (${s.auditoriumName})?`)) return;
+
+    // ✅ Xóa khỏi mảng
+    generatedData.splice(index, 1);
+
+    // ✅ Re-render toàn bộ bảng để cập nhật index và id
+    renderTable(generatedData);
+    window.scrollTo(0, scrollY);
+    resultEl.textContent = `🗑️ Đã xóa lịch chiếu "${s.movieTitle}".`;
+};
+
+
+
 window.confirmAll = async function () {
     resultEl.textContent = "💾 Đang lưu tất cả lịch chiếu...";
 
     try {
-        const payload = generatedData.map((s, i) => ({
+        // ✅ Lọc bỏ các suất đã được lưu (isSaved = true)
+        const unsaved = generatedData.filter(s => !s.isSaved);
+        if (unsaved.length === 0) {
+            resultEl.textContent = "ℹ️ Tất cả suất chiếu đã được lưu trước đó.";
+            return;
+        }
+
+        const payload = unsaved.map((s, i) => ({
             periodId: s.periodId || s.screeningPeriodId,
             auditoriumId: s.auditoriumId,
             startTime: s.startTime,
             endTime: s.endTime,
-            language: document.getElementById(`lang-${i}`).value,
-            price: Number(document.getElementById(`price-${i}`).value),
+            language: document.getElementById(`lang-${generatedData.indexOf(s)}`).value,
+            price: Number(document.getElementById(`price-${generatedData.indexOf(s)}`).value),
         }));
 
         console.log("📤 Payload gửi backend:", payload);
         await aiSchedulerApi.approveAI(payload);
 
-        // Cập nhật giao diện sau khi lưu
+        // ✅ Đánh dấu tất cả là đã lưu
+        unsaved.forEach(s => s.isSaved = true);
+
+        // ✅ Cập nhật giao diện
         document.querySelectorAll(".confirm-btn").forEach(btn => {
             btn.textContent = "✅ Đã lưu";
             btn.disabled = true;

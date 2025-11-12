@@ -1,217 +1,146 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Quản lý mã giảm giá • CineMaster</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - Quản Lý Mã Giảm Giá • CineMaster</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-
+    <link rel="stylesheet" href="../css/user.css">
 
     <style>
-        :root {
-            --red:#e50914;
-            --cyan:#22c1ff;
-            --blue:#0aa3ff;
-            --ink:#060d1b;
-            --bg:#0b162c;
-            --card:#0a1328;
-            --border:#1b2b4a;
-            --muted:#9aa7b3;
-            --muted2:#cfe3ff;
-            --glow:0 0 20px rgba(34,193,255,.35), 0 0 60px rgba(34,193,255,.15);
-        }
-
-
-        html,body{
-            margin:0;
-            font-family:'Roboto',sans-serif;
-            color:#fff;
-            min-height:100vh;
-            background-color:var(--ink);
-            background-image:
-                    radial-gradient(1200px 600px at -10% -35%, rgba(229,9,20,.18), transparent 60%),
-                    radial-gradient(900px 400px at 120% -20%, rgba(34,193,255,.12), transparent 60%),
-                    linear-gradient(180deg, var(--ink), var(--bg));
-            background-repeat:no-repeat,no-repeat,no-repeat;
-            background-size:1200px 600px,900px 400px,100% 100%;
-            background-position:-10% -35%,120% -20%,0 0;
-            background-attachment:fixed,fixed,fixed;
-        }
-
-
-        /* 🎟️ Tickets background */
-        .tickets-wall{
-            position:fixed; inset:0; pointer-events:none; z-index:5; /* Changed z-index */
-        }
-        .tickets-wall .tickets-layer{
-            position:absolute; inset:-10%;
-            background-repeat:repeat;
-            background-size:320px 160px;
-            opacity:.14;
-            filter:drop-shadow(0 0 20px rgba(22,40,76,.18));
-            transform-origin:center center;
-        }
-        .tickets-wall .l1{
-            transform:rotate(-3deg) scale(1.04);
-            background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='160' viewBox='0 0 320 160'%3E%3Crect fill='none' width='320' height='160'/%3E%3Cg opacity='0.95'%3E%3Cg transform='translate(8,8)'%3E%3Cpath d='M0 24 a12 12 0 0 1 12 -12 h200 a10 10 0 0 0 10 -10 a12 12 0 0 1 12 12 v60 a12 12 0 0 1 -12 12 a10 10 0 0 0 -10 10 H12 a12 12 0 0 1 -12 -12z' fill='%23192A43' stroke='%232c3e66' stroke-width='2'/%3E%3Cline x1='140' y1='12' x2='140' y2='96' stroke='%238fb4ff' stroke-opacity='0.18' stroke-dasharray='6 6' /%3E%3Ccircle cx='60' cy='54' r='22' fill='none' stroke='%238fb4ff' stroke-opacity='0.35' stroke-width='3'/%3E%3Ccircle cx='60' cy='54' r='5' fill='%238fb4ff' opacity='0.3'/%3E%3Cg fill='%238fb4ff' opacity='0.35'%3E%3Ccircle cx='49' cy='44' r='5'/%3E%3Ccircle cx='71' cy='44' r='5'/%3E%3Ccircle cx='49' cy='64' r='5'/%3E%3Ccircle cx='71' cy='64' r='5'/%3E%3C/g%3E%3Cg transform='translate(164,32)' stroke='%23cfe3ff' stroke-opacity='0.38'%3E%3Crect x='0' y='0' width='60' height='24' fill='none'/%3E%3Cpath d='M3 0 v24 M8 0 v24 M11 0 v24 M16 0 v24 M22 0 v24 M27 0 v24 M33 0 v24 M38 0 v24 M45 0 v24 M51 0 v24 M56 0 v24' stroke-width='2'/%3E%3C/g%3E%3Cg transform='translate(164,66)' stroke='%23cfe3ff' stroke-opacity='0.45'%3E%3Cline x1='0' y1='0' x2='76' y2='0' stroke-width='2'/%3E%3Cline x1='0' y1='10' x2='62' y2='10' stroke-width='2'/%3E%3Cline x1='0' y1='20' x2='70' y2='20' stroke-width='2'/%3E%3C/g%3E%3C/g%3E%3Cg transform='translate(8,88)'%3E%3Cpath d='M0 24 a12 12 0 0 1 12 -12 h200 a10 10 0 0 0 10 -10 a12 12 0 0 1 12 12 v60 a12 12 0 0 1 -12 12 a10 10 0 0 0 -10 10 H12 a12 12 0 0 1 -12 -12z' fill='%231b2f50' stroke='%23314774' stroke-width='2'/%3E%3Cline x1='140' y1='12' x2='140' y2='96' stroke='%238fb4ff' stroke-opacity='0.18' stroke-dasharray='6 6'/%3E%3Ccircle cx='60' cy='54' r='22' fill='none' stroke='%23a8c8ff' stroke-opacity='0.32' stroke-width='3'/%3E%3Ccircle cx='60' cy='54' r='5' fill='%23a8c8ff' opacity='0.28'/%3E%3Cg fill='%23a8c8ff' opacity='0.32'%3E%3Ccircle cx='49' cy='44' r='5'/%3E%3Ccircle cx='71' cy='44' r='5'/%3E%3Ccircle cx='49' cy='64' r='5'/%3E%3Ccircle cx='71' cy='64' r='5'/%3E%3C/g%3E%3Cg transform='translate(164,32)' stroke='%23d8e6ff' stroke-opacity='0.38'%3E%3Cpath d='M3 0 v24 M8 0 v24 M11 0 v24 M16 0 v24 M22 0 v24 M27 0 v24 M33 0 v24 M38 0 v24 M45 0 v24 M51 0 v24 M56 0 v24' stroke-width='2'/%3E%3C/g%3E%3Cg transform='translate(164,66)' stroke='%23d8e6ff' stroke-opacity='0.45'%3E%3Cline x1='0' y1='0' x2='76' y2='0' stroke-width='2'/%3E%3Cline x1='0' y1='10' x2='62' y2='10' stroke-width='2'/%3E%3Cline x1='0' y1='20' x2='70' y2='20' stroke-width='2'/%3E%3C/g%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-        }
-        .tickets-wall .l2{
-            transform:rotate(3deg) scale(1.06);
-            background-position:160px 80px;
-            opacity:.10;
-            background-image:inherit;
-        }
-        .shell{max-width:1300px;margin:60px auto;padding:0 24px;}
-        h2{text-align:center;margin-bottom:30px;font-weight:900;color:#22c1ff;}
-        .panel-film{
-            /* Nền thủy tinh bán trong suốt */
-            background: rgba(12, 22, 44, 0.3);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            /* Viền mờ cho hợp tông */
-            border: 1px solid rgba(34, 193, 255, 0.25);
+        .table td:last-child { white-space: nowrap; }
+        .panel-film {
+            background: rgba(12,22,44,0.3);
+            border: 1px solid rgba(34,193,255,0.25);
             border-radius: 18px;
-            box-shadow: 0 14px 32px rgba(0, 0, 0, .5);
+            box-shadow: 0 14px 32px rgba(0,0,0,.5);
             padding: 40px 30px;
             margin-bottom: 30px;
+            backdrop-filter: blur(12px);
         }
-        form{display:grid;grid-template-columns:repeat(2,1fr);gap:20px 30px;}
-        label{color:var(--cyan);font-weight:500;}
+        form {
+            display: grid;
+            grid-template-columns: repeat(2,1fr);
+            gap: 20px 30px;
+        }
         input, select, textarea {
-            background: rgba(14, 28, 55, 0.45);
-            border: 1px solid rgba(34, 193, 255, 0.2);
-            color: #e6f1ff; /* Đổi màu chữ sáng hơn một chút */
+            background: rgba(14,28,55,0.45);
+            border: 1px solid rgba(34,193,255,0.2);
+            color: #e6f1ff;
             border-radius: 10px;
             padding: 10px 14px;
-            transition: all 0.25s ease-in-out;
-            width: 100%; /* Đảm bảo input chiếm hết chiều rộng div chứa nó */
+            width: 100%;
         }
-
-
-        input:focus, select:focus, textarea:focus {
-            background: rgba(10, 25, 50, 0.65);
-            border-color: var(--cyan);
-            box-shadow: 0 0 10px rgba(34, 193, 255, 0.4);
-            outline: none;
-        }
-
-
-
-
-
-
-        textarea{resize:vertical;height:80px;}
-        .full-row{grid-column:1/3;}
-        .actions{grid-column:1/3;display:flex;justify-content:flex-end;gap:12px;margin-top:15px;}
-        .btn{border:none;border-radius:10px;padding:10px 22px;font-weight:700;cursor:pointer;}
-        .btn-primary{background:linear-gradient(90deg,var(--blue),var(--cyan));color:#051020;}
-        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(10,163,255,0.4);}
-        .btn-secondary{background:transparent;border:1px solid var(--muted);color:var(--muted);}
-        .btn-secondary:hover{background:var(--muted);color:var(--bg);}
-        table{width:100%;border-collapse:collapse;}
-        th,td{padding:14px 16px;border-bottom:1px solid var(--border);}
-        th{
-            background: rgba(19, 39, 66, 0.5); /* Nền bán trong suốt */
-            color: var(--cyan);
-        }
-        tr:hover{
-            /* Hiệu ứng highlight bán trong suốt */
-            background: rgba(34, 193, 255, 0.1);
-        }
-        .status{padding:4px 10px;border-radius:6px;font-weight:600;font-size:13px;text-transform:uppercase;}
-        .status.ACTIVE{background:rgba(0,230,118,0.15);color:var(--success);}
-        .status.EXPIRED{background:rgba(229,9,20,0.15);color:#ff5252;}
-        .status.INACTIVE{background:rgba(255,196,0,0.15);color:var(--warning);}
-        .btn-edit,.btn-trash,.btn-restore{
-            width:38px;height:38px;border-radius:50%;border:none;color:#fff;
-            display:inline-flex;align-items:center;justify-content:center;
-            font-size:16px;margin-right:8px;transition:0.25s;
-        }
-        .btn-edit{background:#3949ab;}
-        .btn-edit:hover{background:#5c6bc0;}
-        .btn-trash{background:var(--red);}
-        .btn-trash:hover{background:#c90a16;}
-        .btn-restore{background:var(--success);}
-        .btn-restore:hover{background:#00bfa5;}
-        /* Toast style */
-        .toast-container{position:fixed;bottom:30px;right:30px;z-index:2000;}
+        label { color: #22c1ff; font-weight: 500; }
+        .actions { grid-column: 1/3; display: flex; justify-content: flex-end; gap: 12px; margin-top: 15px; }
     </style>
 </head>
 
-
 <body>
+<div class="grain"></div>
 <div class="tickets-wall" aria-hidden="true">
     <div class="tickets-layer l1"></div>
     <div class="tickets-layer l2"></div>
 </div>
 
+<div id="header"></div>
+
+<!-- ===================== MAIN PANEL ===================== -->
 <main class="shell">
-    <h2>🎟️ Quản lý Mã Giảm Giá</h2>
+    <section class="film">
+        <div class="panel-head">
+            <i class="fa-solid fa-ticket"></i>
+            <h2>QUẢN LÝ MÃ GIẢM GIÁ</h2>
+        </div>
 
-    <div class="panel-film">
-        <form id="discountForm">
-            <input type="hidden" id="discountID"> <!-- ✅ Thêm để fix lỗi JS -->
-            <div><label>Mã giảm giá</label><input type="text" id="code"></div>
-            <div><label>Mô tả</label><textarea id="discountDescription"></textarea></div>
-            <div><label>Giảm theo %</label><input type="number" id="percentOff"></div>
-            <div><label>Giảm cố định (VNĐ)</label><input type="number" id="fixedAmount"></div>
-            <div><label>Ngày bắt đầu</label><input type="date" id="createAt"></div>
-            <div><label>Ngày hết hạn</label><input type="date" id="expiryDate"></div>
-            <div><label>Giới hạn sử dụng</label><input type="number" id="maxUsage"></div>
-            <div><label>Điểm đổi</label><input type="number" id="pointCost"></div>
-            <div><label>Mức hóa đơn tối thiểu (VNĐ)</label><input type="number" id="minOrderAmount"></div>
-            <div>
-                <label>Hạng thành viên tối thiểu</label>
-                <select id="membershipLevelSelect" class="form-select">
-                    <option value="">-- Chọn hạng thành viên --</option>
-                </select>
+        <div class="panel-film">
+            <form id="discountForm">
+                <input type="hidden" id="discountID">
+                <div><label>Mã giảm giá</label><input type="text" id="code"></div>
+                <div><label>Mô tả</label><textarea id="discountDescription"></textarea></div>
+                <div><label>Giảm theo %</label><input type="number" id="percentOff"></div>
+                <div><label>Giảm cố định (VNĐ)</label><input type="number" id="fixedAmount"></div>
+                <div><label>Ngày bắt đầu</label><input type="date" id="createAt"></div>
+                <div><label>Ngày hết hạn</label><input type="date" id="expiryDate"></div>
+                <div><label>Giới hạn sử dụng</label><input type="number" id="maxUsage"></div>
+                <div><label>Điểm đổi</label><input type="number" id="pointCost"></div>
+                <div><label>Mức hóa đơn tối thiểu (VNĐ)</label><input type="number" id="minOrderAmount"></div>
+                <div>
+                    <label>Hạng thành viên tối thiểu</label>
+                    <select id="membershipLevelSelect" class="form-select">
+                        <option value="">-- Chọn hạng thành viên --</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Trạng thái</label>
+                    <select id="discountStatus" class="form-select">
+                        <option value="ACTIVE">ACTIVE</option>
+                        <option value="INACTIVE">INACTIVE</option>
+                        <option value="EXPIRED">EXPIRED</option>
+                        <option value="DELETED">DELETED</option>
+                    </select>
+                </div>
+                <div class="actions">
+                    <button type="submit" id="btnSubmit" class="btn btn-primary">Thêm mới</button>
+                    <button type="button" id="btnCancel" class="btn btn-secondary">Hủy</button>
+                </div>
+            </form>
+        </div>
 
-            </div>
-            <div>
-                <label>Trạng thái</label>
-                <select id="discountStatus">
-                    <option value="ACTIVE">ACTIVE</option>
-                    <option value="INACTIVE">INACTIVE</option>
-                    <option value="EXPIRED">EXPIRED</option>
-                    <option value="DELETED">DELETED</option>
-                </select>
-            </div>
-            <div class="actions">
-                <button type="submit" id="btnSubmit" class="btn btn-primary">Thêm mới</button>
-                <button type="button" id="btnCancel" class="btn btn-secondary">Hủy</button>
-            </div>
-        </form>
-    </div>
+        <div class="filter-box mb-4">
+            <div class="row g-3 align-items-end">
+                <div class="col-lg-5 d-flex flex-wrap gap-2">
+                    <div class="btn-group flex-wrap" role="group">
+                        <button class="btn btn-outline-info filter-btn active" data-status="">Tất cả</button>
+                        <button class="btn btn-outline-info filter-btn" data-status="ACTIVE">Hoạt động</button>
+                        <button class="btn btn-outline-info filter-btn" data-status="INACTIVE">Tạm ngưng</button>
+                        <button class="btn btn-outline-info filter-btn" data-status="EXPIRED">Hết hạn</button>
+                    </div>
+                </div>
 
-    <div class="panel-film">
-        <table id="discountTable">
-            <thead>
-            <tr>
-                <th>Mã</th><th>Giảm</th><th>Bắt đầu</th><th>Hết hạn</th>
-                <th>Giới hạn</th><th>Trạng thái</th><th>Hành động</th>
-            </tr>
-            </thead>
-            <tbody id="discountBody">
-            <tr><td colspan="7" style="text-align:center;padding:30px;">Đang tải dữ liệu...</td></tr>
-            </tbody>
-        </table>
-    </div>
+                <div class="col-lg-7 d-flex gap-2">
+                    <input id="searchInput" type="text" class="form-control" placeholder="Tìm mã giảm giá...">
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover text-center align-middle mb-0" id="discountTable">
+                <thead>
+                <tr>
+                    <th>Mã</th>
+                    <th>Giảm</th>
+                    <th>Bắt đầu</th>
+                    <th>Hết hạn</th>
+                    <th>Giới hạn</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                </tr>
+                </thead>
+                <tbody id="discountBody">
+                <tr><td colspan="7" class="text-muted py-3">Đang tải dữ liệu...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="pagination" class="d-flex justify-content-center mt-4"></div>
+    </section>
 </main>
 
-<div class="toast-container" id="toastContainer"></div>
+<div id="footer"></div>
 
-<!-- ✅ Confirm Modal -->
 <div class="modal fade" id="confirmModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-dark text-light border-secondary">
-            <div class="modal-header border-secondary">
+        <div class="modal-content bg-dark text-white border-secondary">
+            <div class="modal-header">
                 <h5 class="modal-title">Xác nhận hành động</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body" id="confirmMessage">Bạn có chắc chắn?</div>
-            <div class="modal-footer border-secondary">
+            <div class="modal-body" id="confirmMessage">Bạn có chắc chắn muốn thực hiện hành động này?</div>
+            <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
                 <button type="button" class="btn btn-primary" id="confirmOkBtn">Đồng ý</button>
             </div>
@@ -219,233 +148,12 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+    <div id="toastContainer"></div>
+</div>
 
-<script type="module">
-    import { discountApi } from "../js/api/discountApi.js";
-    import { membershipLevelApi } from "../js/api/membershipLevelApi.js";
-
-    const tbody = document.getElementById("discountBody");
-    const form = document.getElementById("discountForm");
-    const btnSubmit = document.getElementById("btnSubmit");
-    const btnCancel = document.getElementById("btnCancel");
-    const toastContainer = document.getElementById("toastContainer");
-    const confirmModalEl = document.getElementById("confirmModal");
-    const confirmModal = new bootstrap.Modal(confirmModalEl);
-    const confirmMessage = document.getElementById("confirmMessage");
-    const confirmOkBtn = document.getElementById("confirmOkBtn");
-    const membershipLevelSelect = document.getElementById("membershipLevelSelect");
-
-    let currentDiscounts = [], selectedId = null, editMode = false, currentAction = null;
-
-    // ===== Toast =====
-    function showToast(msg, type = "info") {
-        const toast = document.createElement("div");
-        toast.className = `toast align-items-center text-bg-${type} border-0 show mb-2`;
-        toast.innerHTML = `
-    <div class="d-flex">
-      <div class="toast-body">${msg}</div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-    </div>`;
-        toastContainer.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-    }
-
-    // ===== Load Hạng Thành Viên =====
-    // ===== Load Hạng Thành Viên =====
-    async function loadMembershipLevels() {
-        membershipLevelSelect.innerHTML = `<option value="">Đang tải...</option>`;
-        try {
-            const res = await membershipLevelApi.list(0, 100, "id,ASC");
-
-            // 🔹 Lấy dữ liệu bất kể backend trả về object, content, result, hoặc array
-            let levels =
-                res?.result?.content ||
-                res?.result ||
-                res?.content ||
-                (Array.isArray(res) ? res : []) ||
-                [];
-
-            // 🔹 Nếu backend trả về object thay vì array
-            if (!Array.isArray(levels)) {
-                levels = Object.values(levels);
-            }
-
-            // 🔹 Nếu không có dữ liệu
-            if (!levels.length) {
-                membershipLevelSelect.innerHTML = `<option value="">(Không có dữ liệu)</option>`;
-                showToast("⚠️ Chưa có hạng thành viên nào.", "warning");
-                return;
-            }
-
-            // 🔹 Tạo option cho dropdown
-            membershipLevelSelect.innerHTML =
-                `<option value="">-- Chọn hạng thành viên --</option>` +
-                levels
-                    .map(
-                        (l) =>
-                            `<option value="${l.id}">${l.levelName || l.name || "Hạng #" + l.id}</option>`
-                    )
-                    .join("");
-
-            console.log("✅ Load thành công hạng thành viên:", levels);
-
-        } catch (e) {
-            console.error("❌ Lỗi load hạng thành viên:", e);
-            membershipLevelSelect.innerHTML = `<option value="">(Không tải được danh sách)</option>`;
-            showToast("❌ Không thể tải hạng thành viên. Kiểm tra quyền truy cập hoặc token.", "danger");
-        }
-    }
-
-
-    // ===== Load Discounts =====
-    async function loadDiscounts() {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-center p-4">Đang tải dữ liệu...</td></tr>`;
-        try {
-            const data = await discountApi.getAll();
-            currentDiscounts = data.result || data || [];
-            renderTable();
-        } catch (e) {
-            tbody.innerHTML = `<tr><td colspan="7" class="text-center p-4 text-danger">Không thể tải dữ liệu.</td></tr>`;
-        }
-    }
-
-    // ===== Render Bảng =====
-    function renderTable() {
-        if (!currentDiscounts.length) {
-            tbody.innerHTML = `<tr><td colspan="7" class="text-center p-4">Chưa có mã nào.</td></tr>`;
-            return;
-        }
-
-        tbody.innerHTML = currentDiscounts.map(d => {
-            const amount = d.percentOff ? `${d.percentOff}%` : `${d.fixedAmount?.toLocaleString("vi-VN")}₫`;
-            const start = d.createAt ? new Date(d.createAt).toLocaleDateString("vi-VN") : "-";
-            const end = d.expiryDate ? new Date(d.expiryDate).toLocaleDateString("vi-VN") : "-";
-            const status = (d.discountStatus || "UNKNOWN").trim().toUpperCase();
-            const inactive = status === "INACTIVE";
-
-            return `
-      <tr>
-        <td>${d.code}</td>
-        <td>${amount}</td>
-        <td>${start}</td>
-        <td>${end}</td>
-        <td>${d.maxUsage ?? "∞"}</td>
-        <td><span class="status ${status}">${status}</span></td>
-        <td>
-          <button class="btn-edit" data-id="${d.discountID}" title="Sửa">
-            <i class="fa-solid fa-pen-to-square"></i>
-          </button>
-          ${
-                inactive
-                    ? `<button class="btn-restore" data-id="${d.discountID}" title="Khôi phục">
-                   <i class="fa-solid fa-rotate-right"></i>
-                 </button>`
-                    : `<button class="btn-trash" data-id="${d.discountID}" title="Tạm ngưng / Xóa">
-                   <i class="fa-solid fa-trash"></i>
-                 </button>`
-            }
-        </td>
-      </tr>`;
-        }).join("");
-
-        tbody.querySelectorAll(".btn-edit").forEach(b => b.onclick = () => editDiscount(b.dataset.id));
-        tbody.querySelectorAll(".btn-trash").forEach(b => b.onclick = () => openConfirm(b.dataset.id, "softDelete"));
-        tbody.querySelectorAll(".btn-restore").forEach(b => b.onclick = () => openConfirm(b.dataset.id, "restore"));
-    }
-
-    // ===== Confirm Modal =====
-    function openConfirm(id, action) {
-        selectedId = id; currentAction = action;
-        confirmMessage.textContent = {
-            softDelete: "🟡 Bạn có muốn tạm ngưng mã giảm giá này?",
-            restore: "🔄 Khôi phục mã giảm giá này?"
-        }[action] || "Bạn có chắc?";
-        confirmModal.show();
-    }
-
-    confirmOkBtn.onclick = async () => {
-        if (!selectedId) return;
-        if (currentAction === "softDelete") {
-            await discountApi.softDelete(selectedId);
-            showToast("🟡 Đã tạm ngưng mã giảm giá!", "warning");
-        } else if (currentAction === "restore") {
-            await discountApi.restore(selectedId);
-            showToast("✅ Mã giảm giá đã khôi phục!", "success");
-        }
-        confirmModal.hide();
-        confirmOkBtn.blur();
-        loadDiscounts();
-    };
-
-    // ===== Edit =====
-    function editDiscount(id) {
-        const d = currentDiscounts.find(x => x.discountID == id);
-        if (!d) return showToast("Không tìm thấy mã!", "danger");
-        editMode = true; btnSubmit.textContent = "Cập nhật";
-        const fmt = dt => dt ? new Date(dt).toISOString().split("T")[0] : "";
-        form.discountID.value = d.discountID;
-        form.code.value = d.code;
-        form.discountDescription.value = d.discountDescription || "";
-        form.percentOff.value = d.percentOff || "";
-        form.fixedAmount.value = d.fixedAmount || "";
-        form.pointCost.value = d.pointCost || "";
-        form.createAt.value = fmt(d.createAt);
-        form.expiryDate.value = fmt(d.expiryDate);
-        form.maxUsage.value = d.maxUsage || "";
-        form.discountStatus.value = d.discountStatus || "ACTIVE";
-        form.membershipLevelSelect.value = d.requiredLevel?.levelID || "";
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    // ===== Reset =====
-    function resetForm() {
-        form.reset();
-        editMode = false;
-        btnSubmit.textContent = "Thêm mới";
-        form.discountID.value = "";
-    }
-
-    // ===== Submit =====
-    form.onsubmit = async e => {
-        e.preventDefault();
-        const data = {
-            code: form.code.value.trim(),
-            discountDescription: form.discountDescription.value.trim(),
-            percentOff: form.percentOff.value ? Number(form.percentOff.value) : null,
-            fixedAmount: form.fixedAmount.value ? Number(form.fixedAmount.value) : null,
-            pointCost: form.pointCost.value ? Number(form.pointCost.value) : null,
-            createAt: form.createAt.value || null,
-            expiryDate: form.expiryDate.value || null,
-            maxUsage: form.maxUsage.value ? Number(form.maxUsage.value) : null,
-            discountStatus: form.discountStatus.value,
-            requiredLevel: form.membershipLevelSelect.value || null,
-        };
-        try {
-            if (editMode) {
-                await discountApi.update(form.discountID.value, data);
-                showToast("✅ Cập nhật thành công!", "success");
-            } else {
-                await discountApi.create(data);
-                showToast("✅ Thêm mới thành công!", "success");
-            }
-            resetForm();
-            loadDiscounts();
-        } catch (e) {
-            console.error(e);
-            showToast("❌ Có lỗi xảy ra!", "danger");
-        }
-    };
-
-    btnCancel.onclick = resetForm;
-
-    // ✅ Gọi load dữ liệu ban đầu
-    loadMembershipLevels();
-    loadDiscounts();
-</script>
-
-
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module" src="../js/listDiscount.js"></script>
+<script src="../js/footer-loader.js"></script>
 </body>
 </html>
-

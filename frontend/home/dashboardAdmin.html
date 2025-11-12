@@ -19,13 +19,29 @@
             --theme-border: #2d3748;
         }
 
+
         body {
             font-family: 'Be Vietnam Pro', sans-serif;
             background-color: var(--theme-bg);
             color: var(--theme-text);
             transition: margin-left 0.3s ease;
-            overflow-x: hidden;   /* ✅ chỉ ẩn cuộn ngang */
-            overflow-y: auto;
+            overflow: hidden;
+        }
+
+        #main-content {
+            flex-grow: 1;
+            margin-left: 260px;
+            margin-top: 80px;
+            height: calc(100vh - 80px);
+            overflow: hidden;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+            overflow: auto;
         }
 
         #wrapper {
@@ -81,27 +97,11 @@
             font-weight: 600;
         }
 
-        #main-content {
-            flex-grow: 1;
-            margin-left: 260px;
-            margin-top: 80px;
-            min-height: calc(100vh - 80px); /* ✅ dùng min-height thay vì height */
-            overflow: visible; /* ✅ bỏ cuộn nội bộ để cuộn toàn trang */
-        }
 
-
-
-        iframe {
-            width: 100%;
-            height: auto;         /* ✅ Cho iframe co giãn tự nhiên */
-            min-height: 0;        /* ✅ Bỏ ép full màn hình */
-            border: none;
-            display: block;
-        }
 
         footer {
-            position: relative;   /* ✅ không fixed nữa */
-            margin-left: 260px;   /* để thẳng hàng với content */
+            position: relative;
+            margin-left: 260px;
             background-color: #090e26;
             color: #a0aec0;
             text-align: center;
@@ -115,11 +115,41 @@
             #main-content { margin-left: 0; margin-top: 70px; }
             body.sidebar-toggled #sidebar { left: 0; }
         }
+
+        html, body {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+        }
+
+        #main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--theme-bg);
+        }
+
+        iframe#main-frame {
+            flex: 1;
+            width: 100%;
+            border: none;
+        }
+
+        footer, #footer-placeholder {
+            margin-top: auto !important;
+        }
+
     </style>
 </head>
 
 <body>
-<!-- Header chung -->
 <div id="header-placeholder"></div>
 
 <div id="wrapper">
@@ -178,7 +208,6 @@
                         </a>
 
 
-                        <!-- ✅ Mục mới: Quản lý kỳ chiếu -->
                         <a href="#" class="list-group-item list-group-item-action"
                            onclick="loadIframe('../user/period.html', this); return false;">
                             <i class="fas fa-clock"></i> Quản lý kỳ chiếu
@@ -208,7 +237,6 @@
                             <i class="fas fa-envelope"></i> Liên hệ khách hàng
                         </a>
 
-                        <!-- 🔹 Đăng xuất -->
                         <a href="#" class="list-group-item list-group-item-action text-danger" onclick="logoutUser()">
                             <i class="fas fa-sign-out-alt"></i> Đăng xuất
                         </a>
@@ -225,11 +253,8 @@
     </div>
 </div>
 
-<!-- ✅ Footer chung -->
-<div id="footer-placeholder"></div>
 
 <script>
-    // Header
     (async function loadHeader() {
         const headerEl = document.getElementById("header-placeholder");
         try {
@@ -237,7 +262,6 @@
             const html = await res.text();
             headerEl.innerHTML = html;
 
-            // ✅ Sau khi load, tìm và chạy lại script trong header
             headerEl.querySelectorAll("script").forEach(oldScript => {
                 const newScript = document.createElement("script");
                 if (oldScript.src) {
@@ -248,30 +272,20 @@
                 document.body.appendChild(newScript);
             });
         } catch (err) {
-            console.error("❌ Lỗi load header:", err);
+            console.error("Lỗi load header:", err);
         }
     })();
 
-    // Footer
-    (async function loadFooter() {
-        const footerEl = document.getElementById("footer-placeholder");
-        try {
-            const res = await fetch("../home/footer.html");
-            footerEl.innerHTML = await res.text();
-        } catch (err) {
-            console.error("❌ Lỗi load footer:", err);
-        }
-    })();
-
-    // Chuyển iframe
     function loadIframe(url, element) {
         const frame = document.getElementById('main-frame');
         frame.src = url;
+
+        window.scrollTo({ top: 0, behavior: "instant" });
+
         document.querySelectorAll('.list-group-item').forEach(el => el.classList.remove('active'));
         if (element) element.classList.add('active');
     }
 
-    // Đăng xuất
     function logoutUser() {
         localStorage.clear();
         sessionStorage.clear();
@@ -284,36 +298,20 @@
 <script>
     const frame = document.getElementById('main-frame');
 
-    // ⏳ Lắng nghe khi iframe load xong
     frame.addEventListener('load', () => {
         try {
             const innerDoc = frame.contentDocument || frame.contentWindow.document;
 
-            // 🧹 Reset chiều cao mỗi lần load mới
-            frame.style.height = "0px";
+            window.scrollTo({ top: 0, behavior: "instant" });
+            frame.contentWindow.scrollTo(0, 0);
 
-            // 🧠 Tính lại đúng chiều cao nội dung thực tế
-            const updateHeight = () => {
-                const scrollHeight = Math.max(
-                    innerDoc.body.scrollHeight,
-                    innerDoc.documentElement.scrollHeight
-                );
-                frame.style.height = scrollHeight + "px";
-            };
-
-            // 🧩 Dùng 1 observer duy nhất, tránh chồng lên
-            if (frame._observer) frame._observer.disconnect();
-            const observer = new ResizeObserver(updateHeight);
-            observer.observe(innerDoc.body);
-            frame._observer = observer;
-
-            // Gọi ngay lần đầu
-            updateHeight();
+            frame.style.height = "100%";
 
         } catch (err) {
             console.warn("Không thể truy cập nội dung iframe:", err);
         }
     });
+
 
 </script>
 

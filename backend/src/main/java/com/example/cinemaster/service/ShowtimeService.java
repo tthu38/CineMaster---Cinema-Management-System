@@ -238,9 +238,11 @@ public class ShowtimeService {
         log.info("Kiểm tra overlap (buffer={} phút) | start={} end={} | start-buffer={}",
                 CLEANUP_MINUTES, start, end, startMinusBuffer);
 
+        Integer branchId = auditorium.getBranch().getId();
+
         long roomClash = (excludeId == null)
-                ? showtimeRepo.countOverlaps(auditorium.getAuditoriumID(), startMinusBuffer, end)
-                : showtimeRepo.countOverlapsExcluding(auditorium.getAuditoriumID(), startMinusBuffer, end, excludeId);
+                ? showtimeRepo.countOverlaps(branchId, auditorium.getAuditoriumID(), startMinusBuffer, end)
+                : showtimeRepo.countOverlapsExcluding(branchId, auditorium.getAuditoriumID(), startMinusBuffer, end, excludeId);
 
         if (roomClash > 0) {
             throw new IllegalStateException(" Suất chiếu này quá gần suất trước! " +
