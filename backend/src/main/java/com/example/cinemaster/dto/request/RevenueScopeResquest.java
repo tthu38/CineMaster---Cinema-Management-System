@@ -4,5 +4,6 @@ package com.example.cinemaster.dto.request;
 public enum RevenueScopeResquest {
     DAY,
     MONTH,
-    YEAR
+    YEAR,
+    CUSTOM
 }

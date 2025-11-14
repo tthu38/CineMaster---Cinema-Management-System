@@ -124,7 +124,7 @@ function renderTable(data) {
         <td>${d.maxUsage ?? "∞"}</td>
         <td><span class="badge ${status === "ACTIVE" ? "bg-success" : status === "EXPIRED" ? "bg-secondary" : "bg-warning"}">${status}</span></td>
         <td>
-          <a href="updateDiscount.html?id=${d.discountID}" class="btn btn-warning btn-sm me-2">Sửa</a>
+          <button class="btn btn-warning btn-sm me-2" onclick="editDiscount(${d.discountID})">Sửa</button>
           ${status === "INACTIVE"
             ? `<button class="btn btn-success btn-sm" onclick="restoreDiscount(${d.discountID})">Khôi phục</button>`
             : `<button class="btn btn-danger btn-sm" onclick="deleteDiscount(${d.discountID})">Tạm ngưng</button>`}
@@ -164,6 +164,113 @@ window.deleteDiscount = function (id) {
         }
     });
 };
+/* ==================== ADD / EDIT FORM ==================== */
+const discountForm = document.getElementById("discountForm");
+const btnSubmit = document.getElementById("btnSubmit");
+const btnCancel = document.getElementById("btnCancel");
+const membershipSelect = document.getElementById("membershipLevelSelect");
+
+// ✅ Load hạng thành viên (sửa lại đoạn này)
+async function loadMembershipLevels() {
+    try {
+        const res = await membershipLevelApi.list(0, 50, "id,ASC");
+        console.log("📦 Raw membership data:", res);
+
+        // lấy mảng từ content/result/data hoặc chính res
+        const levels = res.content || res.result || res.data || res;
+
+        if (!Array.isArray(levels)) {
+            console.error("❌ API trả về không phải mảng:", levels);
+            membershipSelect.innerHTML = `<option value="">(Không tải được danh sách)</option>`;
+            return;
+        }
+
+        membershipSelect.innerHTML = `<option value="">-- Chọn hạng thành viên --</option>`;
+        levels.forEach(l => {
+            membershipSelect.innerHTML += `
+                <option value="${l.levelID || l.membershipLevelID || l.id}">
+                    ${l.levelName || l.name || "Không tên"}
+                </option>`;
+        });
+
+        console.log(`✅ Đã tải ${levels.length} hạng thành viên`);
+    } catch (err) {
+        console.error("❌ Lỗi tải hạng thành viên:", err);
+        membershipSelect.innerHTML = `<option value="">(Không tải được danh sách)</option>`;
+    }
+}
+
+await loadMembershipLevels();
+
+// ✅ Khi submit form (thêm mới hoặc cập nhật)
+discountForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const id = document.getElementById("discountID").value;
+    const data = {
+        code: document.getElementById("code").value.trim(),
+        discountDescription: document.getElementById("discountDescription").value.trim(),
+        percentOff: parseFloat(document.getElementById("percentOff").value) || null,
+        fixedAmount: parseFloat(document.getElementById("fixedAmount").value) || null,
+        createAt: document.getElementById("createAt").value || null,
+        expiryDate: document.getElementById("expiryDate").value || null,
+        maxUsage: parseInt(document.getElementById("maxUsage").value) || null,
+        pointCost: parseInt(document.getElementById("pointCost").value) || null,
+        minOrderAmount: parseFloat(document.getElementById("minOrderAmount").value) || null,
+        membershipLevelID: membershipSelect.value ? parseInt(membershipSelect.value) : null,
+        discountStatus: document.getElementById("discountStatus").value,
+    };
+
+    try {
+        if (id) {
+            await discountApi.update(id, data);
+            showToast("✅ Cập nhật mã giảm giá thành công!");
+        } else {
+            await discountApi.create(data);
+            showToast("🎟️ Thêm mã giảm giá mới thành công!");
+        }
+        await loadDiscounts();
+        discountForm.reset();
+        document.getElementById("discountID").value = "";
+        btnSubmit.textContent = "Thêm mới";
+    } catch (err) {
+        console.error("❌ Lỗi khi lưu:", err);
+        showToast("⚠️ Lỗi khi lưu mã giảm giá!", "error");
+    }
+});
+
+// ✅ Khi nhấn “Sửa” trong bảng
+window.editDiscount = async function (id) {
+    try {
+        const d = await discountApi.getById(id);
+        document.getElementById("discountID").value = d.discountID;
+        document.getElementById("code").value = d.code || "";
+        document.getElementById("discountDescription").value = d.discountDescription || "";
+        document.getElementById("percentOff").value = d.percentOff || "";
+        document.getElementById("fixedAmount").value = d.fixedAmount || "";
+        document.getElementById("createAt").value = d.createAt?.split("T")[0] || "";
+        document.getElementById("expiryDate").value = d.expiryDate?.split("T")[0] || "";
+        document.getElementById("maxUsage").value = d.maxUsage || "";
+        document.getElementById("pointCost").value = d.pointCost || "";
+        document.getElementById("minOrderAmount").value = d.minOrderAmount || "";
+        membershipSelect.value = d.membershipLevelID || "";
+        document.getElementById("discountStatus").value = d.discountStatus || "ACTIVE";
+
+        btnSubmit.textContent = "Cập nhật";
+        showToast("📝 Đang chỉnh sửa mã " + d.code);
+    } catch (err) {
+        console.error("❌ Lỗi khi tải dữ liệu:", err);
+        showToast("⚠️ Không thể tải thông tin mã!", "error");
+    }
+};
+
+// ✅ Nút Hủy
+btnCancel.addEventListener("click", () => {
+    discountForm.reset();
+    document.getElementById("discountID").value = "";
+    btnSubmit.textContent = "Thêm mới";
+    showToast("🔄 Đã hủy chỉnh sửa");
+});
 
 window.restoreDiscount = function (id) {
     showConfirm("Khôi phục mã giảm giá này?", async () => {

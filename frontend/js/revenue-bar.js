@@ -1,5 +1,5 @@
 // ==========================
-// 🎬 Revenue Dashboard Script
+// 🎬 Revenue Dashboard Script (Admin + Manager)
 // ==========================
 import { revenueApi } from './api/revenueApi.js';
 import { branchApi } from './api/branchApi.js';
@@ -13,6 +13,11 @@ async function init() {
     const role = localStorage.getItem('role')?.toLowerCase();
     const branchId = localStorage.getItem('branchId');
     const branchSelect = document.getElementById('branchSelect');
+    const btnLast7Days = document.getElementById("btnLast7Days");
+    const btnViewMonthDetail = document.getElementById("btnViewMonthDetail");
+    const btnViewDaily = document.getElementById("btnViewDaily");
+    const btnViewCustom = document.getElementById("btnViewCustom");
+    const monthInput = document.getElementById("monthInput");
 
     if (!role) return alert("Bạn chưa đăng nhập.");
     if (!localStorage.getItem('accessToken')) {
@@ -20,19 +25,52 @@ async function init() {
         return;
     }
 
+    // 🗓️ TỰ ĐỘNG CHỌN THÁNG HIỆN TẠI (ví dụ: 2025-11)
+    if (monthInput) {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, "0");
+        monthInput.value = `${year}-${month}`;
+    }
+
+    // 🎯 Phân quyền hiển thị nút lọc
+    if (role === 'admin') {
+        btnLast7Days?.classList.remove("d-none");
+        btnViewMonthDetail?.classList.remove("d-none");
+        btnViewDaily?.classList.remove("d-none");
+        btnViewCustom?.classList.remove("d-none");
+    } else if (role === 'manager') {
+        btnLast7Days?.classList.remove("d-none");
+        btnViewDaily?.classList.remove("d-none");
+        btnViewMonthDetail?.classList.add("d-none");
+        btnViewCustom?.classList.add("d-none");
+    } else {
+        Swal.fire("🚫 Truy cập bị từ chối", "Bạn không có quyền xem trang này.", "error")
+            .then(() => (window.location.href = "/home/index.html"));
+        return;
+    }
+
+    // 🏢 Load chi nhánh
     if (role === 'admin') {
         await loadBranches(branchSelect);
         branchSelect.addEventListener('change', async () => {
             const selected = branchSelect.value || null;
-            await refreshDashboard(selected);
+            await refreshDashboard(selected, {}, role);
         });
-    } else {
+    } else if (role === 'manager') {
         branchSelect.innerHTML = `<option value="${branchId}" selected>Chi nhánh của tôi</option>`;
         branchSelect.disabled = true;
     }
 
     const initialBranch = role === 'admin' ? (branchSelect.value || null) : branchId;
-    await refreshDashboard(initialBranch);
+    await refreshDashboard(initialBranch, {}, role);
+}
+
+function setChartMode(mode) {
+    const body = document.body;
+    body.classList.remove("chart-daily", "chart-monthly");
+    if (mode === "daily") body.classList.add("chart-daily");
+    if (mode === "monthly") body.classList.add("chart-monthly");
 }
 
 /* ============================================================
@@ -51,11 +89,11 @@ async function loadBranches(selectEl) {
 }
 
 /* ============================================================
-  📊 CẬP NHẬT TOÀN BỘ DASHBOARD
+  📊 CẬP NHẬT DASHBOARD
 ============================================================ */
-async function refreshDashboard(branchId, filters = {}) {
+async function refreshDashboard(branchId, filters = {}, role = 'admin') {
     await loadChart(branchId, filters);
-    await loadTopMovies(branchId, filters);
+    await loadTopMovies(branchId, filters, role);
 }
 
 /* ============================================================
@@ -69,6 +107,8 @@ async function loadChart(branchId, filters = {}) {
         let data;
         if (filters.from && filters.to)
             data = await revenueApi.getByCustomRange(filters.from, filters.to, branchId);
+        else if (filters.year && filters.month && filters.mode === "daily")
+            data = await revenueApi.getByDay(`${filters.year}-${filters.month}-01`, branchId);
         else if (filters.year && filters.month)
             data = await revenueApi.getByMonthDetail(filters.year, filters.month, branchId);
         else
@@ -76,8 +116,17 @@ async function loadChart(branchId, filters = {}) {
 
         if (!data || data.length === 0) return renderEmptyChart(ctx);
 
-        const labels = data.map(d => d.date);
-        const revenues = data.map(d => d.revenue);
+        const normalized = data.map(d => {
+            if (Array.isArray(d)) return { date: d[0], revenue: d[1] };
+            if (d.date && d.revenue !== undefined) return d;
+            if (d.label && d.totalRevenue !== undefined) return { date: d.label, revenue: d.totalRevenue };
+            return null;
+        }).filter(Boolean);
+
+        if (normalized.length === 0) return renderEmptyChart(ctx);
+
+        const labels = normalized.map(d => d.date);
+        const revenues = normalized.map(d => d.revenue);
 
         if (window.revenueChartInstance) window.revenueChartInstance.destroy();
 
@@ -143,7 +192,7 @@ function renderEmptyChart(ctx) {
 /* ============================================================
   🎬 TOP 10 PHIM
 ============================================================ */
-async function loadTopMovies(branchId, filters = {}) {
+async function loadTopMovies(branchId, filters = {}, role = 'admin') {
     const tbody = document.getElementById('topMoviesBody');
     if (!tbody) return;
 
@@ -156,7 +205,10 @@ async function loadTopMovies(branchId, filters = {}) {
             return;
         }
 
-        tbody.innerHTML = data.map((item, idx) => `
+        // ✅ Manager cũng được xem Top 10 phim
+        const movies = data.slice(0, 10);
+
+        tbody.innerHTML = movies.map((item, idx) => `
             <tr>
                 <td class="rank text-center">${idx + 1}</td>
                 <td>${item.movieTitle}</td>
@@ -164,7 +216,7 @@ async function loadTopMovies(branchId, filters = {}) {
             </tr>
         `).join('');
     } catch (err) {
-        console.error("❌ Lỗi tải Top 10 phim:", err);
+        console.error("❌ Lỗi tải Top phim:", err);
         tbody.innerHTML = `<tr><td colspan="3" class="text-center text-danger">Không thể tải dữ liệu</td></tr>`;
     }
 }
@@ -172,21 +224,33 @@ async function loadTopMovies(branchId, filters = {}) {
 /* ============================================================
   🔘 NÚT BỘ LỌC
 ============================================================ */
+document.getElementById("btnViewDaily")?.addEventListener("click", async () => {
+    const monthInput = document.getElementById("monthInput").value;
+    if (!monthInput) return alert("Vui lòng chọn tháng");
+    const [year, month] = monthInput.split("-");
+    const branchId = document.getElementById("branchSelect").value || null;
+    setChartMode("daily");
+    await refreshDashboard(branchId, { year, month, mode: "daily" });
+});
+
 document.getElementById("btnViewMonthDetail")?.addEventListener("click", async () => {
     const monthInput = document.getElementById("monthInput").value;
     if (!monthInput) return alert("Vui lòng chọn tháng");
     const [year, month] = monthInput.split("-");
     const branchId = document.getElementById("branchSelect").value || null;
+    setChartMode("monthly");
     await refreshDashboard(branchId, { year, month });
 });
-
 document.getElementById("btnViewCustom")?.addEventListener("click", async () => {
     const from = document.getElementById("fromDate").value;
     const to = document.getElementById("toDate").value;
     if (!from || !to) return alert("Vui lòng chọn khoảng thời gian hợp lệ.");
     const branchId = document.getElementById("branchSelect").value || null;
-    await refreshDashboard(branchId, { from, to });
+
+    setChartMode("daily"); // ✅ đổi chế độ hiển thị sang dạng “ngày”
+    await refreshDashboard(branchId, { from, to, mode: "daily" });
 });
+
 
 document.getElementById("btnLast7Days")?.addEventListener("click", async () => {
     const branchId = document.getElementById("branchSelect").value || null;

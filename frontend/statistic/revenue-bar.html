@@ -19,8 +19,20 @@
             box-shadow: inset 0 0 0 1px rgba(34,193,255,.08);
             margin-bottom: 32px;
         }
+         #revenueChart {
+             max-height: 380px;
+         }
 
-        /* === Bộ lọc === */
+         .chart-daily #revenueChart {
+             max-height: 300px;
+         }
+
+         .chart-monthly #revenueChart {
+             max-height: 340px;
+         }
+
+
+         /* === Bộ lọc === */
         .filters {
             background: #0e1b33;
             border: 1px solid var(--border);
@@ -160,6 +172,9 @@
                 </button>
                 <button id="btnViewMonthDetail" class="btn btn-primary flex-fill">
                     <i class="fa-solid fa-chart-column me-1"></i> Xem theo tháng
+                </button>
+                <button id="btnViewDaily" class="btn btn-primary flex-fill">
+                    <i class="fa-solid fa-chart-column me-1"></i> Xem theo ngày
                 </button>
                 <button id="btnViewCustom" class="btn btn-secondary flex-fill">
                     <i class="fa-solid fa-magnifying-glass me-1"></i> Lọc tùy chọn

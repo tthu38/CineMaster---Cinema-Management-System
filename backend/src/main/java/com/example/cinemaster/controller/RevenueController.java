@@ -25,9 +25,6 @@ public class RevenueController {
 
     private final RevenueService service;
 
-    /* =====================================================
-       🧾 DOANH THU CHUNG (cho dashboard)
-    ====================================================== */
     @PreAuthorize("hasAnyRole('Admin','Manager','Staff')")
     @GetMapping("/daily")
     public ResponseEntity<List<RevenueDayResponse>> getDailyRevenue(Authentication auth) {
@@ -35,9 +32,6 @@ public class RevenueController {
         return ResponseEntity.ok(service.getRevenue(user));
     }
 
-    /* =====================================================
-   📅 DOANH THU THEO NGÀY TRONG THÁNG
-====================================================== */
     @PreAuthorize("hasAnyRole('Admin','Manager')")
     @GetMapping("/by-day")
     public ResponseEntity<List<RevenueRowResponse>> getRevenueByDay(
@@ -46,7 +40,6 @@ public class RevenueController {
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate anchorDate,
             @RequestParam(required = false) Integer branchId
     ) {
-        // Nếu không truyền ngày thì mặc định lấy hôm nay
         LocalDate safeDate = (anchorDate != null) ? anchorDate : LocalDate.now();
 
         RevenueQueryResquest q = RevenueQueryResquest.builder()
@@ -59,9 +52,6 @@ public class RevenueController {
     }
 
 
-    /* =====================================================
-       📆 DOANH THU THEO THÁNG (CẢ NĂM)
-    ====================================================== */
     @PreAuthorize("hasRole('Admin')")
     @GetMapping("/by-month")
     public ResponseEntity<List<RevenueRowResponse>> byMonth(
@@ -78,9 +68,6 @@ public class RevenueController {
         return ResponseEntity.ok(service.getReport(q, user));
     }
 
-    /* =====================================================
-       📊 DOANH THU THEO NĂM
-    ====================================================== */
     @PreAuthorize("hasRole('Admin')")
     @GetMapping("/by-year")
     public ResponseEntity<List<RevenueRowResponse>> byYear(
@@ -99,9 +86,6 @@ public class RevenueController {
         return ResponseEntity.ok(service.getReport(q, user));
     }
 
-    /* =====================================================
-       📉 DOANH THU 7 NGÀY GẦN NHẤT
-    ====================================================== */
     @PreAuthorize("hasAnyRole('Admin','Manager')")
     @GetMapping("/last7days")
     public ResponseEntity<?> getLast7DaysRevenue(
@@ -124,9 +108,6 @@ public class RevenueController {
         }
     }
 
-    /* =====================================================
-       📅 DOANH THU CHI TIẾT TRONG 1 THÁNG
-    ====================================================== */
     @PreAuthorize("hasAnyRole('Admin','Manager')")
     @GetMapping("/by-month-detail")
     public ResponseEntity<?> getRevenueByMonthDetail(
@@ -146,9 +127,6 @@ public class RevenueController {
 
     }
 
-    /* =====================================================
-       🔎 DOANH THU TÙY CHỌN KHOẢNG THỜI GIAN
-    ====================================================== */
     @PreAuthorize("hasAnyRole('Admin','Manager')")
     @GetMapping("/custom-range")
     public ResponseEntity<?> getRevenueCustomRange(
@@ -158,18 +136,16 @@ public class RevenueController {
             @RequestParam(required = false) Integer branchId
     ) {
         RevenueQueryResquest q = RevenueQueryResquest.builder()
-                .scope(RevenueScopeResquest.DAY)
-                .anchorDate(from)  // hoặc null cũng được
+                .scope(RevenueScopeResquest.CUSTOM)
+                .from(from)
+                .to(to)
                 .branchId(branchId)
                 .build();
 
         return ResponseEntity.ok(service.getReport(q, principal));
-
     }
 
-    /* =====================================================
-       🎬 TOP 10 PHIM CÓ DOANH THU VÉ CAO NHẤT
-    ====================================================== */
+
     @PreAuthorize("hasAnyRole('Admin','Manager','Staff')")
     @GetMapping("/top-movies")
     public ResponseEntity<?> getTopMovies(

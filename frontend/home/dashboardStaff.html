@@ -24,27 +24,25 @@
             font-family: 'Be Vietnam Pro', sans-serif;
             background-color: var(--theme-bg);
             color: var(--theme-text);
-            transition: margin-left 0.3s ease;
-            overflow-x: hidden;   /* ✅ chỉ ẩn cuộn ngang */
-            overflow-y: auto;
+            overflow: hidden;
         }
 
         #wrapper {
             display: flex;
-            min-height: 100vh;
+            height: calc(100vh - 80px);
         }
 
         #sidebar {
             width: 260px;
             background-color: var(--theme-sidebar);
-            box-shadow: 2px 0 15px rgba(0,0,0,0.2);
             position: fixed;
-            left: 0;
             top: 80px;
             bottom: 0;
+            left: 0;
             z-index: 1000;
             display: flex;
             flex-direction: column;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.2);
         }
 
         #sidebar .sidebar-content {
@@ -52,43 +50,17 @@
             overflow-y: auto;
         }
 
-        .sidebar-heading {
-            padding: 1.5rem 1.25rem;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--theme-text);
-            border-bottom: 1px solid var(--theme-border);
-            text-align: center;
-        }
-
-        .sidebar-user-info {
-            padding: 1rem 1.25rem;
-            text-align: center;
-            border-bottom: 1px solid var(--theme-border);
-            background-color: rgba(0,0,0,0.15);
-        }
-        .sidebar-user-info .staff-name {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--theme-text);
-        }
-        .sidebar-user-info .branch-name {
-            font-size: 0.9rem;
-            color: var(--theme-primary);
-            font-weight: 500;
-        }
-
         .list-group-item {
             background-color: transparent;
             border: none;
             padding: 1rem 1.5rem;
             color: var(--theme-text-secondary);
-            transition: all 0.2s ease-in-out;
+            transition: 0.2s;
         }
 
         .list-group-item i {
             width: 25px;
-            margin-right: 15px;
+            margin-right: 12px;
         }
 
         .list-group-item:hover,
@@ -99,129 +71,143 @@
             font-weight: 600;
         }
 
+        .sidebar-user-info {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--theme-border);
+            background-color: rgba(0,0,0,0.15);
+            text-align: center;
+        }
+        .branch-name {
+            color: var(--theme-primary);
+            font-weight: 600;
+        }
+
         #main-content {
             flex-grow: 1;
             margin-left: 260px;
             margin-top: 80px;
-            min-height: calc(100vh - 80px);
-            overflow: visible;
+            height: calc(100vh - 80px);
+            background-color: var(--theme-bg);
+            display: flex;
+            flex-direction: column;
         }
 
-        iframe {
+        iframe#main-frame {
+            flex: 1;
             width: 100%;
-            min-height: 100vh;
             border: none;
-            display: block;
-        }
-
-        footer {
-            position: relative;
-            margin-left: 260px;
-            background-color: #090e26;
-            color: #a0aec0;
-            text-align: center;
-            padding: 14px 0;
-            font-size: 0.9rem;
-            border-top: 1px solid #2d3748;
+            overflow: auto;
         }
 
         @media (max-width: 992px) {
-            #sidebar { left: -260px; top: 70px; }
-            #main-content { margin-left: 0; margin-top: 70px; }
+            #sidebar { left: -260px; }
             body.sidebar-toggled #sidebar { left: 0; }
+            #main-content { margin-left: 0; }
         }
     </style>
 </head>
 
 <body>
-<!-- ✅ Header chung -->
+
+<!-- HEADER -->
 <div id="header-placeholder"></div>
 
 <div id="wrapper">
+
     <aside id="sidebar">
-        <!-- ✅ Thông tin nhân viên -->
+
+        <!-- User info -->
         <div class="sidebar-user-info">
-            <div class="staff-name" id="staffName">Đang tải...</div>
-            <div class="branch-name" id="branchName">
+            <div id="branchName" class="branch-name">
                 <i class="fas fa-store"></i> Chi nhánh: ...
             </div>
         </div>
 
-        <!-- ✅ Sidebar menu -->
+        <!-- MENU -->
         <div class="sidebar-content">
             <div class="list-group list-group-flush my-3">
+
                 <a href="#" class="list-group-item list-group-item-action active"
                    onclick="loadIframe('../statistic/staff-shift.html', this); return false;">
-                    <i class="fas fa-chart-pie"></i> Báo cáo doanh thu
+                    <i class="fas fa-chart-pie"></i> Báo cáo ca làm
                 </a>
+
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('../user/otp-check.html', this); return false;">
-                    <i class="fas fa-clock"></i> Check in vé
+                    <i class="fas fa-qrcode"></i> Check-in vé
                 </a>
+
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('../user/work-schedule-matrix.html', this); return false;">
-                    <i class="fas fa-calendar-day"></i> Lịch làm việc
+                    <i class="fas fa-calendar-alt"></i> Lịch làm việc
                 </a>
 
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('../user/showtimes-calendar.html', this); return false;">
                     <i class="fas fa-ticket-alt"></i> Bán vé / Suất chiếu
                 </a>
+
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('../tickets/listTicketManage.html', this); return false;">
                     <i class="fas fa-ticket"></i> Quản lý vé
                 </a>
+
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('../user/viewUser.html', this); return false;">
                     <i class="fas fa-users"></i> Người dùng
                 </a>
+
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('../contact/contactManagement.html', this); return false;">
                     <i class="fas fa-envelope"></i> Liên hệ khách hàng
                 </a>
+
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('../news/listNews.html', this); return false;">
-                    <i class="fas fa-newspaper"></i> Quản lý tin tức
+                    <i class="fas fa-newspaper"></i> Tin tức
                 </a>
+
                 <a href="#" class="list-group-item list-group-item-action text-success"
                    onclick="loadIframe('../user/AccountCounter.html', this); return false;">
-                    <i class="fas fa-user-plus"></i> Tạo tài khoản người dùng
+                    <i class="fas fa-user-plus"></i> Tạo tài khoản
                 </a>
+
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('../user/branch-management.html', this); return false;">
                     <i class="fas fa-code-branch"></i> Thông tin chi nhánh
                 </a>
+
                 <a href="#" class="list-group-item list-group-item-action"
                    onclick="loadIframe('../user/period.html', this); return false;">
-                    <i class="fas fa-clock"></i> Thông tin kỳ chiếu
-                </a>
-                <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('../user/manage-auditorium.html', this); return false;">
-                    <i class="fas fa-store"></i> Thông tin phòng chiếu
-                </a>
-                <a href="#" class="list-group-item list-group-item-action"
-                   onclick="loadIframe('../user/seat-management.html', this); return false;">
-                    <i class="fas fa-chair"></i> Quản lý ghế chi nhánh
+                    <i class="fas fa-clock"></i> Kỳ chiếu
                 </a>
 
-                <!-- ✅ Logout -->
-                <a href="#" class="list-group-item list-group-item-action text-danger" onclick="logoutUser()">
+                <a href="#" class="list-group-item list-group-item-action"
+                   onclick="loadIframe('../user/manage-auditorium.html', this); return false;">
+                    <i class="fas fa-store"></i> Phòng chiếu
+                </a>
+
+                <a href="#" class="list-group-item list-group-item-action"
+                   onclick="loadIframe('../user/seat-management.html', this); return false;">
+                    <i class="fas fa-chair"></i> Ghế chi nhánh
+                </a>
+
+                <a href="#" class="list-group-item list-group-item-action text-danger"
+                   onclick="logoutUser()">
                     <i class="fas fa-sign-out-alt"></i> Đăng xuất
                 </a>
             </div>
         </div>
     </aside>
 
+    <!-- MAIN PANEL -->
     <div id="main-content">
         <iframe id="main-frame" src="../statistic/staff-shift.html"></iframe>
     </div>
 </div>
 
-<!-- ✅ Footer chung -->
-<div id="footer-placeholder"></div>
 
 <script>
-    // ✅ Load Header
     (async function loadHeader() {
         const headerEl = document.getElementById("header-placeholder");
         try {
@@ -229,66 +215,49 @@
             const html = await res.text();
             headerEl.innerHTML = html;
 
-            // Chạy script trong header
             headerEl.querySelectorAll("script").forEach(oldScript => {
                 const newScript = document.createElement("script");
-                if (oldScript.src) newScript.src = oldScript.src;
-                else newScript.textContent = oldScript.textContent;
+                if (oldScript.src) {
+                    newScript.src = oldScript.src;
+                } else {
+                    newScript.textContent = oldScript.textContent;
+                }
                 document.body.appendChild(newScript);
             });
         } catch (err) {
-            console.error("❌ Lỗi load header:", err);
+            console.error("Lỗi load header:", err);
         }
     })();
 
-    // ✅ Load Footer
-    (async function loadFooter() {
-        const footerEl = document.getElementById("footer-placeholder");
-        try {
-            const res = await fetch("../home/footer.html");
-            footerEl.innerHTML = await res.text();
-        } catch (err) {
-            console.error("❌ Lỗi load footer:", err);
-        }
-    })();
-
-    // ✅ Hiển thị thông tin Staff
+    // Staff info
     document.addEventListener("DOMContentLoaded", () => {
-        const token = localStorage.getItem("accessToken");
         const role = localStorage.getItem("role");
-        const fullName = localStorage.getItem("fullName") || "Nhân viên";
         const branchName = localStorage.getItem("branchName") || "(Không xác định)";
-        const branchId = localStorage.getItem("branchId");
 
-        if (!token || role !== "Staff") {
+        if (role !== "Staff") {
             window.location.href = "../user/login.html";
             return;
         }
 
-        document.getElementById("staffName").textContent = fullName;
         document.getElementById("branchName").innerHTML =
             `<i class="fas fa-store"></i> Chi nhánh: ${branchName}`;
-
-        if (branchId) localStorage.setItem("branchId", branchId);
     });
 
-    // ✅ Đổi trang iframe
+    // Load iframe
     function loadIframe(url, element) {
-        const frame = document.getElementById('main-frame');
-        frame.src = url;
+        document.getElementById("main-frame").src = url;
         document.querySelectorAll('.list-group-item').forEach(el => el.classList.remove('active'));
-        if (element) element.classList.add('active');
+        element.classList.add('active');
     }
 
-    // ✅ Đăng xuất
+    // Logout
     function logoutUser() {
         localStorage.clear();
         sessionStorage.clear();
-        if (window.google?.accounts?.id) {
-            google.accounts.id.disableAutoSelect();
-        }
+        if (window.google?.accounts?.id) google.accounts.id.disableAutoSelect();
         window.location.href = "../user/login.html";
     }
 </script>
+
 </body>
 </html>

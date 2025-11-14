@@ -69,7 +69,21 @@ public class RevenueService {
             case DAY -> reportByDayOfMonth(q.getAnchorDate(), branchId);
             case MONTH -> reportByMonthOfYear(q.getYear(), branchId);
             case YEAR -> reportByYearRange(q.getFromYear(), q.getToYear(), branchId);
+            case CUSTOM -> reportByCustomRange(q.getFrom(), q.getTo(), branchId);
         };
+
+    }
+    private List<RevenueRowResponse> reportByCustomRange(LocalDate from, LocalDate to, Integer branchId) {
+        LocalDate safeFrom = (from != null) ? from : LocalDate.now().minusDays(7);
+        LocalDate safeTo = (to != null && !to.isBefore(safeFrom)) ? to : LocalDate.now();
+
+        List<RevenueRowResponse> rows = new ArrayList<>();
+        for (LocalDate d = safeFrom; !d.isAfter(safeTo); d = d.plusDays(1)) {
+            LocalDateTime start = d.atStartOfDay();
+            LocalDateTime end = d.plusDays(1).atStartOfDay();
+            rows.add(calculateRevenue("Ngày " + d.getDayOfMonth() + "/" + d.getMonthValue(), start, end, branchId));
+        }
+        return rows;
     }
 
     /* =====================================================
@@ -255,4 +269,5 @@ public class RevenueService {
                 ))
                 .collect(Collectors.toList());
     }
+
 }

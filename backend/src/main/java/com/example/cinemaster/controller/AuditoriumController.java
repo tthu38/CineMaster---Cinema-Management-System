@@ -33,7 +33,6 @@ public class AuditoriumController {
             return ResponseEntity.notFound().build();
         }
     }
-    @PreAuthorize("hasAnyRole('Admin','Manager','Staff')")
     @GetMapping("/branch/{branchId}/active")
     public ResponseEntity<List<AuditoriumResponse>> getActiveAuditoriumsByBranchId(@PathVariable Integer branchId) {
         return ResponseEntity.ok(auditoriumService.getActiveAuditoriumsByBranchId(branchId));
