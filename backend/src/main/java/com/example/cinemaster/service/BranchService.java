@@ -158,6 +158,17 @@ public class BranchService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+    public List<BranchResponse> searchBranches(String keyword) {
+        if (keyword == null || keyword.trim().isEmpty()) {
+            return getAllBranches(); // trả về tất cả nếu không nhập
+        }
+
+        List<Branch> branches = branchRepository.searchByBranchName(keyword.trim());
+
+        return branches.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
 
 
 }

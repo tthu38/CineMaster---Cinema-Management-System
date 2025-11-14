@@ -169,4 +169,27 @@ WHERE s.auditorium.auditoriumID = :auditoriumId
                                       @Param("from") LocalDateTime from,
                                       @Param("to") LocalDateTime to);
 
+
+    //Thư
+    @Query("SELECT s FROM Showtime s WHERE LOWER(s.auditorium.branch.branchName) LIKE LOWER(CONCAT('%', :city, '%'))")
+    List<Showtime> findByAuditorium_Branch_BranchNameContainingIgnoreCaseAndStatus(@Param("city") String city, @Param("status") String status);
+
+
+
+
+    @Query("""
+    SELECT s FROM Showtime s
+    WHERE s.startTime >= :from AND s.startTime < :to
+      AND s.status = :status
+      AND (:branchId IS NULL OR s.auditorium.branch.id = :branchId)
+      AND (:movieId IS NULL OR s.period.movie.movieID = :movieId)
+    ORDER BY s.startTime ASC
+""")
+    List<Showtime> findAllByFilter(
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to,
+            @Param("branchId") Integer branchId,
+            @Param("movieId") Integer movieId,
+            @Param("status") String status
+    );
 }

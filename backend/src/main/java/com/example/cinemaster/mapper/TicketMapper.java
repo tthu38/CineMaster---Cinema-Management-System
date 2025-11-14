@@ -1,19 +1,24 @@
 package com.example.cinemaster.mapper;
 
+
 import com.example.cinemaster.dto.response.TicketDetailResponse;
 import com.example.cinemaster.dto.response.TicketResponse;
 import com.example.cinemaster.entity.Ticket;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
+
 import java.math.BigDecimal;
 import java.util.stream.Collectors;
 import java.util.List;
 
+
 @Mapper(componentModel = "spring", imports = {java.util.stream.Collectors.class, java.math.BigDecimal.class})
 public interface TicketMapper {
 
+
     TicketMapper INSTANCE = Mappers.getMapper(TicketMapper.class);
+
 
     // ========================== FULL TICKET MAPPING ==========================
     @Mapping(target = "accountId", source = "account.accountID")
@@ -70,10 +75,12 @@ public interface TicketMapper {
             expression = "java(ticket.getAccount() != null ? ticket.getAccount().getFullName() : null)")
     TicketResponse toResponse(Ticket ticket);
 
+
     // ========================== LIST VIEW ==========================
     @Mapping(target = "ticketId", source = "ticketId")
     @Mapping(target = "movieTitle", source = "showtime.period.movie.title")
     @Mapping(target = "showtimeStart", source = "showtime.startTime")
+    @Mapping(target = "showtimeId", source = "showtime.showtimeID")
     @Mapping(target = "branchName", source = "showtime.auditorium.branch.branchName")
     // Thêm mapping để danh sách vé hiển thị đúng tên khách hàng
     @Mapping(target = "customerName",
@@ -83,12 +90,15 @@ public interface TicketMapper {
             expression = "java(entity.getTicketStatus() != null ? entity.getTicketStatus().name() : null)")
     TicketResponse toShortResponse(Ticket entity);
 
+
     // ========================== DETAIL VIEW ==========================
     @Mapping(target = "ticketId", source = "ticketId")
     @Mapping(target = "movieTitle", source = "showtime.period.movie.title")
     @Mapping(target = "movieGenre", source = "showtime.period.movie.genre")
     @Mapping(target = "movieDuration", source = "showtime.period.movie.duration")
     @Mapping(target = "showtimeStart", source = "showtime.startTime")
+
+
     @Mapping(target = "showtimeEnd", source = "showtime.endTime")
     @Mapping(target = "branchName", source = "showtime.auditorium.branch.branchName")
     @Mapping(target = "auditoriumName", source = "showtime.auditorium.name")
@@ -104,6 +114,7 @@ public interface TicketMapper {
             expression = "java(entity.getAccount() != null ? entity.getAccount().getFullName() : null)")
     TicketDetailResponse toDetailResponse(Ticket entity);
 
+
     // ========================== HELPER ==========================
     default String getSeatNumbers(Ticket ticket) {
         if (ticket.getTicketSeats() == null || ticket.getTicketSeats().isEmpty()) return "-";
@@ -112,3 +123,4 @@ public interface TicketMapper {
                 .collect(Collectors.joining(", "));
     }
 }
+

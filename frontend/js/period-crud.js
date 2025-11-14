@@ -28,6 +28,8 @@ const branchHint = document.getElementById("branch-hint");
 const posterPreviewContainer = document.getElementById("movie-poster-preview");
 const posterPreviewImg = document.getElementById("poster-img-preview");
 const paginationFooter = document.getElementById("pagination");
+const searchInput = document.getElementById("searchPeriod");
+let searchTimeout = null;
 
 // --- Data state ---
 let allMovies = [];
@@ -81,6 +83,81 @@ async function loadForeignKeys() {
         console.error("Lỗi tải dữ liệu:", err);
         Swal.fire("Lỗi", "Không thể tải danh sách phim hoặc chi nhánh.", "error");
     }
+}
+// =============================================================
+// 🔍 SEARCH PERIOD BY MOVIE TITLE (debounce 300ms)
+// =============================================================
+searchInput.addEventListener("input", async (e) => {
+    const keyword = e.target.value.trim();
+
+    // Xóa timeout cũ nếu user đang gõ
+    clearTimeout(searchTimeout);
+
+    // Chờ 300ms sau khi user ngừng gõ
+    searchTimeout = setTimeout(async () => {
+        if (keyword.length === 0) {
+            // Reset full danh sách + phân trang
+            await loadPeriods(0, true);
+            return;
+        }
+
+        try {
+            const results = await screeningPeriodApi.search(keyword);
+            allPeriodsData = Array.isArray(results) ? results : [];
+
+            // Luôn reset về trang đầu
+            currentPage = 0;
+            displaySearchResults();
+
+        } catch (err) {
+            console.error("Lỗi search:", err);
+        }
+    }, 300);
+});
+
+function displaySearchResults() {
+    periodsBody.innerHTML = "";
+    paginationFooter.innerHTML = "";
+
+    if (allPeriodsData.length === 0) {
+        periodsBody.innerHTML =
+            `<tr><td colspan="${TABLE_COLSPAN}" class="text-center text-muted">Không có kết quả.</td></tr>`;
+        return;
+    }
+
+    allPeriodsData.slice(0, PAGE_SIZE).forEach(p => {
+        const movie = allMovies.find(m => String(m.movieID || m.id) === String(p.movieId));
+        const branch = allBranches.find(b => String(b.branchId || b.id) === String(p.branchId));
+
+        const movieTitle = movie ? movie.title : `Phim ID ${p.movieId}`;
+        const posterUrl = movie?.posterUrl || "../images/default-poster.png";
+        const branchName = branch ? branch.branchName : `Chi nhánh #${p.branchId}`;
+        const isActive = p.isActive === true || p.isActive === 1;
+
+        const row = periodsBody.insertRow();
+        row.insertCell(0).textContent = p.id;
+        row.insertCell(1).innerHTML = `<img src="${posterUrl}" class="movie-poster-img">`;
+        row.insertCell(2).textContent = movieTitle;
+        row.insertCell(3).textContent = branchName;
+        row.insertCell(4).textContent = new Date(p.startDate).toLocaleDateString("vi-VN");
+        row.insertCell(5).textContent = new Date(p.endDate).toLocaleDateString("vi-VN");
+        row.insertCell(6).innerHTML =
+            `<span class="badge ${isActive ? "bg-success" : "bg-danger"}">
+                ${isActive ? "Đang chiếu" : "Đã tạm dừng"}
+             </span>`;
+
+        if (isManager || isStaff) {
+            row.insertCell(7).innerHTML = `<span class="text-muted fst-italic">Không có quyền</span>`;
+        } else {
+            row.insertCell(7).innerHTML = `
+                <button class="btn btn-sm btn-warning me-2" onclick="editPeriod(${p.id})">Sửa</button>
+                <button class="btn btn-sm ${isActive ? "btn-danger" : "btn-success"}"
+                        onclick="togglePeriodStatus(${p.id}, ${isActive})">
+                    ${isActive ? "Xóa" : "Khôi phục"}
+                </button>
+            `;
+        }
+    });
 }
 
 // =============================================================
@@ -296,14 +373,34 @@ window.togglePeriodStatus = async function (id, isActive) {
 };
 filterBranchSelect.addEventListener("change", () => loadPeriods(0, true)); // ✅ gọi lại khi chọn chi nhánh
 window.loadPeriods = loadPeriods;
-// =============================================================
-// 🚀 Khởi tạo
-// =============================================================
 document.addEventListener("DOMContentLoaded", async () => {
+
+    // ============================
+    // EVENT LISTENERS (SAFE)
+    // ============================
+    movieSelect?.addEventListener("change", () => {
+        const movie = allMovies.find(m => String(m.movieID || m.id) === String(movieSelect.value));
+        if (movie?.posterUrl) {
+            posterPreviewImg.src = movie.posterUrl;
+            posterPreviewContainer.style.display = "block";
+        } else {
+            posterPreviewContainer.style.display = "none";
+        }
+    });
+
+    cancelBtn?.addEventListener("click", resetForm);
+
+    filterBranchSelect?.addEventListener("change", () => loadPeriods(0, true));
+
+    searchInput?.addEventListener("input", (e) => handleSearch(e));
+
     await loadForeignKeys();
-    if (isManager||isStaff) {
+
+    if (isManager || isStaff) {
         document.getElementById("period-form-card").style.display = "none";
     }
+
     await loadPeriods(0, true);
+
     startDateInput.valueAsDate = new Date();
 });

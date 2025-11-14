@@ -3,6 +3,7 @@ package com.example.cinemaster.repository;
 import com.example.cinemaster.dto.response.StaffSimpleResponse;
 import com.example.cinemaster.entity.Account;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -48,13 +49,20 @@ public interface AccountRepository extends JpaRepository<Account, Integer> {
     WHERE (:keyword IS NULL OR a.fullName LIKE %:keyword% OR a.email LIKE %:keyword%)
       AND (:roleId IS NULL OR a.role.id = :roleId)
       AND (:branchId IS NULL OR a.branch.id = :branchId)
-      AND (a.isActive = true OR a.isActive IS NULL)
-""")
+      AND (:isActive IS NULL OR a.isActive = :isActive)
+    """)
     Page<Account> searchAccounts(
             @Param("keyword") String keyword,
             @Param("roleId") Integer roleId,
             @Param("branchId") Integer branchId,
-            org.springframework.data.domain.Pageable pageable
+            @Param("isActive") Boolean isActive,
+            Pageable pageable
     );
+    // Lấy tất cả account theo branch ID
+    List<Account> findAllByBranch_Id(Integer branchId);
+
+    // Lấy tất cả account theo branch + role name
+    List<Account> findAllByBranch_IdAndRole_RoleName(Integer branchId, String roleName);
 
 }
+

@@ -33,6 +33,17 @@ public enum ErrorCode {
     TICKET_NOT_FOUND(1025, "Không tìm thấy vé", HttpStatus.NOT_FOUND),
     INVALID_TICKET_STATUS(1026, "Trạng thái vé không hợp lệ (phải ở trạng thái HOLDING)", HttpStatus.BAD_REQUEST),
 
+    PROFILE_NOT_FOUND(1100, "Không tìm thấy hồ sơ người dùng", HttpStatus.NOT_FOUND),
+
+    WRONG_PASSWORD(1101, "Mật khẩu hiện tại không đúng", HttpStatus.BAD_REQUEST),
+
+    EMAIL_EXISTED(1102, "Email đã tồn tại", HttpStatus.BAD_REQUEST),
+
+    INVALID_OTP(1103, "Mã OTP không hợp lệ", HttpStatus.BAD_REQUEST),
+    OTP_EXPIRED(1104, "Mã OTP đã hết hạn", HttpStatus.BAD_REQUEST),
+
+    EMAIL_SEND_FAILED(1105, "Gửi email thất bại", HttpStatus.INTERNAL_SERVER_ERROR),
+
     AUDITORIUM_NOT_FOUND(1015, "Không tìm thấy phòng chiếu", HttpStatus.NOT_FOUND),
     AUDITORIUM_INACTIVE(1016, "Phòng chiếu hiện đang bị vô hiệu hóa", HttpStatus.BAD_REQUEST),
     AUDITORIUM_ALREADY_EXISTS(1017, "Phòng chiếu đã tồn tại trong chi nhánh này", HttpStatus.BAD_REQUEST),

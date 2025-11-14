@@ -34,6 +34,11 @@ public interface BranchRepository extends JpaRepository<Branch, Integer> {
      AND b.isActive = true
 """)
     List<com.example.cinemaster.entity.Branch> findBranchesByMovie(@Param("movieId") Integer movieId);
+    @Query("""
+    SELECT b FROM Branch b
+    WHERE LOWER(b.branchName) LIKE LOWER(CONCAT('%', :keyword, '%'))
+""")
+    List<Branch> searchByBranchName(@Param("keyword") String keyword);
 
 
 }

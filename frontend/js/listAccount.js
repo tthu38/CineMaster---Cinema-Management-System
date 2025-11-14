@@ -1,5 +1,5 @@
 import { branchApi } from "./api/branchApi.js";
-import { requireAuth } from "./api/config.js";
+import { requireAuth, getValidToken } from "./api/config.js";
 import { accountApi } from "./api/accountApi.js";
 
 let deleteModal, restoreModal;
@@ -17,10 +17,30 @@ let currentRestoreId = null;
 let currentRoleId = null;
 let currentKeyword = "";
 let currentBranchId = null;
+
 let initialized = false;
 
 let currentRole = null;
 let managerBranchId = null;
+
+// ========================= LOAD SPAM ACCOUNTS =========================
+async function loadSpamAccounts() {
+    if (currentRole !== "Admin" && currentRole !== "Manager") return [];
+
+    try {
+        const token = getValidToken();
+
+        const res = await fetch("http://localhost:8080/api/v1/accounts/spam/list", {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (!res.ok) return [];
+        return await res.json();
+
+    } catch {
+        return [];
+    }
+}
 
 // ========================= SEARCH =========================
 document.getElementById("searchInput").addEventListener("input", e => {
@@ -32,13 +52,17 @@ document.getElementById("searchInput").addEventListener("input", e => {
 branchSelect.addEventListener("change", e => {
     const val = e.target.value;
     currentBranchId = val === "" || val === "undefined" ? null : Number(val);
-    console.log("🔍 Branch filter:", currentBranchId);
     loadAccounts(0);
 });
 
 // ========================= LOAD ACCOUNTS =========================
 async function loadAccounts(page = 0) {
     table.innerHTML = `<tr><td colspan="9" class="text-center">Đang tải...</td></tr>`;
+
+    let spamList = [];
+    const token = getValidToken();
+    if (token) spamList = await loadSpamAccounts();
+
     try {
         let branchFilter = currentBranchId;
 
@@ -48,12 +72,18 @@ async function loadAccounts(page = 0) {
         }
 
         const res = await accountApi.getAllPaged(
-            page, pageSize, currentRoleId, branchFilter, currentKeyword
+            page,
+            pageSize,
+            currentRoleId,
+            branchFilter,
+            currentKeyword,
+            "" // luôn fetch cả active + inactive
         );
 
-        renderTable(res.content);
+        renderTable(res.content, spamList);
         renderPagination(res);
         currentPage = res.page;
+
     } catch (err) {
         console.error(" Error loading accounts:", err);
         table.innerHTML = `<tr><td colspan="9" class="text-center text-danger">Không thể tải danh sách account</td></tr>`;
@@ -77,7 +107,7 @@ async function loadBranches() {
 }
 
 // ========================= RENDER TABLE =========================
-function renderTable(accounts = []) {
+function renderTable(accounts = [], spamList = []) {
     table.innerHTML = "";
     if (accounts.length === 0) {
         table.innerHTML = `<tr><td colspan="9" class="text-center">Chưa có account nào</td></tr>`;
@@ -85,6 +115,10 @@ function renderTable(accounts = []) {
     }
 
     accounts.forEach(acc => {
+        const spamMark = spamList.includes(acc.accountID)
+            ? `<span class="badge bg-danger ms-2">SPAM!</span>`
+            : "";
+
         const profileImg = acc.avatarUrl
             ? `<img src="${acc.avatarUrl.startsWith("http") ? acc.avatarUrl : "http://localhost:8080" + acc.avatarUrl}" class="profile-img">`
             : `<span class="text-muted">No Image</span>`;
@@ -99,8 +133,8 @@ function renderTable(accounts = []) {
             actionButtons = acc.isActive
                 ? `
             <a href="updateUser.html?id=${acc.accountID}" class="btn btn-sm btn-warning me-1">Sửa</a>
-            <button class="btn btn-sm btn-danger btn-delete" data-id="${acc.accountID}" data-name="${acc.fullName || acc.email}">Xóa</button>`
-                : `<button class="btn btn-sm btn-success btn-restore" data-id="${acc.accountID}" data-name="${acc.fullName || acc.email}">Khôi phục</button>`;
+            <button class="btn btn-sm btn-danger btn-delete" data-id="${acc.accountID}" data-name="${acc.fullName || acc.email}">Vô hiệu hóa</button>`
+                : `<button class="btn btn-sm btn-success btn-restore" data-id="${acc.accountID}" data-name="${acc.fullName || acc.email}">Kích hoạt</button>`;
         }
         // 🧑‍💼 MANAGER
         else if (currentRole === "Manager") {
@@ -108,8 +142,8 @@ function renderTable(accounts = []) {
                 actionButtons = acc.isActive
                     ? `
                 <a href="updateUser.html?id=${acc.accountID}" class="btn btn-sm btn-warning me-1">Sửa</a>
-                <button class="btn btn-sm btn-danger btn-delete" data-id="${acc.accountID}" data-name="${acc.fullName || acc.email}">Xóa</button>`
-                    : `<button class="btn btn-sm btn-success btn-restore" data-id="${acc.accountID}" data-name="${acc.fullName || acc.email}">Khôi phục</button>`;
+                <button class="btn btn-sm btn-danger btn-delete" data-id="${acc.accountID}" data-name="${acc.fullName || acc.email}">Vô hiệu hóa</button>`
+                    : `<button class="btn btn-sm btn-success btn-restore" data-id="${acc.accountID}" data-name="${acc.fullName || acc.email}">Kích hoạt</button>`;
             } else {
                 actionButtons = `<span class="text-muted">—</span>`;
             }
@@ -121,7 +155,7 @@ function renderTable(accounts = []) {
 
         table.innerHTML += `
             <tr data-id="${acc.accountID}">
-              <td>${acc.accountID}</td>
+              <td>${acc.accountID} ${spamMark}</td>
               <td>${profileImg}</td>
               <td>${acc.email}</td>
               <td>${acc.fullName || ""}</td>
@@ -156,7 +190,7 @@ function attachRowEvents() {
     });
 }
 
-//========================= PAGINATION =========================
+// ========================= PAGINATION =========================
 function renderPagination(pageData) {
     pagination.innerHTML = "";
     if (!pageData || pageData.totalPages <= 1) return;
@@ -170,18 +204,14 @@ function renderPagination(pageData) {
         return btn;
     };
 
-    // Previous
     pagination.appendChild(makeButton(pageData.page - 1, "&laquo;", pageData.page === 0));
 
-    // Page numbers
     for (let i = 0; i < pageData.totalPages; i++) {
         pagination.appendChild(makeButton(i, i + 1, false, i === pageData.page));
     }
 
-    // Next
     pagination.appendChild(makeButton(pageData.page + 1, "&raquo;", pageData.page === pageData.totalPages - 1));
 }
-
 
 // ========================= DELETE / RESTORE =========================
 function attachModalActions() {
@@ -190,9 +220,8 @@ function attachModalActions() {
         try {
             await accountApi.remove(currentDeleteId);
             deleteModal.hide();
-            updateRowStatus(currentDeleteId, false);
+            loadAccounts(currentPage);
         } catch (err) {
-            console.error("Error deleting account:", err);
             alert("Vô hiệu hóa thất bại!");
         }
     });
@@ -202,30 +231,11 @@ function attachModalActions() {
         try {
             await accountApi.restore(currentRestoreId);
             restoreModal.hide();
-            updateRowStatus(currentRestoreId, true);
+            loadAccounts(currentPage);
         } catch (err) {
-            console.error("Error restoring account:", err);
-            alert("Khôi phục thất bại!");
+            alert("Kích hoạt thất bại!");
         }
     });
-}
-
-// ========================= CẬP NHẬT DÒNG TRONG BẢNG =========================
-function updateRowStatus(accountID, isActive) {
-    const row = table.querySelector(`tr[data-id="${accountID}"]`);
-    if (!row) return;
-
-    const dotCell = row.children[5];
-    dotCell.innerHTML = `<span class="status-dot ${isActive ? "status-active" : "status-inactive"}"
-                             title="${isActive ? "Đang hoạt động" : "Đã vô hiệu hóa"}"></span>`;
-
-    const actionCell = row.children[8];
-    actionCell.innerHTML = isActive
-        ? `<a href="updateUser.html?id=${accountID}" class="btn btn-sm btn-warning me-1">Sửa</a>
-           <button class="btn btn-sm btn-danger btn-delete" data-id="${accountID}">Xóa</button>`
-        : `<button class="btn btn-sm btn-success btn-restore" data-id="${accountID}">Khôi phục</button>`;
-
-    attachRowEvents();
 }
 
 // ========================= ROLE FILTER BUTTONS =========================
@@ -248,17 +258,10 @@ async function init() {
     currentRole = localStorage.getItem("role");
     managerBranchId = localStorage.getItem("branchId");
 
-    console.log(" Role:", currentRole, "Branch:", managerBranchId);
-
-    if (currentRole === "Manager") {
+    if (currentRole === "Manager" || currentRole === "Staff") {
         branchSelect.parentElement.style.display = "none";
         currentBranchId = Number(managerBranchId);
-    }
-    else if (currentRole === "Staff") {
-        branchSelect.parentElement.style.display = "none";
-        currentBranchId = Number(managerBranchId);
-    }
-    else {
+    } else {
         await loadBranches();
     }
 
@@ -267,7 +270,6 @@ async function init() {
 
 // ========================= WAIT DOM THEN START =========================
 document.addEventListener("DOMContentLoaded", () => {
-    // Modal chắc chắn tồn tại
     const deleteEl = document.getElementById("deleteAccountModal");
     const restoreEl = document.getElementById("restoreAccountModal");
 

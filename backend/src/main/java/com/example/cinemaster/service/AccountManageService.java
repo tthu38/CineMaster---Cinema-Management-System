@@ -7,9 +7,7 @@ import com.example.cinemaster.entity.Account;
 import com.example.cinemaster.entity.Branch;
 import com.example.cinemaster.entity.Role;
 import com.example.cinemaster.mapper.AccountManageMapper;
-import com.example.cinemaster.repository.AccountRepository;
-import com.example.cinemaster.repository.BranchRepository;
-import com.example.cinemaster.repository.RoleRepository;
+import com.example.cinemaster.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,7 +18,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +33,9 @@ public class AccountManageService {
     private final AccountManageMapper mapper;
     private final FileStorageService fileStorageService;
     private final PasswordEncoder passwordEncoder;
+    private final MovieFeedbackRepository feedbackRepo;
+    private final ContactRequestRepository contactRepo;
+
 
     public AccountResponse create(AccountRequest request, MultipartFile avatarFile) {
         Account account = mapper.toEntity(request);
@@ -109,6 +113,14 @@ public class AccountManageService {
     public void softDelete(Integer id) {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy tài khoản"));
+        //Xóa feedback spam
+
+        feedbackRepo.deleteByAccount_AccountID(id);
+
+        //Xóa contact spam
+        contactRepo.deleteByEmailAndIsSpamTrue(account.getEmail());
+
+        //Ban user
         account.setIsActive(false);
         accountRepository.save(account);
     }
@@ -123,11 +135,13 @@ public class AccountManageService {
     public PagedResponse<AccountResponse> getAllPaged(int page, int size,
                                                       Integer roleId,
                                                       Integer branchId,
-                                                      String keyword) {
+                                                      String keyword,
+                                                      Boolean isActive) {
+
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "accountID"));
 
         Page<Account> accountPage = accountRepository.searchAccounts(
-                keyword, roleId, branchId, pageable
+                keyword, roleId, branchId, isActive, pageable
         );
 
         List<AccountResponse> content = accountPage.getContent()
@@ -146,7 +160,43 @@ public class AccountManageService {
 
 
 
+    public List<Map<String, Object>> getSuspiciousUsers() {
+
+        List<Account> users = accountRepository.findAll();
+
+        List<Map<String, Object>> suspicious = new ArrayList<>();
+
+        for (Account acc : users) {
+
+            int feedbackSpam = feedbackRepo.countByAccount_AccountIDAndIsSpam(acc.getAccountID(), true);
+            int contactSpam = contactRepo.countByEmailAndIsSpam(acc.getEmail(), true);
+
+            if (feedbackSpam >= 3 || contactSpam >= 2) {
+
+                Map<String, Object> data = new HashMap<>();
+                data.put("accountId", acc.getAccountID());
+                data.put("name", acc.getFullName());
+                data.put("email", acc.getEmail());
+                data.put("spamFeedback", feedbackSpam);
+                data.put("spamContact", contactSpam);
+                data.put("shouldBan", true);
+
+                suspicious.add(data);
+            }
+        }
+
+        return suspicious;
+    }
+
+    public List<Integer> getSpamAccountIds() {
+        List<Map<String, Object>> suspicious = getSuspiciousUsers();
+
+        return suspicious.stream()
+                .map(u -> (Integer) u.get("accountId"))
+                .toList();
+    }
 
 
 
 }
+

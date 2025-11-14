@@ -126,4 +126,7 @@ public class MovieService {
         String trimmed = param.trim();
         return trimmed.isEmpty() ? null : trimmed;
     }
+    public List<String> getAllGenres() {
+        return movieRepository.findAllGenres();
+    }
 }

@@ -1,4 +1,3 @@
-
 import { API_BASE_URL, getValidToken, handleResponse } from './config.js';
 
 export const accountApi = {
@@ -12,7 +11,27 @@ export const accountApi = {
         return handleResponse(res);
     },
 
-    async getAllPaged(page = 0, size = 10, roleId = null, branchId = null, keyword = "", isActive = null) {
+    /**
+     * getAllPaged
+     * @param page
+     * @param size
+     * @param roleId
+     * @param branchId
+     * @param keyword
+     * @param isActive
+     * @param isActiveMode  // ⬅️ thêm mode để bật "luôn gửi rỗng"
+     *      - null (default): giữ hành vi gốc của bạn
+     *      - "forceEmpty": luôn gửi &isActive=
+     */
+    async getAllPaged(
+        page = 0,
+        size = 10,
+        roleId = null,
+        branchId = null,
+        keyword = "",
+        isActive = null,
+        isActiveMode = null
+    ) {
         const token = getValidToken();
         if (!token) return null;
 
@@ -23,11 +42,23 @@ export const accountApi = {
         }
         if (keyword) url += `&keyword=${encodeURIComponent(keyword)}`;
 
-        // 👇 THÊM DÒNG NÀY ĐỂ LỌC THEO TRẠNG THÁI
-        if (isActive !== null) url += `&isActive=${isActive}`;
+        // ================================
+        // ⭐ GỘP LOGIC CỦA HAI VERSION ⭐
+        // ================================
+
+        if (isActiveMode === "forceEmpty") {
+            // Version 2: luôn gửi rỗng
+            url += `&isActive=`;
+        } else {
+            // Version GỐC của bạn: chỉ gửi khi isActive !== null
+            if (isActive !== null) url += `&isActive=${isActive}`;
+        }
 
         console.log("📡 Fetching:", url);
-        const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+
+        const res = await fetch(url, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
         return handleResponse(res);
     },
 
@@ -46,7 +77,7 @@ export const accountApi = {
 
         const formData = new FormData();
         formData.append(
-            "data", // ✅ phải trùng với @RequestPart("data")
+            "data",
             new Blob([JSON.stringify(accountData)], { type: "application/json" })
         );
         if (avatarFile) {
@@ -56,7 +87,7 @@ export const accountApi = {
         const res = await fetch(`${API_BASE_URL}/accounts`, {
             method: "POST",
             headers: {
-                Authorization: `Bearer ${token}`, // ❌ KHÔNG set Content-Type, để fetch tự gắn
+                Authorization: `Bearer ${token}`,
             },
             body: formData,
         });
@@ -69,7 +100,7 @@ export const accountApi = {
 
         const formData = new FormData();
         formData.append(
-            "data", // ✅ giống @RequestPart("data")
+            "data",
             new Blob([JSON.stringify(accountData)], { type: "application/json" })
         );
         if (avatarFile) {
@@ -79,7 +110,7 @@ export const accountApi = {
         const res = await fetch(`${API_BASE_URL}/accounts/${id}`, {
             method: "PUT",
             headers: {
-                Authorization: `Bearer ${token}`, // không set Content-Type
+                Authorization: `Bearer ${token}`,
             },
             body: formData,
         });
@@ -95,6 +126,7 @@ export const accountApi = {
         });
         return handleResponse(res);
     },
+
     async restore(id) {
         const token = getValidToken();
         if (!token) return null;

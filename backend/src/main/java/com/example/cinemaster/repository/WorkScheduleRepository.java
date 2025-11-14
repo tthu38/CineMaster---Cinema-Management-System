@@ -60,5 +60,24 @@ public interface WorkScheduleRepository
         ORDER BY w.startTime
     """)
     List<WorkSchedule> findDistinctShiftTypesByDateAndBranch(LocalDate date, Integer branchId);
+    void deleteByBranch_IdAndShiftDateBetween(Integer branchId,
+                                              LocalDate start,
+                                              LocalDate end);
+
+
+    List<WorkSchedule> findByBranch_IdAndShiftDateBetween(
+            Integer branchId,
+            LocalDate start,
+            LocalDate end
+    );
+
+
+    boolean existsByBranch_IdAndShiftDateAndShiftTypeAndAccount_AccountID(
+            Integer branchId,
+            LocalDate shiftDate,
+            String shiftType,
+            Integer accountId
+    );
+
 
 }

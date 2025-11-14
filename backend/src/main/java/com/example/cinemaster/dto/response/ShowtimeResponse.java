@@ -18,6 +18,6 @@ public record ShowtimeResponse(
         String posterUrl,
 
         String auditoriumName,
-        Integer branchId
-
+        Integer branchId,
+        String branchName
 ) {}

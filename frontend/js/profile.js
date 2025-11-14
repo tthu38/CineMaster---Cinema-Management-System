@@ -232,6 +232,58 @@ function initChangeEmail() {
         }
     });
 }
+async function loadPromotions() {
+    const railTrack = document.querySelector(".track");
+    if (!railTrack) return;
+
+    try {
+        const promos = await api.getPromotions();
+
+        railTrack.innerHTML = ""; // clear promo cũ
+
+        promos.forEach(p => {
+            const card = document.createElement("div");
+            card.className = "promo";
+            card.innerHTML = `
+                <div class="tag"><i class="fa-solid fa-ticket"></i> ${p.discountStatus || "Promo"}</div>
+                <div class="mt-2"><strong>${p.code}</strong></div>
+                <div class="ptime">${formatDateRange(p.createAt, p.expiryDate)}</div>
+
+                <button class="cta mt-2" onclick="location.href='../user/showtimes-calendar.html'">
+                    <i class="fa-solid fa-arrow-right"></i> Đặt lịch ngay
+                </button>
+            `;
+            railTrack.appendChild(card);
+        });
+
+        // nhân đôi promo để chạy marquee
+        promos.forEach(p => {
+            const card = document.createElement("div");
+            card.className = "promo";
+            card.innerHTML = `
+                <div class="tag"><i class="fa-solid fa-ticket"></i> ${p.discountStatus || "Promo"}</div>
+                <div class="mt-2"><strong>${p.code}</strong></div>
+                <div class="ptime">${formatDateRange(p.createAt, p.expiryDate)}</div>
+
+                <button class="cta mt-2" onclick="location.href='../user/showtimes-calendar.html'">
+                    <i class="fa-solid fa-arrow-right"></i> Đặt lịch ngay
+                </button>
+            `;
+            railTrack.appendChild(card);
+        });
+
+    } catch (err) {
+        console.error("Load promotions error:", err);
+    }
+}
+
+
+function formatDateRange(start, end) {
+    if (!start && !end) return "";
+    const s = start ? new Date(start).toLocaleDateString("vi-VN") : "";
+    const e = end ? new Date(end).toLocaleDateString("vi-VN") : "";
+    return `${s} – ${e}`;
+}
 
 /* ------- Khởi tạo ------- */
 document.addEventListener("DOMContentLoaded", () => {
@@ -242,6 +294,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initChangePassword();
     initChangeEmail();
 });
+loadPromotions();
 
 // Cho script avatar nhanh (module khác) có thể gọi lại
 window.loadProfile = loadProfile;

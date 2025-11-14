@@ -1,20 +1,16 @@
-<!-- ✅ frontend/home/header-no-logout.html -->
+
 <header class="header cm-header">
     <div class="header-container">
-        <!-- Logo -->
+
         <a href="../home/home.html" class="logo-text">CineMaster</a>
 
-        <!-- Navigation -->
         <nav class="cm-nav">
-            <a href="../home/home.html" class="nav-link">Home</a>
-            <a href="../movies/listMovieCus.html" class="nav-link">Movies</a>
-            <a href="../user/showtimes-calendar.html" class="nav-link">Showtimes</a>
-            <a href="../discount/listDiscount.html" class="nav-link">Promotions</a>
-            <a href="../news/listNewsCus.html" class="nav-link">News</a>
-            <a href="../contact/contact.html" class="nav-link">Contact</a>
+            <a href="../home/home.html" class="nav-link">Trang chủ</a>
+            <a href="../movies/listMovieCus.html" class="nav-link">Phim</a>
+            <a href="../user/showtimes-calendar.html" class="nav-link">Lịch chiếu</a>
+            <a href="../news/listNewsCus.html" class="nav-link">Tin tức</a>
+            <a href="../contact/contact.html" class="nav-link">Liên hệ</a>
         </nav>
-
-        <!-- Auth Area (avatar + dropdown) -->
         <div class="auth-wrap" id="authArea"></div>
     </div>
 </header>
@@ -173,7 +169,7 @@
       <img src="${avatar}" alt="avatar" class="user-avatar" id="userAvatar">
       <span class="user-name">${name}</span>
       <div class="dropdown-menu" id="dropdownMenu">
-        <a href="../user/profile.html?id=${accountId || ''}">👤 Profile</a>
+        <a href="../user/profile.html?id=${accountId || ''}">Trang cá nhân</a>
 
       </div>
     </div>

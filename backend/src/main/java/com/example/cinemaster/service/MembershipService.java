@@ -43,5 +43,6 @@ public class MembershipService {
 
         membership.setExpiryDate(LocalDate.now().plusYears(1));
         membershipRepository.save(membership);
+        account.setLoyaltyPoints(membership.getPoints());
     }
 }

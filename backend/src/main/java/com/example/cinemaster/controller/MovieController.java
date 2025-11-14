@@ -78,13 +78,36 @@ public class MovieController {
             @RequestPart("movie") MovieRequest request,
             @RequestPart(value = "posterFile", required = false) MultipartFile posterFile
     ) {
+
+        // 🔥 LẤY POSTER + TRAILER CŨ
+        Movie oldMovie = movieRepository.findById(id).orElse(null);
+        String oldPosterUrl = (oldMovie != null) ? oldMovie.getPosterUrl() : null;
+        String oldTrailerUrl = (oldMovie != null) ? oldMovie.getTrailerUrl() : null;
+
+        // 🔥 POSTER UPDATE
         if (posterFile != null && !posterFile.isEmpty()) {
+
+            // XÓA POSTER CŨ
+            fileStorageService.deletePosterCloudinary(oldPosterUrl);
+
+            // UP POSTER MỚI
             String posterUrl = fileStorageService.savePosterFile(posterFile);
             request.setPosterUrl(posterUrl);
         }
+
+        // 🔥 TRAILER UPDATE
+        // Nếu FE gửi trailerUrl mới (đã upload Cloudinary)
+        if (request.getTrailerUrl() != null && !request.getTrailerUrl().isEmpty()) {
+
+            // XÓA TRAILER CŨ
+            fileStorageService.deleteTrailerCloudinary(oldTrailerUrl);
+        }
+
         MovieResponse updated = movieService.update(id, request);
         return ResponseEntity.ok(new ApiResponse<>(1000, "Updated", updated));
     }
+
+
 
     @PreAuthorize("hasRole('Admin')")
     @DeleteMapping("/{id}")
@@ -113,4 +136,16 @@ public class MovieController {
         res.setResult(filteredMovies);
         return ResponseEntity.ok(res);
     }
+    @GetMapping("/genres")
+    public ResponseEntity<ApiResponse<List<String>>> getGenres() {
+        ApiResponse<List<String>> res = ApiResponse.<List<String>>builder()
+                .code(1000)
+                .message("OK")
+                .result(movieService.getAllGenres())
+                .build();
+
+
+        return ResponseEntity.ok(res);
+    }
 }
+

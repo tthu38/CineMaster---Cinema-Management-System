@@ -1,22 +1,12 @@
-// ======================================================================
-// 🎬 CINE MASTER - BRANCH MANAGEMENT (FINAL VERSION)
-// ======================================================================
-
 import { branchApi } from "./api/branchApi.js";
 import { requireAuth } from "./api/config.js";
 import Swal from "https://cdn.jsdelivr.net/npm/sweetalert2@11/+esm";
 
-// ================================
-// STATE
-// ================================
 let allBranchesData = [];
 let currentPage = 1;
 const ITEMS_PER_PAGE = 10;
 window.readOnlyMode = false;
 
-// ================================
-// DOM ELEMENTS
-// ================================
 const branchForm = document.getElementById("branch-form");
 const branchesBody = document.getElementById("branches-body");
 const loadButton = document.getElementById("load-branches");
@@ -24,10 +14,28 @@ const submitBtn = document.getElementById("submit-btn");
 const cancelBtn = document.getElementById("cancel-btn");
 const branchIdField = document.getElementById("branchId");
 const paginationControls = document.getElementById("pagination-controls");
+const searchInput = document.getElementById("searchBranch");
 
-// ======================================================================
-// 🧩 PAGINATION
-// ======================================================================
+
+searchInput.addEventListener("input", async (e) => {
+    const keyword = e.target.value.trim();
+
+    if (keyword.length === 0) {
+        currentPage = 1;       // <<< RESET TRANG VỀ ĐÚNG TRẠNG 1
+        await loadBranches();
+        return;
+    }
+
+    try {
+        const results = await branchApi.search(keyword);
+        allBranchesData = results;
+        currentPage = 1;
+        displayBranches(1);
+    } catch (err) {
+        console.error("Lỗi search:", err);
+    }
+});
+
 window.goToPage = (page) => displayBranches(page);
 
 function renderPaginationControls(totalPages) {
@@ -49,9 +57,6 @@ function renderPaginationControls(totalPages) {
     paginationControls.innerHTML += btn(currentPage + 1, "&raquo;", currentPage === totalPages);
 }
 
-// ======================================================================
-// 📌 LOAD BRANCH LIST
-// ======================================================================
 async function loadBranches() {
     branchesBody.innerHTML = `
         <tr><td colspan="9" class="text-center text-muted py-3">Đang tải danh sách...</td></tr>`;
@@ -72,9 +77,6 @@ async function loadBranches() {
     }
 }
 
-// ======================================================================
-// 📌 DISPLAY LIST
-// ======================================================================
 function displayBranches(page = 1) {
     branchesBody.innerHTML = "";
     paginationControls.innerHTML = "";
@@ -102,7 +104,8 @@ function displayBranches(page = 1) {
         row.insertCell(3).textContent = b.phone;
         row.insertCell(4).textContent = b.email;
         row.insertCell(5).textContent = `${b.openTime} - ${b.closeTime}`;
-        row.insertCell(6).textContent = b.managerId ? `${b.managerId}` : "Chưa gán";
+        const mgrCell = row.insertCell(6);
+        mgrCell.classList.add("d-none");
 
         row.insertCell(7).innerHTML =
             `<span class="badge bg-${b.isActive ? "success" : "danger"}">
@@ -116,7 +119,6 @@ function displayBranches(page = 1) {
             return;
         }
 
-        // ===== ACTIONS =====
         const editBtn = document.createElement("button");
         editBtn.className = "btn btn-warning btn-sm me-2";
         editBtn.textContent = "Sửa";
@@ -131,9 +133,6 @@ function displayBranches(page = 1) {
     });
 }
 
-// ======================================================================
-// 📌 STATUS TOGGLE (Activate / Deactivate)
-// ======================================================================
 async function handleStatusChange(id, isActive) {
     const actionText = isActive ? "đóng tạm" : "mở lại";
 
@@ -160,9 +159,6 @@ async function handleStatusChange(id, isActive) {
     }
 }
 
-// ======================================================================
-// 🧩 FORM SUBMIT (CREATE & UPDATE)
-// ======================================================================
 async function handleFormSubmission(e) {
     e.preventDefault();
 
@@ -189,9 +185,9 @@ async function handleFormSubmission(e) {
         phone,
         email,
         openTime,
-        closeTime,
-        managerId: mgrValue ? parseInt(mgrValue) : null
+        closeTime
     };
+
 
     try {
         if (isUpdate) await branchApi.update(id, payload);
@@ -207,9 +203,6 @@ async function handleFormSubmission(e) {
     }
 }
 
-// ======================================================================
-// 🧩 FILL FORM FOR UPDATE
-// ======================================================================
 function populateFormForUpdate(b) {
     submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk me-2"></i> Lưu Cập Nhật';
     cancelBtn.style.display = "inline-block";
@@ -230,9 +223,6 @@ function populateFormForUpdate(b) {
     });
 }
 
-// ======================================================================
-// 🧩 RESET FORM
-// ======================================================================
 function resetForm() {
     branchForm.reset();
     branchIdField.value = "";
@@ -240,9 +230,6 @@ function resetForm() {
     cancelBtn.style.display = "none";
 }
 
-// ======================================================================
-// INIT
-// ======================================================================
 async function init() {
     if (!requireAuth()) return;
 

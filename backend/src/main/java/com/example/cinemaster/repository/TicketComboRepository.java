@@ -41,4 +41,6 @@ public interface TicketComboRepository extends JpaRepository<TicketCombo, Intege
     BigDecimal sumComboRevenueByStaffAndTime(@Param("staffId") Integer staffId,
                                              @Param("from") LocalDateTime from,
                                              @Param("to") LocalDateTime to);
+
+
 }

@@ -54,4 +54,9 @@ public class ContactRequest {
 
     @Column
     LocalDateTime handledAt;
+
+    @Column(name = "IsSpam")
+    private Boolean isSpam = false;
+
 }
+

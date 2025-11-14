@@ -78,6 +78,7 @@
             border: 1px solid rgba(34, 193, 255, 0.2);
         }
 
+
         /* Ticket Pattern Overlay */
         .tickets-wall {
             position: fixed;
@@ -106,6 +107,8 @@
         }
 
 
+
+
         /* Grain Effect */
         .grain {
             pointer-events: none;
@@ -129,11 +132,13 @@
 <body>
 <div id="header"></div>
 
+
 <div class="grain"></div>
 <div class="tickets-wall" aria-hidden="true">
     <div class="tickets-layer l1"></div>
     <div class="tickets-layer l2"></div>
 </div>
+
 
 <div class="container" style="max-width:520px; margin-top: 100px; margin-bottom: 80px;">
     <div class="card-custom">
@@ -142,9 +147,13 @@
         <input id="amount" class="form-control mb-3" value="10000" type="number" min="1000"/>
 
 
+
+
         <button id="create" class="btn btn-cyan w-100 fw-semibold">
             Tạo mã & Hiển thị hướng dẫn
         </button>
+
+
 
 
         <div id="paybox" class="mt-4 text-center" style="display:none">
@@ -152,16 +161,24 @@
             <div class="alert alert-custom text-dark fw-medium" id="info"></div>
 
 
+
+
             <p class="mb-2">1️⃣ Quét mã QR trên (hoặc chuyển khoản tới)</p>
             <p class="mb-2"><b id="account" class="fs-5"></b> – <span id="bank"></span></p>
+
+
 
 
             <p class="mb-3">2️⃣ <b>Bắt buộc</b> ghi nội dung: <code id="code"></code></p>
 
 
+
+
             <p class="small text-muted mb-4">
                 Sau khi chuyển khoản, hệ thống sẽ tự động kiểm tra Google Sheet và hiển thị kết quả.
             </p>
+
+
 
 
             <div id="status" class="mt-4 text-center">
@@ -172,19 +189,27 @@
             </div>
 
 
+
+
         </div>
     </div>
 </div>
 
+
 <div id="footer"></div>
+
 
 <script>
     const BACKEND = "http://localhost:8080";
 
 
+
+
     // 🟢 Lấy dữ liệu từ confirmBooking.html (đã lưu trong localStorage)
     const bookingData = JSON.parse(localStorage.getItem("successBookingData") || "{}");
     const amountInput = document.getElementById("amount");
+
+
 
 
     // Hiển thị sẵn tổng tiền (nếu có)
@@ -195,15 +220,21 @@
     }
 
 
+
+
     document.getElementById('create').addEventListener('click', async () => {
         const amount = document.getElementById('amount').value.trim();
         const ticketId = bookingData?.ticketId;
+
+
 
 
         if (!amount || amount <= 0) {
             alert("⚠️ Vui lòng nhập số tiền hợp lệ!");
             return;
         }
+
+
 
 
         try {
@@ -215,14 +246,20 @@
             });
 
 
+
+
             if (!res.ok) throw new Error("Không thể tạo yêu cầu thanh toán.");
             const data = await res.json();
+
+
 
 
             if (data.error) {
                 alert("❌ Lỗi: " + data.error);
                 return;
             }
+
+
 
 
             // ✅ Hiển thị hướng dẫn + QR
@@ -233,6 +270,8 @@
             document.getElementById('info').textContent = data.noteHint || "Vui lòng ghi đúng nội dung chuyển khoản để hệ thống nhận diện.";
 
 
+
+
             // ✅ Tạo mã QR VietQR (MBBank)
             const accountNumber = (data.accountNumber || "0345506824").trim();
             const addInfo = encodeURIComponent(data.code || "CineMaster");
@@ -241,10 +280,14 @@
             console.log("✅ QR URL:", qrUrl); // Debug
 
 
+
+
             document.getElementById('qrContainer').innerHTML =
                 `<img src="${qrUrl}" class="qr" width="250" alt="QR Thanh toán">`;
             // ✅ Bắt đầu kiểm tra trạng thái giao dịch (poll Google Sheet)
             pollStatus(data.code, BACKEND + (data.pollUrl || `/api/v1/payments/status/${data.code}`), ticketId);
+
+
 
 
         } catch (err) {
@@ -252,6 +295,10 @@
             alert("❌ Lỗi khi tạo thanh toán: " + err.message);
         }
     });
+
+
+
+
 
 
 
@@ -264,17 +311,25 @@
         const pollInterval = 5000;
 
 
+
+
         statusEl.textContent = 'Đang kiểm tra giao dịch...';
         statusEl.style.color = 'orange';
+
+
 
 
         const interval = setInterval(async () => {
             tries++;
 
 
+
+
             try {
                 const res = await fetch(url);
                 if (!res.ok) throw new Error("Không thể truy cập API trạng thái.");
+
+
 
 
                 let data;
@@ -286,8 +341,12 @@
                 }
 
 
+
+
                 // 🔹 Log debug
                 console.log(`🔁 Lần ${tries}:`, data);
+
+
 
 
                 if (data.status === 'paid' || data.status === 'success') {
@@ -296,7 +355,11 @@
                     statusEl.style.color = 'limegreen';
 
 
+
+
                     alert("✅ Thanh toán thành công! Hệ thống đã phát hiện giao dịch.");
+
+
 
 
                     // 🟢 Gọi API xác nhận vé (verify-payment)
@@ -306,8 +369,12 @@
                             if (!verifyRes.ok) throw new Error("Backend không phản hồi đúng.");
 
 
+
+
                             const verifyData = await verifyRes.json();
                             console.log("🎫 Kết quả xác nhận vé:", verifyData);
+
+
 
 
                             // Kiểm tra phản hồi từ backend
@@ -315,6 +382,8 @@
                                 alert("⚠️ Lỗi khi xác nhận vé: " + (verifyData.message || "Không rõ nguyên nhân."));
                                 return;
                             }
+
+
 
 
                             // ✅ Lưu lại kết quả để successBooking.html hiển thị
@@ -327,14 +396,20 @@
                             }));
 
 
+
+
                             // ✅ Chuyển hướng sang trang thông báo thành công
                             statusEl.textContent = '🎟️ Vé đã được xác nhận, đang chuyển trang...';
                             statusEl.style.color = 'cyan';
 
 
+
+
                             setTimeout(() => {
                                 window.location.href = "../user/successBooking.html";
                             }, 2000);
+
+
 
 
                             return; // Dừng hàm
@@ -345,11 +420,15 @@
                     }
 
 
+
+
                 } else {
                     // 🔸 Nếu chưa thấy giao dịch, hiển thị trạng thái chờ
                     statusEl.textContent = `⏳ Đang chờ giao dịch... (${tries}/${maxTries})`;
                     statusEl.style.color = 'orange';
                 }
+
+
 
 
                 // 🕒 Hết thời gian chờ
@@ -370,7 +449,12 @@
 
 
 
+
+
+
+
 </script>
+
 
 <script>
     /* ================= HEADER (fix cứng, đồng bộ avatar + tên) ================= */
@@ -380,6 +464,8 @@
             const res = await fetch("../home/customer-header.html");
             const html = await res.text();
             headerEl.innerHTML = html;
+
+
 
 
             // ✅ ép chạy script trong file header
@@ -396,10 +482,14 @@
     })();
 
 
+
+
     // 🧩 Load footer
     fetch("../home/footer.html")
         .then(r => r.text())
         .then(h => document.getElementById("footer").innerHTML = h);
+
+
 
 
     // 🔹 Tab filter style (nếu có)
@@ -415,5 +505,7 @@
     });
 </script>
 
+
 </body>
 </html>
+

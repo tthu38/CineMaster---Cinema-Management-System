@@ -574,8 +574,6 @@ diagramAuditoriumSelect.addEventListener("change", async (e) => {
 });
 
 
-
-// ✅ Nâng cấp nút “Tải ghế” để chỉ load trong phòng đang chọn
 loadButton.addEventListener("click", () => {
     const auditoriumId = diagramAuditoriumSelect.value;
     if (!auditoriumId) {

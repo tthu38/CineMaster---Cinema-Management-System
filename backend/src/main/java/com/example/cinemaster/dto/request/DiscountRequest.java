@@ -18,27 +18,29 @@ public class DiscountRequest {
 
     String discountDescription;
 
-    @DecimalMin(value = "0.0", inclusive = false, message = "PercentOff phải lớn hơn 0")
-    @DecimalMax(value = "100.0", message = "PercentOff phải bé hơn 100")
+    @DecimalMin(value = "0.0", inclusive = false)
+    @DecimalMax(value = "100.0")
     BigDecimal percentOff;
 
-    @DecimalMin(value = "0.0", inclusive = false, message = "FixedAmount phải lớn hơn 0")
+    @DecimalMin(value = "0.0", inclusive = false)
     BigDecimal fixedAmount;
 
     Integer pointCost;
 
-    @Future(message = "Ngày hết hạn phải ở trong tương lai")
+    LocalDate createAt;     // ⭐ THÊM VÀO ĐÂY
+    @Future
     LocalDate expiryDate;
 
     Integer maxUsage;
 
     String discountStatus;
 
-    @DecimalMin(value = "0.0", inclusive = true, message = "MinOrderAmount phải ≥ 0")
+    @DecimalMin(value = "0.0", inclusive = true)
     BigDecimal minOrderAmount;
-    Integer requiredLevelId;
 
-    @AssertTrue(message = "Phải cung cấp percentOff hoặc fixedAmount, không phải cả hai hoặc không có.")
+    Integer requiredLevelId;   // ⭐ FE đang gửi đúng key này
+
+    @AssertTrue(message = "Phải cung cấp percentOff hoặc fixedAmount, không được để trống hoặc nhập cả hai")
     public boolean isValidDiscountValue() {
         return (percentOff != null ^ fixedAmount != null);
     }

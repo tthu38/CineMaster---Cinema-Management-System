@@ -68,7 +68,7 @@ public class GeminiRequest {
         private int maxOutputTokens = 1024;
 
         @JsonProperty("response_mime_type")
-        private String responseMimeType = "application/json";
+        private String responseMimeType = "text/plain";
 
         public GenerateContentConfig(float temperature) {
             this.temperature = temperature;

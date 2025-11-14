@@ -23,22 +23,38 @@ public class ContactRequestService {
     private final ContactRequestMapper mapper;
     private final BranchRepository branchRepo;
     private final AccountRepository accountRepo;
+    private final AIService aiService;
+
+
+//    public ContactRequestResponse create(ContactRequestRequest dto) {
+//        log.info(" Creating contact: {}", dto);
+//
+//        ContactRequest entity = mapper.toEntity(dto);
+//        entity.setStatus("Pending");
+//
+//        if (dto.getBranchId() != null) {
+//            var branch = branchRepo.findByIdAndIsActiveTrue(dto.getBranchId())
+//                    .orElseThrow(() -> new RuntimeException("Không tìm thấy chi nhánh hoạt động!"));
+//            entity.setBranch(branch);
+//        }
+//
+//        contactRepo.save(entity);
+//        return mapper.toResponse(entity);
+//    }
 
     public ContactRequestResponse create(ContactRequestRequest dto) {
-        log.info(" Creating contact: {}", dto);
 
         ContactRequest entity = mapper.toEntity(dto);
         entity.setStatus("Pending");
 
-        if (dto.getBranchId() != null) {
-            var branch = branchRepo.findByIdAndIsActiveTrue(dto.getBranchId())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy chi nhánh hoạt động!"));
-            entity.setBranch(branch);
-        }
+        // ⭐ AI detect spam message
+        boolean isSpam = aiService.isSpam(dto.getMessage());
+        entity.setIsSpam(isSpam);
 
         contactRepo.save(entity);
         return mapper.toResponse(entity);
     }
+
 
     // Lấy danh sách theo chi nhánh (cho Staff)
     public List<ContactRequestResponse> getByBranch(Integer branchId) {
@@ -87,3 +103,4 @@ public class ContactRequestService {
 
 
 }
+

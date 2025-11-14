@@ -1,43 +1,36 @@
 package com.example.cinemaster.controller;
 
-
 import com.example.cinemaster.dto.request.ChangePasswordRequest;
 import com.example.cinemaster.dto.request.EmailRequest;
 import com.example.cinemaster.dto.request.UpdateProfileRequest;
 import com.example.cinemaster.dto.response.ApiResponse;
+import com.example.cinemaster.dto.response.DiscountResponse;
 import com.example.cinemaster.dto.response.ProfileResponse;
-import com.example.cinemaster.exception.AppException;
-import com.example.cinemaster.exception.ErrorCode;
-import com.example.cinemaster.repository.AccountRepository;
 import com.example.cinemaster.security.AccountPrincipal;
-import com.example.cinemaster.service.EmailService;
+import com.example.cinemaster.service.DiscountService;
+import com.example.cinemaster.service.ProfileService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-
-import jakarta.transaction.Transactional;
-import java.time.LocalDateTime;
-
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/users")
-@Slf4j
 @RequiredArgsConstructor
+@Slf4j
 public class ProfileController {
 
-
-    private final AccountRepository accountRepository;
-    private final EmailService emailService;
-    private final PasswordEncoder passwordEncoder;
+    private final ProfileService profileService;
+    private final DiscountService discountService;
 
 
-    /* =================== GET PROFILE ================= */
+    /* =================== 1. GET PROFILE =================== */
     @GetMapping("/profile")
     public ResponseEntity<ApiResponse<ProfileResponse>> getProfile(
             @AuthenticationPrincipal AccountPrincipal principal
@@ -51,19 +44,7 @@ public class ProfileController {
             );
         }
 
-
-        ProfileResponse profile = ProfileResponse.builder()
-                .id(principal.getId())
-                .email(principal.getEmail())
-                .fullName(principal.getFullName())
-                .phoneNumber(principal.getPhoneNumber())
-                .address(principal.getAddress())
-                .roleName(principal.getRole())
-                .createdAt(principal.getCreatedAt())
-                .loyaltyPoints(principal.getLoyaltyPoints())
-                .avatarUrl(principal.getAvatarUrl())
-                .build();
-
+        ProfileResponse profile = profileService.getProfile();
 
         return ResponseEntity.ok(
                 ApiResponse.<ProfileResponse>builder()
@@ -74,12 +55,10 @@ public class ProfileController {
         );
     }
 
-
-    /* ====================== UPDATE PROFILE========================= */
+    /* =================== 2. UPDATE PROFILE =================== */
     @PutMapping("/profile")
-    @Transactional
     public ResponseEntity<ApiResponse<ProfileResponse>> updateProfile(
-            @RequestBody @Validated UpdateProfileRequest req,
+            @RequestBody @Valid UpdateProfileRequest req,
             @AuthenticationPrincipal AccountPrincipal principal
     ) {
         if (principal == null) {
@@ -91,34 +70,7 @@ public class ProfileController {
             );
         }
 
-
-        var acc = accountRepository.findById(principal.getId())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
-
-        if (req.getFullName() != null && !req.getFullName().isBlank())
-            acc.setFullName(req.getFullName());
-        if (req.getPhoneNumber() != null && !req.getPhoneNumber().isBlank())
-            acc.setPhoneNumber(req.getPhoneNumber());
-        if (req.getAddress() != null && !req.getAddress().isBlank())
-            acc.setAddress(req.getAddress());
-
-
-        accountRepository.save(acc);
-
-
-        ProfileResponse updated = ProfileResponse.builder()
-                .id(acc.getAccountID())
-                .email(acc.getEmail())
-                .fullName(acc.getFullName())
-                .phoneNumber(acc.getPhoneNumber())
-                .address(acc.getAddress())
-                .roleName(principal.getRole())
-                .createdAt(acc.getCreatedAt())
-                .loyaltyPoints(acc.getLoyaltyPoints())
-                .avatarUrl(acc.getAvatarUrl())
-                .build();
-
+        ProfileResponse updated = profileService.updateProfile(req, null);
 
         return ResponseEntity.ok(
                 ApiResponse.<ProfileResponse>builder()
@@ -129,11 +81,10 @@ public class ProfileController {
         );
     }
 
-
-    /* ===================CHANGE PASSWORD======================== */
+    /* =================== 3. CHANGE PASSWORD =================== */
     @PutMapping("/change-password")
     public ResponseEntity<ApiResponse<String>> changePassword(
-            @RequestBody @Validated ChangePasswordRequest req,
+            @RequestBody @Valid ChangePasswordRequest req,
             @AuthenticationPrincipal AccountPrincipal principal
     ) {
         if (principal == null) {
@@ -145,24 +96,7 @@ public class ProfileController {
             );
         }
 
-
-        var acc = accountRepository.findById(principal.getId())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
-
-        if (!passwordEncoder.matches(req.getCurrentPassword(), acc.getPassword())) {
-            return ResponseEntity.badRequest().body(
-                    ApiResponse.<String>builder()
-                            .code(2004)
-                            .message("Mật khẩu hiện tại sai!")
-                            .build()
-            );
-        }
-
-
-        acc.setPassword(passwordEncoder.encode(req.getNewPassword()));
-        accountRepository.save(acc);
-
+        profileService.changePassword(req);
 
         return ResponseEntity.ok(
                 ApiResponse.<String>builder()
@@ -173,12 +107,10 @@ public class ProfileController {
         );
     }
 
-
-    /* ==================SEND OTP TO CHANGE EMAIL========================== */
+    /* =================== 4. SEND OTP CHANGE EMAIL =================== */
     @PostMapping("/profile/send-otp-change-email")
-    @Transactional
     public ResponseEntity<ApiResponse<String>> sendOtpChangeEmail(
-            @RequestBody EmailRequest req,
+            @RequestBody @Valid EmailRequest req,
             @AuthenticationPrincipal AccountPrincipal principal
     ) {
         if (principal == null) {
@@ -190,57 +122,21 @@ public class ProfileController {
             );
         }
 
+        profileService.sendOtpToChangeEmail(req);
 
-        var acc = accountRepository.findById(principal.getId())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
-
-        if (accountRepository.existsByEmail(req.getEmail())) {
-            return ResponseEntity.badRequest().body(
-                    ApiResponse.<String>builder()
-                            .code(2003)
-                            .message("Email đã tồn tại!")
-                            .build()
-            );
-        }
-
-
-        String code = String.valueOf((int) (Math.random() * 900000) + 100000);
-        acc.setVerificationCode(code);
-        acc.setVerificationExpiry(LocalDateTime.now().plusMinutes(10));
-        accountRepository.save(acc);
-
-
-        try {
-            emailService.sendVerificationEmail(req.getEmail(), code);
-
-
-            return ResponseEntity.ok(
-                    ApiResponse.<String>builder()
-                            .code(1000)
-                            .message("Đã gửi OTP thành công")
-                            .result("OK")
-                            .build()
-            );
-
-
-        } catch (jakarta.mail.MessagingException e) {
-            log.error("Failed to send OTP email: {}", e.getMessage());
-            return ResponseEntity.status(500).body(
-                    ApiResponse.<String>builder()
-                            .code(9999)
-                            .message("Failed to send OTP: " + e.getMessage())
-                            .build()
-            );
-        }
+        return ResponseEntity.ok(
+                ApiResponse.<String>builder()
+                        .code(1000)
+                        .message("Đã gửi OTP thành công")
+                        .result("OK")
+                        .build()
+        );
     }
 
-
-    /* =========================== VERIFY EMAIL CHANGE=========================================== */
+    /* =================== 5. VERIFY EMAIL CHANGE =================== */
     @PostMapping("/profile/verify-email-change")
-    @Transactional
     public ResponseEntity<ApiResponse<String>> verifyEmailChange(
-            @RequestBody EmailRequest req,
+            @RequestBody @Valid EmailRequest req,
             @AuthenticationPrincipal AccountPrincipal principal
     ) {
         if (principal == null) {
@@ -252,38 +148,7 @@ public class ProfileController {
             );
         }
 
-
-        var acc = accountRepository.findById(principal.getId())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-
-
-        if (acc.getVerificationCode() == null ||
-                !acc.getVerificationCode().equals(req.getOtp())) {
-            return ResponseEntity.badRequest().body(
-                    ApiResponse.<String>builder()
-                            .code(2002)
-                            .message("Mã xác thực không hợp lệ")
-                            .build()
-            );
-        }
-
-
-        if (acc.getVerificationExpiry() == null ||
-                acc.getVerificationExpiry().isBefore(LocalDateTime.now())) {
-            return ResponseEntity.badRequest().body(
-                    ApiResponse.<String>builder()
-                            .code(2002)
-                            .message("Mã xác minh đã hết hạn!")
-                            .build()
-            );
-        }
-
-
-        acc.setEmail(req.getEmail());
-        acc.setVerificationCode(null);
-        acc.setVerificationExpiry(null);
-        accountRepository.save(acc);
-
+        profileService.verifyEmailChange(req);
 
         return ResponseEntity.ok(
                 ApiResponse.<String>builder()
@@ -293,9 +158,9 @@ public class ProfileController {
                         .build()
         );
     }
-    /* ================= 6. UPLOAD AVATAR======================================== */
+
+    /* =================== 6. UPLOAD AVATAR =================== */
     @PostMapping("/avatar")
-    @Transactional
     public ResponseEntity<ApiResponse<String>> uploadAvatar(
             @RequestParam("file") MultipartFile file,
             @AuthenticationPrincipal AccountPrincipal principal
@@ -309,48 +174,28 @@ public class ProfileController {
             );
         }
 
+        String url = profileService.uploadAvatar(file);
 
-        var account = accountRepository.findById(principal.getId())
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        return ResponseEntity.ok(
+                ApiResponse.<String>builder()
+                        .code(1000)
+                        .message("Avatar uploaded successfully")
+                        .result(url)
+                        .build()
+        );
+    }
+    /* =================== GET PROMOTIONS (for profile page) =================== */
+    @GetMapping("/promotions")
+    public ResponseEntity<ApiResponse<List<DiscountResponse>>> getPromotions() {
+        List<DiscountResponse> promos = discountService.getAll();
 
-
-        try {
-            String uploadDir = "uploads/";
-            java.nio.file.Path dir = java.nio.file.Paths.get(uploadDir);
-            if (!java.nio.file.Files.exists(dir)) {
-                java.nio.file.Files.createDirectories(dir);
-            }
-
-            String fileName = "avatar_" + account.getAccountID() + "_" + System.currentTimeMillis()
-                    + "_" + file.getOriginalFilename();
-
-
-            java.nio.file.Path path = dir.resolve(fileName);
-            java.nio.file.Files.copy(file.getInputStream(), path, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-
-            String fileUrl = "/uploads/" + fileName;
-            account.setAvatarUrl(fileUrl);
-            accountRepository.save(account);
-
-
-            return ResponseEntity.ok(
-                    ApiResponse.<String>builder()
-                            .code(1000)
-                            .message("Avatar uploaded successfully")
-                            .result(fileUrl)
-                            .build()
-            );
-        } catch (Exception e) {
-            log.error("Upload avatar error", e);
-            return ResponseEntity.status(500).body(
-                    ApiResponse.<String>builder()
-                            .code(9999)
-                            .message("Upload failed: " + e.getMessage())
-                            .build()
-            );
-        }
+        return ResponseEntity.ok(
+                ApiResponse.<List<DiscountResponse>>builder()
+                        .code(200)
+                        .message("Success")
+                        .result(promos)
+                        .build()
+        );
     }
 
-
 }
-

@@ -20,5 +20,6 @@ public class ProfileResponse {
     String roleName;
     LocalDate createdAt;
     Integer loyaltyPoints;
+    String membershipLevel;   // ⭐ THÊM DÒNG NÀY
     String avatarUrl;
 }

@@ -1,5 +1,6 @@
 package com.example.cinemaster.service;
 
+
 import com.example.cinemaster.dto.request.OtpCheckRequest;
 import com.example.cinemaster.dto.response.OtpCheckResponse;
 import com.example.cinemaster.entity.*;
@@ -7,54 +8,92 @@ import com.example.cinemaster.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 @Service
 @RequiredArgsConstructor
 public class OtpCheckService {
+
+
     private final OtpRepository otpRepository;
     private final TicketComboRepository ticketComboRepository;
 
+
     public OtpCheckResponse checkOtp(OtpCheckRequest req) {
+
+
         var otp = otpRepository.findValidOtp(req.getCode(), LocalDateTime.now())
-                .orElseThrow(() -> new IllegalArgumentException(" OTP không hợp lệ hoặc đã hết hạn!"));
+                .orElseThrow(() -> new IllegalArgumentException("❌ OTP không hợp lệ hoặc đã hết hạn!"));
+
 
         var ticket = otp.getTicket();
         if (ticket == null)
-            throw new IllegalArgumentException(" OTP này chưa liên kết với vé nào!");
+            throw new IllegalArgumentException("❌ OTP này chưa liên kết với vé nào!");
+
 
         var show = ticket.getShowtime();
         if (show == null)
-            throw new IllegalArgumentException(" Vé này không có thông tin suất chiếu!");
+            throw new IllegalArgumentException("❌ Vé này không có thông tin suất chiếu!");
+
 
         var period = show.getPeriod();
         var movie = (period != null) ? period.getMovie() : null;
         var auditorium = show.getAuditorium();
         var branch = (auditorium != null) ? auditorium.getBranch() : null;
 
+
+        // ✅ Lấy danh sách ghế (ghép Row + Number => A10, B3,...)
+        var ticketSeats = ticket.getTicketSeats();
+        List<String> seatCodes = ticketSeats.stream()
+                .map(ts -> {
+                    var s = ts.getSeat();
+                    return (s.getSeatRow() != null ? s.getSeatRow() : "")
+                            + (s.getSeatNumber() != null ? s.getSeatNumber() : "");
+                })
+                .collect(Collectors.toList());
+
+
+        List<Integer> seatIds = ticketSeats.stream()
+                .map(ts -> ts.getSeat().getSeatID())
+                .collect(Collectors.toList());
+
+
+        // ✅ Lấy danh sách combo (nếu có)
         var combos = ticketComboRepository.findByTicket_TicketId(ticket.getTicketId()).stream()
                 .map(this::formatCombo)
                 .collect(Collectors.toList());
 
+
         return OtpCheckResponse.builder()
-                .movieTitle(movie.getTitle())
-                .branchName(branch.getBranchName())
-                .auditoriumName(auditorium.getName())
+                // ===== ID phục vụ FE tra cứu =====
+                .showtimeId(show.getShowtimeID())
+                .auditoriumId(auditorium != null ? auditorium.getAuditoriumID() : null)
+
+
+                // ===== Thông tin vé =====
+                .movieTitle(movie != null ? movie.getTitle() : "Không rõ")
+                .branchName(branch != null ? branch.getBranchName() : "Không rõ")
+                .auditoriumName(auditorium != null ? auditorium.getName() : "Không rõ")
                 .language(show.getLanguage())
                 .startTime(show.getStartTime())
                 .endTime(show.getEndTime())
-                .seats(ticket.getTicketSeats().stream()
-                        .map(ts -> ts.getSeat().getSeatNumber())
-                        .collect(Collectors.toList()))
+
+
+                // ===== Ghế & Combo =====
+                .seats(seatCodes)     // ⚡ Giờ trả về ["A10", "B3", ...]
+                .seatIds(seatIds)
                 .combos(combos)
+
+
+                // ===== Thanh toán =====
                 .totalPrice(ticket.getTotalPrice())
                 .paymentMethod(ticket.getPaymentMethod() != null ? ticket.getPaymentMethod().name() : "UNKNOWN")
                 .ticketStatus(ticket.getTicketStatus().name())
                 .build();
-
     }
 
 
@@ -64,3 +103,4 @@ public class OtpCheckService {
         return name + " (x" + qty + ")";
     }
 }
+

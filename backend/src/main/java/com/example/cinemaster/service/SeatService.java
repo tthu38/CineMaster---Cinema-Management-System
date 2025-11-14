@@ -175,63 +175,108 @@ public class SeatService {
                 .collect(Collectors.toList());
     }
 
-    private List<SeatResponse> processCoupleSeatConversion(List<Seat> seatsInRow, SeatType coupleSeatType, Seat.SeatStatus newSeatStatus) {
+    private List<SeatResponse> processCoupleSeatConversion(List<Seat> seatsInRow,
+                                                           SeatType coupleSeatType,
+                                                           Seat.SeatStatus newSeatStatus) {
+
         List<Seat> toDelete = new ArrayList<>();
         List<Seat> toUpdate = new ArrayList<>();
+
+        // sort theo seatNumber thực tế
+        seatsInRow.sort( (a,b) -> Integer.compare(
+                Integer.parseInt(a.getSeatNumber()),
+                Integer.parseInt(b.getSeatNumber())
+        ));
+
         String row = seatsInRow.get(0).getSeatRow();
 
-        for (Seat seat : seatsInRow) {
-            if (seat.getColumnNumber() % 2 == 0) {
-                toDelete.add(seat);
-            } else {
-                seat.setSeatType(coupleSeatType);
-                if (newSeatStatus != null) seat.setStatus(newSeatStatus);
-                seat.setSeatNumber(row + seat.getColumnNumber() + "-" + (seat.getColumnNumber() + 1));
-                toUpdate.add(seat);
-            }
+        for (int i = 0; i < seatsInRow.size() - 1; i += 2) {
+
+            Seat left = seatsInRow.get(i);
+            Seat right = seatsInRow.get(i + 1);
+
+            int numLeft = Integer.parseInt(left.getSeatNumber());
+            int numRight = Integer.parseInt(right.getSeatNumber());
+
+            // update ghế trái → ghế đôi
+            left.setSeatType(coupleSeatType);
+            left.setSeatNumber(numLeft + "-" + numRight);
+
+            if (newSeatStatus != null)
+                left.setStatus(newSeatStatus);
+
+            toUpdate.add(left);
+
+            // ghế phải = bị xoá
+            toDelete.add(right);
         }
 
         seatRepository.deleteAll(toDelete);
         List<Seat> saved = seatRepository.saveAll(toUpdate);
-        return saved.stream().map(seatMapper::toResponse).collect(Collectors.toList());
+
+        return saved.stream().map(seatMapper::toResponse).toList();
     }
 
-    private List<SeatResponse> processSingleSeatSeparation(List<Seat> seatsInRow, SeatType singleSeatType, Seat.SeatStatus newSeatStatus) {
+
+    private List<SeatResponse> processSingleSeatSeparation(List<Seat> seatsInRow,
+                                                           SeatType singleSeatType,
+                                                           Seat.SeatStatus newSeatStatus) {
+
         List<Seat> toUpdate = new ArrayList<>();
         List<Seat> toCreate = new ArrayList<>();
+
         String row = seatsInRow.get(0).getSeatRow();
         Auditorium auditorium = seatsInRow.get(0).getAuditorium();
 
         for (Seat seat : seatsInRow) {
-            if (seat.getSeatNumber().contains("-")) {
-                seat.setSeatType(singleSeatType);
-                if (newSeatStatus != null) seat.setStatus(newSeatStatus);
 
-                int colOdd = seat.getColumnNumber();
-                seat.setSeatNumber(row + colOdd);
+            // ghế đôi → tách
+            if (seat.getSeatNumber().contains("-")) {
+
+                String[] parts = seat.getSeatNumber().split("-");
+                int a = Integer.parseInt(parts[0]);
+                int b = Integer.parseInt(parts[1]);
+
+                int col = seat.getColumnNumber();
+
+                // GHẾ TRÁI
+                seat.setSeatType(singleSeatType);
+                seat.setSeatNumber(String.valueOf(a));   // only number!
+
+                if (newSeatStatus != null)
+                    seat.setStatus(newSeatStatus);
+
                 toUpdate.add(seat);
 
-                int colEven = colOdd + 1;
-                toCreate.add(Seat.builder()
+                // GHẾ PHẢI
+                Seat right = Seat.builder()
                         .auditorium(auditorium)
                         .seatType(singleSeatType)
                         .seatRow(row)
-                        .columnNumber(colEven)
-                        .seatNumber(row + colEven)
+                        .seatNumber(String.valueOf(b))  // only number!
+                        .columnNumber(col + 1)
                         .status(newSeatStatus != null ? newSeatStatus : Seat.SeatStatus.AVAILABLE)
-                        .build());
-            } else {
+                        .build();
+
+                toCreate.add(right);
+            }
+            else {
+                // ghế đơn bình thường
                 seat.setSeatType(singleSeatType);
-                if (newSeatStatus != null) seat.setStatus(newSeatStatus);
+                if (newSeatStatus != null)
+                    seat.setStatus(newSeatStatus);
                 toUpdate.add(seat);
             }
         }
 
-        List<Seat> savedUpdated = seatRepository.saveAll(toUpdate);
-        List<Seat> savedCreated = seatRepository.saveAll(toCreate);
-        savedUpdated.addAll(savedCreated);
-        return savedUpdated.stream().map(seatMapper::toResponse).collect(Collectors.toList());
+        List<Seat> updated = seatRepository.saveAll(toUpdate);
+        List<Seat> created = seatRepository.saveAll(toCreate);
+
+        updated.addAll(created);
+
+        return updated.stream().map(seatMapper::toResponse).toList();
     }
+
 
     @Transactional(readOnly = true)
     public List<SeatResponse> getSeatsByAuditorium(Integer auditoriumId) {

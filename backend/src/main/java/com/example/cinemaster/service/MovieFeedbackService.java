@@ -20,6 +20,8 @@ public class MovieFeedbackService {
     private final MovieFeedbackRepository feedbackRepo;
     private final MovieRepository movieRepo;
     private final AccountRepository accountRepo;
+    private final AIService aiService;
+
 
     public List<MovieFeedbackResponse> getByMovie(Integer movieId) {
         return feedbackRepo.findByMovie_MovieID(movieId)
@@ -35,7 +37,33 @@ public class MovieFeedbackService {
                 .toList();
     }
 
+//    public MovieFeedbackResponse create(Integer movieId, MovieFeedbackRequest req) {
+//        Movie movie = movieRepo.findById(movieId)
+//                .orElseThrow(() -> new RuntimeException("Movie not found"));
+//        Account acc = accountRepo.findById(req.getAccountId())
+//                .orElseThrow(() -> new RuntimeException("Account not found"));
+//
+//        MovieFeedback fb = new MovieFeedback();
+//        fb.setMovie(movie);
+//        fb.setAccount(acc);
+//        fb.setRating(req.getRating());
+//        fb.setComment(req.getComment());
+//        fb.setCreatedAt(Instant.now());
+//
+//        MovieFeedback saved = feedbackRepo.save(fb);
+//
+//        return MovieFeedbackResponse.builder()
+//                .id(saved.getFeedbackId())
+//                .accountId(acc.getAccountID())
+//                .accountName(acc.getFullName())
+//                .rating(saved.getRating())
+//                .comment(saved.getComment())
+//                .createdAt(saved.getCreatedAt())
+//                .build();
+//    }
+
     public MovieFeedbackResponse create(Integer movieId, MovieFeedbackRequest req) {
+
         Movie movie = movieRepo.findById(movieId)
                 .orElseThrow(() -> new RuntimeException("Movie not found"));
         Account acc = accountRepo.findById(req.getAccountId())
@@ -48,15 +76,18 @@ public class MovieFeedbackService {
         fb.setComment(req.getComment());
         fb.setCreatedAt(Instant.now());
 
-        MovieFeedback saved = feedbackRepo.save(fb);
+        // ⭐ AI SPAM CHECK
+        fb.setIsSpam(aiService.isSpam(req.getComment()));
+
+        feedbackRepo.save(fb);
 
         return MovieFeedbackResponse.builder()
-                .id(saved.getFeedbackId())
+                .id(fb.getFeedbackId())
                 .accountId(acc.getAccountID())
                 .accountName(acc.getFullName())
-                .rating(saved.getRating())
-                .comment(saved.getComment())
-                .createdAt(saved.getCreatedAt())
+                .rating(fb.getRating())
+                .comment(fb.getComment())
+                .createdAt(fb.getCreatedAt())
                 .build();
     }
 
@@ -93,4 +124,19 @@ public class MovieFeedbackService {
     public List<MovieFeedback> getAllFeedbacksByUser(Integer accountId) {
         return feedbackRepo.findByAccount_AccountID(accountId);
     }
+
+    public MovieFeedback getById(Integer id) {
+        return feedbackRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Feedback not found"));
+    }
+
+    public void banUser(Integer accountId) {
+        var acc = accountRepo.findById(accountId)
+                .orElseThrow(() -> new RuntimeException("Account not found"));
+
+        acc.setIsActive(false);
+        accountRepo.save(acc);
+    }
+
 }
+

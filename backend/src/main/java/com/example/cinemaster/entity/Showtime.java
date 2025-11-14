@@ -49,7 +49,7 @@ public class Showtime {
     @Column(name = "Status", length = 20)
     String status = "ACTIVE";
 
-    @Transient
+//    @Transient
     public Movie getMovie() {
         return period != null ? period.getMovie() : null;
     }

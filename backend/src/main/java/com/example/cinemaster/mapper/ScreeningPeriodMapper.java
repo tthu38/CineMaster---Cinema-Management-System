@@ -24,6 +24,7 @@ public interface ScreeningPeriodMapper {
     ScreeningPeriodResponse toLite(ScreeningPeriod entity);
 
     List<ScreeningPeriodResponse> toLiteList(List<ScreeningPeriod> list);
+    List<ScreeningPeriodResponse> toSearchList(List<ScreeningPeriod> list);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateEntityFromDto(ScreeningPeriodRequest dto, @MappingTarget ScreeningPeriod entity);

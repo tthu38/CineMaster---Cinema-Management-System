@@ -6,10 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
 
+
+
     <!-- FONT & ICON -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+
 
 
     <style>
@@ -25,6 +29,8 @@
             --couple-color: #0aa3ff;
             --hold-color: #ffc107;
         }
+
+
 
 
         html,body{
@@ -45,11 +51,15 @@
         }
 
 
+
+
         /* Hide scrollbar for webkit browsers */
         .info-panel::-webkit-scrollbar,
         .seat-panel::-webkit-scrollbar {
             display: none;
         }
+
+
 
 
         /* Hide scrollbar for Firefox */
@@ -58,6 +68,8 @@
             scrollbar-width: none;
             -ms-overflow-style: none;
         }
+
+
 
 
         /* 🎟️ Tickets background */
@@ -84,6 +96,8 @@
         }
 
 
+
+
         /* 🌌 Grain */
         .grain {
             pointer-events: none;
@@ -103,6 +117,8 @@
         }
 
 
+
+
         body {
             display: flex;
             flex-direction: column;
@@ -111,6 +127,8 @@
             padding: 10px 0;
             gap: 10px;
         }
+
+
 
 
         /* ========== LAYOUT ========== */
@@ -130,6 +148,8 @@
             z-index: 10;
             margin-bottom: 10px;
         }
+
+
 
 
         /* ===== PANEL TRÁI ===== */
@@ -224,6 +244,8 @@
         }
 
 
+
+
         /* ===== PANEL PHẢI ===== */
         .seat-panel {
             flex-grow: 1;
@@ -277,6 +299,8 @@
             font-weight: 500;
             text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
+
+
 
 
         /* ===== GHẾ VÀ DÃY GHẾ - CẢI THIẾN THIẾT KẾ ===== */
@@ -348,6 +372,8 @@
         }
 
 
+
+
         .seat:hover {
             transform: perspective(500px) rotateX(0deg) scale(1.05) translateY(-2px);
             box-shadow: 0 4px 12px rgba(255,255,255,0.1), inset 0 1px 0 rgba(255,255,255,0.15);
@@ -370,6 +396,8 @@
             color: #fff;
             box-shadow: 0 0 10px rgba(255,105,180,0.4);
         }
+
+
 
 
         .seat.booked, .seat.reserved, .seat.broken {
@@ -398,6 +426,8 @@
         }
 
 
+
+
         /* 💕 GHẾ ĐÔI (Hồng) */
         .seat.couple {
             background-color: #FF69B4 !important;
@@ -406,6 +436,8 @@
             color: #fff;
             box-shadow: 0 0 10px rgba(255,105,180,0.4);
         }
+
+
 
 
         /* 🔴 GHẾ ĐÃ ĐẶT */
@@ -418,6 +450,8 @@
         }
 
 
+
+
         /* 💜 GHẾ ĐANG GIỮ (người khác đang giữ) */
         .seat.HOLDING {
             background-color: #8000FF !important;
@@ -428,6 +462,8 @@
         }
 
 
+
+
         /* 🔹 GHẾ ĐANG ĐƯỢC CHỌN */
         .seat.SELECTED {
             background-color: #E50914 !important;
@@ -435,6 +471,10 @@
             transform: scale(1.05);
             animation: pulse 0.3s ease;
         }
+
+
+
+
 
 
 
@@ -495,6 +535,8 @@
         .movie-poster:hover::before {
             opacity: 1;
         }
+
+
 
 
         /* ===== COMBO MODAL STYLES ===== */
@@ -600,6 +642,8 @@
         }
 
 
+
+
         /* ========== BOOKING PROGRESS ========== */
         .booking-progress {
             display: flex;
@@ -618,6 +662,8 @@
         }
 
 
+
+
         .progress-step {
             display: flex;
             flex-direction: column;
@@ -628,15 +674,21 @@
         }
 
 
+
+
         .progress-step.active {
             color: var(--text-light);
             font-weight: bold;
         }
 
 
+
+
         .progress-step.completed {
             color: #22c55e;
         }
+
+
 
 
         .progress-line {
@@ -648,9 +700,13 @@
         }
 
 
+
+
         .progress-step.active ~ .progress-line {
             background: var(--red);
         }
+
+
 
 
         .step-icon {
@@ -666,6 +722,8 @@
         }
 
 
+
+
         .progress-step.active .step-icon {
             background: linear-gradient(45deg, var(--red), #b8211c);
             border-color: var(--red);
@@ -673,10 +731,14 @@
         }
 
 
+
+
         /* Điều chỉnh padding cho panels để tránh overlap với progress */
         .info-panel, .seat-panel {
             padding-top: 20px;
         }
+
+
 
 
         #footer {
@@ -691,6 +753,8 @@
         }
 
 
+
+
         #footer a {
             color: #cfe3ff;
             text-decoration: none;
@@ -699,6 +763,8 @@
         #footer a:hover {
             color: #22c1ff;
         }
+
+
 
 
         .seat.holding {
@@ -710,8 +776,14 @@
         }
 
 
+
+
         .seat.vip { background-color: #8000ff; }  /* tím */
         .seat.selected { background-color: #e50914; }  /* đỏ */
+
+
+
+
 
 
 
@@ -725,15 +797,54 @@
         }
 
 
+
+
         .seat.selected {
             animation: pulse 0.3s ease;
         }
+
+
+        .seat {
+            /*background-color: rgba(221, 221, 221, 0.51); !* AVAILABLE *!*/
+            cursor: pointer;
+        }
+
+
+        .seat.BOOKED {
+            background-color: #e50914; /* đỏ */
+            cursor: not-allowed;
+        }
+
+
+        .seat.HOLDING {
+            background-color: #8000ff; /* tím */
+            cursor: not-allowed;
+        }
+
+
+        .seat.SELECTED {
+            background-color: #8000ff !important; /* xanh dương tươi */
+            border: 2px solid #fff;
+        }
+
+
+
+
+        .seat:hover:not(.BOOKED):not(.HOLDING) {
+            background-color: #ffcc80; /* hover cho ghế trống */
+        }
+
+
 
 
         @keyframes pulse {
             0% { transform: scale(0.9); }
             100% { transform: scale(1.05); }
         }
+
+
+
+
 
 
 
@@ -795,8 +906,12 @@
 </head>
 
 
+
+
 <body>
 <div id="header"></div>
+
+
 
 
 <div class="grain"></div>
@@ -804,6 +919,8 @@
     <div class="tickets-layer l1"></div>
     <div class="tickets-layer l2"></div>
 </div>
+
+
 
 
 <!-- 🧭 Booking Progress Bar -->
@@ -825,6 +942,8 @@
 </div>
 
 
+
+
 <div class="booking-container">
     <!-- RIGHT PANEL (now left after swap) -->
     <div class="seat-panel">
@@ -836,6 +955,8 @@
         <div id="seatMap"></div>
 
 
+
+
         <div class="legend">
             <div class="d-flex align-items-center"><div class="legend-color" style="background-color: var(--bg);"></div>Thường</div>
             <div class="d-flex align-items-center"><div class="legend-color" style="background-color: #FFD700;"></div>VIP</div>
@@ -845,7 +966,11 @@
         </div>
 
 
+
+
     </div>
+
+
 
 
     <!-- LEFT PANEL (now right after swap) -->
@@ -854,13 +979,19 @@
         <div class="showtime-details" id="movieInfo">--</div>
 
 
+
+
         <div class="poster-wrapper text-center mb-3">
             <img id="moviePoster" src="" alt="Poster phim" class="movie-poster">
         </div>
 
 
+
+
         <div class="section-title">Ghế đã chọn</div>
         <ul id="selectedList" class="list-unstyled"></ul>
+
+
 
 
         <div class="total-summary">
@@ -877,7 +1008,13 @@
 </div>
 
 
+
+
 <div id="footer" style="position: relative; z-index: 20;"></div>
+
+
+
+
 
 
 
@@ -887,11 +1024,15 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
 
+
+
 <script type="module">
     import { seatTypeApi } from "../js/api.js";
     import { seatApi } from "../js/api/seatApi.js";
     import { showtimeApi } from "../js/api/showtimeApi.js";
     import { API_BASE_URL } from "../js/api/config.js";
+
+
 
 
     const seatMap = document.getElementById("seatMap");
@@ -903,6 +1044,8 @@
     const posterEl = document.getElementById("moviePoster");
 
 
+
+
     const params = new URLSearchParams(window.location.search);
     const showtimeId = params.get("showtimeId");
     const accountId = localStorage.getItem("accountId") || params.get("accountId") || 1;
@@ -910,7 +1053,11 @@
     let tempTicketId = localStorage.getItem("tempTicketId");
 
 
+
+
     let selectedSeats = []; // 🟢 Đặt lên đây — khai báo TRƯỚC khi khôi phục
+
+
 
 
     // ✅ Khôi phục ghế đã chọn từ vé tạm (tempTicket)
@@ -926,25 +1073,26 @@
     }
 
 
+
+
     let auditoriumId = null;
     let branchId = null;
     let seatTypes = [];
     let allSeats = [];
 
 
-
-
-    // let selectedSeats = [];
-
-
     const formatSeatNumber = n => n || "";
     const getRowLetter = row => row ? row.replace(/[0-9]/g, "").slice(-1).toUpperCase() : "";
+
+
 
 
     /* ================= LOAD DỮ LIỆU ================= */
     async function loadSeatTypes() {
         try { seatTypes = await seatTypeApi.getAll(); } catch (e) { seatTypes = []; }
     }
+
+
 
 
     async function loadShowtime() {
@@ -954,17 +1102,23 @@
         window.currentShowtime = st;
 
 
+
+
         movieTitle.textContent = st.movieTitle || "Không rõ tên phim";
         movieInfo.innerHTML = `
-           <i class="far fa-clock"></i> ${new Date(st.startTime).toLocaleTimeString("vi-VN", {hour: "2-digit", minute: "2-digit"})} |
-           <i class="fas fa-calendar-alt"></i> ${new Date(st.startTime).toLocaleDateString("vi-VN")} |
-           Phòng ${st.auditoriumName || auditoriumId}
-       `;
+          <i class="far fa-clock"></i> ${new Date(st.startTime).toLocaleTimeString("vi-VN", {hour: "2-digit", minute: "2-digit"})} |
+          <i class="fas fa-calendar-alt"></i> ${new Date(st.startTime).toLocaleDateString("vi-VN")} |
+          Phòng ${st.auditoriumName || auditoriumId}
+      `;
         posterEl.src = st.posterUrl ? (st.posterUrl.startsWith("http") ? st.posterUrl : `/${st.posterUrl.replace(/^\/+/, "")}`) : "/img/default-poster.jpg";
+
+
 
 
         await loadSeats(false);
     }
+
+
 
 
     /* ================= LOAD GHẾ ================= */
@@ -973,24 +1127,30 @@
             allSeats = await seatApi.getByAuditorium(auditoriumId);
 
 
+
+
             // 🔹 Lấy danh sách ghế đã giữ hoặc đã đặt (HOLDING/BOOKED)
-            let occupiedSeatIds = [];
+            let occupiedSeats = [];
             try {
                 const occupiedRes = await fetch(
-                    `${API_BASE_URL}/tickets/occupied/${showtimeId}?accountId=${accountId}`
+                    `${API_BASE_URL}/tickets/occupied/${showtimeId}`
                 );
 
 
                 if (occupiedRes.ok) {
-                    occupiedSeatIds = await occupiedRes.json();
+                    occupiedSeats = await occupiedRes.json(); // [{ seatId, status }]
                 }
             } catch (err) {
                 console.warn("⚠️ Không thể load ghế đang giữ từ server:", err);
             }
 
 
+
+
             let mySeatIds = [];
             const restoreId = ticketId || localStorage.getItem("tempTicketId");
+
+
 
 
             // ✅ Khôi phục từ localStorage trước
@@ -1008,6 +1168,8 @@
                     }
                 }
             }
+
+
 
 
             // 🔹 Nếu vẫn chưa có, gọi server để lấy
@@ -1031,29 +1193,44 @@
             }
 
 
+
+
             // ✅ Nếu refresh nhẹ, giữ nguyên ghế đã chọn
             if (isRefresh && selectedSeats.length > 0) {
                 mySeatIds = selectedSeats;
             }
 
 
+
+
             // ✅ Hợp nhất
             selectedSeats = [...new Set(mySeatIds)];
 
 
+
+
             // ✅ Loại bỏ ghế của chính mình khỏi occupied
-            const myTicketId = Number(localStorage.getItem("tempTicketId"));
-            if (myTicketId && Array.isArray(occupiedSeatIds)) {
-                const mySeats = selectedSeats.length ? selectedSeats : mySeatIds;
-                occupiedSeatIds = occupiedSeatIds.filter(id => !mySeats.includes(id));
-            }
+            // const myTicketId = Number(localStorage.getItem("tempTicketId"));
+            // if (myTicketId && Array.isArray(occupiedSeats)) {
+            //     const mySeats = selectedSeats.length ? selectedSeats : mySeatIds;
+            //     occupiedSeats = occupiedSeats.filter(o => !mySeats.includes(o.seatId));
+            // }
+
+
 
 
             // ✅ Cập nhật trạng thái ghế
             allSeats.forEach(seat => {
-                if (selectedSeats.includes(seat.seatID)) seat.status = "SELECTED";
-                else if (occupiedSeatIds.includes(seat.seatID)) seat.status = "HOLDING";
-                else seat.status = "AVAILABLE";
+                const occ = occupiedSeats.find(o => o.seatId === seat.seatID);
+
+
+                if (selectedSeats.includes(seat.seatID)) {
+                    seat.status = "SELECTED";
+                } else if (occ) {
+                    seat.status = occ.status; // "BOOKED" hoặc "HOLDING" từ backend
+                } else {
+                    seat.status = "AVAILABLE";
+                }
             });
 
 
@@ -1065,6 +1242,8 @@
                 if (seat) total += basePrice * (seat.seatType?.priceMultiplier || 1);
             });
             localStorage.setItem("ticketPriceTotal", String(total));
+
+
 
 
             renderSeatMap();
@@ -1081,6 +1260,14 @@
 
 
 
+
+
+
+
+
+
+
+
     /* ================= RENDER GHẾ ================= */
     function createSeatDiv(seat) {
         const div = document.createElement("div");
@@ -1089,10 +1276,14 @@
         div.textContent = formatSeatNumber(seat.seatNumber);
 
 
+
+
         const seatType = seat.seatType || seatTypes.find(t => t.typeID === seat.typeID);
         seat.seatType = seatType;
         const typeName = seatType?.typeName?.toLowerCase() || "normal";
         div.classList.add(typeName === "vip" ? "vip" : typeName === "couple" ? "couple" : "normal");
+
+
 
 
         if (seat.status === "BOOKED") div.classList.add("BOOKED");
@@ -1100,29 +1291,75 @@
         if (seat.status === "SELECTED") div.classList.add("SELECTED");
 
 
+
+
         div.addEventListener("click", () => {
-            if (div.classList.contains("BOOKED") || (div.classList.contains("HOLDING") && !div.classList.contains("selected")))
+            if (div.classList.contains("BOOKED") || (div.classList.contains("HOLDING") && !div.classList.contains("SELECTED")))
                 return;
 
 
             const seatId = seat.seatID;
             const wasSelected = div.classList.contains("SELECTED");
-            div.classList.toggle("SELECTED");
 
 
+            // 👉 Nếu đang bỏ chọn thì cho phép luôn
             if (wasSelected) {
+                div.classList.remove("SELECTED");
                 selectedSeats = selectedSeats.filter(id => id !== seatId);
-            } else {
-                selectedSeats.push(seatId);
+                renderSelectedList();
+                return;
             }
 
 
+            // 👉 Nếu đang chọn mới
+            const sameRowSeats = allSeats.filter(s => s.seatRow === seat.seatRow);
+            const selectedInRow = sameRowSeats
+                .filter(s => selectedSeats.includes(s.seatID))
+                .map(s => s.seatNumber)
+                .sort((a, b) => a - b);
+
+
+            // Thêm ghế đang được chọn thử vào
+            selectedInRow.push(seat.seatNumber);
+            selectedInRow.sort((a, b) => a - b);
+
+
+            // ✅ Kiểm tra liền kề: nếu có khoảng trống > 1 giữa 2 ghế → báo lỗi
+            let hasGap = false;
+            for (let i = 1; i < selectedInRow.length; i++) {
+                if (selectedInRow[i] - selectedInRow[i - 1] > 1) {
+                    hasGap = true;
+                    break;
+                }
+            }
+
+
+            if (hasGap) {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Không được để trống ghế giữa!",
+                    text: "Vui lòng chọn các ghế liền nhau trong cùng hàng.",
+                    confirmButtonColor: "#e50914"
+                });
+                return; // ❌ Không cho chọn
+            }
+
+
+            // ✅ Nếu hợp lệ → chọn ghế
+            div.classList.add("SELECTED");
+            selectedSeats.push(seatId);
             renderSelectedList();
         });
 
 
+
+
+
+
         return div;
     }
+
+
 
 
     function renderSeatMap() {
@@ -1140,6 +1377,8 @@
         });
 
 
+
+
         Object.keys(seatsByRow).forEach(row => {
             const container = document.createElement("div");
             container.classList.add("row-container");
@@ -1154,6 +1393,8 @@
             seatMap.appendChild(container);
         });
     }
+
+
 
 
     function renderSelectedList() {
@@ -1181,6 +1422,8 @@
     }
 
 
+
+
     /* ================= CONFIRM CHỌN GHẾ ================= */
     confirmBtn.addEventListener("click", async () => {
         if (!selectedSeats.length) {
@@ -1189,9 +1432,13 @@
         }
 
 
+
+
         const token = localStorage.getItem("accessToken");
         const currentTempId = localStorage.getItem("tempTicketId");
         const safeTicketId = currentTempId && currentTempId !== "undefined" ? Number(currentTempId) : null;
+
+
 
 
         try {
@@ -1201,6 +1448,8 @@
                 seatIds: selectedSeats,
                 ticketId: safeTicketId
             };
+
+
 
 
             const res = await fetch(`${API_BASE_URL}/tickets`, {
@@ -1213,13 +1462,19 @@
             });
 
 
+
+
             if (!res.ok) throw new Error(await res.text());
             const ticket = await res.json();
+
+
 
 
             localStorage.setItem("tempTicketId", ticket.ticketId);
             localStorage.setItem("tempTicket", JSON.stringify(ticket));
             localStorage.setItem("ticketPriceTotal", String(ticket.totalPrice || 0));
+
+
 
 
             Swal.fire({
@@ -1240,6 +1495,8 @@
     });
 
 
+
+
     /* ================= INIT ================= */
     (async () => {
         await loadSeatTypes();
@@ -1247,6 +1504,10 @@
         setInterval(() => loadSeats(true), 8000); // cập nhật trạng thái ghế mỗi 8s
     })();
 </script>
+
+
+
+
 
 
 
@@ -1259,6 +1520,8 @@
             const res = await fetch("../home/customer-header.html");
             const html = await res.text();
             headerEl.innerHTML = html;
+
+
 
 
             // ✅ ép chạy script trong file header
@@ -1275,10 +1538,14 @@
     })();
 
 
+
+
     // 🧩 Load footer
     fetch("../home/footer.html")
         .then(r => r.text())
         .then(h => document.getElementById("footer").innerHTML = h);
+
+
 
 
     // 🔹 Tab filter style (nếu có)
@@ -1295,4 +1562,6 @@
 </script>
 </body>
 </html>
+
+
 

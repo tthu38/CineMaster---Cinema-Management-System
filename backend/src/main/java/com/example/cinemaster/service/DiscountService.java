@@ -160,11 +160,8 @@ public class DiscountService {
         discountRepository.save(discount);
     }
 
-
-
-
     @Transactional
-    private void autoUpdateStatus(Discount discount) {
+    public void autoUpdateStatus(Discount discount) {
         if (discount.getExpiryDate() == null) return;
 
 
@@ -185,31 +182,47 @@ public class DiscountService {
                 .orElseThrow(() -> new AppException(ErrorCode.TICKET_NOT_FOUND));
 
 
+
+
         if (ticket.getAccount() == null)
             throw new AppException(ErrorCode.UNAUTHORIZED);
+
+
 
 
         if (ticket.getTicketStatus() != Ticket.TicketStatus.HOLDING)
             throw new AppException(ErrorCode.INVALID_TICKET_STATUS);
 
 
+
+
         Discount discount = discountRepository.findByCode(code)
                 .orElseThrow(() -> new AppException(ErrorCode.DISCOUNT_NOT_FOUND));
+
+
 
 
         log.info("🎯 Discount [{}] - RequiredLevel={}", discount.getCode(),
                 discount.getRequiredLevel() != null ? discount.getRequiredLevel().getLevelName() : "null");
 
 
+
+
         if (discount.getDiscountStatus() != Discount.DiscountStatus.ACTIVE)
             throw new AppException(ErrorCode.INVALID_DISCOUNT);
+
+
 
 
         if (discount.getExpiryDate() != null && discount.getExpiryDate().isBefore(LocalDate.now()))
             throw new AppException(ErrorCode.DISCOUNT_EXPIRED);
 
 
+
+
         Integer accountId = ticket.getAccount().getAccountID();
+
+
 
 
         // ======================== 🧱 Giới hạn sử dụng ========================
@@ -234,9 +247,13 @@ public class DiscountService {
         }
 
 
+
+
         // ======================== 💰 Tính tổng gốc (seat + combo) ========================
         BigDecimal seatTotal = BigDecimal.ZERO;
         BigDecimal comboTotal = BigDecimal.ZERO;
+
+
 
 
         // ✅ Tính runtime từ TicketSeat và TicketCombo (dù là transient)
@@ -248,6 +265,8 @@ public class DiscountService {
         }
 
 
+
+
         if (ticket.getTicketCombos() != null && !ticket.getTicketCombos().isEmpty()) {
             comboTotal = ticket.getTicketCombos().stream()
                     .map(tc -> tc.getCombo().getPrice()
@@ -256,7 +275,11 @@ public class DiscountService {
         }
 
 
+
+
         BigDecimal baseTotal = seatTotal.add(comboTotal);
+
+
 
 
         // Fallback nếu vé cũ chưa có tách giá riêng
@@ -265,10 +288,14 @@ public class DiscountService {
         }
 
 
+
+
         // ======================== 🧾 Kiểm tra điều kiện discount ========================
         if (discount.getMinOrderAmount() != null &&
                 baseTotal.compareTo(discount.getMinOrderAmount()) < 0)
             throw new AppException(ErrorCode.DISCOUNT_MIN_ORDER_NOT_MET);
+
+
 
 
         Membership membership = membershipRepository.findByAccount_AccountID(accountId).orElse(null);
@@ -282,10 +309,14 @@ public class DiscountService {
         }
 
 
+
+
         // ======================== 💸 Tính và áp dụng giảm giá ========================
         BigDecimal discountValue = discount.getValue(baseTotal);
         if (discountValue.compareTo(BigDecimal.ZERO) <= 0)
             throw new AppException(ErrorCode.INVALID_DISCOUNT_VALUE);
+
+
 
 
         // Xóa giảm giá cũ (nếu có)
@@ -293,6 +324,8 @@ public class DiscountService {
             ticketDiscountRepository.deleteAll(ticket.getTicketDiscounts());
             ticket.getTicketDiscounts().clear();
         }
+
+
 
 
         TicketDiscount ticketDiscount = TicketDiscount.builder()
@@ -304,8 +337,12 @@ public class DiscountService {
                 .build();
 
 
+
+
         ticket.getTicketDiscounts().add(ticketDiscount);
         ticketDiscountRepository.save(ticketDiscount);
+
+
 
 
         BigDecimal newTotal = baseTotal.subtract(discountValue);
@@ -313,13 +350,19 @@ public class DiscountService {
             newTotal = BigDecimal.ZERO;
 
 
+
+
         // ✅ Không cần lưu seat/combo xuống DB vì là @Transient
         ticket.setTotalPrice(newTotal);
         ticketRepository.saveAndFlush(ticket);
 
 
+
+
         log.info("✅ Discount [{}] applied. Seat={}, Combo={}, Base={}, Discount={}, New Total={}",
                 discount.getCode(), seatTotal, comboTotal, baseTotal, discountValue, newTotal);
+
+
 
 
         // ======================== 🎯 Trả response cho FE ========================
@@ -333,6 +376,17 @@ public class DiscountService {
                 .comboPrice(comboTotal)
                 .build();
     }
+
+
+    @Transactional(readOnly = true)
+    public List<Discount> getAllActiveEntities() {
+        List<Discount> discounts = discountRepository.findAll();
+        discounts.forEach(this::autoUpdateStatus);
+        return discounts.stream()
+                .filter(d -> d.getDiscountStatus() == DiscountStatus.ACTIVE)
+                .collect(Collectors.toList());
+    }
+
 
 
 }

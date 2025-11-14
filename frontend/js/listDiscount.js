@@ -68,6 +68,7 @@ async function loadDiscounts() {
     try {
         const data = await discountApi.getAll();
         allDiscounts = data.result || data || [];
+        allDiscounts.sort((a, b) => (b.discountID || b.id) - (a.discountID || a.id));
         handleFilters(0);
     } catch (err) {
         console.error("❌ Lỗi tải dữ liệu:", err);
@@ -212,12 +213,14 @@ discountForm.addEventListener("submit", async (e) => {
         discountDescription: document.getElementById("discountDescription").value.trim(),
         percentOff: parseFloat(document.getElementById("percentOff").value) || null,
         fixedAmount: parseFloat(document.getElementById("fixedAmount").value) || null,
-        createAt: document.getElementById("createAt").value || null,
+        createAt: document.getElementById("createAt").value
+            ? document.getElementById("createAt").value
+            : null,
         expiryDate: document.getElementById("expiryDate").value || null,
         maxUsage: parseInt(document.getElementById("maxUsage").value) || null,
         pointCost: parseInt(document.getElementById("pointCost").value) || null,
         minOrderAmount: parseFloat(document.getElementById("minOrderAmount").value) || null,
-        membershipLevelID: membershipSelect.value ? parseInt(membershipSelect.value) : null,
+        requiredLevelId: membershipSelect.value ? parseInt(membershipSelect.value) : null,
         discountStatus: document.getElementById("discountStatus").value,
     };
 
@@ -248,7 +251,8 @@ window.editDiscount = async function (id) {
         document.getElementById("discountDescription").value = d.discountDescription || "";
         document.getElementById("percentOff").value = d.percentOff || "";
         document.getElementById("fixedAmount").value = d.fixedAmount || "";
-        document.getElementById("createAt").value = d.createAt?.split("T")[0] || "";
+        document.getElementById("createAt").value =
+            d.createAt ? ("" + d.createAt).substring(0, 10) : "";
         document.getElementById("expiryDate").value = d.expiryDate?.split("T")[0] || "";
         document.getElementById("maxUsage").value = d.maxUsage || "";
         document.getElementById("pointCost").value = d.pointCost || "";

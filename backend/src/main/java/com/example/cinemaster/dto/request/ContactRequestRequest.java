@@ -31,4 +31,7 @@ public class ContactRequestRequest {
 
     @Positive(message = "Chi nhánh không hợp lệ")
     Integer branchId;
+
+
 }
+

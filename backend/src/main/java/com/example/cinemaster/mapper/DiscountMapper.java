@@ -17,6 +17,7 @@ public interface DiscountMapper {
 
     //  Map từ request sang entity (bao gồm requiredLevelId)
     @Mapping(target = "requiredLevel", expression = "java(toLevel(request.getRequiredLevelId()))")
+    @Mapping(target = "createAt", source = "createAt")
     Discount toEntity(DiscountRequest request);
 
     //  Map từ entity sang response (hiển thị tên hạng & minOrderAmount)
@@ -26,6 +27,7 @@ public interface DiscountMapper {
     //  Map cập nhật từ request sang entity (update case)
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "requiredLevel", expression = "java(toLevel(request.getRequiredLevelId()))")
+    @Mapping(target = "createAt", source = "createAt")
     void updateDiscountFromRequest(DiscountRequest request, @MappingTarget Discount discount);
 
     // Helper: chuyển ID thành MembershipLevel entity (để tránh query thủ công)

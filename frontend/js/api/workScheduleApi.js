@@ -1,6 +1,7 @@
 // ================= WORK SCHEDULE API =================
 import { API_BASE_URL, getValidToken, handleResponse } from './config.js';
 
+
 async function create(payload) {
     const token = getValidToken();
     const res = await fetch(`${API_BASE_URL}/work-schedules`, {
@@ -13,6 +14,7 @@ async function create(payload) {
     });
     return handleResponse(res);
 }
+
 
 async function update(id, payload) {
     const token = getValidToken();
@@ -27,6 +29,7 @@ async function update(id, payload) {
     return handleResponse(res);
 }
 
+
 async function deleteSchedule(id) {
     const token = getValidToken();
     const res = await fetch(`${API_BASE_URL}/work-schedules/${id}`, {
@@ -38,6 +41,7 @@ async function deleteSchedule(id) {
     }
 }
 
+
 async function get(id) {
     const token = getValidToken();
     const res = await fetch(`${API_BASE_URL}/work-schedules/${id}`, {
@@ -45,6 +49,7 @@ async function get(id) {
     });
     return handleResponse(res);
 }
+
 
 async function search({ accountId, branchId, from, to, page = 0, size = 50, sort = "shiftDate,ASC" }) {
     const token = getValidToken();
@@ -57,11 +62,13 @@ async function search({ accountId, branchId, from, to, page = 0, size = 50, sort
     params.append("size", size);
     params.append("sort", sort);
 
+
     const res = await fetch(`${API_BASE_URL}/work-schedules?${params}`, {
         headers: { Authorization: `Bearer ${token}` },
     });
     return handleResponse(res);
 }
+
 
 // ===== MATRIX (dạng Excel UI) =====
 async function getMatrix({ from, to, branchId }) {
@@ -74,6 +81,7 @@ async function getMatrix({ from, to, branchId }) {
     return handleResponse(res);
 }
 
+
 async function getCell({ branchId, date, shiftType }) {
     const token = getValidToken();
     const url = `${API_BASE_URL}/work-schedules/cell?branchId=${branchId}&date=${date}&shiftType=${shiftType}`;
@@ -82,6 +90,7 @@ async function getCell({ branchId, date, shiftType }) {
     });
     return handleResponse(res);
 }
+
 
 async function upsertCellMany(payload) {
     const token = getValidToken();
@@ -95,6 +104,21 @@ async function upsertCellMany(payload) {
     });
     return handleResponse(res);
 }
+async function submitShiftRequest(payload) {
+    const token = getValidToken();
+    const res = await fetch(`${API_BASE_URL}/shift-requests`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+    });
+    return handleResponse(res);
+}
+
+
+
 
 // ✅ Export kiểu default object
 export default {
@@ -106,4 +130,6 @@ export default {
     getMatrix,
     getCell,
     upsertCellMany,
+    submitShiftRequest, // ⬅️ Thêm dòng này!
 };
+

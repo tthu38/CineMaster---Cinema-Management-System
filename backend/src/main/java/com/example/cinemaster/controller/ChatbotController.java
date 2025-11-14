@@ -1,5 +1,6 @@
 package com.example.cinemaster.controller;
 
+
 import com.example.cinemaster.dto.request.ChatRequest;
 import com.example.cinemaster.dto.response.ChatResponse;
 import com.example.cinemaster.service.ChatbotService;
@@ -8,16 +9,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 @RestController
 @RequestMapping("/api/v1/chat")
 public class ChatbotController {
 
+
     private final ChatbotService chatbotService;
+
 
     @Autowired
     public ChatbotController(ChatbotService chatbotService) {
         this.chatbotService = chatbotService;
     }
+
 
     /**
      * Endpoint chính để gửi câu hỏi đến Chatbot AI.
@@ -29,16 +34,22 @@ public class ChatbotController {
     public ResponseEntity<ChatResponse> askChatbot(@RequestBody ChatRequest request, HttpSession session) {
         System.out.println("Session ID: " + session.getId());
 
+
         String question = request.getQuestion();
+
 
         if (question == null || question.trim().isEmpty()) {
             return ResponseEntity.badRequest().body(new ChatResponse("Vui lòng nhập câu hỏi để tôi có thể hỗ trợ."));
         }
 
+
         try {
             String answer = chatbotService.getChatbotResponse(question.trim());
+            System.out.println("DEBUG_ANSWER = " + answer);
+
 
             return ResponseEntity.ok(new ChatResponse(answer));
+
 
         } catch (Exception e) {
             System.err.println("Lỗi gọi Chatbot API: " + e.getMessage());
@@ -48,3 +59,4 @@ public class ChatbotController {
         }
     }
 }
+

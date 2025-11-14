@@ -97,5 +97,12 @@ public class BranchController {
         return ResponseEntity.ok(branchService.getBranchesByMovie(movieId));
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<BranchResponse>> searchBranches(
+            @RequestParam(required = false) String keyword) {
+
+        List<BranchResponse> results = branchService.searchBranches(keyword);
+        return ResponseEntity.ok(results);
+    }
 
 }

@@ -1,11 +1,14 @@
 import { API_BASE_URL, getValidToken, handleResponse } from './config.js';
 
+
 export const branchApi = {
+
 
     // 🟢 CREATE (Admin)
     async create(data) {
         const token = getValidToken();
         if (!token) throw new Error("Thiếu token xác thực");
+
 
         const res = await fetch(`${API_BASE_URL}/branches`, {
             method: "POST",
@@ -18,6 +21,7 @@ export const branchApi = {
         return handleResponse(res);
     },
 
+
     // 🟢 GET ALL (Public)
     async getAll() {
         const res = await fetch(`${API_BASE_URL}/branches`, {
@@ -27,6 +31,7 @@ export const branchApi = {
         return handleResponse(res);
     },
 
+
     // 🟢 GET ACTIVE (Public)
     async getAllActive() {
         const res = await fetch(`${API_BASE_URL}/branches/active`, {
@@ -35,6 +40,7 @@ export const branchApi = {
         });
         return handleResponse(res);
     },
+
 
     // 🟢 GET BY ID (Public)
     async getById(id) {
@@ -46,11 +52,13 @@ export const branchApi = {
         return handleResponse(res);
     },
 
+
     // 🟢 GET BY ID (Admin)
     async getByIdAdmin(id) {
         if (!id) throw new Error("ID chi nhánh không hợp lệ");
         const token = getValidToken();
         if (!token) throw new Error("Thiếu token xác thực");
+
 
         const res = await fetch(`${API_BASE_URL}/branches/${id}/admin`, {
             method: "GET",
@@ -62,11 +70,13 @@ export const branchApi = {
         return handleResponse(res);
     },
 
+
     // 🟡 UPDATE (Admin)
     async update(id, data) {
         if (!id) throw new Error("ID chi nhánh không hợp lệ");
         const token = getValidToken();
         if (!token) throw new Error("Thiếu token xác thực");
+
 
         const res = await fetch(`${API_BASE_URL}/branches/${id}`, {
             method: "PUT",
@@ -79,11 +89,13 @@ export const branchApi = {
         return handleResponse(res);
     },
 
+
     // 🔴 DELETE (Admin)
     async delete(id) {
         if (!id) throw new Error("ID chi nhánh không hợp lệ");
         const token = getValidToken();
         if (!token) throw new Error("Thiếu token xác thực");
+
 
         const res = await fetch(`${API_BASE_URL}/branches/${id}`, {
             method: "DELETE",
@@ -92,11 +104,13 @@ export const branchApi = {
         return handleResponse(res);
     },
 
+
     // ♻️ RESTORE (Admin)
     async restore(id) {
         if (!id) throw new Error("ID chi nhánh không hợp lệ");
         const token = getValidToken();
         if (!token) throw new Error("Thiếu token xác thực");
+
 
         const res = await fetch(`${API_BASE_URL}/branches/${id}/restore`, {
             method: "PUT",
@@ -104,6 +118,7 @@ export const branchApi = {
         });
         return handleResponse(res);
     },
+
 
     // 🔹 GET NAMES (Public)
     async getNames() {
@@ -114,6 +129,7 @@ export const branchApi = {
         return handleResponse(res);
     },
 
+
     async getBranchesByMovie(movieId) {
         const res = await fetch(`${API_BASE_URL}/branches/movie/${movieId}`);
         if (!res.ok) throw new Error("Không thể tải chi nhánh theo phim");
@@ -121,4 +137,7 @@ export const branchApi = {
     },
 
 
+
+
 };
+

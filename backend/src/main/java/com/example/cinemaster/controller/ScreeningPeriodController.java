@@ -66,5 +66,11 @@ public class ScreeningPeriodController {
         var list = screeningPeriodService.findActive(branchId, date);
         return ResponseEntity.ok(screeningPeriodMapper.toLiteList(list));
     }
+    @GetMapping("/search")
+    public ResponseEntity<List<ScreeningPeriodResponse>> searchByMovieTitle(
+            @RequestParam String keyword
+    ) {
+        return ResponseEntity.ok(screeningPeriodService.searchByMovieTitle(keyword));
+    }
 
 }

@@ -8,21 +8,31 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="../css/user.css">
-
 </head>
 
 <body>
+
+<!-- ⭐ NEW: SPAM ALERT BOX (thêm mà không ảnh hưởng UI cũ) -->
+<div id="spamAlertBox" class="alert alert-warning d-none mt-3 mx-3">
+    <strong>🚨 Cảnh báo AI:</strong>
+    Có <span id="spamCount"></span> tài khoản nghi vấn spam.
+    <button class="btn btn-sm btn-danger ms-2" id="viewSpamBtn">Xem chi tiết</button>
+</div>
+<!-- END SPAM ALERT -->
+
 <div class="grain"></div>
 <div class="tickets-wall" aria-hidden="true">
     <div class="tickets-layer l1"></div>
     <div class="tickets-layer l2"></div>
 </div>
+
 <main class="shell">
     <section class="film">
         <div class="panel-head">
             <i class="fa-solid fa-users-gear"></i>
             <h2>QUẢN LÝ NHÂN VIÊN</h2>
         </div>
+
         <div class="filter-box mb-4">
             <div class="row g-3 align-items-end">
                 <div class="col-lg-5 d-flex flex-wrap gap-2">
@@ -35,7 +45,7 @@
                 </div>
 
                 <div class="col-lg-7 d-flex gap-2">
-                    <input id="searchInput" type="text" class="form-control" placeholder="🔍 Tìm kiếm tài khoản...">
+                    <input id="searchInput" type="text" class="form-control" placeholder="Tìm kiếm tài khoản...">
                     <select id="branchFilter" class="form-select">
                         <option value="">Tất cả chi nhánh</option>
                     </select>
@@ -72,15 +82,20 @@
 </main>
 
 <div id="footer"></div>
+
+<!-- =================== DELETE MODAL =================== -->
 <div class="modal fade" id="deleteAccountModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark text-white border-secondary">
             <div class="modal-header border-0">
-                <h5 class="modal-title"><i class="fa-solid fa-user-slash me-2 text-danger"></i>Xác nhận vô hiệu hóa</h5>
+                <h5 class="modal-title">
+                    <i class="fa-solid fa-user-slash me-2 text-danger"></i>Xác nhận vô hiệu hóa
+                </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                Bạn có chắc muốn vô hiệu hóa tài khoản <strong id="deleteAccountName"></strong> không?
+                Bạn có chắc muốn vô hiệu hóa tài khoản
+                <strong id="deleteAccountName"></strong> không?
             </div>
             <div class="modal-footer border-0">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
@@ -90,15 +105,19 @@
     </div>
 </div>
 
+<!-- =================== RESTORE MODAL =================== -->
 <div class="modal fade" id="restoreAccountModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-dark text-white border-secondary">
             <div class="modal-header border-0">
-                <h5 class="modal-title"><i class="fa-solid fa-user-check me-2 text-success"></i>Khôi phục tài khoản</h5>
+                <h5 class="modal-title">
+                    <i class="fa-solid fa-user-check me-2 text-success"></i>Khôi phục tài khoản
+                </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                Bạn có muốn khôi phục tài khoản <strong id="restoreAccountName"></strong> không?
+                Bạn có muốn khôi phục tài khoản
+                <strong id="restoreAccountName"></strong> không?
             </div>
             <div class="modal-footer border-0">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
@@ -108,8 +127,10 @@
     </div>
 </div>
 
+<!-- JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script type="module" src="../js/listAccount.js"></script>
 <script src="../js/footer-loader.js"></script>
+
 </body>
 </html>

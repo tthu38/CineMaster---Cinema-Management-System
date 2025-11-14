@@ -27,5 +27,7 @@ public interface MovieRepository extends JpaRepository<Movie, Integer> {
     List<Movie> findByGenreIgnoreCase(String genre);
 
     Optional<Movie> findByTitleIgnoreCase(String title);
-
+    @Query("SELECT DISTINCT m.genre FROM Movie m ORDER BY m.genre ASC")
+    List<String> findAllGenres();
+    List<Movie> findByGenreInIgnoreCase(List<String> genres);
 }

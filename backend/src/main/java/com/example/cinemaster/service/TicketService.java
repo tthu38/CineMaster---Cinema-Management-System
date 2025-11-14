@@ -1,8 +1,11 @@
 package com.example.cinemaster.service;
 
 
+
+
 import com.example.cinemaster.dto.request.TicketComboRequest;
 import com.example.cinemaster.dto.request.TicketCreateRequest;
+import com.example.cinemaster.dto.response.OccupiedSeatResponse;
 import com.example.cinemaster.dto.response.TicketDetailResponse;
 import com.example.cinemaster.dto.response.TicketResponse;
 import com.example.cinemaster.entity.*;
@@ -14,11 +17,17 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.annotation.Propagation;
 
 
+
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.support.TransactionTemplate;
+
+
+
+
 
 
 
@@ -31,10 +40,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
+
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class TicketService {
+
+
 
 
     private final TicketRepository ticketRepository;
@@ -54,6 +67,9 @@ public class TicketService {
 
 
 
+
+
+
     /* 🟢 Tạo hoặc cập nhật vé tạm */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public TicketResponse createOrUpdateTicket(TicketCreateRequest req) {
@@ -63,12 +79,18 @@ public class TicketService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy suất chiếu!"));
 
 
+
+
         Ticket ticket;
         Integer ticketId = req.getTicketId();
 
 
+
+
         if (ticketId != null && ticketId > 0) {
             ticket = ticketRepository.findById(ticketId).orElse(null);
+
+
 
 
             boolean invalid =
@@ -76,6 +98,8 @@ public class TicketService {
                             || !ticket.getAccount().getAccountID().equals(req.getAccountId())
                             || ticket.getTicketStatus() != Ticket.TicketStatus.HOLDING
                             || (ticket.getHoldUntil() != null && ticket.getHoldUntil().isBefore(LocalDateTime.now()));
+
+
 
 
             if (invalid) {
@@ -95,6 +119,8 @@ public class TicketService {
                     .orElseGet(() -> createNewHoldingTicket(account, showtime, req.getCustomerEmail()));
 
 
+
+
             ensureListNotNull(ticket);
             ticket.setShowtime(showtime);
             ticket.setHoldUntil(LocalDateTime.now().plusMinutes(5));
@@ -102,21 +128,31 @@ public class TicketService {
         }
 
 
+
+
         ticket.getTicketSeats().size();
         ticket.getTicketCombos().size();
         ticket.getTicketDiscounts().size();
+
+
 
 
         // ====================== Xử lý GHẾ ======================
         Showtime currentShowtime = ticket.getShowtime();
 
 
+
+
         List<Integer> occupiedSeats = ticketRepository.findOccupiedSeatIdsByShowtimeExcludeTicket(
                 currentShowtime.getShowtimeID(), ticket.getTicketId());
 
 
+
+
         BigDecimal seatTotal = BigDecimal.ZERO;
         ticket.getTicketSeats().clear();
+
+
 
 
         for (Integer seatId : req.getSeatIds()) {
@@ -126,15 +162,20 @@ public class TicketService {
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy ghế ID=" + seatId));
 
 
+
+
             BigDecimal seatPrice = currentShowtime.getPrice()
                     .multiply(seat.getSeatType().getPriceMultiplier());
             seatTotal = seatTotal.add(seatPrice);
             ticket.getTicketSeats().add(new TicketSeat(ticket, seat));
         }
 
+
         // ==================== Xử lý COMBO ======================
         BigDecimal comboTotal = BigDecimal.ZERO;
         ticket.getTicketCombos().clear();
+
+
 
 
         if (req.getCombos() != null && !req.getCombos().isEmpty()) {
@@ -143,9 +184,13 @@ public class TicketService {
                         .orElseThrow(() -> new RuntimeException("Không tìm thấy combo ID=" + comboReq.getComboId()));
 
 
+
+
                 BigDecimal subtotal = combo.getPrice()
                         .multiply(BigDecimal.valueOf(comboReq.getQuantity()));
                 comboTotal = comboTotal.add(subtotal);
+
+
 
 
                 TicketComboKey key = new TicketComboKey(ticket.getTicketId(), combo.getId());
@@ -156,16 +201,21 @@ public class TicketService {
                         .quantity(comboReq.getQuantity())
                         .build();
 
+
                 ticket.getTicketCombos().add(tc);
             }
         }
+
 
         // ============== Áp dụng hoặc cập nhật DISCOUNT ======================
         BigDecimal discountTotal = BigDecimal.ZERO;
         BigDecimal totalBeforeDiscount = seatTotal.add(comboTotal);
 
 
+
+
         if (req.getDiscountIds() != null && !req.getDiscountIds().isEmpty()) {
+
 
             ticket.getTicketDiscounts().clear();
             for (Integer discountId : req.getDiscountIds()) {
@@ -173,8 +223,12 @@ public class TicketService {
                         .orElseThrow(() -> new RuntimeException("Không tìm thấy discount ID=" + discountId));
 
 
+
+
                 BigDecimal discountValue = discount.getValue(totalBeforeDiscount);
                 discountTotal = discountTotal.add(discountValue);
+
+
 
 
                 TicketDiscount td = TicketDiscount.builder()
@@ -195,21 +249,31 @@ public class TicketService {
         }
 
 
+
+
         // ==============Tính & lưu tổng tiền ======================
         BigDecimal total = totalBeforeDiscount.subtract(discountTotal);
         if (total.compareTo(BigDecimal.ZERO) < 0) total = BigDecimal.ZERO;
+
+
 
 
         ticket.setTotalPrice(total);
         ticketRepository.saveAndFlush(ticket);
 
 
+
+
         log.info(" Vé {} cập nhật thành công | Ghế={} | Combo={} | Giảm={} | Tổng={} | Email={}",
                 ticket.getTicketId(), seatTotal, comboTotal, discountTotal, total, ticket.getCustomerEmail());
 
 
+
+
         return ticketMapper.toResponse(ticket);
     }
+
+
 
 
     private Ticket createNewHoldingTicket(Account account, Showtime showtime, String email) {
@@ -228,22 +292,31 @@ public class TicketService {
 
 
 
+
+
+
     private void ensureListNotNull(Ticket ticket) {
         if (ticket.getTicketSeats() == null) ticket.setTicketSeats(new ArrayList<>());
         if (ticket.getTicketCombos() == null) ticket.setTicketCombos(new ArrayList<>());
         if (ticket.getTicketDiscounts() == null) ticket.setTicketDiscounts(new ArrayList<>());
     }
 
+
     @Transactional
     public TicketResponse replaceSeats(Integer ticketId, List<Integer> newSeatIds) {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy vé!"));
 
+
         if (ticket.getTicketStatus() != Ticket.TicketStatus.HOLDING)
             throw new RuntimeException("Chỉ được đổi ghế khi vé đang HOLDING!");
 
 
+
+
         Showtime showtime = ticket.getShowtime();
+
+
 
 
         List<Integer> occupiedSeats = ticketRepository.findOccupiedSeatIdsByShowtimeExcludeTicket(
@@ -251,8 +324,13 @@ public class TicketService {
 
 
 
+
+
+
         ticket.getTicketSeats().clear();
         BigDecimal total = BigDecimal.ZERO;
+
+
 
 
         for (Integer seatId : newSeatIds) {
@@ -260,15 +338,21 @@ public class TicketService {
                 throw new RuntimeException("Ghế " + seatId + " đã được giữ hoặc đặt!");
             }
 
+
             Seat seat = seatRepository.findById(seatId)
                     .orElseThrow(() -> new RuntimeException("Không tìm thấy ghế ID=" + seatId));
+
 
             BigDecimal seatPrice = showtime.getPrice()
                     .multiply(seat.getSeatType().getPriceMultiplier());
 
+
             total = total.add(seatPrice);
             ticket.getTicketSeats().add(new TicketSeat(ticket, seat));
         }
+
+
+
 
 
 
@@ -277,12 +361,18 @@ public class TicketService {
         ticketRepository.saveAndFlush(ticket);
 
 
+
+
         log.info(" Vé {} đổi ghế thành công | Tổng tiền mới: {} | Số ghế: {}",
                 ticketId, total, newSeatIds.size());
 
 
+
+
         return ticketMapper.toResponse(ticket);
     }
+
+
 
 
     private String createOtpForTicket(Ticket ticket) {
@@ -291,6 +381,7 @@ public class TicketService {
                 throw new IllegalArgumentException("Ticket không được null khi tạo OTP");
             }
 
+
             List<Otp> existingOtps = otpRepository.findByTicket(ticket);
             if (existingOtps != null && !existingOtps.isEmpty()) {
                 otpRepository.deleteAll(existingOtps);
@@ -298,14 +389,19 @@ public class TicketService {
                 log.info(" Đã xóa {} OTP cũ của vé {}", existingOtps.size(), ticket.getTicketId());
             }
 
+
             SecureRandom random = new SecureRandom();
             String otpValue = String.format("%06d", random.nextInt(1_000_000)); // → 000001–999999
 
 
-          LocalDateTime expiryTime = (ticket.getShowtime() != null && ticket.getShowtime().getEndTime() != null)
+
+
+            LocalDateTime expiryTime = (ticket.getShowtime() != null && ticket.getShowtime().getEndTime() != null)
                     ? ticket.getShowtime().getEndTime()
                     : (ticket.getShowtime() != null ? ticket.getShowtime().getStartTime().plusHours(2)
                     : LocalDateTime.now().plusHours(2));
+
+
 
 
             Otp otp = Otp.builder()
@@ -315,14 +411,21 @@ public class TicketService {
                     .expiry(expiryTime)
                     .build();
 
+
             otpRepository.saveAndFlush(otp);
+
+
 
 
             log.info(" Đã tạo OTP {} cho vé {} (hết hạn lúc {})",
                     otpValue, ticket.getTicketId(), expiryTime);
 
 
+
+
             return otpValue;
+
+
 
 
         } catch (Exception e) {
@@ -331,6 +434,10 @@ public class TicketService {
             throw new RuntimeException("Không thể tạo OTP", e);
         }
     }
+
+
+
+
 
 
 
@@ -348,11 +455,14 @@ public class TicketService {
     }
 
 
+
+
     public TicketResponse getTicket(Integer id) {
         return ticketRepository.findById(id)
                 .map(ticketMapper::toResponse)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy vé!"));
     }
+
 
     public List<Integer> getHeldSeats(Integer ticketId) {
         Ticket ticket = ticketRepository.findById(ticketId)
@@ -363,6 +473,10 @@ public class TicketService {
                 .map(ts -> ts.getSeat().getSeatID())
                 .toList();
     }
+
+
+
+
 
 
 
@@ -383,14 +497,21 @@ public class TicketService {
 
 
 
+
+
+
     @PersistenceContext
     private EntityManager entityManager;
+
+
 
 
     @Transactional
     public void addCombosToTicket(Integer ticketId, List<TicketComboRequest> combos) {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy vé!"));
+
+
 
 
         List<TicketCombo> oldCombos = ticketComboRepository.findByTicket_TicketId(ticketId);
@@ -401,7 +522,10 @@ public class TicketService {
             log.info(" Đã xoá combo cũ của vé {}", ticketId);
         }
 
+
         BigDecimal comboTotal = BigDecimal.ZERO;
+
+
 
 
         if (combos != null && !combos.isEmpty()) {
@@ -410,11 +534,16 @@ public class TicketService {
                         .orElseThrow(() -> new RuntimeException("Không tìm thấy combo!"));
 
 
+
+
                 BigDecimal subtotal = combo.getPrice()
                         .multiply(BigDecimal.valueOf(comboReq.getQuantity()));
                 comboTotal = comboTotal.add(subtotal);
 
+
                 TicketComboKey key = new TicketComboKey(ticket.getTicketId(), combo.getId());
+
+
 
 
                 TicketCombo tc = TicketCombo.builder()
@@ -424,8 +553,13 @@ public class TicketService {
                         .quantity(comboReq.getQuantity())
                         .build();
 
+
                 ticketComboRepository.save(tc);
             }
+
+
+
+
 
 
 
@@ -435,14 +569,20 @@ public class TicketService {
             log.info(" Vé {} không chọn combo nào, comboTotal=0", ticketId);
         }
 
+
         ticket.setComboPrice(comboTotal);
+
 
         BigDecimal seatPrice = ticket.getSeatPrice() != null ? ticket.getSeatPrice() : BigDecimal.ZERO;
         ticket.setTotalPrice(seatPrice.add(comboTotal));
 
+
         ticketRepository.saveAndFlush(ticket);
         log.info(" Vé {} cập nhật thành công, totalPrice={}₫", ticketId, ticket.getTotalPrice());
     }
+
+
+
 
 
 
@@ -451,6 +591,7 @@ public class TicketService {
         if (changer != null && changer.getAccountID() != null) {
             realChanger = accountRepository.findById(changer.getAccountID()).orElse(null);
         }
+
 
         TicketHistory history = TicketHistory.builder()
                 .ticket(ticket)
@@ -461,8 +602,11 @@ public class TicketService {
                 .note(note)
                 .build();
 
+
         ticketHistoryRepository.save(history);
     }
+
+
 
 
     @Transactional
@@ -471,14 +615,19 @@ public class TicketService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy vé"));
 
 
+
+
         Ticket.TicketStatus current = ticket.getTicketStatus();
         if (current != Ticket.TicketStatus.BOOKED)
             throw new RuntimeException("Chỉ có thể gửi yêu cầu hủy khi vé đang ở trạng thái 'BOOKED'");
 
+
         ticket.setTicketStatus(Ticket.TicketStatus.CANCEL_REQUESTED);
         ticketRepository.save(ticket);
 
+
         Account realCustomer = ticket.getAccount();
+
 
         saveTicketHistory(ticket,
                 current.name(),
@@ -489,10 +638,14 @@ public class TicketService {
     }
 
 
+
+
     @Transactional
     public TicketResponse approveCancel(Integer ticketId, Account staff) {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy vé!"));
+
+
 
 
         Ticket.TicketStatus currentStatus = ticket.getTicketStatus();
@@ -500,40 +653,55 @@ public class TicketService {
             throw new RuntimeException("Chỉ phê duyệt khi vé ở trạng thái 'CANCEL_REQUESTED'");
 
 
+
+
         String oldStatus = currentStatus.name();
         ticket.setTicketStatus(Ticket.TicketStatus.CANCELLED);
         ticketRepository.save(ticket);
 
+
         saveTicketHistory(ticket, oldStatus, Ticket.TicketStatus.CANCELLED.name(), staff, "Nhân viên duyệt hủy vé");
+
 
         log.info(" Vé {} được staff {} duyệt hủy thành công.", ticketId,
                 staff != null ? staff.getFullName() : "Unknown");
 
+
         return ticketMapper.toResponse(ticket);
     }
+
 
     @Transactional
     public TicketResponse approveRefund(Integer ticketId, Account staff) {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy vé!"));
 
+
         Ticket.TicketStatus currentStatus = ticket.getTicketStatus();
         if (currentStatus != Ticket.TicketStatus.CANCELLED)
             throw new RuntimeException("Chỉ hoàn tiền cho vé đã bị hủy (CANCELLED)!");
+
 
         String oldStatus = currentStatus.name();
         ticket.setTicketStatus(Ticket.TicketStatus.REFUNDED);
         ticketRepository.save(ticket);
 
 
+
+
         saveTicketHistory(ticket, oldStatus, Ticket.TicketStatus.REFUNDED.name(), staff, "Nhân viên xác nhận hoàn tiền vé");
+
+
 
 
         log.info(" Vé {} đã được hoàn tiền bởi nhân viên {}.", ticketId,
                 staff != null ? staff.getFullName() : "Unknown");
 
+
         return ticketMapper.toResponse(ticket);
     }
+
+
 
 
     public List<TicketResponse> getPendingCancelTickets(Integer branchId) {
@@ -543,6 +711,7 @@ public class TicketService {
                 .collect(Collectors.toList());
     }
 
+
     public List<TicketResponse> getTicketsByAccount(Integer accountID) {
         return ticketRepository.findByAccount_AccountID(accountID).stream()
                 .map(ticketMapper::toShortResponse)
@@ -550,11 +719,15 @@ public class TicketService {
     }
 
 
+
+
     public List<TicketResponse> getTicketsByBranch(Integer branchId) {
         return ticketRepository.findByBranch(branchId).stream()
                 .map(ticketMapper::toResponse)
                 .collect(Collectors.toList());
     }
+
+
 
 
     @Transactional
@@ -565,7 +738,12 @@ public class TicketService {
 
 
 
+
+
+
+
         Ticket.TicketStatus oldStatus = ticket.getTicketStatus();
+
 
         Ticket.TicketStatus newEnumStatus;
         try {
@@ -574,11 +752,16 @@ public class TicketService {
             throw new RuntimeException(" Trạng thái không hợp lệ: " + newStatus);
         }
 
+
         ticket.setTicketStatus(newEnumStatus);
         ticketRepository.save(ticket);
 
 
+
+
         saveTicketHistory(ticket, oldStatus.name(), newEnumStatus.name(), staff, "Cập nhật trạng thái thủ công");
+
+
 
 
         log.info("🛠️ Vé {} được cập nhật từ {} ➜ {} bởi nhân viên {}",
@@ -586,8 +769,12 @@ public class TicketService {
                 staff != null ? staff.getFullName() : "Unknown");
 
 
+
+
         return ticketMapper.toResponse(ticket);
     }
+
+
 
 
     public TicketDetailResponse getById(Integer id) {
@@ -595,7 +782,11 @@ public class TicketService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy vé!"));
 
 
+
+
         TicketDetailResponse dto = ticketMapper.toDetailResponse(ticket);
+
+
 
 
         String seatNums = (ticket.getTicketSeats() != null && !ticket.getTicketSeats().isEmpty())
@@ -604,6 +795,8 @@ public class TicketService {
                 .collect(Collectors.joining(", "))
                 : "N/A";
         dto.setSeatNumbers(seatNums);
+
+
 
 
         List<String> comboList = (ticket.getTicketCombos() != null && !ticket.getTicketCombos().isEmpty())
@@ -615,6 +808,7 @@ public class TicketService {
                 : List.of();
         dto.setComboList(comboList);
 
+
         dto.setTicketStatus(ticket.getTicketStatus().name()); // Enum ➜ String
         dto.setTotalPrice(ticket.getTotalPrice() != null
                 ? ticket.getTotalPrice().doubleValue()
@@ -623,17 +817,22 @@ public class TicketService {
                 ? ticket.getPaymentMethod().toString()
                 : "UNKNOWN");
 
+
         return dto;
     }
+
 
     public TicketResponse verifyOnlinePayment(Integer ticketId) throws Exception {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy vé!"));
 
+
         if (ticket.getTicketStatus() == Ticket.TicketStatus.BOOKED) {
             log.info("Vé {} đã BOOKED rồi — bỏ qua xác nhận lại.", ticketId);
             return ticketMapper.toResponse(ticket);
         }
+
+
 
 
         if (ticket.getTicketStatus() == Ticket.TicketStatus.CANCELLED
@@ -642,11 +841,15 @@ public class TicketService {
         }
 
 
+
+
         if (ticket.getTicketStatus() != Ticket.TicketStatus.HOLDING)
             throw new RuntimeException("Chỉ kiểm tra thanh toán cho vé HOLDING!");
 
+
         if (ticket.getPaymentMethod() != Ticket.PaymentMethod.ONLINE)
             throw new RuntimeException("Vé này không thuộc loại thanh toán online!");
+
 
         String paymentCode = "CM-" + ticket.getTicketId();
         Map<String, String> result = googleSheetsService.findTransactionByCode(paymentCode);
@@ -655,15 +858,20 @@ public class TicketService {
             throw new RuntimeException("Chưa tìm thấy giao dịch cho mã " + paymentCode);
         }
 
+
         String amountStr = result.get("amount").replaceAll("[^\\d]", "");
         BigDecimal paidAmount = new BigDecimal(amountStr);
         if (paidAmount.compareTo(ticket.getTotalPrice()) < 0)
             throw new RuntimeException("Số tiền chưa đủ (" + paidAmount + " < " + ticket.getTotalPrice() + ")");
 
 
+
+
         log.info(" Đã xác nhận giao dịch hợp lệ cho mã {} (số tiền {})", paymentCode, paidAmount);
 
+
         confirmPayment(ticketId, null, null);
+
 
         saveTicketHistory(ticket,
                 Ticket.TicketStatus.HOLDING.name(),
@@ -671,14 +879,17 @@ public class TicketService {
                 ticket.getAccount(),
                 "Xác nhận thanh toán online thành công qua Google Sheets");
 
+
         log.info(" Vé {} đã được BOOKED qua xác nhận online, tổng tiền {}", ticketId, ticket.getTotalPrice());
         return ticketMapper.toResponse(ticket);
     }
+
 
     @Transactional
     public void confirmPayment(Integer ticketId) {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy vé!"));
+
 
         if (ticket.getTicketStatus() == Ticket.TicketStatus.BOOKED) {
             log.info(" Vé {} đã BOOKED rồi, không xử lý lại.", ticketId);
@@ -690,16 +901,19 @@ public class TicketService {
                     .map(tc -> new TicketComboRequest(tc.getCombo().getId(), tc.getQuantity()))
                     .collect(Collectors.toList());
 
+
             confirmPayment(ticketId, combos, null);
         } else {
             log.warn(" Vé {} có trạng thái {}, không thể xác nhận.", ticketId, ticket.getTicketStatus());
         }
     }
 
+
     @Transactional
     public void confirmPayment(Integer ticketId, List<TicketComboRequest> combos, String customEmail) {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy vé!"));
+
 
         forceLoadRelations(ticket);
         entityManager.refresh(ticket);
@@ -709,20 +923,25 @@ public class TicketService {
             return;
         }
 
+
         if (ticket.getTicketStatus() != Ticket.TicketStatus.HOLDING) {
             log.warn("⚠️ Vé {} không ở trạng thái HOLDING, bỏ qua xác nhận.", ticketId);
             return;
         }
 
+
         Showtime showtime = ticket.getShowtime();
+
 
         if (combos != null) {
             ticketComboRepository.deleteAll(ticketComboRepository.findByTicket_TicketId(ticketId));
+
 
             if (!combos.isEmpty()) {
                 for (TicketComboRequest comboReq : combos) {
                     Combo combo = comboRepository.findById(comboReq.getComboId())
                             .orElseThrow(() -> new RuntimeException("Không tìm thấy combo ID: " + comboReq.getComboId()));
+
 
                     TicketCombo tc = TicketCombo.builder()
                             .id(new TicketComboKey(ticket.getTicketId(), combo.getId()))
@@ -730,6 +949,7 @@ public class TicketService {
                             .combo(combo)
                             .quantity(comboReq.getQuantity())
                             .build();
+
 
                     ticketComboRepository.save(tc);
                 }
@@ -739,9 +959,12 @@ public class TicketService {
                 log.info(" Vé {} không chọn combo → giữ trống hoàn toàn", ticketId);
             }
 
+
             ticket.getTicketCombos().clear();
             ticket.getTicketCombos().addAll(ticketComboRepository.findByTicket_TicketId(ticketId));
         }
+
+
 
 
         BigDecimal seatTotal = ticket.getTicketSeats().stream()
@@ -752,10 +975,18 @@ public class TicketService {
 
 
 
+
+
+
+
         BigDecimal comboTotal = ticket.getTicketCombos().stream()
                 .map(tc -> tc.getCombo().getPrice()
                         .multiply(BigDecimal.valueOf(tc.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+
+
+
 
 
 
@@ -770,14 +1001,21 @@ public class TicketService {
 
 
 
+
+
+
+
         BigDecimal totalPaid = seatTotal.add(comboTotal).subtract(discountTotal);
         if (totalPaid.compareTo(BigDecimal.ZERO) < 0) totalPaid = BigDecimal.ZERO;
 
+
         ticket.setTotalPrice(totalPaid);
+
 
         ticket.setTicketStatus(Ticket.TicketStatus.BOOKED);
         ticket.setHoldUntil(null);
         ticketRepository.saveAndFlush(ticket);
+
 
         saveTicketHistory(ticket,
                 Ticket.TicketStatus.HOLDING.name(),
@@ -785,7 +1023,9 @@ public class TicketService {
                 ticket.getAccount(),
                 "Thanh toán online thành công");
 
+
         String otp = createOtpForTicket(ticket);
+
 
         try {
             long points = totalPaid.divide(BigDecimal.valueOf(1000), RoundingMode.DOWN).longValue();
@@ -797,7 +1037,10 @@ public class TicketService {
             log.error(" Lỗi khi cộng điểm vé {}: {}", ticketId, ex.getMessage(), ex);
         }
 
+
         sendBookingEmail(ticket, combos, customEmail, showtime);
+
+
 
 
         log.info(" Vé {} BOOKED thành công | Tổng tiền {} | Giảm {} | OTP {}",
@@ -805,11 +1048,15 @@ public class TicketService {
     }
 
 
+
+
     private void forceLoadRelations(Ticket ticket) {
         ticket.getTicketSeats().size();
         ticket.getTicketCombos().size();
         ticket.getTicketDiscounts().size();
     }
+
+
 
 
     private void sendBookingEmail(
@@ -821,19 +1068,24 @@ public class TicketService {
         try {
             BigDecimal totalPrice = ticket.getTotalPrice();
 
+
             BigDecimal comboTotal = ticket.getTicketCombos().stream()
                     .map(tc -> tc.getCombo().getPrice().multiply(BigDecimal.valueOf(tc.getQuantity())))
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
+
 
             BigDecimal discountTotal = ticket.getTicketDiscounts().stream()
                     .map(TicketDiscount::getAmount)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+
             BigDecimal seatTotal = ticket.getTicketSeats().stream()
                     .map(ts -> showtime.getPrice().multiply(ts.getSeat().getSeatType().getPriceMultiplier()))
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+
             BigDecimal originalPrice = seatTotal.add(comboTotal);
+
 
             List<String> comboDetails = ticket.getTicketCombos().stream()
                     .map(tc -> String.format("%s x%d = %,.0f VND",
@@ -842,19 +1094,25 @@ public class TicketService {
                             tc.getCombo().getPrice().multiply(BigDecimal.valueOf(tc.getQuantity())).doubleValue()))
                     .collect(Collectors.toList());
 
+
             String seatNames = ticket.getTicketSeats().stream()
                     .map(ts -> ts.getSeat().getSeatNumber())
                     .collect(Collectors.joining(", "));
 
+
             String otpCode = getOrCreateOtpCode(ticket);
 
+
             String qrCodeUrl = getQrCodeUrl(ticket);
+
 
             String recipientEmail = (customEmail != null && !customEmail.trim().isEmpty())
                     ? customEmail
                     : ticket.getAccount().getEmail();
 
+
             String ticketCode = "#" + ticket.getTicketId();
+
 
             emailService.sendBookingConfirmationEmail(
                     recipientEmail,
@@ -874,8 +1132,12 @@ public class TicketService {
             );
 
 
+
+
             log.info("Đã gửi email xác nhận vé {} cho {} (Tổng: {} VND, OTP: {})",
                     ticket.getTicketId(), recipientEmail, totalPrice, otpCode);
+
+
 
 
         } catch (Exception e) {
@@ -886,6 +1148,7 @@ public class TicketService {
     private String getOrCreateOtpCode(Ticket ticket) {
         List<Otp> otps = otpRepository.findByTicket(ticket);
 
+
         if (otps != null && !otps.isEmpty()) {
             String existingOtp = otps.get(0).getCode();
             if (existingOtp != null && !existingOtp.trim().isEmpty()) {
@@ -894,10 +1157,15 @@ public class TicketService {
             }
         }
 
+
         String newOtp = createOtpForTicket(ticket);
         log.info("🆕 Tạo mới OTP {} cho vé {}", newOtp, ticket.getTicketId());
         return newOtp;
     }
+
+
+
+
 
 
 
@@ -909,10 +1177,13 @@ public class TicketService {
         List<Otp> otps = otpRepository.findByTicket(ticket);
 
 
+
+
         if (otps.isEmpty()) {
             log.warn(" Không tìm thấy OTP cho vé {}", ticket.getTicketId());
             return "000000";
         }
+
 
         Otp latestOtp = otps.stream()
                 .max((o1, o2) -> {
@@ -922,23 +1193,31 @@ public class TicketService {
                 })
                 .orElse(otps.get(0));
 
+
         return latestOtp.getCode();
     }
+
 
     private String getQrCodeUrl(Ticket ticket) {
         try {
             String otpCode = getOtpCode(ticket);
 
+
             String qrData = String.format("TICKET_ID:%d|OTP:%s",
                     ticket.getTicketId(),
                     otpCode);
 
+
             String encodedData = java.net.URLEncoder.encode(qrData, java.nio.charset.StandardCharsets.UTF_8);
+
 
             String qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodedData;
 
+
             log.info(" QR Code URL cho vé {}: {}", ticket.getTicketId(), qrUrl);
             return qrUrl;
+
+
 
 
         } catch (Exception e) {
@@ -947,4 +1226,32 @@ public class TicketService {
         }
     }
 
+
+
+
+    @Transactional(readOnly = true)
+    public List<OccupiedSeatResponse> getOccupiedSeatsWithStatus(Integer showtimeId, Integer ticketId, Integer accountId) {
+        List<Object[]> raw;
+
+
+        if (ticketId != null) {
+            raw = ticketRepository.findOccupiedSeatIdsAndStatusByShowtimeExcludeTicket(showtimeId, ticketId);
+        } else if (accountId != null) {
+            raw = ticketRepository.findOccupiedSeatIdsAndStatusByShowtimeExcludeAccount(showtimeId, accountId);
+        } else {
+            raw = ticketRepository.findOccupiedSeatIdsAndStatusByShowtime(showtimeId);
+        }
+
+
+        // map Object[] -> DTO
+        return raw.stream()
+                .map(row -> new OccupiedSeatResponse(
+                        (Integer) row[0],
+                        row[1].toString()
+                ))
+                .toList();
+    }
+
+
 }
+

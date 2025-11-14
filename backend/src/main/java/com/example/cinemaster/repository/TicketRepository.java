@@ -2,6 +2,7 @@ package com.example.cinemaster.repository;
 
 
 import com.example.cinemaster.entity.Account;
+import com.example.cinemaster.entity.Showtime;
 import com.example.cinemaster.entity.Ticket;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -312,6 +313,60 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
     Long countSeatsSold(@Param("from") LocalDateTime from,
                         @Param("to") LocalDateTime to,
                         @Param("branchId") Integer branchId);
+
+    @Query("""
+  SELECT ts.seat.seatID, t.ticketStatus
+  FROM TicketSeat ts
+  JOIN ts.ticket t
+  WHERE t.showtime.showtimeID = :showtimeId
+    AND (
+        t.ticketStatus = com.example.cinemaster.entity.Ticket.TicketStatus.BOOKED
+        OR (t.ticketStatus = com.example.cinemaster.entity.Ticket.TicketStatus.HOLDING
+            AND t.holdUntil > CURRENT_TIMESTAMP)
+    )
+""")
+    List<Object[]> findOccupiedSeatIdsAndStatusByShowtime(@Param("showtimeId") Integer showtimeId);
+
+
+
+
+    @Query("""
+  SELECT ts.seat.seatID, t.ticketStatus
+  FROM TicketSeat ts
+  JOIN ts.ticket t
+  WHERE t.showtime.showtimeID = :showtimeId
+    AND (
+        t.ticketStatus = com.example.cinemaster.entity.Ticket.TicketStatus.BOOKED
+        OR (t.ticketStatus = com.example.cinemaster.entity.Ticket.TicketStatus.HOLDING
+            AND t.holdUntil > CURRENT_TIMESTAMP)
+    )
+    AND t.ticketId <> :ticketId
+""")
+    List<Object[]> findOccupiedSeatIdsAndStatusByShowtimeExcludeTicket(
+            @Param("showtimeId") Integer showtimeId,
+            @Param("ticketId") Integer ticketId
+    );
+
+
+
+
+    @Query("""
+  SELECT ts.seat.seatID, t.ticketStatus
+  FROM TicketSeat ts
+  JOIN ts.ticket t
+  WHERE t.showtime.showtimeID = :showtimeId
+    AND (
+        t.ticketStatus = com.example.cinemaster.entity.Ticket.TicketStatus.BOOKED
+        OR (t.ticketStatus = com.example.cinemaster.entity.Ticket.TicketStatus.HOLDING
+            AND t.holdUntil > CURRENT_TIMESTAMP)
+    )
+    AND t.account.accountID <> :accountId
+""")
+    List<Object[]> findOccupiedSeatIdsAndStatusByShowtimeExcludeAccount(
+            @Param("showtimeId") Integer showtimeId,
+            @Param("accountId") Integer accountId
+    );
+
 
 }
 

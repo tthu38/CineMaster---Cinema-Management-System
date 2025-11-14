@@ -1,13 +1,17 @@
 import { movieApi } from "./api/movieApi.js";
+import { genreApi } from "./api/genreApi.js";
+
 
 const movieList = document.getElementById("movie-list");
 const btnNow = document.getElementById("btn-now-showing");
 const btnSoon = document.getElementById("btn-coming-soon");
 const btnAll = document.getElementById("btn-all");
 
+
 // LẤY CÁC BIẾN DOM MỚI (TỪ HTML ĐÃ SỬA)
 const titleSearchInput = document.getElementById("title-search-input");
 const searchByTitleBtn = document.getElementById("search-by-title-btn");
+
 
 const genreFilter = document.getElementById("genre-filter");
 const languageFilter = document.getElementById("language-filter");
@@ -15,10 +19,13 @@ const directorFilter = document.getElementById("director-filter");
 const castFilter = document.getElementById("cast-filter");
 const applyFilterBtn = document.getElementById("apply-filter-btn");
 
+
 let currentFilter = "Now Showing";
 let allMovies = []; // Vẫn dùng để cache kết quả gần nhất
 
+
 // ========================== LOAD & FILTER MOVIES (SỬ DỤNG API SEARCH NÂNG CAO) ==========================
+
 
 /**
  * Lấy tất cả tham số lọc từ UI và gọi API tương ứng.
@@ -29,6 +36,7 @@ async function loadAndFilterMovies(status = currentFilter) {
     try {
         let res;
 
+
         // 1. TẠO REQUEST LỌC TỪ TẤT CẢ CÁC TRƯỜNG INPUT/SELECT
         const filterRequest = {
             title: titleSearchInput.value,
@@ -38,8 +46,10 @@ async function loadAndFilterMovies(status = currentFilter) {
             cast: castFilter.value,
         };
 
+
         // Kiểm tra xem có bất kỳ trường lọc nâng cao nào được điền hay không (ngoại trừ status)
         const isAdvancedFilterUsed = Object.values(filterRequest).some(value => value && value.trim() !== "");
+
 
         // 2. XÁC ĐỊNH HÀM API ĐỂ GỌI
         if (isAdvancedFilterUsed || status === "All") {
@@ -57,41 +67,49 @@ async function loadAndFilterMovies(status = currentFilter) {
             res = await movieApi.getAll();
         }
 
+
         // 3. XỬ LÝ KẾT QUẢ VÀ RENDER
         const movies = res?.result || res || [];
         allMovies = movies;
+
 
         renderMovies(movies);
     } catch (err) {
         console.error("❌ Load movies error:", err);
         movieList.innerHTML = `
-            <div class="col-12 text-center text-danger">
-                <p>Không thể tải danh sách phim! Vui lòng kiểm tra kết nối API.</p>
-            </div>
-        `;
+           <div class="col-12 text-center text-danger">
+               <p>Không thể tải danh sách phim! Vui lòng kiểm tra kết nối API.</p>
+           </div>
+       `;
     }
 }
+
+
 
 
 // ========================== RENDER MOVIES (GIỮ NGUYÊN) ==========================
 function renderMovies(movies) {
     movieList.innerHTML = "";
 
+
     if (!movies || movies.length === 0) {
         movieList.innerHTML = `
-            <p class="text-center text-muted fst-italic">
-                Hiện chưa có phim nào trong danh mục này.
-            </p>
-        `;
+           <p class="text-center text-muted fst-italic">
+               Hiện chưa có phim nào trong danh mục này.
+           </p>
+       `;
         return;
     }
+
 
     movies.forEach(m => {
         const card = document.createElement("div");
         card.className = "movie-card";
 
+
         const badgeClass = m.status === "Coming Soon" ? "soon" : "";
         const badgeText = m.status || "Unknown";
+
 
         // ✅ ROBUST: Lấy ID từ entity field chuẩn (movieID) + fallbacks (Pascal, snake, id generic)
         let movieIdField = m.movieID || m.MovieID || m.id || m._id || m.movie_id;
@@ -101,27 +119,30 @@ function renderMovies(movies) {
             if (idKey) movieIdField = m[idKey];
         }
 
+
         // ✅ DEBUG LOG: Chạy filter → Check Console để xem structure m & ID extracted
         console.log(`DEBUG - Movie "${m.title || 'Unknown'}" structure:`, m);
         console.log(`DEBUG - Extracted ID: "${movieIdField}" (from key: ${movieIdField ? Object.keys(m).find(k => m[k] === movieIdField) : 'none'})`);
 
+
         card.innerHTML = `
-            <div class="status-badge ${badgeClass}">${badgeText}</div>
-            <div class="image-wrapper">
-                <img src="${m.posterUrl || m.PosterUrl || "../image/default_movie.jpg"}" alt="${m.title || 'Unknown'}">
-                <div class="action-overlay">
-                    ${
+           <div class="status-badge ${badgeClass}">${badgeText}</div>
+           <div class="image-wrapper">
+               <img src="${m.posterUrl || m.PosterUrl || "../image/default_movie.jpg"}" alt="${m.title || 'Unknown'}">
+               <div class="action-overlay">
+                   ${
             (m.status === "Coming Soon" || badgeText.includes("COMING"))
                 ? `<button class="btn btn-lg btn-book-now btn-soon">XEM THÔNG BÁO</button>`
                 : `<button class="btn btn-lg btn-book-now">ĐẶT VÉ NGAY</button>`
         }
-                </div>
-            </div>
-            <div class="movie-info">
-                <h5>${m.title || 'Unknown'}</h5>
-                <p class="genre-list">${m.genre || "Chưa cập nhật thể loại"}</p>
-            </div>
-        `;
+               </div>
+           </div>
+           <div class="movie-info">
+               <h5>${m.title || 'Unknown'}</h5>
+               <p class="genre-list">${m.genre || "Chưa cập nhật thể loại"}</p>
+           </div>
+       `;
+
 
         card.addEventListener("click", () => {
             if (!movieIdField) {
@@ -131,6 +152,7 @@ function renderMovies(movies) {
             }
             window.location.href = `movieDetail.html?id=${movieIdField}`;
         });
+
 
         movieList.appendChild(card);
     });
@@ -145,6 +167,30 @@ function setActiveButton(activeBtn) {
     activeBtn.classList.add("btn-custom-active");
 }
 
+
+async function loadGenres() {
+    const select = document.getElementById("genre-filter");
+    select.innerHTML = `<option value="">-- Thể loại --</option>`;
+
+
+    try {
+        const genres = await genreApi.getAll();
+
+
+        genres.forEach(g => {
+            const opt = document.createElement("option");
+            opt.value = g;
+            opt.textContent = g;
+            select.appendChild(opt);
+        });
+
+
+    } catch (err) {
+        console.error("Lỗi load thể loại:", err);
+    }
+}
+
+
 // 1. Lắng nghe nút ĐANG CHIẾU
 btnNow.addEventListener("click", () => {
     currentFilter = "Now Showing";
@@ -152,6 +198,7 @@ btnNow.addEventListener("click", () => {
     // Gọi hàm lọc, giữ nguyên các filter nâng cao nếu có
     loadAndFilterMovies(currentFilter);
 });
+
 
 // 2. Lắng nghe nút SẮP CHIẾU
 btnSoon.addEventListener("click", () => {
@@ -161,6 +208,7 @@ btnSoon.addEventListener("click", () => {
     loadAndFilterMovies(currentFilter);
 });
 
+
 // 3. Lắng nghe nút TẤT CẢ
 btnAll.addEventListener("click", () => {
     currentFilter = "All";
@@ -169,17 +217,21 @@ btnAll.addEventListener("click", () => {
     loadAndFilterMovies(currentFilter);
 });
 
+
 // 4. Lắng nghe nút TÌM KIẾM (Search Box)
 searchByTitleBtn.addEventListener("click", () => {
     // Gọi hàm lọc, áp dụng tất cả các filter đang có
     loadAndFilterMovies(currentFilter);
 });
 
+
 // 5. Lắng nghe nút ÁP DỤNG LỌC (Advanced Filters)
 applyFilterBtn.addEventListener("click", () => {
     // Gọi hàm lọc, áp dụng tất cả các filter đang có
     loadAndFilterMovies(currentFilter);
 });
+
+
 
 
 // 6. Lắng nghe sự kiện Enter trong ô tìm kiếm tên phim
@@ -190,7 +242,14 @@ titleSearchInput.addEventListener('keypress', (e) => {
 });
 
 
+
+
 // ========================== INIT ==========================
+// document.addEventListener("DOMContentLoaded", () => {
+//     loadAndFilterMovies(currentFilter);
+// });
 document.addEventListener("DOMContentLoaded", () => {
+    loadGenres();                // ⬅️ THÊM VÀO ĐÂY
     loadAndFilterMovies(currentFilter);
 });
+

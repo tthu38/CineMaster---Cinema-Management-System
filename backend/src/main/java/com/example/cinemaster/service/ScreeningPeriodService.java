@@ -67,18 +67,12 @@ public class ScreeningPeriodService {
     public ScreeningPeriodResponse update(Integer id, ScreeningPeriodRequest request) {
         ScreeningPeriod existingPeriod = screeningPeriodRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Screening Period not found with ID: " + id));
-
-        // Kiểm tra FK
         Movie movie = movieRepository.findById(request.getMovieId())
                 .orElseThrow(() -> new ResourceNotFoundException("Movie not found with ID: " + request.getMovieId()));
 
         Branch branch = branchRepository.findById(request.getBranchId())
                 .orElseThrow(() -> new ResourceNotFoundException("Branch not found with ID: " + request.getBranchId()));
-
-        // ⚡ MapStruct tự cập nhật các field không null
         mapper.updateEntityFromDto(request, existingPeriod);
-
-        // Gán lại quan hệ phức tạp (nếu request chỉ gửi ID)
         existingPeriod.setMovie(movie);
         existingPeriod.setBranch(branch);
 
@@ -152,5 +146,26 @@ public class ScreeningPeriodService {
                 .findFirst()
                 .orElse(null);
     }
+    @Transactional(readOnly = true)
+    public List<ScreeningPeriodResponse> searchByMovieTitle(String keyword) {
+        List<ScreeningPeriod> results = screeningPeriodRepository.searchByMovieTitle(keyword);
+
+        return mapper.toSearchList(results);
+    }
+    @Transactional(readOnly = true)
+    public List<Movie> getAllMoviesNowShowing() {
+        List<Movie> movies = screeningPeriodRepository.findMoviesNowShowingAllBranches();
+
+
+        System.out.println(" [DEBUG] Tổng số phim đang chiếu trên toàn hệ thống → " + movies.size());
+
+
+        return movies;
+    }
+    @Transactional(readOnly = true)
+    public List<Branch> getBranchesShowingMovie(Integer movieId) {
+        return screeningPeriodRepository.findBranchesShowingMovie(movieId);
+    }
+
 
 }

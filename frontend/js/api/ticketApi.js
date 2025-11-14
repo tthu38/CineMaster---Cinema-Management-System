@@ -3,7 +3,13 @@ import { API_BASE_URL, handleResponse, getValidToken } from "./config.js";
 
 
 
+
+
+
+
 export const ticketApi = {
+
+
 
 
     async createOrUpdate(payload) {
@@ -18,6 +24,10 @@ export const ticketApi = {
 
 
 
+
+
+
+
         // 🔹 2️⃣ Lấy email hợp lệ
         const userEmail =
             payload.customerEmail?.trim() ||
@@ -28,7 +38,15 @@ export const ticketApi = {
 
 
 
+
+
+
+
         if (userEmail) localStorage.setItem("userEmail", userEmail);
+
+
+
+
 
 
 
@@ -42,7 +60,15 @@ export const ticketApi = {
 
 
 
+
+
+
+
         console.log("📨 [ticketApi.createOrUpdate] Gửi yêu cầu tạo/cập nhật vé:", dataToSend);
+
+
+
+
 
 
 
@@ -61,12 +87,20 @@ export const ticketApi = {
 
 
 
+
+
+
+
             // 🔹 5️⃣ Nếu lỗi => log chi tiết để dễ debug
             if (!res.ok) {
                 const errText = await res.text();
                 console.error(`❌ Lỗi server ${res.status}:`, errText);
                 throw new Error(`HTTP ${res.status}: ${errText}`);
             }
+
+
+
+
 
 
 
@@ -79,6 +113,10 @@ export const ticketApi = {
             throw err;
         }
     },
+
+
+
+
 
 
 
@@ -97,9 +135,15 @@ export const ticketApi = {
 
 
 
+
+
+
+
     // ✅ Xác nhận thanh toán và đổi vé sang BOOKED
     async confirmPayment(ticketId, body = {}) {
         const token = getValidToken();
+
+
 
 
         const email =
@@ -108,10 +152,16 @@ export const ticketApi = {
             localStorage.getItem("userEmail") || null;
 
 
+
+
         const dataToSend = { ...body, email };
 
 
+
+
         console.log("💳 [ticketApi.confirmPayment] Xác nhận thanh toán vé:", dataToSend);
+
+
 
 
         const res = await fetch(`${API_BASE_URL}/tickets/${ticketId}/confirm`, {
@@ -124,7 +174,11 @@ export const ticketApi = {
         });
 
 
+
+
         const json = await res.json().catch(() => ({}));
+
+
 
 
         if (!res.ok) {
@@ -133,9 +187,13 @@ export const ticketApi = {
         }
 
 
+
+
         // Unwrap ApiResponse (nếu có)
         return json.result || json;
     },
+
+
 
 
     async cancel(ticketId) {
@@ -152,13 +210,25 @@ export const ticketApi = {
 
 
 
+
+
+
+
     async applyDiscount(ticketId, code) {
         const token = getValidToken();
 
 
 
 
+
+
+
+
         console.log(`🏷️ [ticketApi.applyDiscount] Áp dụng mã giảm giá ${code} cho vé ${ticketId}`);
+
+
+
+
 
 
 
@@ -174,6 +244,10 @@ export const ticketApi = {
 
 
 
+
+
+
+
         if (!res.ok) {
             const err = await res.json().catch(() => ({}));
             throw new Error(`HTTP ${res.status}: ${err.message || res.statusText}`);
@@ -182,8 +256,14 @@ export const ticketApi = {
 
 
 
+
+
+
+
         return await res.json();
     },
+
+
 
 
     async getHeldSeats(ticketId) {
@@ -195,6 +275,10 @@ export const ticketApi = {
         });
         return handleResponse(res);
     },
+
+
+
+
 
 
 
@@ -215,6 +299,10 @@ export const ticketApi = {
 
 
 
+
+
+
+
     async getOccupiedSeats(showtimeId) {
         const token = getValidToken();
         const res = await fetch(`${API_BASE_URL}/tickets/occupied/${showtimeId}`, {
@@ -225,4 +313,8 @@ export const ticketApi = {
         return handleResponse(res);
     },
 };
+
+
+
+
 

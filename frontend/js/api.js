@@ -1,5 +1,6 @@
 const API_BASE_URL = 'http://localhost:8080/api/v1';
 
+
 // ===== Helpers =====
 function validateToken(token) {
     if (!token) return false;
@@ -17,11 +18,13 @@ function validateToken(token) {
     }
 }
 
+
 function getValidToken() {
     const token = localStorage.getItem('accessToken');
     if (!token || !validateToken(token)) return null;
     return token;
 }
+
 
 async function handleResponse(res) {
     const ct = res.headers.get('content-type') || '';
@@ -32,14 +35,17 @@ async function handleResponse(res) {
         data = await res.text().catch(() => '');
     }
 
+
     if (!res.ok) {
         const msg = typeof data === 'string' ? data : data.message;
         throw new Error(msg || `HTTP ${res.status}`);
     }
 
+
     // backend thường bọc data trong { code, message, result }
     return data.result ?? data;
 }
+
 
 // ===== Auth API =====
 export const authApi = {
@@ -52,6 +58,7 @@ export const authApi = {
         return handleResponse(res);
     },
 
+
     async login(credentials) {
         const res = await fetch(`${API_BASE_URL}/auth/login`, {
             method: 'POST',
@@ -60,6 +67,7 @@ export const authApi = {
         });
         return handleResponse(res);
     },
+
 
     async register(userData) {
         const res = await fetch(`${API_BASE_URL}/auth/register`, {
@@ -70,6 +78,7 @@ export const authApi = {
         });
         return handleResponse(res);
     },
+
 
     async logout() {
         const token = localStorage.getItem("accessToken");
@@ -85,11 +94,14 @@ export const authApi = {
 };
 
 
+
+
 // ===== User API =====
 const userApi = {
     async getProfile() {
         const token = getValidToken();
         if (!token) return null;
+
 
         const res = await fetch(`${API_BASE_URL}/users/profile`, {
             method: 'GET',
@@ -101,9 +113,11 @@ const userApi = {
         return handleResponse(res);
     },
 
+
     async updateProfile(userData) {
         const token = getValidToken();
         if (!token) return null;
+
 
         const res = await fetch(`${API_BASE_URL}/users/profile`, {
             method: 'PUT',
@@ -116,9 +130,11 @@ const userApi = {
         return handleResponse(res);
     },
 
+
     async changePassword(passwordData) {
         const token = getValidToken();
         if (!token) return null;
+
 
         const res = await fetch(`${API_BASE_URL}/users/change-password`, {
             method: 'PUT',
@@ -134,8 +150,10 @@ const userApi = {
         const token = getValidToken();
         if (!token) return null;
 
+
         const formData = new FormData();
         formData.append('file', file); // ✅ trùng với @RequestParam("file")
+
 
         const res = await fetch(`${API_BASE_URL}/users/avatar`, {
             method: 'POST', // ✅ backend dùng POST
@@ -147,10 +165,12 @@ const userApi = {
         return handleResponse(res);
     },
 
+
     // Gửi OTP về email mới khi user muốn đổi email
     async sendOtpChangeEmail(email) {
         const token = getValidToken();
         if (!token) return null;
+
 
         const res = await fetch(`${API_BASE_URL}/users/profile/send-otp-change-email`, {
             method: 'POST',
@@ -163,10 +183,12 @@ const userApi = {
         return handleResponse(res);
     },
 
+
     // Xác thực OTP và đổi email
     async verifyEmailChange(email, otp) {
         const token = getValidToken();
         if (!token) return null;
+
 
         const res = await fetch(`${API_BASE_URL}/users/profile/verify-email-change`, {
             method: 'POST',
@@ -188,6 +210,7 @@ const userApi = {
         return handleResponse(res);
     },
 
+
     // Quên mật khẩu - xác thực OTP + đặt mật khẩu mới
     async resetPassword(email, otp, newPassword) {
         const res = await fetch(`${API_BASE_URL}/auth/reset`, {
@@ -197,8 +220,20 @@ const userApi = {
         });
         return handleResponse(res);
     },
+    async getPromotions() {
+        const token = getValidToken();
+        const res = await fetch(`${API_BASE_URL}/users/promotions`, {
+            method: "GET",
+            headers: {
+                Authorization: token ? `Bearer ${token}` : undefined,
+                "Content-Type": "application/json",
+            },
+        });
+        return handleResponse(res);
+    },
 
 };
+
 
 // ===== Account API =====
 const _accountApi = {
@@ -211,19 +246,23 @@ const _accountApi = {
         return handleResponse(res);
     },
 
+
     async getAllPaged(page = 0, size = 10, roleId = null, branchId = null, keyword = "") {
         const token = getValidToken();
         if (!token) return null;
+
 
         let url = `${API_BASE_URL}/accounts?page=${page}&size=${size}`;
         if (roleId) url += `&roleId=${roleId}`;
         if (branchId) url += `&branchId=${branchId}`;
         if (keyword) url += `&keyword=${encodeURIComponent(keyword)}`;
 
+
         console.log("📡 Fetching:", url);
         const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
         return handleResponse(res);
     },
+
 
     async getById(id) {
         const token = getValidToken();
@@ -234,9 +273,11 @@ const _accountApi = {
         return handleResponse(res);
     },
 
+
     async create(accountData, avatarFile) {
         const token = getValidToken();
         if (!token) return null;
+
 
         const formData = new FormData();
         formData.append(
@@ -246,6 +287,7 @@ const _accountApi = {
         if (avatarFile) {
             formData.append("avatarFile", avatarFile);
         }
+
 
         const res = await fetch(`${API_BASE_URL}/accounts`, {
             method: "POST",
@@ -257,9 +299,11 @@ const _accountApi = {
         return handleResponse(res);
     },
 
+
     async update(id, accountData, avatarFile) {
         const token = getValidToken();
         if (!token) return null;
+
 
         const formData = new FormData();
         formData.append(
@@ -270,6 +314,7 @@ const _accountApi = {
             formData.append("avatarFile", avatarFile);
         }
 
+
         const res = await fetch(`${API_BASE_URL}/accounts/${id}`, {
             method: "PUT",
             headers: {
@@ -279,6 +324,7 @@ const _accountApi = {
         });
         return handleResponse(res);
     },
+
 
     async remove(id) {
         const token = getValidToken();
@@ -299,14 +345,17 @@ const _accountApi = {
         return handleResponse(res);
     }
 
+
 };
 // ============ SEAT TYPE API =================
 const _seatTypeApi = {
+
 
     // 📌 Lấy danh sách loại ghế (Dùng cho dropdown)
     async getAll() {
         const token = getValidToken();
         if (!token) return null;
+
 
         const res = await fetch(`${API_BASE_URL}/seattypes`, {
             method: "GET",
@@ -326,6 +375,7 @@ const _newsApi = {
         let url = `${API_BASE_URL}/news`;
         if (category) url += `?category=${encodeURIComponent(category)}`;
 
+
         const res = await fetch(url, {
             method: "GET",
             headers: {
@@ -335,6 +385,7 @@ const _newsApi = {
         });
         return handleResponse(res);
     },
+
 
     // 📌 Lấy tin tức theo ID
     async getById(id) {
@@ -349,6 +400,7 @@ const _newsApi = {
         return handleResponse(res);
     },
 
+
     // 📌 Tạo tin tức mới (multipart/form-data)
     async create(formData) {
         const token = getValidToken();
@@ -361,6 +413,7 @@ const _newsApi = {
         });
         return handleResponse(res);
     },
+
 
     // 📌 Cập nhật tin tức (multipart/form-data)
     async update(id, formData) {
@@ -375,6 +428,7 @@ const _newsApi = {
         return handleResponse(res);
     },
 
+
     // 📌 Xóa tin tức (soft delete)
     async delete(id) {
         const token = getValidToken();
@@ -386,6 +440,7 @@ const _newsApi = {
         });
         return handleResponse(res);
     },
+
 
     // 📌 Khôi phục tin tức
     async restore(id) {
@@ -407,7 +462,9 @@ const _newsApi = {
         return handleResponse(res);
     },
 
+
 };
+
 
 export function requireAuth() {
     const token = getValidToken();
@@ -419,6 +476,7 @@ export function requireAuth() {
     return token;
 }
 
+
 // ===== Export =====
 export const api = {
     ...authApi,
@@ -426,10 +484,15 @@ export const api = {
     uploadAvatar: userApi.uploadAvatar,
 };
 
+
 export const accountApi = _accountApi;
 export const seatTypeApi = _seatTypeApi;
 export const newsApi = _newsApi;
 
 
+
+
 export { getValidToken, handleResponse, API_BASE_URL };
+
+
 

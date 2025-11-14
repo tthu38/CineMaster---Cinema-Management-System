@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.Instant; // 👈 bạn bị thiếu import này
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,10 +21,12 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class NewsService {
+
     private final NewsRepository newsRepository;
     private final NewsDetailRepository newsDetailRepository;
     private final NewsMapper newsMapper;
     private final FileStorageService fileStorageService;
+
 
     public List<NewsResponse> getAll(String category) {
         if (category != null && !category.isEmpty()) {
@@ -52,8 +54,12 @@ public class NewsService {
         return response;
     }
 
+    // =======================================================
+    // 🟢 CREATE NEWS — Upload ảnh Cloudinary
+    // =======================================================
     @Transactional
     public NewsResponse create(NewsRequest req, MultipartFile imageFile) {
+
         News news = new News();
         news.setTitle(req.getTitle());
         news.setContent(req.getContent());
@@ -63,16 +69,17 @@ public class NewsService {
 
         LocalDateTime now = LocalDateTime.now();
         news.setPublishDate(req.getPublishDate() != null ? req.getPublishDate() : now);
-
         news.setActive(true);
 
+        // ⭐ UPLOAD ẢNH NEWS LÊN CLOUDINARY
         if (imageFile != null && !imageFile.isEmpty()) {
-            String url = fileStorageService.saveNewsFile(imageFile);
+            String url = fileStorageService.saveNewsCloudinary(imageFile);
             news.setImageUrl(url);
         }
 
         newsRepository.save(news);
 
+        // 📝 Lưu chi tiết section
         if (req.getDetails() != null) {
             for (NewsDetailRequest d : req.getDetails()) {
                 NewsDetail detail = new NewsDetail();
@@ -88,8 +95,12 @@ public class NewsService {
         return newsMapper.toResponse(news);
     }
 
+    // =======================================================
+    // 🟡 UPDATE NEWS — XÓA ẢNH CŨ + UPLOAD ẢNH MỚI
+    // =======================================================
     @Transactional
     public NewsResponse update(Integer id, NewsRequest req, MultipartFile imageFile) {
+
         News news = newsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("News not found"));
 
@@ -97,19 +108,32 @@ public class NewsService {
         news.setContent(req.getContent());
         news.setCategory(req.getCategory());
         news.setRemark(req.getRemark());
+        news.setUpdatedDate(LocalDateTime.now());
 
-        LocalDateTime now = LocalDateTime.now();
-        news.setUpdatedDate(now);
         if (req.getPublishDate() != null) {
             news.setPublishDate(req.getPublishDate());
         }
 
+        String oldImage = news.getImageUrl();
+
+        // ⭐ NẾU CÓ ẢNH MỚI → XÓA ẢNH CŨ + UPLOAD ẢNH MỚI
         if (imageFile != null && !imageFile.isEmpty()) {
-            String url = fileStorageService.saveNewsFile(imageFile);
-            news.setImageUrl(url);
+
+            // 1) XÓA ảnh cũ Cloudinary
+            fileStorageService.deleteNewsCloudinary(oldImage);
+
+            // 2) Upload ảnh mới
+            String newUrl = fileStorageService.saveNewsCloudinary(imageFile);
+            news.setImageUrl(newUrl);
+
+        } else {
+            // Giữ ảnh cũ
+            news.setImageUrl(oldImage);
         }
 
+        // Refresh details
         newsDetailRepository.deleteAll(newsDetailRepository.findByNewsID_NewsID(id));
+
         if (req.getDetails() != null) {
             for (NewsDetailRequest d : req.getDetails()) {
                 NewsDetail detail = new NewsDetail();
@@ -154,5 +178,5 @@ public class NewsService {
         news.setUpdatedDate(LocalDateTime.now());
         newsRepository.save(news);
     }
-
 }
+

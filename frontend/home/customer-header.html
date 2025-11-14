@@ -9,8 +9,7 @@
             <a href="../home/home.html" class="nav-link">Trang chủ</a>
             <a href="../movies/listMovieCus.html" class="nav-link">Phim</a>
             <a href="../user/showtimes-calendar.html" class="nav-link">Lịch chiếu</a>
-            <a href="../discount/listDiscount.html" class="nav-link">Khuyến mãi</a>
-            <a href="../news/listNewsCus.html" class="nav-link">Tin tức</a> <!-- 📰 Thêm mục Tin tức -->
+            <a href="../news/listNewsCus.html" class="nav-link">Tin tức</a>
             <a href="../contact/contact.html" class="nav-link">Liên hệ</a>
         </nav>
 
@@ -141,7 +140,7 @@
         const name = localStorage.getItem("fullName") || "User";
         const storedAvatar = localStorage.getItem("avatarUrl");
         const accountId = localStorage.getItem("accountId");
-        const role = localStorage.getItem("role"); // 👑 Role hiện tại
+        const role = localStorage.getItem("role");
 
         // Avatar xử lý đường dẫn
         let avatar = "../assets/default-avatar.png";
@@ -172,7 +171,7 @@
            Xây dựng menu dropdown
            ============================================================ */
         let dropdownItems = `
-        <a href="../user/profile.html?id=${accountId || ''}">👤 Trang cá nhân </a>
+        <a href="../user/profile.html?id=${accountId || ''}">Trang cá nhân </a>
         <hr>
         <a href="#" id="logoutBtn">🚪 Đăng xuất</a>
     `;
@@ -180,30 +179,27 @@
         if (role === "Customer") {
             // 👤 Customer: có thêm vé & membership
             dropdownItems = `
-            <a href="../user/profile.html?id=${accountId || ''}">👤 Trang cá nhân</a>
-            <a href="../tickets/myTickets.html">🎟 Vé của tôi</a>
-            <a href="../user/membership.html">⭐ Thẻ thành viên</a>
+            <a href="../user/profile.html?id=${accountId || ''}">Trang cá nhân</a>
+            <a href="../tickets/myTickets.html">Vé của tôi</a>
             <hr>
-            <a href="#" id="logoutBtn">🚪 Đăng xuất</a>
+            <a href="#" id="logoutBtn">Đăng xuất</a>
         `;
         } else if (["Admin", "Manager", "Staff"].includes(role)) {
-            // 🧑‍💼 Admin/Manager/Staff
             let dashboardLink = "";
             if (!isDashboard) {
-                if (role === "Admin") dashboardLink = `<a href="/CineMaster/frontend/home/dashboardAdmin.html">🧭 Trang quản lý</a>`;
-                else if (role === "Manager") dashboardLink = `<a href="/CineMaster/frontend/home/dashboardManager.html">🧭 Trang quản lý</a>`;
-                else if (role === "Staff") dashboardLink = `<a href="/CineMaster/frontend/home/dashboardStaff.html">🧭 Trang quản lý</a>`;
+                if (role === "Admin") dashboardLink = `<a href="/CineMaster/frontend/home/dashboardAdmin.html">Trang quản lý</a>`;
+                else if (role === "Manager") dashboardLink = `<a href="/CineMaster/frontend/home/dashboardManager.html">Trang quản lý</a>`;
+                else if (role === "Staff") dashboardLink = `<a href="/CineMaster/frontend/home/dashboardStaff.html">Trang quản lý</a>`;
             }
 
             dropdownItems = `
-            <a href="../user/profile.html?id=${accountId || ''}">👤 Trang cá nhân</a>
+            <a href="../user/profile.html?id=${accountId || ''}">Trang cá nhân</a>
             ${dashboardLink}
             <hr>
-            <a href="#" id="logoutBtn">🚪 Đăng xuất</a>
+            <a href="#" id="logoutBtn">Đăng xuất</a>
         `;
         }
 
-        // ✅ Render giao diện header
         authArea.innerHTML = `
         <div class="user-info">
             <div class="user-dropdown">
@@ -255,7 +251,6 @@
             }
         });
     })();
-    // ✅ Lắng nghe sự kiện avatarUpdated để cập nhật ngay lập tức (khi đang ở cùng trang)
     window.addEventListener("avatarUpdated", () => {
         const newUrl = localStorage.getItem("avatarUrl");
         const img = document.getElementById("userAvatar");

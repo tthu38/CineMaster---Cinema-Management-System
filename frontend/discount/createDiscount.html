@@ -1,159 +1,159 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin - Quản Lý Mã Giảm Giá • CineMaster</title>
+    <!DOCTYPE html>
+    <html lang="vi">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Admin - Quản Lý Mã Giảm Giá • CineMaster</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link rel="stylesheet" href="../css/user.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+        <link rel="stylesheet" href="../css/user.css">
 
-    <style>
-        .table td:last-child { white-space: nowrap; }
-        .panel-film {
-            background: rgba(12,22,44,0.3);
-            border: 1px solid rgba(34,193,255,0.25);
-            border-radius: 18px;
-            box-shadow: 0 14px 32px rgba(0,0,0,.5);
-            padding: 40px 30px;
-            margin-bottom: 30px;
-            backdrop-filter: blur(12px);
-        }
-        form {
-            display: grid;
-            grid-template-columns: repeat(2,1fr);
-            gap: 20px 30px;
-        }
-        input, select, textarea {
-            background: rgba(14,28,55,0.45);
-            border: 1px solid rgba(34,193,255,0.2);
-            color: #e6f1ff;
-            border-radius: 10px;
-            padding: 10px 14px;
-            width: 100%;
-        }
-        label { color: #22c1ff; font-weight: 500; }
-        .actions { grid-column: 1/3; display: flex; justify-content: flex-end; gap: 12px; margin-top: 15px; }
-    </style>
-</head>
+        <style>
+            .table td:last-child { white-space: nowrap; }
+            .panel-film {
+                background: rgba(12,22,44,0.3);
+                border: 1px solid rgba(34,193,255,0.25);
+                border-radius: 18px;
+                box-shadow: 0 14px 32px rgba(0,0,0,.5);
+                padding: 40px 30px;
+                margin-bottom: 30px;
+                backdrop-filter: blur(12px);
+            }
+            form {
+                display: grid;
+                grid-template-columns: repeat(2,1fr);
+                gap: 20px 30px;
+            }
+            input, select, textarea {
+                background: rgba(14,28,55,0.45);
+                border: 1px solid rgba(34,193,255,0.2);
+                color: #e6f1ff;
+                border-radius: 10px;
+                padding: 10px 14px;
+                width: 100%;
+            }
+            label { color: #22c1ff; font-weight: 500; }
+            .actions { grid-column: 1/3; display: flex; justify-content: flex-end; gap: 12px; margin-top: 15px; }
+        </style>
+    </head>
 
-<body>
-<div class="grain"></div>
-<div class="tickets-wall" aria-hidden="true">
-    <div class="tickets-layer l1"></div>
-    <div class="tickets-layer l2"></div>
-</div>
+    <body>
+    <div class="grain"></div>
+    <div class="tickets-wall" aria-hidden="true">
+        <div class="tickets-layer l1"></div>
+        <div class="tickets-layer l2"></div>
+    </div>
 
-<div id="header"></div>
+    <div id="header"></div>
 
-<!-- ===================== MAIN PANEL ===================== -->
-<main class="shell">
-    <section class="film">
-        <div class="panel-head">
-            <i class="fa-solid fa-ticket"></i>
-            <h2>QUẢN LÝ MÃ GIẢM GIÁ</h2>
-        </div>
+    <!-- ===================== MAIN PANEL ===================== -->
+    <main class="shell">
+        <section class="film">
+            <div class="panel-head">
+                <i class="fa-solid fa-ticket"></i>
+                <h2>QUẢN LÝ MÃ GIẢM GIÁ</h2>
+            </div>
 
-        <div class="panel-film">
-            <form id="discountForm">
-                <input type="hidden" id="discountID">
-                <div><label>Mã giảm giá</label><input type="text" id="code"></div>
-                <div><label>Mô tả</label><textarea id="discountDescription"></textarea></div>
-                <div><label>Giảm theo %</label><input type="number" id="percentOff"></div>
-                <div><label>Giảm cố định (VNĐ)</label><input type="number" id="fixedAmount"></div>
-                <div><label>Ngày bắt đầu</label><input type="date" id="createAt"></div>
-                <div><label>Ngày hết hạn</label><input type="date" id="expiryDate"></div>
-                <div><label>Giới hạn sử dụng</label><input type="number" id="maxUsage"></div>
-                <div><label>Điểm đổi</label><input type="number" id="pointCost"></div>
-                <div><label>Mức hóa đơn tối thiểu (VNĐ)</label><input type="number" id="minOrderAmount"></div>
-                <div>
-                    <label>Hạng thành viên tối thiểu</label>
-                    <select id="membershipLevelSelect" class="form-select">
-                        <option value="">-- Chọn hạng thành viên --</option>
-                    </select>
-                </div>
-                <div>
-                    <label>Trạng thái</label>
-                    <select id="discountStatus" class="form-select">
-                        <option value="ACTIVE">ACTIVE</option>
-                        <option value="INACTIVE">INACTIVE</option>
-                        <option value="EXPIRED">EXPIRED</option>
-                        <option value="DELETED">DELETED</option>
-                    </select>
-                </div>
-                <div class="actions">
-                    <button type="submit" id="btnSubmit" class="btn btn-primary">Thêm mới</button>
-                    <button type="button" id="btnCancel" class="btn btn-secondary">Hủy</button>
-                </div>
-            </form>
-        </div>
+            <div class="panel-film">
+                <form id="discountForm">
+                    <input type="hidden" id="discountID">
+                    <div><label>Mã giảm giá</label><input type="text" id="code"></div>
+                    <div><label>Mô tả</label><textarea id="discountDescription"></textarea></div>
+                    <div><label>Giảm theo %</label><input type="number" id="percentOff"></div>
+                    <div><label>Giảm cố định (VNĐ)</label><input type="number" id="fixedAmount"></div>
+                    <div><label>Ngày bắt đầu</label><input type="date" id="createAt"></div>
+                    <div><label>Ngày hết hạn</label><input type="date" id="expiryDate"></div>
+                    <div><label>Giới hạn sử dụng</label><input type="number" id="maxUsage"></div>
+                    <div><label>Điểm đổi</label><input type="number" id="pointCost"></div>
+                    <div><label>Mức hóa đơn tối thiểu (VNĐ)</label><input type="number" id="minOrderAmount"></div>
+                    <div>
+                        <label>Hạng thành viên tối thiểu</label>
+                        <select id="membershipLevelSelect" class="form-select">
+                            <option value="">-- Chọn hạng thành viên --</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Trạng thái</label>
+                        <select id="discountStatus" class="form-select">
+                            <option value="ACTIVE">ACTIVE</option>
+                            <option value="INACTIVE">INACTIVE</option>
+                            <option value="EXPIRED">EXPIRED</option>
+                            <option value="DELETED">DELETED</option>
+                        </select>
+                    </div>
+                    <div class="actions">
+                        <button type="submit" id="btnSubmit" class="btn btn-primary">Thêm mới</button>
+                        <button type="button" id="btnCancel" class="btn btn-secondary">Hủy</button>
+                    </div>
+                </form>
+            </div>
 
-        <div class="filter-box mb-4">
-            <div class="row g-3 align-items-end">
-                <div class="col-lg-5 d-flex flex-wrap gap-2">
-                    <div class="btn-group flex-wrap" role="group">
-                        <button class="btn btn-outline-info filter-btn active" data-status="">Tất cả</button>
-                        <button class="btn btn-outline-info filter-btn" data-status="ACTIVE">Hoạt động</button>
-                        <button class="btn btn-outline-info filter-btn" data-status="INACTIVE">Tạm ngưng</button>
-                        <button class="btn btn-outline-info filter-btn" data-status="EXPIRED">Hết hạn</button>
+            <div class="filter-box mb-4">
+                <div class="row g-3 align-items-end">
+                    <div class="col-lg-5 d-flex flex-wrap gap-2">
+                        <div class="btn-group flex-wrap" role="group">
+                            <button class="btn btn-outline-info filter-btn active" data-status="">Tất cả</button>
+                            <button class="btn btn-outline-info filter-btn" data-status="ACTIVE">Hoạt động</button>
+                            <button class="btn btn-outline-info filter-btn" data-status="INACTIVE">Tạm ngưng</button>
+                            <button class="btn btn-outline-info filter-btn" data-status="EXPIRED">Hết hạn</button>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-7 d-flex gap-2">
+                        <input id="searchInput" type="text" class="form-control" placeholder="Tìm mã giảm giá...">
                     </div>
                 </div>
+            </div>
 
-                <div class="col-lg-7 d-flex gap-2">
-                    <input id="searchInput" type="text" class="form-control" placeholder="Tìm mã giảm giá...">
+            <div class="table-responsive">
+                <table class="table table-hover text-center align-middle mb-0" id="discountTable">
+                    <thead>
+                    <tr>
+                        <th>Mã</th>
+                        <th>Giảm</th>
+                        <th>Bắt đầu</th>
+                        <th>Hết hạn</th>
+                        <th>Giới hạn</th>
+                        <th>Trạng thái</th>
+                        <th>Hành động</th>
+                    </tr>
+                    </thead>
+                    <tbody id="discountBody">
+                    <tr><td colspan="7" class="text-muted py-3">Đang tải dữ liệu...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div id="pagination" class="d-flex justify-content-center mt-4"></div>
+        </section>
+    </main>
+
+    <div id="footer"></div>
+
+    <div class="modal fade" id="confirmModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-secondary">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận hành động</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-            </div>
-        </div>
-
-        <div class="table-responsive">
-            <table class="table table-hover text-center align-middle mb-0" id="discountTable">
-                <thead>
-                <tr>
-                    <th>Mã</th>
-                    <th>Giảm</th>
-                    <th>Bắt đầu</th>
-                    <th>Hết hạn</th>
-                    <th>Giới hạn</th>
-                    <th>Trạng thái</th>
-                    <th>Hành động</th>
-                </tr>
-                </thead>
-                <tbody id="discountBody">
-                <tr><td colspan="7" class="text-muted py-3">Đang tải dữ liệu...</td></tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div id="pagination" class="d-flex justify-content-center mt-4"></div>
-    </section>
-</main>
-
-<div id="footer"></div>
-
-<div class="modal fade" id="confirmModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content bg-dark text-white border-secondary">
-            <div class="modal-header">
-                <h5 class="modal-title">Xác nhận hành động</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body" id="confirmMessage">Bạn có chắc chắn muốn thực hiện hành động này?</div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                <button type="button" class="btn btn-primary" id="confirmOkBtn">Đồng ý</button>
+                <div class="modal-body" id="confirmMessage">Bạn có chắc chắn muốn thực hiện hành động này?</div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="confirmOkBtn">Đồng ý</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
-    <div id="toastContainer"></div>
-</div>
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+        <div id="toastContainer"></div>
+    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script type="module" src="../js/listDiscount.js"></script>
-<script src="../js/footer-loader.js"></script>
-</body>
-</html>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="../js/listDiscount.js"></script>
+    <script src="../js/footer-loader.js"></script>
+    </body>
+    </html>

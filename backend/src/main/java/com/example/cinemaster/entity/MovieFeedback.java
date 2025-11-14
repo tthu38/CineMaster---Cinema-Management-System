@@ -42,4 +42,9 @@ public class MovieFeedback {
     @ColumnDefault("getdate()")
     @Column(name = "CreatedAt")
     Instant createdAt;
+
+    @Column(name = "IsSpam")
+    Boolean isSpam = false;
+
 }
+
