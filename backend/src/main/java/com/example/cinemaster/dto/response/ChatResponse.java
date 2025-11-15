@@ -1,6 +1,9 @@
 package com.example.cinemaster.dto.response;
 
 
+import com.fasterxml.jackson.annotation.JsonRawValue;
+
+
 public class ChatResponse {
 
 

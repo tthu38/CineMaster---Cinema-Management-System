@@ -16,6 +16,7 @@ import java.util.List;
 @Builder
 public class OtpCheckResponse {
 
+    private Integer ticketId;
 
     // ===== Thông tin kỹ thuật =====
     private Integer showtimeId;
@@ -42,6 +43,5 @@ public class OtpCheckResponse {
     private String paymentMethod;
     private String ticketStatus;
 }
-
 
 

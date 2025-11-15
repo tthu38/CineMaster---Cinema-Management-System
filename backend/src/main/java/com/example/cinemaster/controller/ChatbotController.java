@@ -24,12 +24,8 @@ public class ChatbotController {
     }
 
 
-    /**
-     * Endpoint chính để gửi câu hỏi đến Chatbot AI.
-     * @param request Chứa câu hỏi của người dùng (question).
-     * @param session Đối tượng HttpSession để đảm bảo session được khởi tạo/duy trì. ✨ THÊM ĐIỂM NÀY
-     * @return Câu trả lời từ AI (answer).
-     */
+
+
     @PostMapping("/ask")
     public ResponseEntity<ChatResponse> askChatbot(@RequestBody ChatRequest request, HttpSession session) {
         System.out.println("Session ID: " + session.getId());
@@ -58,5 +54,7 @@ public class ChatbotController {
             );
         }
     }
+
+
 }
 

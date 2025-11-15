@@ -160,6 +160,9 @@ public class WorkScheduleService {
             throw new IllegalArgumentException("Nhân viên #" + accountId + " không thuộc chi nhánh #" + branchId);
         }
     }
-
+    public boolean hasShift(Integer accountId, LocalDate date) {
+        if (accountId == null || date == null) return false;
+        return repo.existsByAccount_AccountIDAndShiftDate(accountId, date);
+    }
 
 }

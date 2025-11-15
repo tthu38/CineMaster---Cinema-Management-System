@@ -78,6 +78,6 @@ public interface WorkScheduleRepository
             String shiftType,
             Integer accountId
     );
-
+    boolean existsByAccount_AccountIDAndShiftDate(Integer accountId, LocalDate shiftDate);
 
 }

@@ -145,6 +145,13 @@ public class ShowtimeController {
     }
 
 
+    @GetMapping("/next7days")
+    public ResponseEntity<List<DayScheduleResponse>> next7days(
+            @RequestParam(required = false) Integer branchId,
+            @RequestParam(required = false) Integer movieId
+    ) {
+        return ResponseEntity.ok(service.getNext7DaysSchedule(branchId, movieId));
+    }
 
 
 }

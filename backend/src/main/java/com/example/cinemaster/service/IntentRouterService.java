@@ -31,7 +31,8 @@ public class IntentRouterService {
         BRANCH_INFO, AUDITORIUM_INFO, SCREENING_NOW, SCREENING_SOON,
         SCREENING_DETAIL, GENERAL_INFO, MOVIE_DETAIL,
         FAQ_OR_POLICY,COMBO_INFO, PROMOTION_INFO,MEMBERSHIP_INFO,NEWS_INFO,RECOMMEND_MOVIE,
-        MOVIE_SCREENING_BRANCH,
+        MOVIE_SCREENING_BRANCH,RECOMMEND_SIMILAR,DIRECTOR_MOVIES,
+        CAST_MOVIES,
         UNKNOWN
     }
 
@@ -44,6 +45,14 @@ public class IntentRouterService {
         boolean hasTimeReference = Pattern.compile(
                 "(hôm nay|tối nay|sáng nay|chiều nay|ngày mai|tối mai|cuối tuần|tuần này|tuần sau)"
         ).matcher(normalizedInput).find();
+        // 🔍 Phim theo đạo diễn
+        if (normalizedInput.contains("đạo diễn") || normalizedInput.contains("director"))
+            return ChatIntent.DIRECTOR_MOVIES;
+
+
+        // 🔍 Phim theo diễn viên
+        if (normalizedInput.contains("diễn viên") || normalizedInput.contains("đóng") || normalizedInput.contains("cast"))
+            return ChatIntent.CAST_MOVIES;
         if (normalizedInput.matches(".*(phim .* chiếu ở đâu|chiếu ở chi nhánh nào|rạp nào đang chiếu|chiếu ở rạp nào|đang công chiếu ở đâu).*"))
             return ChatIntent.MOVIE_SCREENING_BRANCH;
         if (normalizedInput.matches(".*(suất chiếu|lịch chiếu|giờ chiếu|chiếu lúc mấy giờ|suất phim).*"))
@@ -62,7 +71,7 @@ public class IntentRouterService {
             return ChatIntent.AUDITORIUM_INFO;
 
 
-        if (normalizedInput.matches(".*(chi nhánh|địa chỉ|ở đâu|vị trí|cơ sở|rạp tại).*"))
+        if (normalizedInput.matches(".*(\\\\b(o dau|tai|dia chi|chi nhanh|co so|rap)).*"))
             return ChatIntent.BRANCH_INFO;
 //        if (normalizedInput.matches(".*(gợi ý phim|đề xuất phim|phim nên xem|phim gì nên xem|phim hay|phim hot|phim đang hot\\\\??|phim nổi bật|phim đang được yêu thích|phim hợp với tôi|recommend|suggest).*"))
 //            return ChatIntent.RECOMMEND_MOVIE;
@@ -70,19 +79,29 @@ public class IntentRouterService {
 //                || normalizedInput.matches(".*(đề xuất phim|phim nên xem|phim gì nên xem|phim hay|phim hot|phim nổi bật|recommend|suggest).*")) {
 //            return ChatIntent.RECOMMEND_MOVIE;
 //        }
+//        if (
+//            // similar movies
+//                normalizedInput.matches(".*(phim.*tương tự|phim.*giống như|phim.*giống|similar to|movies like|similar movies).*")
+//                        ||
+//                        // gợi ý phim nói chung
+//                        ((normalizedInput.contains("gợi ý") && normalizedInput.contains("phim"))
+//                                || normalizedInput.matches(".*(đề xuất phim|phim nên xem|phim gì nên xem|phim hay|phim hot|phim nổi bật|recommend|suggest).*"))
+//        ) {
+//            return ChatIntent.RECOMMEND_MOVIE;
+//        }
+        if (normalizedInput.matches(".*(phim\\s+tương\\s+tự|phim\\s+giống|similar to|movies like|similar movies).*")) {
+            return ChatIntent.RECOMMEND_SIMILAR;
+        }
         if (
-            // similar movies
-                normalizedInput.matches(".*(phim.*tương tự|phim.*giống như|phim.*giống|similar to|movies like|similar movies).*")
-                        ||
-                        // gợi ý phim nói chung
-                        ((normalizedInput.contains("gợi ý") && normalizedInput.contains("phim"))
-                                || normalizedInput.matches(".*(đề xuất phim|phim nên xem|phim gì nên xem|phim hay|phim hot|phim nổi bật|recommend|suggest).*"))
+                (normalizedInput.contains("gợi ý") && normalizedInput.contains("phim"))
+                        || normalizedInput.matches(".*(đề xuất phim|phim nên xem|phim gì nên xem|phim hay|phim hot|phim nổi bật|recommend|suggest).*")
         ) {
             return ChatIntent.RECOMMEND_MOVIE;
         }
 
 
-
+        if (normalizedInput.matches(".*(xin chào|hello|hi|bạn là ai|trợ lý|hỗ trợ).*"))
+            return ChatIntent.GENERAL_INFO;
         if (normalizedInput.contains("khuyến mãi") || normalizedInput.contains("ưu đãi") ||
                 normalizedInput.contains("giảm giá") || normalizedInput.contains("voucher")) {
             return ChatIntent.PROMOTION_INFO;
@@ -107,8 +126,9 @@ public class IntentRouterService {
             return ChatIntent.MEMBERSHIP_INFO;
         if (normalizedInput.matches(".*(tin tức|news|sự kiện|khuyến mãi mới|bài viết|blog|thông báo|ra mắt phim).*"))
             return ChatIntent.NEWS_INFO;
-        if (normalizedInput.matches(".*(xin chào|hello|\\\\bhi\\\\b|bạn là ai|trợ lý|hỗ trợ).*"))
-            return ChatIntent.GENERAL_INFO;
+
+
+
 
         return ChatIntent.UNKNOWN;
     }
@@ -118,17 +138,15 @@ public class IntentRouterService {
      * Xác định chi nhánh người dùng đang hỏi dựa vào nội dung hoặc session.
      */
     public Optional<BranchResponse> findTargetBranch(String userInput,ChatIntent intent) {
-        if (intent == ChatIntent.RECOMMEND_MOVIE) {
+        if (intent == ChatIntent.RECOMMEND_MOVIE||intent == ChatIntent.RECOMMEND_SIMILAR) {
             System.out.println("🔕 Skip branch matching because intent = RECOMMEND_MOVIE");
             return Optional.empty();
         }
-        if (intent == ChatIntent.SCREENING_NOW ||
-                intent == ChatIntent.SCREENING_SOON ||
-                intent == ChatIntent.GENERAL_INFO) {
-
-            System.out.println("🔎 Intent SCREENING_NOW / SOON không yêu cầu branch → return empty");
+        if (intent == ChatIntent.DIRECTOR_MOVIES || intent == ChatIntent.CAST_MOVIES) {
+            System.out.println("🔕 Skip branch matching because intent = DIRECTOR/Cast");
             return Optional.empty();
         }
+
 
         if (userInput == null || userInput.isBlank()) return Optional.empty();
 

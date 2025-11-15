@@ -125,4 +125,18 @@ public class WorkScheduleController {
 
         return ResponseEntity.ok(service.upsertCellMany(req));
     }
+    @GetMapping("/has-shift")
+    public ResponseEntity<Map<String, Object>> hasShift(
+            @RequestParam Integer accountId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+    ) {
+        boolean has = service.hasShift(accountId, date);
+
+        return ResponseEntity.ok(Map.of(
+                "accountId", accountId,
+                "date", date.toString(),
+                "hasShift", has
+        ));
+    }
+
 }

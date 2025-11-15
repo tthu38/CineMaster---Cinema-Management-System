@@ -19,7 +19,7 @@ async function loadTickets() {
             headers: { "Authorization": `Bearer ${token}` }
         });
         const tickets = await handleResponse(res);
-
+        tickets.sort((a, b) => new Date(b.showtimeStart) - new Date(a.showtimeStart));
         renderTickets(tickets);
         setupFilter(tickets);
 
@@ -55,6 +55,7 @@ function renderTickets(data) {
                 <p><i class="fa-solid fa-chair"></i> Ghế: ${t.seatNumbers || "N/A"}</p>
                 <p><i class="fa-solid fa-money-bill"></i> ${t.totalPrice?.toLocaleString()} đ</p>
             </div>
+            <div class="ticket-divider"></div>
             <div class="d-flex flex-column align-items-center gap-2">
                 <span class="ticket-status ${t.ticketStatus}">
                     ${translateStatus(t.ticketStatus)}

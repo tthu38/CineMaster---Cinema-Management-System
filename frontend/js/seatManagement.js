@@ -4,7 +4,20 @@ import { auditoriumApi } from "./api/auditoriumApi.js";
 import { branchApi } from "./api/branchApi.js";
 import { requireAuth } from "./api/config.js";
 requireAuth();
+// ==================== ROLE PERMISSION ====================
+const role = localStorage.getItem("role");
+const userBranchId = localStorage.getItem("branchId");
 
+const isAdmin = role === "Admin";
+const isManager = role === "Manager";
+const isStaff = role === "Staff";
+
+// Ẩn 3 card khi không phải Admin
+if (!isAdmin) {
+    document.getElementById("card-single-seat")?.classList.add("d-none");
+    document.getElementById("card-bulk-create")?.classList.add("d-none");
+    document.getElementById("card-bulk-update")?.classList.add("d-none");
+}
 
 // --- DOM ---
 const seatForm = document.getElementById("seat-form");
@@ -443,6 +456,11 @@ cancelBtn.addEventListener("click", () => {
 
 // ======================= 7️⃣ SUBMIT FORM GHẾ ĐƠN =======================
 seatForm.addEventListener("submit", async (e) => {
+    if (!isAdmin) {
+        e.preventDefault();
+        Swal.fire("Không có quyền!", "Bạn không thể thêm hoặc sửa ghế.", "error");
+        return;
+    }
     e.preventDefault();
     const seatRow = document.getElementById("seatRow").value.trim().toUpperCase();
     const seatNumber = document.getElementById("seatNumber").value.trim();
@@ -483,6 +501,11 @@ seatForm.addEventListener("submit", async (e) => {
 
 // ======================= 8️⃣ HÀNG LOẠT =======================
 bulkSeatForm.addEventListener("submit", async (e) => {
+    if (!isAdmin) {
+        e.preventDefault();
+        Swal.fire("Không có quyền!", "Chỉ Admin được tạo ghế hàng loạt.", "error");
+        return;
+    }
     e.preventDefault();
     const data = {
         auditoriumID: parseInt(bulkAuditoriumSelect.value),
@@ -500,6 +523,13 @@ bulkSeatForm.addEventListener("submit", async (e) => {
 
 // ======================= 9️⃣ CẬP NHẬT HÀNG LOẠT =======================
 bulkUpdateForm.addEventListener("submit", async (e) => {
+    bulkUpdateForm.addEventListener("submit", e => {
+        if (!isAdmin) {
+            e.preventDefault();
+            Swal.fire("Không có quyền!", "Chỉ Admin được cập nhật hàng loạt.", "error");
+            return;
+        }
+    });
     e.preventDefault();
     const data = {
         auditoriumID: parseInt(updateAuditoriumSelect.value),
@@ -525,6 +555,22 @@ loadButton.addEventListener("click", () => loadSeats());
 
 
 await loadBranches();
+if (!isAdmin) {
+    const selects = [
+        diagramBranchSelect,
+        singleBranchSelect,
+        bulkBranchSelect,
+        updateBranchSelect
+    ];
+
+    selects.forEach(sel => {
+        sel.value = userBranchId;
+        sel.disabled = true;
+    });
+
+    updateAuditoriumOptions(diagramBranchSelect, userBranchId);
+}
+
 await loadSeatTypes();
 await loadSeats();
 

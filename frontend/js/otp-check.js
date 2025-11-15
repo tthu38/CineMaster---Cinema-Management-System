@@ -1,11 +1,6 @@
 import { API_BASE_URL, handleResponse, getValidToken } from "./api.js";
 import { seatApi } from "./api/seatApi.js";
-import { showtimeApi } from "./api/showtimeApi.js"; // 👈 Dùng fallback khi OTP thiếu auditoriumId
 
-
-
-
-/* ===================== CÁC PHẦN TỬ DOM ===================== */
 const form = document.getElementById("otp-form");
 const otpInput = document.getElementById("otpCode");
 const resultCard = document.getElementById("result-card");
@@ -13,50 +8,49 @@ const ticketInfo = document.getElementById("ticket-info");
 const scanBtn = document.getElementById("scanQrBtn");
 const qrReaderDiv = document.getElementById("qr-reader");
 
-
-/* ===================== QUÉT QR ===================== */
 let qrScanner = null;
 let qrIsRunning = false;
-let lastDecodedAt = 0; // chống đọc trùng
+let lastDecodedAt = 0;
 
-
+/* ===================== LẤY OTP TỪ QR ===================== */
 function extractOtpFromText(text) {
     if (!text) return null;
     const plain = text.trim();
     if (/^\d{6}$/.test(plain)) return plain;
+
     try {
         const url = new URL(text);
         const qp = url.searchParams.get("otp") || url.searchParams.get("code");
         if (/^\d{6}$/.test(qp || "")) return qp;
     } catch {}
-    const m1 = text.match(/(?:otp|code)\s*[:=]\s*(\d{6})/i);
-    if (m1) return m1[1];
+
+    const m = text.match(/(?:otp|code)\s*[:=]\s*(\d{6})/i);
+    if (m) return m[1];
+
     try {
         const obj = JSON.parse(text);
-        const candidate = obj?.otp ?? obj?.code ?? obj?.data?.otp ?? obj?.data?.code;
+        const candidate = obj?.otp ?? obj?.data?.otp ?? obj?.code;
         if (/^\d{6}$/.test(String(candidate || ""))) return String(candidate);
     } catch {}
+
     return null;
 }
 
-
+/* ===================== QUÉT QR ===================== */
 async function startQr() {
     if (qrIsRunning) return;
     if (!window.Html5Qrcode) {
         Swal.fire({
             icon: "error",
-            title: "Thiếu thư viện quét QR",
-            text: "Không tìm thấy 'html5-qrcode'. Vui lòng tải lại trang.",
-            confirmButtonColor: "#e50914"
+            title: "Thiếu thư viện",
+            text: "Không tìm thấy html5-qrcode!",
         });
         return;
     }
 
-
     qrReaderDiv.style.display = "block";
     qrScanner = new Html5Qrcode("qr-reader");
     qrIsRunning = true;
-
 
     try {
         await qrScanner.start(
@@ -66,26 +60,24 @@ async function startQr() {
                 const now = Date.now();
                 if (now - lastDecodedAt < 1200) return;
                 lastDecodedAt = now;
+
                 const otp = extractOtpFromText(decodedText);
                 if (!otp) return;
+
                 otpInput.value = otp;
                 await stopQr();
                 form.requestSubmit();
-            },
-            (errMsg) => { /* bỏ qua lỗi đọc liên tục */ }
+            }
         );
     } catch (e) {
         qrIsRunning = false;
         qrReaderDiv.style.display = "none";
         Swal.fire({
             icon: "error",
-            title: "Không thể mở camera",
-            text: "Kiểm tra quyền camera của trình duyệt hoặc thiết bị.",
-            confirmButtonColor: "#e50914"
+            title: "Không thể mở camera!",
         });
     }
 }
-
 
 async function stopQr() {
     if (qrScanner && qrIsRunning) {
@@ -96,167 +88,182 @@ async function stopQr() {
     qrReaderDiv.style.display = "none";
 }
 
-
 scanBtn?.addEventListener("click", () => {
     if (qrIsRunning) stopQr();
     else startQr();
 });
-window.addEventListener("beforeunload", () => stopQr());
 
-
-/* ===================== GỬI OTP ===================== */
+/* ===================== SUBMIT OTP ===================== */
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const code = otpInput.value.trim();
 
-
     if (code.length !== 6) {
         Swal.fire({
             icon: "warning",
-            title: "OTP không hợp lệ",
-            text: "Vui lòng nhập đúng 6 chữ số OTP!",
-            confirmButtonColor: "#0aa3ff"
+            title: "OTP sai",
+            text: "Vui lòng nhập đúng 6 số!",
         });
         return;
     }
-
 
     const token = getValidToken();
     if (!token) {
         Swal.fire({
             icon: "warning",
-            title: "Bạn chưa đăng nhập!",
-            text: "Chỉ nhân viên hoặc quản lý mới được phép xác thực OTP.",
-            confirmButtonColor: "#e50914"
+            title: "Thiếu quyền",
+            text: "Bạn phải đăng nhập để kiểm tra OTP!",
         });
         return;
     }
-
 
     try {
         const res = await fetch(`${API_BASE_URL}/otp/check`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`
+                "Authorization": `Bearer ${token}`,
             },
-            body: JSON.stringify({ code })
+            body: JSON.stringify({ code }),
         });
-
 
         const data = await handleResponse(res);
         await stopQr();
 
-
         Swal.fire({
             icon: "success",
-            title: "✅ Vé hợp lệ!",
-            text: "Dưới đây là thông tin vé của khách hàng.",
-            confirmButtonColor: "#0aa3ff"
+            title: "Vé hợp lệ!",
         });
 
-
-        await showTicket(data); // 👈 đảm bảo dùng hàm chuẩn
-
+        await showTicket(data);
 
     } catch (err) {
-        await stopQr();
         Swal.fire({
             icon: "error",
-            title: "Xác thực thất bại",
-            text: err.message || "Không thể xác thực OTP!",
-            confirmButtonColor: "#e50914"
+            title: "Sai OTP",
+            text: err.message || "Không xác thực được!",
         });
         resultCard.style.display = "none";
     }
 });
 
-
 /* ===================== HIỂN THỊ VÉ ===================== */
 async function showTicket(ticket) {
     resultCard.style.display = "block";
-    console.log("🎟️ Dữ liệu vé OTP:", ticket);
 
+    window.ticketCache = ticket;   // lưu để in PDF
 
-    // 🧩 Lấy auditoriumId — fallback bằng tên phòng
     let auditoriumId = ticket.auditoriumId;
     let branchName = ticket.branchName || "";
 
-
-    // Nếu không có ID nhưng có tên phòng -> thử tìm qua API tất cả phòng chi nhánh
-    if (!auditoriumId && ticket.auditoriumName && branchName) {
-        try {
-            // lấy toàn bộ phòng từ API ghế để dò
-            const branches = await fetch(`${API_BASE_URL}/branches`);
-            const allBranches = await branches.json();
-            const branch = allBranches.find(
-                b => b.name?.trim() === branchName?.trim() || b.branchName?.trim() === branchName?.trim()
-            );
-
-
-            if (branch) {
-                const resAudis = await fetch(`${API_BASE_URL}/auditoriums/branch/${branch.branchId}`);
-                const allRooms = await resAudis.json();
-                const room = allRooms.find(
-                    r => r.name?.trim() === ticket.auditoriumName?.trim()
-                );
-                auditoriumId = room?.auditoriumId || room?.id;
-            }
-        } catch (err) {
-            console.warn("⚠️ Không thể tìm auditoriumId qua tên:", err);
-        }
-    }
-
-
-    // 🧩 Mapping ghế: chuyển số -> mã (A10, B3,…)
     let seatNames = [];
+
     try {
         if (auditoriumId && ticket.seats?.length) {
             const allSeats = await seatApi.getByAuditorium(auditoriumId);
+
             seatNames = ticket.seats.map(num => {
-                const seat = allSeats.find(s =>
-                    s.seatNumber == num || s.seatID == num || s.id == num
+                const s = allSeats.find(x =>
+                    x.seatNumber == num || x.seatID == num || x.id == num
                 );
-                return seat ? `${seat.seatRow}${seat.seatNumber}` : num;
+                return s ? `${s.seatRow}${s.seatNumber}` : num;
             });
         } else {
             seatNames = ticket.seats || [];
         }
-    } catch (err) {
-        console.warn("⚠️ Không thể tải danh sách ghế:", err);
+    } catch {
         seatNames = ticket.seats || [];
     }
 
-
-    // 🧾 Hiển thị thông tin vé
     ticketInfo.innerHTML = `
-       <div class="mb-2"><span class="info-label">🎬 Phim:</span> <span class="info-value">${ticket.movieTitle}</span></div>
-       <div class="mb-2"><span class="info-label">🏢 Chi nhánh:</span> <span class="info-value">${branchName}</span></div>
-       <div class="mb-2"><span class="info-label">🏟️ Phòng chiếu:</span> <span class="info-value">${ticket.auditoriumName}</span></div>
-       <div class="mb-2"><span class="info-label">🗣️ Ngôn ngữ:</span> <span class="info-value">${ticket.language}</span></div>
-       <div class="mb-2"><span class="info-label">⏰ Giờ bắt đầu:</span> <span class="info-value">${formatDate(ticket.startTime)}</span></div>
-       <div class="mb-2"><span class="info-label">🎟️ Ghế:</span> <span class="info-value">${seatNames.join(", ") || "Không có"}</span></div>
-       <div class="mb-2"><span class="info-label">🍿 Combo:</span> <span class="info-value">${ticket.combos?.join(", ") || "Không có"}</span></div>
-       <hr/>
-       <div class="mb-2"><span class="info-label">💰 Tổng tiền:</span> <span class="info-value">${formatCurrency(ticket.totalPrice)}</span></div>
-       <div class="mb-2"><span class="info-label">💳 Thanh toán:</span> <span class="info-value">${ticket.paymentMethod}</span></div>
-       <div class="mb-2"><span class="info-label">📄 Trạng thái vé:</span> <span class="info-value">${ticket.ticketStatus}</span></div>
-   `;
+        <div><b>🎬 Phim:</b> ${ticket.movieTitle}</div>
+        <div><b>🏢 Chi nhánh:</b> ${branchName}</div>
+        <div><b>🏟️ Phòng chiếu:</b> ${ticket.auditoriumName}</div>
+        <div><b>🗣️ Ngôn ngữ:</b> ${ticket.language}</div>
+        <div><b>⏰ Giờ bắt đầu:</b> ${formatDate(ticket.startTime)}</div>
+        <div><b>🎟️ Ghế:</b> ${seatNames.join(", ")}</div>
+        <div><b>🍿 Combo:</b> ${ticket.combos?.join(", ") || "Không có"}</div>
+        <hr/>
+        <div><b>💰 Tổng tiền:</b> ${formatCurrency(ticket.totalPrice)}</div>
+        <div><b>💳 Thanh toán:</b> ${ticket.paymentMethod}</div>
+        <div><b>📄 Trạng thái vé:</b> ${ticket.ticketStatus}</div>
+    `;
+
+    document.getElementById("btn-print-ticket").style.display = "block";
 }
 
+/* ===================== IN PDF ===================== */
+document.getElementById("btn-print-ticket")?.addEventListener("click", async () => {
+
+    Swal.fire({
+        title: "Đang tạo PDF...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+    });
+
+    try {
+        const seatNames = (window.ticketCache?.seats || []).join(", ");
+
+        const start = new Date(window.ticketCache?.startTime);
+        const showDate = start.toLocaleDateString("vi-VN");
+        const showTime = start.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", hour12: false });
+
+        const token = getValidToken();
+
+        const req = {
+
+            ticketId: window.ticketCache?.ticketId,
+
+            movieTitle: window.ticketCache?.movieTitle,
+            branchName: window.ticketCache?.branchName,
+            auditoriumName: window.ticketCache?.auditoriumName,
+            showDate,
+            showTime,
+            seat: seatNames,
+            price: window.ticketCache?.totalPrice + "",
+            paymentMethod: window.ticketCache?.paymentMethod,
+            transactionTime: new Date().toLocaleString("vi-VN"),
+            combos: window.ticketCache?.combos || []   //  👈 THÊM DÒNG NÀY
 
 
+        };
 
-/* ===================== FORMAT HỖ TRỢ ===================== */
-function formatDate(isoStr) {
-    if (!isoStr) return "—";
-    const d = new Date(isoStr);
-    return d.toLocaleString("vi-VN", { hour12: false });
+        const pdfRes = await fetch(`${API_BASE_URL}/ticket/print`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`  // 🔥 BẮT BUỘC
+            },
+            body: JSON.stringify(req)
+        });
+
+        const blob = await pdfRes.blob();
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "ticket.pdf";
+        a.click();
+
+        URL.revokeObjectURL(url);
+        Swal.close();
+
+    } catch (err) {
+        Swal.fire({
+            icon: "error",
+            title: "Không tạo được PDF",
+            text: err.message,
+        });
+    }
+});
+
+/* ===================== FORMAT ===================== */
+function formatDate(iso) {
+    if (!iso) return "—";
+    return new Date(iso).toLocaleString("vi-VN", { hour12: false });
 }
-
 
 function formatCurrency(vnd) {
     if (vnd == null) return "—";
     return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(vnd);
 }
-

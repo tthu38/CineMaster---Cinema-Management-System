@@ -1,11 +1,14 @@
 package com.example.cinemaster.service;
 
 
+
+
 import com.example.cinemaster.configuration.ChatSessionHistory;
 import com.example.cinemaster.dto.request.GeminiRequest;
 import com.example.cinemaster.dto.response.BranchResponse;
 import com.example.cinemaster.dto.response.GeminiResponse;
 import com.example.cinemaster.dto.response.MovieRecommendResponse;
+import com.example.cinemaster.entity.Movie;
 import com.example.cinemaster.security.AccountPrincipal;
 import com.example.cinemaster.util.ChatFormatter;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,21 +21,31 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 
+
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+
+
 
 
 import static com.example.cinemaster.service.IntentRouterService.ChatIntent;
 import static com.example.cinemaster.util.ChatFormatter.*;
 
 
+
+
 @Service
 public class ChatbotService {
 
 
+
+
     private static final String API_BASE_URL =
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=";
+
+
 
 
     private final String geminiApiKey;
@@ -41,6 +54,8 @@ public class ChatbotService {
     private final IntentRouterService intentRouterService;
     private final ContextRetrieverService contextRetrieverService;
     private final MovieRecommendationService movieRecommendationService;
+
+
 
 
     public ChatbotService(
@@ -60,6 +75,8 @@ public class ChatbotService {
     }
 
 
+
+
     /**
      * 🎯 Luồng chính xử lý RAG
      */
@@ -68,12 +85,18 @@ public class ChatbotService {
             var auth = SecurityContextHolder.getContext().getAuthentication();
 
 
+
+
             if (auth != null && auth.isAuthenticated()
                     && auth.getPrincipal() instanceof AccountPrincipal principal) {
 
 
+
+
                 sessionHistory.setSessionUserId(principal.getId());
                 System.out.println("🔐 USER FROM TOKEN = " + principal.getId());
+
+
 
 
             } else {
@@ -82,9 +105,13 @@ public class ChatbotService {
             }
 
 
+
+
         } catch (Exception ex) {
             System.out.println("⚠ Không thể lấy user từ SecurityContext: " + ex.getMessage());
         }
+
+
 
 
         // Debug check
@@ -94,8 +121,56 @@ public class ChatbotService {
             System.out.println("🧩 Detected intent = " + intent);
 
 
+
+
             BranchResponse targetBranch =
                     intentRouterService.findTargetBranch(userInput, intent).orElse(null);
+            if (intent == ChatIntent.RECOMMEND_SIMILAR) {
+
+
+
+
+                String movieName = extractMovieNameFromInput(userInput);
+                if (movieName == null) {
+                    return "🎬 Bạn muốn tìm phim tương tự **phim nào** nhỉ?";
+                }
+
+
+
+
+                List<MovieRecommendResponse> list = movieRecommendationService.recommendSimilarMovies(movieName);
+
+
+
+
+                if (list.isEmpty()) {
+                    return "⚠ Rất tiếc, mình chưa tìm được phim tương tự **" + movieName + "**.";
+                }
+
+
+
+
+                // Format output
+                StringBuilder sb = new StringBuilder(mdTitle("🎬 Phim tương tự " + movieName));
+                list.forEach(r -> sb.append("\n• **")
+                        .append(r.getTitle())
+                        .append("** (").append(r.getGenre()).append(") ⭐")
+                        .append(String.format("%.1f", r.getRating()))
+                        .append(" → [Xem chi tiết](../movies/movieDetail.html?id=")
+                        .append(r.getMovieId())
+                        .append(")"));
+
+
+
+
+                return sb.toString();
+            }
+
+
+
+
+
+
 
 
             // ==========================
@@ -104,11 +179,17 @@ public class ChatbotService {
             if (intent == ChatIntent.RECOMMEND_MOVIE) {
 
 
+
+
                 Integer accountId = sessionHistory.getSessionUserId();
                 String genre = movieRecommendationService.detectGenre(userInput);
 
 
+
+
                 List<MovieRecommendResponse> movies;
+
+
 
 
                 // 1️⃣ User có nói thể loại → ưu tiên
@@ -125,10 +206,14 @@ public class ChatbotService {
                 }
 
 
+
+
                 // Không có dữ liệu
                 if (movies.isEmpty()) {
                     return emoji("🎬", "Hiện tại hệ thống chưa có dữ liệu đánh giá để gợi ý phim.");
                 }
+
+
 
 
                 // Format output
@@ -143,12 +228,18 @@ public class ChatbotService {
                                 .append(r.getMovieId()).append(")"));
 
 
+
+
                 return sb.toString();
             }
 
 
+
+
             // 🟧 2️⃣ Xử lý context cho intent khác
             String contextData = contextRetrieverService.retrieveContext(intent, targetBranch, userInput);
+
+
 
 
             // ⚠️ Nếu context rỗng → kiểm tra xem người dùng có đang hỏi phim từ danh sách gợi ý không
@@ -161,6 +252,8 @@ public class ChatbotService {
                             .findFirst();
 
 
+
+
                     if (matched.isPresent()) {
                         var m = matched.get();
                         return "🎬 Bộ phim **" + m.getTitle() + "** (" + m.getGenre() + ") hiện **chưa có lịch chiếu**, "
@@ -171,16 +264,24 @@ public class ChatbotService {
                 }
 
 
+
+
                 contextData = "Hiện hệ thống chưa có dữ liệu cụ thể cho yêu cầu này.";
             }
+
+
 
 
             // 🧩 3️⃣ Tạo system prompt cho Gemini
             String systemPrompt = buildSystemPrompt(contextData);
 
 
+
+
             // 🧠 4️⃣ Gọi Gemini API
             String answer = callGeminiApi(systemPrompt, userInput);
+
+
 
 
             // 💾 5️⃣ Lưu lịch sử hội thoại
@@ -190,7 +291,11 @@ public class ChatbotService {
             }
 
 
+
+
             return answer;
+
+
 
 
         } catch (Exception e) {
@@ -199,6 +304,30 @@ public class ChatbotService {
             return emoji("⚠", "Xin lỗi, tôi gặp sự cố khi kết nối với hệ thống AI. Vui lòng thử lại sau!");
         }
     }
+    private String extractMovieNameFromInput(String input) {
+        if (input == null) return null;
+
+
+
+
+        String lower = input.toLowerCase();
+
+
+
+
+        List<Movie> all = movieRecommendationService.getAllMovies();
+
+
+
+
+        return all.stream()
+                .map(Movie::getTitle)
+                .filter(t -> lower.contains(t.toLowerCase()))
+                .findFirst()
+                .orElse(null);
+    }
+
+
 
 
     /**
@@ -224,6 +353,8 @@ public class ChatbotService {
     }
 
 
+
+
     /**
      * 🔗 Gọi Gemini API
      */
@@ -231,8 +362,12 @@ public class ChatbotService {
         String apiUrl = API_BASE_URL + geminiApiKey;
 
 
+
+
         GeminiRequest.Part sysPart = new GeminiRequest.Part(systemPrompt);
         GeminiRequest.Content systemContent = new GeminiRequest.Content("system", List.of(sysPart));
+
+
 
 
         List<GeminiRequest.Content> history = sessionHistory.getHistory();
@@ -240,7 +375,11 @@ public class ChatbotService {
         contents.add(new GeminiRequest.Content("user", List.of(new GeminiRequest.Part(userInput))));
 
 
+
+
         GeminiRequest requestBody = new GeminiRequest(contents, systemContent);
+
+
 
 
         HttpHeaders headers = new HttpHeaders();
@@ -248,8 +387,12 @@ public class ChatbotService {
         HttpEntity<GeminiRequest> entity = new HttpEntity<>(requestBody, headers);
 
 
+
+
         int maxRetries = 3;
         int retryDelay = 2000;
+
+
 
 
         for (int attempt = 1; attempt <= maxRetries; attempt++) {
@@ -258,13 +401,19 @@ public class ChatbotService {
                         restTemplate.postForEntity(apiUrl, entity, GeminiResponse.class);
 
 
+
+
                 if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                     System.out.println("✅ Gemini phản hồi thành công ở lần thử " + attempt);
                     return response.getBody().getFirstResponseText();
                 }
 
 
+
+
                 System.err.println("⚠ Gemini trả về mã lỗi HTTP " + response.getStatusCode());
+
+
 
 
             } catch (Exception e) {
@@ -280,8 +429,12 @@ public class ChatbotService {
         }
 
 
+
+
         throw new RuntimeException("❌ Gemini API quá tải sau " + maxRetries + " lần thử. Vui lòng thử lại sau.");
     }
+
+
 
 
     /**
@@ -298,4 +451,6 @@ public class ChatbotService {
         return sb.toString();
     }
 }
+
+
 

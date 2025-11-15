@@ -171,7 +171,7 @@ public class AccountManageService {
             int feedbackSpam = feedbackRepo.countByAccount_AccountIDAndIsSpam(acc.getAccountID(), true);
             int contactSpam = contactRepo.countByEmailAndIsSpam(acc.getEmail(), true);
 
-            if (feedbackSpam >= 3 || contactSpam >= 2) {
+            if (feedbackSpam >= 1 || contactSpam >= 1) {
 
                 Map<String, Object> data = new HashMap<>();
                 data.put("accountId", acc.getAccountID());
@@ -199,4 +199,3 @@ public class AccountManageService {
 
 
 }
-

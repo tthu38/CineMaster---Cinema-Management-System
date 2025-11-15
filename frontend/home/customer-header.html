@@ -187,9 +187,9 @@
         } else if (["Admin", "Manager", "Staff"].includes(role)) {
             let dashboardLink = "";
             if (!isDashboard) {
-                if (role === "Admin") dashboardLink = `<a href="/CineMaster/frontend/home/dashboardAdmin.html">Trang quản lý</a>`;
-                else if (role === "Manager") dashboardLink = `<a href="/CineMaster/frontend/home/dashboardManager.html">Trang quản lý</a>`;
-                else if (role === "Staff") dashboardLink = `<a href="/CineMaster/frontend/home/dashboardStaff.html">Trang quản lý</a>`;
+                if (role === "Admin") dashboardLink = `<a href="dashboardAdmin.html">Trang quản lý</a>`;
+                else if (role === "Manager") dashboardLink = `<a href="dashboardManager.html">Trang quản lý</a>`;
+                else if (role === "Staff") dashboardLink = `<a href="dashboardStaff.html">Trang quản lý</a>`;
             }
 
             dropdownItems = `

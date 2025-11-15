@@ -144,6 +144,21 @@ export const showtimeApi = {
         });
         return handleResponse(res);
     },
+    // 📅 GET NEXT 7 DAYS – dành cho Viewer (Guest/Customer/Staff)
+    async getNext7Days({ branchId = null, movieId = null } = {}) {
+        const params = new URLSearchParams();
+        if (branchId) params.append("branchId", branchId);
+        if (movieId) params.append("movieId", movieId);
+
+        const url = `${API_BASE_URL}/showtimes/next7days?${params.toString()}`;
+
+        const res = await fetch(url, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" }
+        });
+
+        return handleResponse(res);
+    },
 
 
 };

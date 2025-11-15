@@ -135,7 +135,16 @@ export const branchApi = {
         if (!res.ok) throw new Error("Không thể tải chi nhánh theo phim");
         return await res.json();
     },
+    async search(keyword) {
+        const res = await fetch(`${API_BASE_URL}/branches/search?keyword=${encodeURIComponent(keyword)}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
 
+        return handleResponse(res);
+    }
 
 
 

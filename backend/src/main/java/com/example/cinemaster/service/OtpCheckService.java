@@ -21,6 +21,8 @@ public class OtpCheckService {
 
     private final OtpRepository otpRepository;
     private final TicketComboRepository ticketComboRepository;
+    private final TicketService ticketService;
+    private final TicketRepository ticketRepository;
 
 
     public OtpCheckResponse checkOtp(OtpCheckRequest req) {
@@ -31,6 +33,24 @@ public class OtpCheckService {
 
 
         var ticket = otp.getTicket();
+
+        // ========== Cập nhật trạng thái vé BOOKED → USED + ghi lịch sử ==========
+        if (ticket.getTicketStatus() == Ticket.TicketStatus.BOOKED) {
+
+            String oldStatus = ticket.getTicketStatus().name();
+
+            ticket.setTicketStatus(Ticket.TicketStatus.USED);
+            ticketRepository.save(ticket);
+
+            ticketService.saveTicketHistory(
+                    ticket,
+                    oldStatus,
+                    Ticket.TicketStatus.USED.name(),
+                    otp.getAccountID(),                 // Nhân viên check-in
+                    "Check-in OTP tại quầy"
+            );
+        }
+
         if (ticket == null)
             throw new IllegalArgumentException("❌ OTP này chưa liên kết với vé nào!");
 
@@ -69,6 +89,9 @@ public class OtpCheckService {
 
 
         return OtpCheckResponse.builder()
+
+                .ticketId(ticket.getTicketId())
+
                 // ===== ID phục vụ FE tra cứu =====
                 .showtimeId(show.getShowtimeID())
                 .auditoriumId(auditorium != null ? auditorium.getAuditoriumID() : null)
@@ -103,4 +126,3 @@ public class OtpCheckService {
         return name + " (x" + qty + ")";
     }
 }
-

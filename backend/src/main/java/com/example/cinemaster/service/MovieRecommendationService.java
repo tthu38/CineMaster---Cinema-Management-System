@@ -32,7 +32,7 @@ public class MovieRecommendationService {
 
 
     /**
-     *  Gợi ý phim dựa trên lịch sử vé của người dùng (theo thể loại)
+     * 🎟️ Gợi ý phim dựa trên lịch sử vé của người dùng (theo thể loại)
      */
     public List<MovieRecommendResponse> recommendByTicketHistory(Integer accountId) {
         try {
@@ -60,8 +60,8 @@ public class MovieRecommendationService {
                     })
                     .filter(Objects::nonNull)
                     .toList();
-            log.info(" [TicketHistory] User {} has {} tickets", accountId, userTickets.size());
-            log.info(" [TicketHistory] Watched movies: {}",
+            log.info("🎟 [TicketHistory] User {} has {} tickets", accountId, userTickets.size());
+            log.info("🎬 [TicketHistory] Watched movies: {}",
                     watchedMovies.stream().map(Movie::getTitle).toList());
 
 
@@ -514,6 +514,9 @@ public class MovieRecommendationService {
 
 
         return null; // không tìm được genre hợp lệ
+    }
+    public List<Movie> getAllMovies() {
+        return movieRepository.findAll();
     }
 }
 

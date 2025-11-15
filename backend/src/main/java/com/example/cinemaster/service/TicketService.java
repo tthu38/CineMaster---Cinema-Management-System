@@ -586,7 +586,7 @@ public class TicketService {
 
 
 
-    private void saveTicketHistory(Ticket ticket, String oldStatus, String newStatus, Account changer, String note) {
+    public void saveTicketHistory(Ticket ticket, String oldStatus, String newStatus, Account changer, String note) {
         Account realChanger = null;
         if (changer != null && changer.getAccountID() != null) {
             realChanger = accountRepository.findById(changer.getAccountID()).orElse(null);
@@ -712,15 +712,16 @@ public class TicketService {
     }
 
 
+//    public List<TicketResponse> getTicketsByAccount(Integer accountID) {
+//        return ticketRepository.findByAccount_AccountID(accountID).stream()
+//                .map(ticketMapper::toShortResponse)
+//                .collect(Collectors.toList());
+//    }
     public List<TicketResponse> getTicketsByAccount(Integer accountID) {
         return ticketRepository.findByAccount_AccountID(accountID).stream()
-                .map(ticketMapper::toShortResponse)
+                .map(ticketMapper::toResponse)   // ✔ FIXED
                 .collect(Collectors.toList());
     }
-
-
-
-
     public List<TicketResponse> getTicketsByBranch(Integer branchId) {
         return ticketRepository.findByBranch(branchId).stream()
                 .map(ticketMapper::toResponse)
@@ -1254,4 +1255,3 @@ public class TicketService {
 
 
 }
-

@@ -374,4 +374,87 @@ public class ShowtimeService {
         if (date == null) date = LocalDate.now();
         return showtimeRepo.findByBranchIdAndDate(branchId, date);
     }
+    /**
+     * 📅 Lịch chiếu 7 ngày tiếp theo (Viewer: Guest, Customer, Staff)
+     */
+    public List<DayScheduleResponse> getNext7DaysSchedule(Integer branchId, Integer movieId) {
+
+        LocalDate today = LocalDate.now();
+        LocalDate until = today.plusDays(6); // 7 ngày
+
+        LocalDateTime from = today.atStartOfDay();
+        LocalDateTime to = until.plusDays(1).atStartOfDay(); // exclusive
+
+        List<Showtime> list;
+
+        try {
+            if (branchId == null && movieId == null) {
+                list = showtimeRepo.findAllByStartTimeGreaterThanEqualAndStartTimeLessThanAndStatus(from, to, "ACTIVE");
+            } else if (branchId != null && movieId == null) {
+                list = showtimeRepo.findWeekByBranch(from, to, branchId);
+            } else if (branchId != null) {
+                list = showtimeRepo.findByBranchAndMovieInRange(branchId, movieId, from, to);
+            } else {
+                list = showtimeRepo.findByMovieInRange(movieId, from, to);
+            }
+        } catch (Exception e) {
+            log.error("Lỗi truy vấn next7days: {}", e.getMessage());
+            return Collections.emptyList();
+        }
+
+        // ==== BUILD 7 DAYS ====
+        Map<LocalDate, Map<Integer, List<Showtime>>> grouped = list.stream()
+                .filter(s -> s.getStartTime() != null && s.getPeriod() != null)
+                .collect(Collectors.groupingBy(
+                        s -> s.getStartTime().toLocalDate(),
+                        Collectors.groupingBy(s -> s.getPeriod().getMovie().getMovieID())
+                ));
+
+        List<DayScheduleResponse> days = new ArrayList<>();
+
+        for (int i = 0; i < 7; i++) {
+            LocalDate d = today.plusDays(i);
+            Map<Integer, List<Showtime>> byMovie =
+                    grouped.getOrDefault(d, Collections.emptyMap());
+
+            List<DayScheduleResponse.MovieSlots> movies = byMovie.entrySet().stream()
+                    .map(e -> {
+                        Integer movieIdKey = e.getKey();
+                        List<Showtime> slots = e.getValue().stream()
+                                .sorted(Comparator.comparing(Showtime::getStartTime))
+                                .toList();
+
+                        if (slots.isEmpty()) return null;
+
+                        String title = slots.get(0).getPeriod().getMovie().getTitle();
+                        String poster = Optional.ofNullable(
+                                slots.get(0).getPeriod().getMovie().getPosterUrl()
+                        ).orElse("/uploads/no-poster.png");
+
+                        List<DayScheduleResponse.SlotItem> slotItems =
+                                slots.stream().map(s -> new DayScheduleResponse.SlotItem(
+                                        s.getShowtimeID(),
+                                        s.getAuditorium().getAuditoriumID(),
+                                        s.getAuditorium().getName(),
+                                        s.getStartTime(),
+                                        s.getEndTime()
+                                )).toList();
+
+                        return new DayScheduleResponse.MovieSlots(
+                                movieIdKey,
+                                title,
+                                poster,
+                                slotItems
+                        );
+                    })
+                    .filter(Objects::nonNull)
+                    .sorted(Comparator.comparing(DayScheduleResponse.MovieSlots::movieTitle))
+                    .toList();
+
+            days.add(new DayScheduleResponse(d, movies));
+        }
+
+        return days;
+    }
+
 }

@@ -30,33 +30,20 @@ public class AIService {
                     Map.of(
                             "text",
                             """
-                            Hãy phân loại nội dung dưới đây thành DUY NHẤT MỘT TRONG HAI NHÃN: "spam" hoặc "ok".
-                            Hãy đặc biệt khắt khe khi phân loại.  
-                            Quy tắc:
-                        
-                            🟥 Gán "spam" nếu nội dung thuộc bất kỳ trường hợp sau:
-                            - Có lời nói tục, chửi bậy, xúc phạm, miệt thị, mỉa mai, đả kích, nói xấu, vu khống.
-                            - Mang tính tiêu cực mạnh, gây hấn, công kích cá nhân hoặc tập thể.
-                            - Bình luận nhảm nhí, vô nghĩa, loạn ký tự, spam ký tự lập lại, hoặc không có ý nghĩa.
-                            - Nội dung quảng cáo, rác, liên kết, mời chào, bán hàng, lừa đảo.
-                            - Nội dung kích động thù hằn, phân biệt giới tính/chủng tộc/tôn giáo.
-                            - Nội dung gợi dục, đồi trụy, 18+, ám chỉ tình dục.
-                            - Lặp lại nhiều lần cùng một câu hoặc spam liên tục.
-                            - Nội dung có dấu hiệu AI-generated rác không liên quan.
-                            - Nội dung có ý định phá hoại, lừa đảo, troll hoặc gây phiền nhiễu.
-                        
-                            🟩 Gán "ok" CHỈ khi nội dung:
-                            - Bình thường, lịch sự, trung lập.
-                            - Có ý nghĩa, liên quan đến nội dung đang bàn.
-                            - Không chứa bất kỳ yếu tố xúc phạm, tiêu cực hoặc spam.
-                        
-                            ❗ YÊU CẦU QUAN TRỌNG:
-                            - Không giải thích.
-                            - Không phân tích.
-                            - Chỉ trả về đúng một từ: "spam" hoặc "ok".
-                            - Hãy cực kỳ nghiêm khắc: nếu lưỡng lự → chọn "spam".
-                        
-                            Nội dung cần phân loại:
+                                    Hãy phân loại nội dung bình luận bên dưới thành DUY NHẤT 1 từ:
+                                                            - "spam" nếu có bất kỳ dấu hiệu nào sau:
+                                                              * Tục tĩu, chửi bậy, nhạy cảm.
+                                                              * Xúc phạm cá nhân hoặc tập thể.
+                                                              * Nội dung tiêu cực phá hoại (ví dụ: "đừng xem", "phim dở", "không đáng xem").
+                                                              * Xúi giục người khác không xem phim.
+                                                              * Nội dung vô nghĩa, ký tự lộn xộn như ";;; afk; sakl".
+                                                              * Bình luận rác, troll, spam lặp lại.
+                                                              * Cố ý phá rating hoặc đánh giá không liên quan đến phim.
+                                                            - "ok" nếu bình luận bình thường.
+                                    
+                                                            Trả lời đúng 1 từ: "spam" hoặc "ok".
+                                    
+                                                            Nội dung kiểm tra:
                             """ + text
                     )
 
@@ -102,4 +89,3 @@ public class AIService {
         }
     }
 }
-

@@ -35,7 +35,8 @@ public class SecurityConfig {
             "/api/v1/momo/**",
             "/api/v1/sepay/**",
             "/api/v1/trailers/**",
-            "/api/v1/payments/**"
+            "/api/v1/payments/**",
+            "/api/v1/ticket/print"
     };
 
     @Bean
@@ -60,6 +61,10 @@ public class SecurityConfig {
 
                         .requestMatchers("/api/v1/branches/names").permitAll()
                         .requestMatchers("/api/v1/branches/active").permitAll()
+
+                        /* 🔥 Cho phép STAFF hoặc ADMIN được in vé */
+                        .requestMatchers(HttpMethod.POST, "/api/v1/ticket/print")
+                        .hasAnyRole("STAFF", "ADMIN")
 
                         .anyRequest().authenticated()
                 )
