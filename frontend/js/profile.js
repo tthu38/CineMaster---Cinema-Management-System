@@ -37,9 +37,9 @@ function renderProfile(p) {
         "infoCreatedAt",
         p.createdAt ? new Date(p.createdAt).toLocaleDateString("vi-VN") : "Chưa cập nhật"
     );
+    // Điểm từ Membership (FE tự fallback = 0)
     const pointsEl = document.getElementById("infoPoints");
     if (pointsEl) pointsEl.textContent = p.loyaltyPoints ?? 0;
-
     // Form edit
     const fullNameInput = document.getElementById("fullNameInput");
     const phoneInput = document.getElementById("phoneInput");

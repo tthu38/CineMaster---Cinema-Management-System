@@ -1,159 +1,189 @@
 package com.example.cinemaster.service.ai.core;
 
+
 import com.example.cinemaster.service.ai.dto.SchedulingContext;
 import lombok.*;
 
-        import java.util.*;
-        import java.util.stream.Collectors;
 
-/**
- * Genetic Algorithm tạo ra lịch làm tối ưu dựa vào:
- * - Ca yêu thích
- * - Đủ nhân sự
- * - Công bằng số ca
- * - Ngày nghỉ
- */
+import java.time.LocalDate;
+import java.util.*;
+
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class GeneticAlgorithm {
 
-    private int populationSize = 80;   // số lịch trong một thế hệ
-    private int generations = 150;     // số vòng lặp
-    private double mutationRate = 0.12; // xác suất đột biến
-    private double crossoverRate = 0.85; // xác suất lai ghép
+
+    private int populationSize = 80;
+    private int generations = 150;
+    private double mutationRate = 0.15;
+    private double crossoverRate = 0.85;
+
+
     private Random random = new Random();
 
-    /**
-     * Chạy GA và trả về lịch tốt nhất
-     */
+
+    /** ============================
+     *  MAIN RUN
+     * ============================ */
     public Chromosome run(SchedulingContext ctx) {
 
-        // 1️⃣ Tạo quần thể ban đầu
+
         List<Chromosome> population = generateInitialPopulation(ctx);
 
-        // 2️⃣ Cho từng con tính fitness
+
+        // tính fitness lần đầu
         population.forEach(c -> c.evaluateFitness(ctx));
 
-        Chromosome best = population.stream()
-                .max(Comparator.comparingDouble(Chromosome::getFitnessScore))
-                .orElseThrow();
 
-        // 3️⃣ Lặp lại GA
+        Chromosome best = getBest(population);
+
+
         for (int gen = 0; gen < generations; gen++) {
 
-            List<Chromosome> newPopulation = new ArrayList<>();
 
-            while (newPopulation.size() < populationSize) {
+            List<Chromosome> newPop = new ArrayList<>();
 
-                // 🔍 Chọn bố mẹ
-                Chromosome parent1 = selectParent(population);
-                Chromosome parent2 = selectParent(population);
+
+            while (newPop.size() < populationSize) {
+
+
+                Chromosome p1 = select(population);
+                Chromosome p2 = select(population);
+
 
                 Chromosome child;
 
-                // 🧬 Lai ghép
+
                 if (random.nextDouble() < crossoverRate) {
-                    child = parent1.crossover(parent2);
+                    child = p1.crossover(p2);
                 } else {
-                    child = parent1.deepCopy();
+                    child = p1.deepCopy();
                 }
 
-                // 🔀 Đột biến
+
                 if (random.nextDouble() < mutationRate) {
-                    List<Integer> staffIds = ctx.getStaff()
-                            .stream().map(s -> s.getAccountID())
-                            .collect(Collectors.toList());
-
-                    child.mutate(staffIds);
+                    List<Integer> ids = ctx.getStaff().stream()
+                            .map(s -> s.getAccountID()).toList();
+                    child.mutate(ids, ctx);
                 }
 
-                // 🎯 Tính fitness
+
                 child.evaluateFitness(ctx);
-                newPopulation.add(child);
+                newPop.add(child);
             }
 
-            // Thay thế quần thể
-            population = newPopulation;
 
-            // Cập nhật best
-            Chromosome genBest = population.stream()
-                    .max(Comparator.comparingDouble(Chromosome::getFitnessScore))
-                    .orElseThrow();
+            population = newPop;
 
+
+            Chromosome genBest = getBest(population);
             if (genBest.getFitnessScore() > best.getFitnessScore()) {
                 best = genBest.deepCopy();
             }
-
-            // Debug:
-            System.out.println("GEN " + gen + " best = " + best.getFitnessScore());
         }
+
 
         return best;
     }
 
-    // ============================
-    // 1️⃣ Tạo quần thể ban đầu
-    // ============================
+
+
+
+    /** ============================
+     *  1) Generate Initial Population (CHUẨN)
+     * ============================ */
     private List<Chromosome> generateInitialPopulation(SchedulingContext ctx) {
 
-        List<Integer> staffIds = ctx.getStaff()
-                .stream().map(s -> s.getAccountID()).toList();
 
-        List<Chromosome> population = new ArrayList<>();
-
-        List<String> shiftTypes = ctx.getShiftTypes();      // MORNING / AFTERNOON / NIGHT
-        List<String> dates = ctx.getWeekDates()
-                .stream().map(d -> d.toString())
+        List<Integer> staffIds = ctx.getStaff().stream()
+                .map(s -> s.getAccountID())
                 .toList();
+
+
+        List<Chromosome> pop = new ArrayList<>();
+
+
+        List<String> shifts = ctx.getShiftTypes();
+        List<String> dates = ctx.getWeekDates()
+                .stream().map(LocalDate::toString).toList();
+
 
         for (int i = 0; i < populationSize; i++) {
 
+
             List<Gene> genes = new ArrayList<>();
 
+
             for (String date : dates) {
-                for (String shift : shiftTypes) {
+                for (String shift : shifts) {
 
-                    Gene g = Gene.builder()
-                            .date(date)
-                            .shiftType(shift)
-                            .staffId(staffIds.get(random.nextInt(staffIds.size())))
-                            .fitnessBonus(0)
-                            .build();
 
-                    genes.add(g);
+                    // 🔍 Lấy danh sách nhân viên request đúng ca / ngày
+                    List<Integer> valid = staffIds.stream()
+                            .filter(id -> ctx.hasRequestedShift(id, date, shift))
+                            .toList();
+
+
+                    // ❗ Không ai request -> không xếp ai
+                    if (valid.isEmpty()) continue;
+
+
+                    // ❗ Nhiều người request -> xếp đúng bằng đó người (không lặp)
+                    for (Integer staffId : valid) {
+                        genes.add(Gene.builder()
+                                .date(date)
+                                .shiftType(shift)
+                                .staffId(staffId)
+                                .fitnessBonus(0)
+                                .build());
+                    }
                 }
             }
 
-            Chromosome c = Chromosome.builder()
+
+            pop.add(Chromosome.builder()
                     .genes(genes)
                     .fitnessScore(0)
-                    .build();
-
-            population.add(c);
+                    .build());
         }
 
-        return population;
+
+        return pop;
     }
 
 
-    // ============================
-    // 2️⃣ Chọn lựa bố mẹ (Tournament selection)
-    // ============================
-    private Chromosome selectParent(List<Chromosome> population) {
-        int tournamentSize = 6;
 
+
+
+
+    /** ============================
+     *  2) Tournament Selection
+     * ============================ */
+    private Chromosome select(List<Chromosome> pop) {
+        int k = 5;
         Chromosome best = null;
 
-        for (int i = 0; i < tournamentSize; i++) {
-            Chromosome c = population.get(random.nextInt(population.size()));
+
+        for (int i = 0; i < k; i++) {
+            Chromosome c = pop.get(random.nextInt(pop.size()));
             if (best == null || c.getFitnessScore() > best.getFitnessScore()) {
                 best = c;
             }
         }
-
         return best;
+    }
+
+
+    /** ============================
+     *  Helper
+     * ============================ */
+    private Chromosome getBest(List<Chromosome> list) {
+        return list.stream()
+                .max(Comparator.comparingDouble(Chromosome::getFitnessScore))
+                .orElseThrow();
     }
 }
 

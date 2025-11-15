@@ -154,7 +154,7 @@
         const accountId = localStorage.getItem("accountId");
 
         // ✅ Xử lý đường dẫn avatar chính xác
-        let avatar = "../assets/default-avatar.png";
+        let avatar = "http://localhost:8080/uploads/avatar.png";
         if (storedAvatar) {
             if (storedAvatar.startsWith("/uploads/")) {
                 avatar = "http://localhost:8080" + storedAvatar;

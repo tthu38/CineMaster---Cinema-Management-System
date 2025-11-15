@@ -273,7 +273,7 @@
 
     </style>
 </head>
-
+<div id="header"></div>
 <body>
 <div class="grain"></div>
 <div class="tickets-wall" aria-hidden="true">
@@ -305,10 +305,28 @@
         <div id="ticketList"></div>
     </div>
 </main>
-
+<div id="footer"></div>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script type="module" src="./myTickets.js"></script>
+<script>
+    (async function loadHeader(){
+        const headerEl=document.getElementById("header");
+        try{
+            const res=await fetch("../home/customer-header.html");
+            const html=await res.text();
+            headerEl.innerHTML=html;
+            const scripts=headerEl.querySelectorAll("script");
+            scripts.forEach(s=>{
+                const ns=document.createElement("script");
+                if(s.src) ns.src=s.src; else ns.textContent=s.textContent;
+                document.body.appendChild(ns);
+            });
+        }catch(err){console.error("❌ Lỗi load header:",err);}
+    })();
 
-<script src="../js/footer-loader.js"></script>
+    fetch("../home/footer.html")
+        .then(r=>r.text())
+        .then(h=>document.getElementById("footer").innerHTML=h);
+</script>
 </body>
 </html>

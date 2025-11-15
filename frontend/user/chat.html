@@ -80,8 +80,9 @@
         /* ==================== CHAT UI ==================== */
         .chat-container {
             max-width: 900px;
-            height: 85vh;
-            margin: 100px auto 40px;
+            min-height: 100vh;   /* <-- sửa chỗ này */
+            height: auto;       /* <-- thêm dòng này */
+            margin: 60px auto 20px;   /* <-- giảm margin */
             display: flex;
             flex-direction: column;
             background: var(--card);
@@ -92,6 +93,11 @@
             position: relative;
             z-index: 2;
         }
+        .chat-container {
+            margin: 0 auto;
+        }
+
+
 
         .chat-header {
             background: linear-gradient(90deg, var(--blue), var(--cyan));

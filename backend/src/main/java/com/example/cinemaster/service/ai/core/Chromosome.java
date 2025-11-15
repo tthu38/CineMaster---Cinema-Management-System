@@ -1,10 +1,13 @@
-
 package com.example.cinemaster.service.ai.core;
+
 
 import com.example.cinemaster.service.ai.dto.SchedulingContext;
 import lombok.*;
 
-        import java.util.*;
+
+import java.time.LocalDate;
+import java.util.*;
+
 
 @Data
 @NoArgsConstructor
@@ -12,114 +15,154 @@ import lombok.*;
 @Builder
 public class Chromosome {
 
-    private List<Gene> genes;      // danh sách gene (mỗi gene = 1 ca làm)
-    private double fitnessScore;   // điểm fitness cuối cùng
 
-    /**
-     * Deep copy chromosome
-     */
+    private List<Gene> genes;
+    private double fitnessScore;
+
+
+    /** Deep Copy */
     public Chromosome deepCopy() {
-        List<Gene> copiedGenes = new ArrayList<>();
+        List<Gene> list = new ArrayList<>();
         for (Gene g : genes) {
-            copiedGenes.add(
-                    Gene.builder()
-                            .staffId(g.getStaffId())
-                            .shiftType(g.getShiftType())
-                            .date(g.getDate())
-                            .fitnessBonus(g.getFitnessBonus())
-                            .build()
-            );
+            list.add(Gene.builder()
+                    .staffId(g.getStaffId())
+                    .shiftType(g.getShiftType())
+                    .date(g.getDate())
+                    .fitnessBonus(g.getFitnessBonus())
+                    .build());
         }
         return Chromosome.builder()
-                .genes(copiedGenes)
-                .fitnessScore(this.fitnessScore)
+                .genes(list)
+                .fitnessScore(fitnessScore)
                 .build();
     }
 
-    /**
-     * Đánh giá fitness
-     */
+
+    /** ⭐ FITNESS CHUẨN — Staff chỉ được xếp đúng ca đã REQUEST */
     public double evaluateFitness(SchedulingContext ctx) {
+
 
         double score = 0;
 
-        // 1️⃣ Điểm thưởng từ Reinforcement Learning
+
+        // 1. Đúng request thưởng / sai request phạt mạnh
+        for (Gene g : genes) {
+            if (ctx.hasRequestedShift(g.getStaffId(), g.getDate(), g.getShiftType()))
+                score += 10;
+            else
+                score -= 20;
+        }
+
+
+        // 2. Điểm reinforcement learning
         score += genes.stream().mapToDouble(Gene::getFitnessBonus).sum();
 
-        // 2️⃣ Ưu tiên theo yêu cầu ca của staff
-        var reqMap = new HashMap<String, Set<String>>();
-        ctx.getShiftRequests().forEach(r -> {
-            String key = r.getAccount().getAccountID() + "_" + r.getShiftDate();
-            reqMap.computeIfAbsent(key, k -> new HashSet<>()).add(r.getShiftType());
-        });
 
+        // 3. Công bằng số ca
+        Map<Integer, Integer> count = new HashMap<>();
         for (Gene g : genes) {
-            String key = g.getStaffId() + "_" + g.getDate();
-            if (reqMap.containsKey(key) && reqMap.get(key).contains(g.getShiftType())) {
-                score += 5; // ưu tiên ca nhân viên mong muốn
-            }
+            count.merge(g.getStaffId(), 1, Integer::sum);
+        }
+        int avg = genes.size() / Math.max(ctx.getStaff().size(), 1);
+        for (var e : count.entrySet()) {
+            score -= Math.abs(e.getValue() - avg) * 0.8;
         }
 
-        // 3️⃣ Tránh xếp 1 người làm quá nhiều ca
-        var countByStaff = new HashMap<Integer, Integer>();
-        for (Gene g : genes) {
-            countByStaff.merge(g.getStaffId(), 1, Integer::sum);
-        }
 
-        int avg = genes.size() / ctx.getStaff().size();
-        for (var e : countByStaff.entrySet()) {
-            int diff = Math.abs(e.getValue() - avg);
-            score -= diff * 0.5;
-        }
+        // 4. Đủ nhân sự theo từng ca
+        // 4. Đủ nhân sự theo từng ca
+        for (LocalDate d : ctx.getWeekDates()) {
 
-        // 4️⃣ Đủ nhân sự theo requiredPerShift
-        for (String date : ctx.getWeekDates().stream().map(Object::toString).toList()) {
-            for (String shift : ctx.getShiftTypes()) {
-                int req = ctx.getRequiredPerShift()
-                        .getOrDefault(date + "_" + shift, 1);
+
+            String date = d.toString();
+            String dow = d.getDayOfWeek().toString(); // MONDAY, TUESDAY...
+
+
+            for (String s : ctx.getShiftTypes()) {
+
+
+                // ⭐ LẤY REQUIRED THEO DAY-OF-WEEK, KHÔNG DÙNG NGÀY THỰC
+                int required = ctx.getRequiredPerShift()
+                        .getOrDefault(dow + "_" + s, 1);
+
 
                 long cnt = genes.stream()
-                        .filter(g -> g.getDate().equals(date) && g.getShiftType().equals(shift))
+                        .filter(g -> g.getDate().equals(date) && g.getShiftType().equals(s))
                         .count();
 
-                if (cnt < req) score -= (req - cnt) * 2;
+
+                if (cnt < required) score -= (required - cnt) * 6;
+                if (cnt > required) score -= (cnt - required) * 3;
             }
         }
+
+
+
 
         this.fitnessScore = score;
         return score;
     }
 
-    public double getFitnessScore() {
-        return fitnessScore;
-    }
 
     public double getFitness(SchedulingContext ctx) {
         return evaluateFitness(ctx);
     }
 
-    /**
-     * Crossover: chọn ngẫu nhiên một điểm
-     */
+
+    /** Crossover CHUẨN */
     public Chromosome crossover(Chromosome other) {
-        int point = new Random().nextInt(genes.size());
+
+
+        Random r = new Random();
+        int point = r.nextInt(genes.size());
+
 
         List<Gene> newGenes = new ArrayList<>();
 
+
         for (int i = 0; i < genes.size(); i++) {
-            newGenes.add(i < point ? genes.get(i) : other.genes.get(i));
+            Gene src = (i < point) ? genes.get(i) : other.getGenes().get(i);
+
+
+            newGenes.add(Gene.builder()
+                    .date(src.getDate())
+                    .shiftType(src.getShiftType())
+                    .staffId(src.getStaffId())
+                    .fitnessBonus(src.getFitnessBonus())
+                    .build());
         }
 
-        return Chromosome.builder().genes(newGenes).fitnessScore(0).build();
+
+        return Chromosome.builder()
+                .genes(newGenes)
+                .fitnessScore(0)
+                .build();
     }
 
-    /**
-     * Mutation
-     */
-    public void mutate(List<Integer> staffIds) {
+
+    /** Mutation — chỉ đổi sang staff có request hợp lệ */
+    public void mutate(List<Integer> staffIds, SchedulingContext ctx) {
+
+
         Random r = new Random();
-        int index = r.nextInt(genes.size());
-        genes.get(index).setStaffId(staffIds.get(r.nextInt(staffIds.size())));
+
+
+        if (genes == null || genes.isEmpty())
+            return;
+
+
+        int idx = r.nextInt(genes.size());
+        Gene g = genes.get(idx);
+
+
+        List<Integer> valid = staffIds.stream()
+                .filter(id -> ctx.hasRequestedShift(id, g.getDate(), g.getShiftType()))
+                .toList();
+
+
+        if (!valid.isEmpty()) {
+            g.setStaffId(valid.get(r.nextInt(valid.size())));
+        }
     }
 }
 

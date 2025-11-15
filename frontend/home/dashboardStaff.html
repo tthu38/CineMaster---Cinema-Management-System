@@ -19,6 +19,9 @@
             --theme-hover-bg: rgba(0, 191, 255, 0.1);
             --theme-border: #2d3748;
         }
+        html, body {
+            height: 100%;
+        }
 
         body {
             font-family: 'Be Vietnam Pro', sans-serif;
@@ -28,15 +31,15 @@
         }
 
         #wrapper {
-            display: flex;
-            height: calc(100vh - 80px);
+            height: 100vh;
         }
+
 
         #sidebar {
             width: 260px;
             background-color: var(--theme-sidebar);
             position: fixed;
-            top: 80px;
+            top: 0px;
             bottom: 0;
             left: 0;
             z-index: 1000;
@@ -85,8 +88,8 @@
         #main-content {
             flex-grow: 1;
             margin-left: 260px;
-            margin-top: 80px;
-            height: calc(100vh - 80px);
+            margin-top: 0px;
+            height: 100vh;
             background-color: var(--theme-bg);
             display: flex;
             flex-direction: column;
@@ -109,8 +112,6 @@
 
 <body>
 
-<!-- HEADER -->
-<div id="header-placeholder"></div>
 
 <div id="wrapper">
 

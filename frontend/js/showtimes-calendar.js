@@ -162,28 +162,13 @@ function renderDay(i) {
         const endLabel = formatHm(s.endTime);
         const roomName = s.auditoriumName || '#?';
 
-        let canBook = false;
-
-        if (role === "Customer") {
-            canBook =
-                !isPast &&
-                (now < st || isOngoing);
-        }
-
-        if (role === "Staff") {
-            if (staffHasShiftToday) {
-                // Staff có ca hôm nay → được đặt bình thường
-                canBook =
-                    !isPast &&
-                    (
-                        now < st ||
-                        (isOngoing && diffMinSinceStart <= STAFF_BOOK_GRACE_MINUTES)
-                    );
-            } else {
-                // Staff không có ca hôm nay → bị khóa mọi slot trong 7 ngày
-                canBook = false;
-            }
-        }
+        const canBook =
+            (["Customer", "Staff"].includes(role)) &&
+            !isPast &&
+            (
+                now < st ||
+                (isOngoing && isStaff && diffMinSinceStart <= STAFF_BOOK_GRACE_MINUTES)
+            );
 
         const canEdit = (["Admin", "Manager"].includes(role)) && !isPast && !isOngoing;
 
@@ -299,19 +284,28 @@ async function load(keepSelectedDay = false) {
 
     renderTabs(monday);
 
+    /* ===== Staff: kiểm tra có ca làm không ===== */
     if (isStaff) {
         const staffId = localStorage.getItem("accountId");
-        const today = ymd(new Date());
+        const selectedDate = data?.[activeIndex]?.date;
 
         try {
-            const res = await fetch(`/api/v1/work-schedules/has-shift?accountId=${staffId}&date=${today}`);
+            const res = await fetch(`/api/v1/work-schedules/has-shift?accountId=${staffId}&date=${selectedDate}`);
             const js = await res.json();
             staffHasShiftToday = js.hasShift === true;
         } catch (_) {
             staffHasShiftToday = false;
         }
-    }
 
+        // if (!staffHasShiftToday) {
+        //     contentArea.innerHTML = `
+        //     <div class="empty text-center">
+        //         <strong>Hôm nay bạn không có ca làm</strong><br>
+        //         Bạn không thể đặt vé hoặc hỗ trợ suất chiếu.
+        //     </div>`;
+        //     return;
+        // }
+    }
 
     renderDay(activeIndex);
     updateWeekLabel(monday);
@@ -381,50 +375,39 @@ document.addEventListener("click", async (e) => {
     }
 });
 
+/* ====================== BRANCH ====================== */
 async function loadBranches() {
     const params = new URLSearchParams(window.location.search);
     const urlBranchId = params.get("branchId");
 
     try {
-        // ================================
-        // 🔥 Manager hoặc Staff → chỉ xem CHI NHÁNH CỦA MÌNH
-        // ================================
-        if (isManager || isStaff) {
+        if (isManager) {
             const branchId = localStorage.getItem("branchId");
             const b = await branchApi.getById(branchId);
-
-            branchSelect.innerHTML = `
-                <option value="${b.id}" selected>${b.branchName}</option>
-            `;
+            branchSelect.innerHTML = `<option value="${b.id}" selected>${b.branchName}</option>`;
             branchSelect.disabled = true;
             return;
         }
 
-        // ================================
-        // 🔵 Customer / Guest / Admin → load tất cả
-        // ================================
         const branches = await branchApi.getAllActive() ?? [];
         const options = [{ id: '', branchName: 'Tất cả rạp' }, ...branches];
 
-        branchSelect.innerHTML = options
-            .map(b => {
-                const id = b.id ?? b.branchId;
-                const selected = (urlBranchId && id == urlBranchId) ? 'selected' : '';
-                return `<option value="${id}" ${selected}>${b.branchName ?? 'Không tên'}</option>`;
-            })
-            .join('');
+        branchSelect.innerHTML = options.map(b => {
+            const id = b.id ?? b.branchId;
+            const selected = (urlBranchId && id == urlBranchId) ? 'selected' : '';
+            return `<option value="${id}" ${selected}>${b.branchName ?? 'Không tên'}</option>`;
+        }).join('');
 
         if (urlBranchId) {
             branchSelect.value = urlBranchId;
+            currentBranch = urlBranchId;
             branchSelect.disabled = true;
         }
-
     } catch (err) {
         console.error("❌ Lỗi tải chi nhánh:", err);
         branchSelect.innerHTML = `<option value="">(Lỗi tải chi nhánh)</option>`;
     }
 }
-
 
 branchSelect.addEventListener('change', async () => {
     localStorage.setItem("currentBranchId", branchSelect.value);

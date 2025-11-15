@@ -712,12 +712,12 @@ public class TicketService {
     }
 
 
-//    public List<TicketResponse> getTicketsByAccount(Integer accountID) {
-//        return ticketRepository.findByAccount_AccountID(accountID).stream()
-//                .map(ticketMapper::toShortResponse)
-//                .collect(Collectors.toList());
-//    }
     public List<TicketResponse> getTicketsByAccount(Integer accountID) {
+        return ticketRepository.findByAccount_AccountID(accountID).stream()
+                .map(ticketMapper::toShortResponse)
+                .collect(Collectors.toList());
+    }
+    public List<TicketResponse> getTicketsByAccount1(Integer accountID) {
         return ticketRepository.findByAccount_AccountID(accountID).stream()
                 .map(ticketMapper::toResponse)   // ✔ FIXED
                 .collect(Collectors.toList());

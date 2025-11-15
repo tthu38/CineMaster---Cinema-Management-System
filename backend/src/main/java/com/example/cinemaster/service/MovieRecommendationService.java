@@ -36,7 +36,7 @@ public class MovieRecommendationService {
      */
     public List<MovieRecommendResponse> recommendByTicketHistory(Integer accountId) {
         try {
-            var userTickets = ticketService.getTicketsByAccount(accountId);
+            var userTickets = ticketService.getTicketsByAccount1(accountId);
             if (userTickets.isEmpty()) {
                 log.info("⚪ User {} chưa có lịch sử vé.", accountId);
                 return List.of();
@@ -456,34 +456,34 @@ public class MovieRecommendationService {
 
         // 2️⃣ Alias mapping tiếng Việt → tiếng Anh (hoặc tên genre trong DB)
         Map<String, String> alias = Map.ofEntries(
-                Map.entry("hài", "Comedy"),
-                Map.entry("hài hước", "Comedy"),
-                Map.entry("vui", "Comedy"),
-                Map.entry("cười", "Comedy"),
+                Map.entry("hài", "Hài hước"),
+                Map.entry("hài hước", "Hài hước"),
+                Map.entry("vui", "Hài hước"),
+                Map.entry("cười", "Hài hước"),
 
 
-                Map.entry("tình cảm", "Romance"),
-                Map.entry("lãng mạn", "Romance"),
+                Map.entry("tình cảm", "Tình cảm"),
+                Map.entry("lãng mạn", "Tình cảm"),
 
 
-                Map.entry("hành động", "Action"),
-                Map.entry("đánh nhau", "Action"),
+                Map.entry("hành động", "Hành động"),
+                Map.entry("đánh nhau", "Hành động"),
 
 
-                Map.entry("kinh dị", "Horror"),
-                Map.entry("ma", "Horror"),
+                Map.entry("kinh dị", "Kinh dị"),
+                Map.entry("ma", "Kinh dị"),
 
 
-                Map.entry("viễn tưởng", "Sci-Fi"),
-                Map.entry("khoa học", "Sci-Fi"),
+                Map.entry("viễn tưởng", "Khoa học"),
+                Map.entry("khoa học", "Khoa học"),
 
 
-                Map.entry("phiêu lưu", "Adventure"),
-                Map.entry("thám hiểm", "Adventure"),
+                Map.entry("phiêu lưu", "Phiêu lưu"),
+                Map.entry("thám hiểm", "Phiêu lưu"),
 
 
-                Map.entry("hoạt hình", "Animation"),
-                Map.entry("anime", "Animation")
+                Map.entry("hoạt hình", "Hoạt hình"),
+                Map.entry("anime", "Hoạt hình")
         );
 
 

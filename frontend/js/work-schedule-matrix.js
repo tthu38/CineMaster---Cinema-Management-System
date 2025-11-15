@@ -835,7 +835,6 @@ window.reject  = id => updateStatus(id, "REJECTED");
 async function updateStatus(id, status) {
     const token = getValidToken();
 
-
     await fetch(`${API_BASE_URL}/shift-requests/${id}/status?status=${status}`, {
         method: "PATCH",
         headers: {
@@ -844,9 +843,19 @@ async function updateStatus(id, status) {
         }
     });
 
+    // Reload lại danh sách yêu cầu mà KHÔNG mở lại modal
+    const branchId = Number(localStorage.getItem("branchId"));
+    const res = await fetch(`${API_BASE_URL}/shift-requests/branch/${branchId}`, {
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+        }
+    });
 
-    document.getElementById("btnViewRequests").click();
+    const raw = await res.json();
+    renderManagerRequests(raw.data || raw);
 }
+
 
 
 

@@ -363,7 +363,7 @@
     <div class="tickets-layer l1"></div>
     <div class="tickets-layer l2"></div>
 </div>
-<div id="header"></div>
+
 
 <main class="shell">
     <div class="container container-main">
@@ -410,15 +410,9 @@
     </div>
 </main>
 
-<div id="footer"></div>
-
 <script type="module" src="../js/createNews.js"></script>
 <script type="module" src="../js/api.js"></script>
-<script>
-    fetch("../home/customer-header.html")
-        .then(r => r.text())
-        .then(t => document.getElementById("header").innerHTML = t);
-    fetch("../home/footer.html").then(r=>r.text()).then(h=>document.getElementById("footer").innerHTML=h);
-</script>
+
+<script src="../js/footer-loader.js"></script>
 </body>
 </html>

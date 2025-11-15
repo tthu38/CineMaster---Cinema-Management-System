@@ -1,7 +1,8 @@
 package com.example.cinemaster.controller;
 
 
-import com.example.cinemaster.entity.WorkSchedule;
+import com.example.cinemaster.dto.request.AiPreviewSaveRequest;
+import com.example.cinemaster.dto.response.AiPreviewResponse;
 import com.example.cinemaster.service.ai.AISchedulerService;
 
 
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 
 import java.time.LocalDate;
-import java.util.List;
 
 
 @RestController
@@ -25,35 +25,35 @@ public class AIController {
     private final AISchedulerService aiSchedulerService;
 
 
-    /**
-     * Chạy AI để sinh lịch làm cho 1 tuần
-     * Ví dụ FE gọi:
-     * POST /api/v1/ai/schedule?branchId=4&weekStart=2025-11-17
-     */
     @PreAuthorize("hasAnyRole('Admin','Manager')")
-    @PostMapping("/schedule")
-    public ResponseEntity<List<WorkSchedule>> generateSchedule(
+    @GetMapping("/preview")
+    public ResponseEntity<AiPreviewResponse> previewSchedule(
             @RequestParam Integer branchId,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate weekStart
     ) {
-        List<WorkSchedule> result = aiSchedulerService.generateWeeklySchedule(branchId, weekStart);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(aiSchedulerService.generatePreviewSchedule(branchId, weekStart));
     }
 
 
-    /**
-     * Xem lịch đã được AI sinh ra trong tuần
-     */
+    @PreAuthorize("hasAnyRole('Admin','Manager')")
+    @PostMapping("/save")
+    public ResponseEntity<?> saveSchedule(
+            @RequestParam Integer branchId,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate weekStart,
+            @RequestBody AiPreviewSaveRequest req
+    ) {
+        aiSchedulerService.saveGeneratedSchedule(branchId, weekStart, req);
+        return ResponseEntity.ok().body("Saved");
+    }
+
+
     @PreAuthorize("hasAnyRole('Admin','Manager','Staff')")
     @GetMapping("/schedule")
-    public ResponseEntity<List<WorkSchedule>> getSchedule(
+    public ResponseEntity<AiPreviewResponse> getSchedule(
             @RequestParam Integer branchId,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate weekStart
     ) {
-        List<WorkSchedule> list = aiSchedulerService.getGeneratedSchedule(branchId, weekStart);
-        return ResponseEntity.ok(list);
+        return ResponseEntity.ok(aiSchedulerService.getGeneratedSchedule(branchId, weekStart));
     }
 }
-
-
 
